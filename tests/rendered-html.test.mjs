@@ -117,6 +117,8 @@ test("contact email delivery is branded and sends two messages", async () => {
   assert.match(templates, /buildOwnerEmail/);
   assert.match(templates, /buildVisitorEmail/);
   assert.match(templates, /preheader/);
+  assert.match(templates, /family=Heebo/);
+  assert.match(templates, /'Heebo', Arial, sans-serif/);
   assert.match(route, /hello@mail\.spaplus\.co/);
   assert.match(templates, /(?:background|background-color):#e9176a/);
   assert.match(templates, /(?:background|background-color):#172744/);

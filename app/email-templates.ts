@@ -206,9 +206,13 @@ const frame = ({
     <meta name="x-apple-disable-message-reformatting">
     <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
     <title>${escapeHtml(title)}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&amp;family=Noto+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
     <style>
       table { border-collapse: separate; }
       a { color: inherit; }
+      body, table, td, a, p, h1 {
+        font-family: ${lang === "he" ? "'Heebo', Arial, sans-serif" : "'Noto Sans', Arial, sans-serif"} !important;
+      }
       @media only screen and (max-width: 620px) {
         .page-pad { padding: 16px 8px !important; }
         .card { border-radius: 18px !important; }
@@ -224,11 +228,11 @@ const frame = ({
       }
     </style>
   </head>
-  <body style="margin:0;padding:0;background-color:#f4f1f3;color:#172744;font-family:Arial,'Helvetica Neue',sans-serif;">
+  <body style="margin:0;padding:0;background-color:#f4f1f3;color:#172744;font-family:${lang === "he" ? "'Heebo',Arial,sans-serif" : "'Noto Sans',Arial,sans-serif"};">
     <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;mso-hide:all;">
       ${escapeHtml(preheader)}&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;
     </div>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background-color:#f4f1f3;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background-color:#f4f1f3;font-family:${lang === "he" ? "'Heebo',Arial,sans-serif" : "'Noto Sans',Arial,sans-serif"};">
       <tr>
         <td class="page-pad" align="center" style="padding:36px 14px;">
           <!--[if mso]><table role="presentation" width="640" cellspacing="0" cellpadding="0" border="0"><tr><td><![endif]-->
