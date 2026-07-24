@@ -38,6 +38,7 @@ const mobileMenu = document.querySelector(".mobile-menu");
 const languageSelect = document.querySelector(".language-switcher select");
 const copyEmailButton = document.querySelector(".copy-email");
 const contactForm = document.querySelector(".contact-form");
+const backToTopButton = document.querySelector(".back-to-top");
 const contactEmail = "info@spaplus.ca";
 const founderPhotoDataUri = ${JSON.stringify(founderPhotoDataUri)};
 document.querySelector(".founder-photo").src = founderPhotoDataUri;
@@ -159,6 +160,8 @@ const applyLocale = (locale) => {
   history.replaceState({}, "", url.pathname + url.search + url.hash);
 
   setText(".skip-link", t.skip);
+  backToTopButton.setAttribute("aria-label", companyData.backToTop[locale]);
+  backToTopButton.title = companyData.backToTop[locale];
   document.querySelector(".brand").setAttribute("aria-label", t.homeLabel);
   document.querySelector(".desktop-nav").setAttribute("aria-label", t.mainNavigation);
   mobileMenu.setAttribute("aria-label", t.mobileNavigation);
@@ -277,9 +280,16 @@ const closeMenu = () => {
 
 window.addEventListener(
   "scroll",
-  () => header.classList.toggle("is-scrolled", window.scrollY > 18),
+  () => {
+    header.classList.toggle("is-scrolled", window.scrollY > 18);
+    backToTopButton.classList.toggle("is-visible", window.scrollY > 640);
+  },
   { passive: true },
 );
+
+backToTopButton.addEventListener("click", () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
 
 menuButton.addEventListener("click", () => {
   const open = menuButton.getAttribute("aria-expanded") === "true";

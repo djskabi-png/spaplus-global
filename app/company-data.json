@@ -23,6 +23,17 @@
     { "nameHe": "לירן סוויסה", "nameLatin": "Liran Sweisa", "role": "accountManager", "group": "business" },
     { "nameHe": "טובה לביא", "nameLatin": "Tova Lavi", "role": "appointments", "group": "business" }
   ],
+  "backToTop": {
+    "en": "Back to top",
+    "he": "חזרה למעלה",
+    "fr-CA": "Retour en haut",
+    "ru": "Наверх",
+    "el": "Επιστροφή στην κορυφή",
+    "it": "Torna in alto",
+    "hu": "Vissza az oldal tetejére",
+    "pl": "Wróć na górę",
+    "es": "Volver arriba"
+  },
   "copy": {
     "en": {
       "technologyEyebrow": "Technology with a purpose",

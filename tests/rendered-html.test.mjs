@@ -33,6 +33,7 @@ test("static preview is a complete standalone website", async () => {
   assert.match(html, /href="mailto:info@spaplus\.ca"/);
   assert.match(html, /class="contact-form"/);
   assert.match(html, /class="copy-email"/);
+  assert.match(html, /class="back-to-top"/);
   assert.match(html, /data-team-group="leadership"/);
   assert.match(html, /data-team-group="technology"/);
   assert.match(html, /data-team-group="business"/);
@@ -54,6 +55,7 @@ test("all nine localized experiences are included", async () => {
   assert.match(script, /spaplus-mark\.png/);
   assert.match(script, /spaplus-wordmark\.png/);
   assert.match(script, /contactForm\.addEventListener\("submit"/);
+  assert.match(script, /backToTopButton\.addEventListener\("click"/);
   assert.match(script, /"mailto:" \+ contactEmail/);
   assert.match(script, /"Roy Plombo"/);
   assert.match(script, /"Shahaf Yifrah"/);

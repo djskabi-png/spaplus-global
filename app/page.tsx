@@ -41,6 +41,7 @@ function BrandLockup({ footer = false }: { footer?: boolean }) {
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const [locale, setLocale] = useState<Locale>("en");
   const [emailCopied, setEmailCopied] = useState(false);
   const [formReady, setFormReady] = useState(false);
@@ -81,7 +82,10 @@ export default function Home() {
   }, [locale, t.pageDescription, t.pageTitle]);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 18);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 18);
+      setShowBackToTop(window.scrollY > 640);
+    };
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setMenuOpen(false);
     };
@@ -549,6 +553,16 @@ export default function Home() {
           </form>
         </section>
       </main>
+
+      <button
+        className={`back-to-top ${showBackToTop ? "is-visible" : ""}`}
+        type="button"
+        aria-label={companyData.backToTop[locale]}
+        title={companyData.backToTop[locale]}
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      >
+        <span aria-hidden="true" />
+      </button>
 
       <footer className="site-footer">
         <div className="footer-main">
