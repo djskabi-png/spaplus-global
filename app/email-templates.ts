@@ -206,12 +206,11 @@ const frame = ({
     <meta name="x-apple-disable-message-reformatting">
     <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
     <title>${escapeHtml(title)}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&amp;family=Noto+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
     <style>
       table { border-collapse: separate; }
       a { color: inherit; }
       body, table, td, a, p, h1 {
-        font-family: ${lang === "he" ? "'Heebo', Arial, sans-serif" : "'Noto Sans', Arial, sans-serif"} !important;
+        font-family: ${lang === "he" ? "'Segoe UI', Tahoma, Arial, sans-serif" : "Arial, 'Helvetica Neue', sans-serif"} !important;
       }
       @media only screen and (max-width: 620px) {
         .page-pad { padding: 16px 8px !important; }
@@ -228,39 +227,39 @@ const frame = ({
       }
     </style>
   </head>
-  <body style="margin:0;padding:0;background-color:#f4f1f3;color:#172744;font-family:${lang === "he" ? "'Heebo',Arial,sans-serif" : "'Noto Sans',Arial,sans-serif"};">
+  <body dir="${dir}" style="margin:0;padding:0;background-color:#f4f1f3;color:#172744;direction:${dir};font-family:${lang === "he" ? "'Segoe UI',Tahoma,Arial,sans-serif" : "Arial,'Helvetica Neue',sans-serif"};">
     <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;mso-hide:all;">
       ${escapeHtml(preheader)}&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;
     </div>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background-color:#f4f1f3;font-family:${lang === "he" ? "'Heebo',Arial,sans-serif" : "'Noto Sans',Arial,sans-serif"};">
+    <table dir="${dir}" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background-color:#f4f1f3;direction:${dir};font-family:${lang === "he" ? "'Segoe UI',Tahoma,Arial,sans-serif" : "Arial,'Helvetica Neue',sans-serif"};">
       <tr>
-        <td class="page-pad" align="center" style="padding:36px 14px;">
+        <td class="page-pad" dir="${dir}" align="center" style="padding:36px 14px;direction:${dir};">
           <!--[if mso]><table role="presentation" width="640" cellspacing="0" cellpadding="0" border="0"><tr><td><![endif]-->
-          <table class="card" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:640px;background-color:#ffffff;border:1px solid #ebe5e8;border-radius:24px;overflow:hidden;">
+          <table class="card" dir="${dir}" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:640px;background-color:#ffffff;border:1px solid #ebe5e8;border-radius:24px;overflow:hidden;direction:${dir};">
             <tr>
               <td style="height:7px;background-color:#e9176a;font-size:0;line-height:0;">&nbsp;</td>
             </tr>
             <tr>
-              <td class="header-pad" style="padding:32px 38px 18px;text-align:${dir === "rtl" ? "right" : "left"};">
+              <td class="header-pad" dir="${dir}" style="padding:32px 38px 18px;direction:${dir};text-align:${dir === "rtl" ? "right" : "left"};">
                 <a href="${siteUrl}" style="text-decoration:none;">
                   <img src="${logoUrl}" width="136" alt="SpaPlus" style="display:block;width:136px;max-width:100%;height:auto;border:0;margin:${dir === "rtl" ? "0 0 0 auto" : "0 auto 0 0"};">
                 </a>
               </td>
             </tr>
             <tr>
-              <td class="hero-pad" style="padding:8px 38px 34px;text-align:${dir === "rtl" ? "right" : "left"};">
+              <td class="hero-pad" dir="${dir}" style="padding:8px 38px 34px;direction:${dir};text-align:${dir === "rtl" ? "right" : "left"};">
                 <p style="margin:0 0 18px;color:#bd0f55;font-size:12px;line-height:1.4;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">${escapeHtml(eyebrow)}</p>
                 <h1 class="title" style="margin:0 0 14px;color:#172744;font-size:36px;line-height:1.17;font-weight:800;letter-spacing:-.02em;">${escapeHtml(title)}</h1>
                 <p class="intro" style="margin:0;color:#536179;font-size:17px;line-height:1.7;">${escapeHtml(intro)}</p>
               </td>
             </tr>
             <tr>
-              <td class="content-pad" style="padding:0 38px 34px;">
+              <td class="content-pad" dir="${dir}" style="padding:0 38px 34px;direction:${dir};">
                 ${content}
               </td>
             </tr>
             <tr>
-              <td class="cta-pad" align="center" style="padding:0 38px 38px;">
+              <td class="cta-pad" dir="${dir}" align="center" style="padding:0 38px 38px;direction:${dir};">
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                   <tr>
                     <td align="center" bgcolor="#e9176a" style="border-radius:12px;">
@@ -271,7 +270,7 @@ const frame = ({
               </td>
             </tr>
             <tr>
-              <td class="footer-pad" style="padding:26px 38px;background-color:#172744;color:#cbd3df;text-align:center;font-size:12px;line-height:1.7;">
+              <td class="footer-pad" dir="${dir}" style="padding:26px 38px;background-color:#172744;color:#cbd3df;direction:${dir};text-align:center;font-size:12px;line-height:1.7;">
                 <p style="margin:0 0 6px;">${escapeHtml(footer)}</p>
                 <a href="mailto:${contactEmail}" style="color:#ffffff;text-decoration:none;">${contactEmail}</a>
                 <span style="color:#7f8ba0;"> &nbsp;|&nbsp; </span>
@@ -292,7 +291,7 @@ export function buildVisitorEmail(data: ContactEmailData) {
     ? `<p style="margin:9px 0 0;color:#6f7a8e;font-size:13px;line-height:1.5;">${escapeHtml(data.organization)}</p>`
     : "";
   const content = `
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background-color:#faf8f9;border:1px solid #e9e3e6;border-radius:16px;">
+    <table dir="${copy.dir}" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background-color:#faf8f9;border:1px solid #e9e3e6;border-radius:16px;direction:${copy.dir};">
       <tr>
         <td class="panel-pad" style="padding:22px 24px;text-align:${copy.dir === "rtl" ? "right" : "left"};">
           <p style="margin:0;color:#9b456a;font-size:12px;line-height:1.4;font-weight:700;letter-spacing:.04em;text-transform:uppercase;">${escapeHtml(copy.topic)}</p>
