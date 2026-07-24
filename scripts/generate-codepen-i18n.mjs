@@ -39,6 +39,9 @@ const languageSelect = document.querySelector(".language-switcher select");
 const copyEmailButton = document.querySelector(".copy-email");
 const contactForm = document.querySelector(".contact-form");
 const backToTopButton = document.querySelector(".back-to-top");
+const successModal = document.querySelector(".success-modal");
+const successModalCard = document.querySelector(".success-modal-card");
+const successModalClose = document.querySelector(".success-modal-close");
 const contactEmail = "info@spaplus.ca";
 const contactFormEndpoint =
   "https://formsubmit.co/ajax/93567c940af3bbace0ca1b462708c256";
@@ -280,6 +283,9 @@ const applyLocale = (locale) => {
   setText(".form-submit button", company.formSubmit);
   setText(".form-submit > p", company.formNote);
   setText(".form-status", "");
+  setText("#success-modal-title", company.formSuccessTitle);
+  setText(".success-modal-message", company.formReady);
+  setText(".success-modal-close", company.formSuccessClose);
 
   setText(".footer-main > p", t.footerTagline);
   const footerItems = document.querySelectorAll(".footer-main nav > *");
@@ -301,6 +307,21 @@ const closeMenu = () => {
   menuButton.setAttribute("aria-label", translations[activeLocale].openMenu);
   mobileMenu.classList.remove("is-open");
 };
+
+const closeSuccessModal = () => {
+  successModal.hidden = true;
+  document.body.classList.remove("modal-open");
+};
+
+const openSuccessModal = () => {
+  successModal.hidden = false;
+  document.body.classList.add("modal-open");
+  successModalClose.focus();
+};
+
+successModalClose.addEventListener("click", closeSuccessModal);
+successModal.addEventListener("click", closeSuccessModal);
+successModalCard.addEventListener("click", (event) => event.stopPropagation());
 
 window.addEventListener(
   "scroll",
@@ -397,8 +418,8 @@ contactForm.addEventListener("submit", async (event) => {
     }
     contactForm.reset();
     renderTopics(company);
-    status.classList.add("is-success");
-    status.textContent = company.formReady;
+    status.textContent = "";
+    openSuccessModal();
   } catch {
     status.classList.add("is-error");
     status.textContent = company.formError;
@@ -411,7 +432,10 @@ contactForm.addEventListener("submit", async (event) => {
 languageSelect.addEventListener("change", (event) => applyLocale(event.target.value));
 mobileMenu.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") closeMenu();
+  if (event.key === "Escape") {
+    closeMenu();
+    closeSuccessModal();
+  }
 });
 
 const revealElements = document.querySelectorAll("[data-reveal]");

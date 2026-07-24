@@ -34,6 +34,8 @@ test("static preview is a complete standalone website", async () => {
   assert.match(html, /class="contact-form"/);
   assert.match(html, /class="copy-email"/);
   assert.match(html, /class="back-to-top"/);
+  assert.match(html, /class="success-modal"/);
+  assert.match(html, /role="dialog"/);
   assert.match(html, /data-team-group="leadership"/);
   assert.match(html, /data-team-group="technology"/);
   assert.match(html, /data-team-group="business"/);
@@ -62,6 +64,8 @@ test("all nine localized experiences are included", async () => {
   assert.match(script, /formsubmit\.co\/ajax\//);
   assert.match(script, /_template: "box"/);
   assert.match(script, /await fetch\(contactFormEndpoint/);
+  assert.match(script, /openSuccessModal\(\)/);
+  assert.match(script, /successModalClose\.focus\(\)/);
   assert.doesNotMatch(script, /djskabi@gmail\.com/);
   assert.match(script, /"Roy Plombo"/);
   assert.match(script, /"Shahaf Yifrah"/);
@@ -101,15 +105,21 @@ test("contact email delivery is branded and sends two messages", async () => {
 
   assert.match(route, /api\.resend\.com\/emails\/batch/);
   assert.match(route, /process\.env\.RESEND_API_KEY/);
-  assert.match(route, /to: \[ownerEmail\]/);
+  assert.match(route, /process\.env\.CONTACT_TO_EMAILS/);
+  assert.match(route, /to: ownerEmails/);
   assert.match(route, /to: \[data\.email\]/);
   assert.match(route, /reply_to: data\.email/);
   assert.match(route, /reply_to: "info@spaplus\.ca"/);
+  assert.match(route, /Idempotency-Key/);
+  assert.match(route, /SpaPlus-Global-Contact\/1\.0/);
+  assert.match(route, /text: owner\.text/);
+  assert.match(route, /text: visitor\.text/);
   assert.match(templates, /buildOwnerEmail/);
   assert.match(templates, /buildVisitorEmail/);
+  assert.match(templates, /preheader/);
   assert.match(route, /hello@mail\.spaplus\.co/);
-  assert.match(templates, /background:#e9176a/);
-  assert.match(templates, /background:#172744/);
+  assert.match(templates, /(?:background|background-color):#e9176a/);
+  assert.match(templates, /(?:background|background-color):#172744/);
   for (const locale of localeCodes) {
     assert.match(templates, new RegExp(`"${locale}"|\\b${locale}:`));
   }

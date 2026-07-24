@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   isLocale,
   localeFromBrowser,
@@ -14,8 +14,7 @@ import companyData from "./company-data.json";
 const israelUrl = "https://www.spaplus.co.il/";
 const localeStorageKey = "spaplus-global-locale";
 const contactEmail = "info@spaplus.ca";
-const contactFormEndpoint =
-  "https://formsubmit.co/ajax/93567c940af3bbace0ca1b462708c256";
+const contactFormEndpoint = "/api/contact";
 
 function BrandLockup({ footer = false }: { footer?: boolean }) {
   return (
@@ -52,6 +51,7 @@ export default function Home() {
   const [formStatus, setFormStatus] = useState<
     "idle" | "sending" | "success" | "error"
   >("idle");
+  const successCloseRef = useRef<HTMLButtonElement>(null);
   const t = translations[locale];
   const company = companyData.copy[locale];
   const canadaUrl =
@@ -68,6 +68,23 @@ export default function Home() {
       setLocale(localeFromBrowser(navigator.languages));
     }
   }, []);
+
+  useEffect(() => {
+    if (formStatus !== "success") return;
+
+    const previousOverflow = document.body.style.overflow;
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setFormStatus("idle");
+    };
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onEscape);
+    successCloseRef.current?.focus();
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onEscape);
+    };
+  }, [formStatus]);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -154,6 +171,7 @@ export default function Home() {
     const topic = String(data.get("topic") || company.topics[0]);
     const message = String(data.get("message") || "");
     const honey = String(data.get("_honey") || "");
+    const submissionId = crypto.randomUUID();
 
     setFormStatus("sending");
     try {
@@ -164,22 +182,19 @@ export default function Home() {
           Accept: "application/json",
         },
         body: JSON.stringify({
-          _subject: `${company.formSubject} | ${topic} | ${name}`,
-          _template: "box",
-          _captcha: "false",
-          _honey: honey,
-          _replyto: email,
-          [company.formName]: name,
-          Email: email,
-          [company.formCompany]: organization || "Not provided",
-          [company.formTopic]: topic,
-          [company.formMessage]: message,
-          Language: locale,
-          Source: window.location.href,
+          submissionId,
+          honey,
+          name,
+          email,
+          organization,
+          topic,
+          message,
+          locale,
+          source: window.location.href,
         }),
       });
-      const result = (await response.json()) as { success?: string | boolean };
-      if (!response.ok || String(result.success) !== "true") {
+      const result = (await response.json()) as { success?: boolean };
+      if (!response.ok || result.success !== true) {
         throw new Error("Submission failed");
       }
       form.reset();
@@ -623,11 +638,6 @@ export default function Home() {
                   : company.formSubmit}
               </button>
               <p>{company.formNote}</p>
-              {formStatus === "success" && (
-                <strong className="form-status is-success" role="status">
-                  {company.formReady}
-                </strong>
-              )}
               {formStatus === "error" && (
                 <strong className="form-status is-error" role="alert">
                   {company.formError}
@@ -637,6 +647,31 @@ export default function Home() {
           </form>
         </section>
       </main>
+
+      {formStatus === "success" && (
+        <div
+          className="success-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="success-modal-title"
+          onClick={() => setFormStatus("idle")}
+        >
+          <div className="success-modal-card" onClick={(event) => event.stopPropagation()}>
+            <span className="success-modal-check" aria-hidden="true" />
+            <p className="success-modal-eyebrow">SpaPlus Global</p>
+            <h2 id="success-modal-title">{company.formSuccessTitle}</h2>
+            <p>{company.formReady}</p>
+            <button
+              ref={successCloseRef}
+              className="button button-primary success-modal-close"
+              type="button"
+              onClick={() => setFormStatus("idle")}
+            >
+              {company.formSuccessClose}
+            </button>
+          </div>
+        </div>
+      )}
 
       <button
         className={`back-to-top ${showBackToTop ? "is-visible" : ""}`}

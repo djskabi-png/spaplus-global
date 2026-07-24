@@ -934,7 +934,9 @@ const companyData = {
       "formSending": "Sending...",
       "formNote": "Your message will be sent securely to the SpaPlus team.",
       "formSubject": "SpaPlus Global inquiry",
-      "formReady": "Thank you. Your message was sent successfully.",
+      "formReady": "Thank you. Your enquiry was received by SpaPlus.",
+      "formSuccessTitle": "Your message is with us",
+      "formSuccessClose": "Close",
       "formError": "The message could not be sent. Please try again or contact us by email.",
       "directEmail": "Prefer to write directly?"
     },
@@ -1023,7 +1025,9 @@ const companyData = {
       "formSending": "שולחים...",
       "formNote": "ההודעה תישלח בצורה מאובטחת ישירות לצוות SpaPlus.",
       "formSubject": "פנייה מאתר SpaPlus Global",
-      "formReady": "תודה. ההודעה נשלחה בהצלחה.",
+      "formReady": "תודה. הפנייה שלך התקבלה ב-SpaPlus.",
+      "formSuccessTitle": "ההודעה שלך אצלנו",
+      "formSuccessClose": "סגירה",
       "formError": "לא הצלחנו לשלוח את ההודעה. נסו שוב או פנו אלינו במייל.",
       "directEmail": "מעדיפים לכתוב ישירות?"
     },
@@ -1112,7 +1116,9 @@ const companyData = {
       "formSending": "Envoi en cours...",
       "formNote": "Votre message sera transmis de façon sécurisée à l’équipe SpaPlus.",
       "formSubject": "Demande SpaPlus Global",
-      "formReady": "Merci. Votre message a bien été envoyé.",
+      "formReady": "Merci. Votre demande a bien été reçue par SpaPlus.",
+      "formSuccessTitle": "Votre message est entre bonnes mains",
+      "formSuccessClose": "Fermer",
       "formError": "Le message n’a pas pu être envoyé. Réessayez ou écrivez-nous par courriel.",
       "directEmail": "Vous préférez nous écrire directement?"
     },
@@ -1201,7 +1207,9 @@ const companyData = {
       "formSending": "Отправляем...",
       "formNote": "Сообщение будет безопасно отправлено команде SpaPlus.",
       "formSubject": "Обращение с сайта SpaPlus Global",
-      "formReady": "Спасибо. Сообщение успешно отправлено.",
+      "formReady": "Спасибо. Ваше обращение получено командой SpaPlus.",
+      "formSuccessTitle": "Ваше сообщение уже у нас",
+      "formSuccessClose": "Закрыть",
       "formError": "Не удалось отправить сообщение. Попробуйте снова или напишите нам по электронной почте.",
       "directEmail": "Хотите написать напрямую?"
     },
@@ -1290,7 +1298,9 @@ const companyData = {
       "formSending": "Αποστολή...",
       "formNote": "Το μήνυμα θα σταλεί με ασφάλεια στην ομάδα SpaPlus.",
       "formSubject": "Επικοινωνία SpaPlus Global",
-      "formReady": "Ευχαριστούμε. Το μήνυμα στάλθηκε επιτυχώς.",
+      "formReady": "Ευχαριστούμε. Το αίτημά σας παραλήφθηκε από τη SpaPlus.",
+      "formSuccessTitle": "Το μήνυμά σας είναι στα χέρια μας",
+      "formSuccessClose": "Κλείσιμο",
       "formError": "Δεν ήταν δυνατή η αποστολή. Δοκιμάστε ξανά ή επικοινωνήστε μαζί μας μέσω email.",
       "directEmail": "Προτιμάτε να γράψετε απευθείας;"
     },
@@ -1379,7 +1389,9 @@ const companyData = {
       "formSending": "Invio in corso...",
       "formNote": "Il messaggio verrà inviato in modo sicuro al team SpaPlus.",
       "formSubject": "Richiesta SpaPlus Global",
-      "formReady": "Grazie. Il messaggio è stato inviato.",
+      "formReady": "Grazie. La tua richiesta è stata ricevuta da SpaPlus.",
+      "formSuccessTitle": "Il tuo messaggio è con noi",
+      "formSuccessClose": "Chiudi",
       "formError": "Non è stato possibile inviare il messaggio. Riprova o scrivici via email.",
       "directEmail": "Preferisci scriverci direttamente?"
     },
@@ -1468,7 +1480,9 @@ const companyData = {
       "formSending": "Küldés...",
       "formNote": "Az üzenetet biztonságosan továbbítjuk a SpaPlus csapatának.",
       "formSubject": "SpaPlus Global megkeresés",
-      "formReady": "Köszönjük. Az üzenetet sikeresen elküldtük.",
+      "formReady": "Köszönjük. Megkeresésed megérkezett a SpaPlushoz.",
+      "formSuccessTitle": "Az üzeneted már nálunk van",
+      "formSuccessClose": "Bezárás",
       "formError": "Az üzenetet nem sikerült elküldeni. Próbáld újra, vagy írj nekünk emailt.",
       "directEmail": "Inkább közvetlenül írnál?"
     },
@@ -1557,7 +1571,9 @@ const companyData = {
       "formSending": "Wysyłanie...",
       "formNote": "Wiadomość zostanie bezpiecznie przesłana do zespołu SpaPlus.",
       "formSubject": "Zapytanie SpaPlus Global",
-      "formReady": "Dziękujemy. Wiadomość została wysłana.",
+      "formReady": "Dziękujemy. Twoje zapytanie dotarło do SpaPlus.",
+      "formSuccessTitle": "Twoja wiadomość jest już u nas",
+      "formSuccessClose": "Zamknij",
       "formError": "Nie udało się wysłać wiadomości. Spróbuj ponownie lub napisz do nas email.",
       "directEmail": "Wolisz napisać bezpośrednio?"
     },
@@ -1646,7 +1662,9 @@ const companyData = {
       "formSending": "Enviando...",
       "formNote": "El mensaje se enviará de forma segura al equipo de SpaPlus.",
       "formSubject": "Consulta SpaPlus Global",
-      "formReady": "Gracias. El mensaje se ha enviado correctamente.",
+      "formReady": "Gracias. SpaPlus ha recibido tu consulta.",
+      "formSuccessTitle": "Tu mensaje ya está con nosotros",
+      "formSuccessClose": "Cerrar",
       "formError": "No se pudo enviar el mensaje. Inténtalo de nuevo o escríbenos por correo.",
       "directEmail": "¿Prefieres escribir directamente?"
     }
@@ -1663,6 +1681,9 @@ const languageSelect = document.querySelector(".language-switcher select");
 const copyEmailButton = document.querySelector(".copy-email");
 const contactForm = document.querySelector(".contact-form");
 const backToTopButton = document.querySelector(".back-to-top");
+const successModal = document.querySelector(".success-modal");
+const successModalCard = document.querySelector(".success-modal-card");
+const successModalClose = document.querySelector(".success-modal-close");
 const contactEmail = "info@spaplus.ca";
 const contactFormEndpoint =
   "https://formsubmit.co/ajax/93567c940af3bbace0ca1b462708c256";
@@ -1904,6 +1925,9 @@ const applyLocale = (locale) => {
   setText(".form-submit button", company.formSubmit);
   setText(".form-submit > p", company.formNote);
   setText(".form-status", "");
+  setText("#success-modal-title", company.formSuccessTitle);
+  setText(".success-modal-message", company.formReady);
+  setText(".success-modal-close", company.formSuccessClose);
 
   setText(".footer-main > p", t.footerTagline);
   const footerItems = document.querySelectorAll(".footer-main nav > *");
@@ -1925,6 +1949,21 @@ const closeMenu = () => {
   menuButton.setAttribute("aria-label", translations[activeLocale].openMenu);
   mobileMenu.classList.remove("is-open");
 };
+
+const closeSuccessModal = () => {
+  successModal.hidden = true;
+  document.body.classList.remove("modal-open");
+};
+
+const openSuccessModal = () => {
+  successModal.hidden = false;
+  document.body.classList.add("modal-open");
+  successModalClose.focus();
+};
+
+successModalClose.addEventListener("click", closeSuccessModal);
+successModal.addEventListener("click", closeSuccessModal);
+successModalCard.addEventListener("click", (event) => event.stopPropagation());
 
 window.addEventListener(
   "scroll",
@@ -2021,8 +2060,8 @@ contactForm.addEventListener("submit", async (event) => {
     }
     contactForm.reset();
     renderTopics(company);
-    status.classList.add("is-success");
-    status.textContent = company.formReady;
+    status.textContent = "";
+    openSuccessModal();
   } catch {
     status.classList.add("is-error");
     status.textContent = company.formError;
@@ -2035,7 +2074,10 @@ contactForm.addEventListener("submit", async (event) => {
 languageSelect.addEventListener("change", (event) => applyLocale(event.target.value));
 mobileMenu.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") closeMenu();
+  if (event.key === "Escape") {
+    closeMenu();
+    closeSuccessModal();
+  }
 });
 
 const revealElements = document.querySelectorAll("[data-reveal]");
