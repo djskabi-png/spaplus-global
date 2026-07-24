@@ -1102,6 +1102,15 @@ h1 span {
   box-shadow: 0 24px 65px rgba(20, 36, 61, 0.11);
 }
 
+.form-honey {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .contact-form label {
   display: grid;
   gap: 8px;
@@ -1155,6 +1164,26 @@ h1 span {
   flex-wrap: wrap;
   align-items: center;
   gap: 12px 18px;
+}
+
+.form-submit .button:disabled {
+  cursor: wait;
+  opacity: 0.68;
+  transform: none;
+}
+
+.form-status {
+  display: block;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.form-status.is-success {
+  color: #157347;
+}
+
+.form-status.is-error {
+  color: #b42318;
 }
 
 .form-submit .button {

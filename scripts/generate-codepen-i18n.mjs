@@ -40,6 +40,8 @@ const copyEmailButton = document.querySelector(".copy-email");
 const contactForm = document.querySelector(".contact-form");
 const backToTopButton = document.querySelector(".back-to-top");
 const contactEmail = "info@spaplus.ca";
+const contactFormEndpoint =
+  "https://formsubmit.co/ajax/93567c940af3bbace0ca1b462708c256";
 const founderPhotoDataUri = ${JSON.stringify(founderPhotoDataUri)};
 document.querySelector(".founder-photo").src = founderPhotoDataUri;
 
@@ -245,7 +247,7 @@ const applyLocale = (locale) => {
   ]);
   setText(".direct-email > span", company.directEmail);
   if (copyEmailButton.dataset.copied !== "true") copyEmailButton.textContent = t.copyEmail;
-  setAllText(".contact-form label > span", [
+  setAllText(".contact-form label:not(.form-honey) > span", [
     company.formName,
     company.formEmail,
     company.formCompany,
@@ -327,24 +329,61 @@ copyEmailButton.addEventListener("click", async () => {
   }, 2200);
 });
 
-contactForm.addEventListener("submit", (event) => {
+contactForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const company = companyContent[activeLocale] || companyContent.en;
   const data = new FormData(contactForm);
-  const lines = [
-    company.formName + ": " + data.get("name"),
-    company.formEmail + ": " + data.get("email"),
-    company.formCompany + ": " + (data.get("organization") || ""),
-    company.formTopic + ": " + data.get("topic"),
-    "",
-    company.formMessage + ":",
-    data.get("message"),
-  ];
-  setText(".form-status", company.formReady);
-  window.location.href =
-    "mailto:" + contactEmail +
-    "?subject=" + encodeURIComponent(company.formSubject) +
-    "&body=" + encodeURIComponent(lines.join("\\n"));
+  const name = String(data.get("name") || "");
+  const email = String(data.get("email") || "");
+  const organization = String(data.get("organization") || "");
+  const topic = String(data.get("topic") || company.topics[0]);
+  const message = String(data.get("message") || "");
+  const honey = String(data.get("_honey") || "");
+  const button = contactForm.querySelector('button[type="submit"]');
+  const status = contactForm.querySelector(".form-status");
+
+  button.disabled = true;
+  button.textContent = company.formSending;
+  status.className = "form-status";
+  status.textContent = "";
+
+  try {
+    const response = await fetch(contactFormEndpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        _subject: "SpaPlus Global | New inquiry | " + topic + " | " + name,
+        _template: "box",
+        _captcha: "false",
+        _honey: honey,
+        _replyto: email,
+        Name: name,
+        Email: email,
+        Company: organization || "Not provided",
+        Topic: topic,
+        Message: message,
+        Language: activeLocale,
+        Source: location.href,
+      }),
+    });
+    const result = await response.json();
+    if (!response.ok || String(result.success) !== "true") {
+      throw new Error("Submission failed");
+    }
+    contactForm.reset();
+    renderTopics(company);
+    status.classList.add("is-success");
+    status.textContent = company.formReady;
+  } catch {
+    status.classList.add("is-error");
+    status.textContent = company.formError;
+  } finally {
+    button.disabled = false;
+    button.textContent = company.formSubmit;
+  }
 });
 
 languageSelect.addEventListener("change", (event) => applyLocale(event.target.value));

@@ -14,6 +14,8 @@ import companyData from "./company-data.json";
 const israelUrl = "https://www.spaplus.co.il/";
 const localeStorageKey = "spaplus-global-locale";
 const contactEmail = "info@spaplus.ca";
+const contactFormEndpoint =
+  "https://formsubmit.co/ajax/93567c940af3bbace0ca1b462708c256";
 
 function BrandLockup({ footer = false }: { footer?: boolean }) {
   return (
@@ -44,7 +46,9 @@ export default function Home() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [locale, setLocale] = useState<Locale>("en");
   const [emailCopied, setEmailCopied] = useState(false);
-  const [formReady, setFormReady] = useState(false);
+  const [formStatus, setFormStatus] = useState<
+    "idle" | "sending" | "success" | "error"
+  >("idle");
   const t = translations[locale];
   const company = companyData.copy[locale];
   const canadaUrl =
@@ -137,26 +141,49 @@ export default function Home() {
     window.setTimeout(() => setEmailCopied(false), 2200);
   };
 
-  const openContactEmail = (event: FormEvent<HTMLFormElement>) => {
+  const submitContactForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const data = new FormData(form);
     const name = String(data.get("name") || "");
     const email = String(data.get("email") || "");
     const organization = String(data.get("organization") || "");
     const topic = String(data.get("topic") || company.topics[0]);
     const message = String(data.get("message") || "");
-    const subject = `${company.formSubject}: ${topic}`;
-    const body = [
-      `${company.formName}: ${name}`,
-      `${company.formEmail}: ${email}`,
-      `${company.formCompany}: ${organization}`,
-      `${company.formTopic}: ${topic}`,
-      "",
-      message,
-    ].join("\n");
+    const honey = String(data.get("_honey") || "");
 
-    setFormReady(true);
-    window.location.href = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    setFormStatus("sending");
+    try {
+      const response = await fetch(contactFormEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          _subject: `SpaPlus Global | New inquiry | ${topic} | ${name}`,
+          _template: "box",
+          _captcha: "false",
+          _honey: honey,
+          _replyto: email,
+          Name: name,
+          Email: email,
+          Company: organization || "Not provided",
+          Topic: topic,
+          Message: message,
+          Language: locale,
+          Source: window.location.href,
+        }),
+      });
+      const result = (await response.json()) as { success?: string | boolean };
+      if (!response.ok || String(result.success) !== "true") {
+        throw new Error("Submission failed");
+      }
+      form.reset();
+      setFormStatus("success");
+    } catch {
+      setFormStatus("error");
+    }
   };
 
   return (
@@ -512,7 +539,11 @@ export default function Home() {
             </div>
           </div>
 
-          <form key={locale} className="contact-form" onSubmit={openContactEmail} data-reveal>
+          <form key={locale} className="contact-form" onSubmit={submitContactForm} data-reveal>
+            <label className="form-honey" aria-hidden="true">
+              <span>Leave this field empty</span>
+              <input name="_honey" type="text" tabIndex={-1} autoComplete="off" />
+            </label>
             <label>
               <span>{company.formName}</span>
               <input name="name" type="text" autoComplete="name" required />
@@ -544,11 +575,26 @@ export default function Home() {
               <textarea name="message" rows={6} required />
             </label>
             <div className="form-submit form-wide">
-              <button className="button button-primary" type="submit">
-                {company.formSubmit}
+              <button
+                className="button button-primary"
+                type="submit"
+                disabled={formStatus === "sending"}
+              >
+                {formStatus === "sending"
+                  ? company.formSending
+                  : company.formSubmit}
               </button>
               <p>{company.formNote}</p>
-              {formReady && <strong role="status">{company.formReady}</strong>}
+              {formStatus === "success" && (
+                <strong className="form-status is-success" role="status">
+                  {company.formReady}
+                </strong>
+              )}
+              {formStatus === "error" && (
+                <strong className="form-status is-error" role="alert">
+                  {company.formError}
+                </strong>
+              )}
             </div>
           </form>
         </section>

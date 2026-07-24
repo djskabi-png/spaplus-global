@@ -56,7 +56,10 @@ test("all nine localized experiences are included", async () => {
   assert.match(script, /spaplus-wordmark\.png/);
   assert.match(script, /contactForm\.addEventListener\("submit"/);
   assert.match(script, /backToTopButton\.addEventListener\("click"/);
-  assert.match(script, /"mailto:" \+ contactEmail/);
+  assert.match(script, /formsubmit\.co\/ajax\//);
+  assert.match(script, /_template: "box"/);
+  assert.match(script, /await fetch\(contactFormEndpoint/);
+  assert.doesNotMatch(script, /djskabi@gmail\.com/);
   assert.match(script, /"Roy Plombo"/);
   assert.match(script, /"Shahaf Yifrah"/);
   assert.equal((script.match(/"nameLatin":/g) || []).length, 22);
