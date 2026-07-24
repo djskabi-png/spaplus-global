@@ -89,3 +89,25 @@ test("public copy follows the SpaPlus writing rules", async () => {
   assert.doesNotMatch(copy, /[—–]/);
   assert.doesNotMatch(copy, /🌐|→/);
 });
+
+test("contact email delivery is branded and sends two messages", async () => {
+  const [route, templates] = await Promise.all([
+    read("app/api/contact/route.ts"),
+    read("app/email-templates.ts"),
+  ]);
+
+  assert.match(route, /api\.resend\.com\/emails\/batch/);
+  assert.match(route, /process\.env\.RESEND_API_KEY/);
+  assert.match(route, /to: \[ownerEmail\]/);
+  assert.match(route, /to: \[data\.email\]/);
+  assert.match(route, /reply_to: data\.email/);
+  assert.match(route, /reply_to: "info@spaplus\.ca"/);
+  assert.match(templates, /buildOwnerEmail/);
+  assert.match(templates, /buildVisitorEmail/);
+  assert.match(route, /hello@mail\.spaplus\.co/);
+  assert.match(templates, /background:#e9176a/);
+  assert.match(templates, /background:#172744/);
+  for (const locale of localeCodes) {
+    assert.match(templates, new RegExp(`"${locale}"|\\b${locale}:`));
+  }
+});
