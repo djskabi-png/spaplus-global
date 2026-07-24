@@ -62,9 +62,17 @@ test("all nine localized experiences are included", async () => {
   assert.doesNotMatch(script, /djskabi@gmail\.com/);
   assert.match(script, /"Roy Plombo"/);
   assert.match(script, /"Shahaf Yifrah"/);
-  assert.equal((script.match(/"nameLatin":/g) || []).length, 22);
+  assert.match(script, /"Shahar Turgeman"/);
+  assert.match(script, /"Rachel Shilman"/);
+  assert.match(script, /"Noy Saib"/);
+  assert.match(script, /"Maxim"/);
+  assert.doesNotMatch(script, /"Tova Lavi"/);
+  assert.doesNotMatch(script, /"Koral Cohen"/);
+  assert.equal((script.match(/"nameLatin":/g) || []).length, 25);
   assert.match(script, /document\.createElement\("h4"\)/);
   assert.match(script, /document\.createElement\("p"\)/);
+  assert.match(script, /toggle\.setAttribute\("aria-expanded", "false"\)/);
+  assert.match(script, /card\.hidden = index >= 3/);
   assert.doesNotMatch(script, /const name = document\.createElement\("strong"\)/);
 });
 

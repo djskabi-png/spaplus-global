@@ -46,6 +46,9 @@ export default function Home() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [locale, setLocale] = useState<Locale>("en");
   const [emailCopied, setEmailCopied] = useState(false);
+  const [expandedTeams, setExpandedTeams] = useState<Record<string, boolean>>(
+    {},
+  );
   const [formStatus, setFormStatus] = useState<
     "idle" | "sending" | "success" | "error"
   >("idle");
@@ -478,13 +481,16 @@ export default function Home() {
           </div>
 
           <div className="organization-grid">
-            {(["leadership", "technology", "business"] as const).map((group) => (
-              <section className="team-group" key={group} data-reveal>
-                <h3>{company.groups[group]}</h3>
-                <div className="team-list">
-                  {companyData.team
-                    .filter((member) => member.group === group)
-                    .map((member) => {
+            {(["leadership", "technology", "business"] as const).map((group) => {
+              const members = companyData.team.filter(
+                (member) => member.group === group,
+              );
+              const expanded = Boolean(expandedTeams[group]);
+              return (
+                <section className="team-group" key={group} data-reveal>
+                  <h3>{company.groups[group]}</h3>
+                  <div className="team-list">
+                    {members.map((member, index) => {
                       const name =
                         locale === "he" ? member.nameHe : member.nameLatin;
                       const initials = name
@@ -493,7 +499,11 @@ export default function Home() {
                         .map((part) => part[0])
                         .join("");
                       return (
-                        <article className="team-member" key={member.nameLatin}>
+                        <article
+                          className="team-member"
+                          key={`${member.nameLatin}-${member.role}`}
+                          hidden={!expanded && index >= 3}
+                        >
                           <span className="team-initials" aria-hidden="true">
                             {initials}
                           </span>
@@ -510,9 +520,30 @@ export default function Home() {
                         </article>
                       );
                     })}
-                </div>
-              </section>
-            ))}
+                  </div>
+                  {members.length > 3 && (
+                    <button
+                      className="team-toggle"
+                      type="button"
+                      aria-expanded={expanded}
+                      onClick={() =>
+                        setExpandedTeams((current) => ({
+                          ...current,
+                          [group]: !current[group],
+                        }))
+                      }
+                    >
+                      <span>
+                        {expanded
+                          ? company.teamShowLess
+                          : company.teamShowMore}
+                      </span>
+                      <i aria-hidden="true" />
+                    </button>
+                  )}
+                </section>
+              );
+            })}
           </div>
 
           <div className="service-team-note" data-reveal>

@@ -103,10 +103,11 @@ const renderTeam = (locale, company) => {
   document.querySelectorAll("[data-team-group]").forEach((groupElement) => {
     const group = groupElement.dataset.teamGroup;
     groupElement.querySelector("h3").textContent = company.groups[group];
-    const cards = teamMembers.filter((member) => member.group === group).map((member) => {
+    const cards = teamMembers.filter((member) => member.group === group).map((member, index) => {
       const displayName = locale === "he" ? member.nameHe : member.nameLatin;
       const card = document.createElement("article");
       card.className = "team-member";
+      card.hidden = index >= 3;
       const initials = document.createElement("span");
       initials.className = "team-initials";
       initials.setAttribute("aria-hidden", "true");
@@ -121,6 +122,27 @@ const renderTeam = (locale, company) => {
       return card;
     });
     groupElement.querySelector(".team-list").replaceChildren(...cards);
+    groupElement.querySelector(".team-toggle")?.remove();
+    if (cards.length > 3) {
+      const toggle = document.createElement("button");
+      toggle.className = "team-toggle";
+      toggle.type = "button";
+      toggle.setAttribute("aria-expanded", "false");
+      const label = document.createElement("span");
+      label.textContent = company.teamShowMore;
+      const arrow = document.createElement("i");
+      arrow.setAttribute("aria-hidden", "true");
+      toggle.append(label, arrow);
+      toggle.addEventListener("click", () => {
+        const expanded = toggle.getAttribute("aria-expanded") === "true";
+        toggle.setAttribute("aria-expanded", String(!expanded));
+        cards.forEach((card, index) => {
+          card.hidden = expanded ? index >= 3 : false;
+        });
+        label.textContent = expanded ? company.teamShowMore : company.teamShowLess;
+      });
+      groupElement.append(toggle);
+    }
   });
 };
 

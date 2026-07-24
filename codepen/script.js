@@ -719,7 +719,19 @@ const companyData = {
     {
       "nameHe": "רויטל נאור",
       "nameLatin": "Revital Naor",
-      "role": "groupManagement",
+      "role": "director",
+      "group": "leadership"
+    },
+    {
+      "nameHe": "שחר תורג'מן",
+      "nameLatin": "Shahar Turgeman",
+      "role": "boardCommercePresident",
+      "group": "leadership"
+    },
+    {
+      "nameHe": "רונן פרץ",
+      "nameLatin": "Ronen Peretz",
+      "role": "advertisingSales",
       "group": "leadership"
     },
     {
@@ -753,6 +765,12 @@ const companyData = {
       "group": "technology"
     },
     {
+      "nameHe": "מקסים",
+      "nameLatin": "Maxim",
+      "role": "developer",
+      "group": "technology"
+    },
+    {
       "nameHe": "קובי אפללו",
       "nameLatin": "Kobi Aflalo",
       "role": "uxUi",
@@ -765,10 +783,10 @@ const companyData = {
       "group": "technology"
     },
     {
-      "nameHe": "נוי כהן",
-      "nameLatin": "Noy Cohen",
-      "role": "content",
-      "group": "business"
+      "nameHe": "נוי סייב",
+      "nameLatin": "Noy Saib",
+      "role": "aiCallCenter",
+      "group": "technology"
     },
     {
       "nameHe": "מוריה נירית שר",
@@ -777,27 +795,33 @@ const companyData = {
       "group": "business"
     },
     {
-      "nameHe": "ליטל רנדלר",
-      "nameLatin": "Lital Rendler",
-      "role": "callCenter",
+      "nameHe": "רחל שילמן",
+      "nameLatin": "Rachel Shilman",
+      "role": "masuTeam",
       "group": "business"
     },
     {
-      "nameHe": "קורל כהן",
-      "nameLatin": "Koral Cohen",
-      "role": "masuManager",
+      "nameHe": "גליה",
+      "nameLatin": "Galia",
+      "role": "canadaTeam",
+      "group": "business"
+    },
+    {
+      "nameHe": "ריבקה",
+      "nameLatin": "Rivka",
+      "role": "bizTeam",
+      "group": "business"
+    },
+    {
+      "nameHe": "רבקה",
+      "nameLatin": "Revka",
+      "role": "bizTeam",
       "group": "business"
     },
     {
       "nameHe": "יואל נאור",
       "nameLatin": "Yoel Naor",
       "role": "operations",
-      "group": "business"
-    },
-    {
-      "nameHe": "רונן פרץ",
-      "nameLatin": "Ronen Peretz",
-      "role": "advertisingSales",
       "group": "business"
     },
     {
@@ -810,12 +834,6 @@ const companyData = {
       "nameHe": "לירן סוויסה",
       "nameLatin": "Liran Sweisa",
       "role": "accountManager",
-      "group": "business"
-    },
-    {
-      "nameHe": "טובה לביא",
-      "nameLatin": "Tova Lavi",
-      "role": "appointments",
       "group": "business"
     }
   ],
@@ -867,6 +885,8 @@ const companyData = {
         "technology": "Technology, product and design",
         "business": "Operations, growth and service"
       },
+      "teamShowMore": "Show the full team",
+      "teamShowLess": "Show fewer",
       "roles": {
         "founder": "Founder, entrepreneur and Group CEO",
         "vpDevelopment": "VP of Development and Technology",
@@ -874,6 +894,7 @@ const companyData = {
         "vpOperations": "VP of Operations",
         "vpFinance": "VP of Finance",
         "groupManagement": "Group Management",
+        "director": "Director",
         "developmentManager": "Development Manager",
         "developer": "Software Developer",
         "uxUi": "UX and UI",
@@ -882,6 +903,11 @@ const companyData = {
         "accounting": "Accounting",
         "callCenter": "Call Center Management",
         "masuManager": "MASU Manager",
+        "masuTeam": "MASU Team",
+        "canadaTeam": "Canada Team",
+        "boardCommercePresident": "Board Member and President, Federation of Israeli Chambers of Commerce",
+        "bizTeam": "Biz Team",
+        "aiCallCenter": "AI Lead, Call Center",
         "operations": "Operations and Maintenance",
         "advertisingSales": "Advertising Sales Manager",
         "accountManager": "Account Manager",
@@ -948,6 +974,8 @@ const companyData = {
         "technology": "טכנולוגיה, מוצר ועיצוב",
         "business": "תפעול, צמיחה ושירות"
       },
+      "teamShowMore": "הצגת כל הצוות",
+      "teamShowLess": "הצגת פחות",
       "roles": {
         "founder": "יזם, מייסד ומנכ״ל הקבוצה בפועל",
         "vpDevelopment": "סמנכ״ל פיתוח וטכנולוגיות",
@@ -955,6 +983,7 @@ const companyData = {
         "vpOperations": "סמנכ״ל תפעול",
         "vpFinance": "סמנכ״ל כספים",
         "groupManagement": "הנהלת הקבוצה",
+        "director": "דירקטורית",
         "developmentManager": "מנהל פיתוח",
         "developer": "מתכנת",
         "uxUi": "חוויית משתמש וממשק",
@@ -963,6 +992,11 @@ const companyData = {
         "accounting": "הנהלת חשבונות",
         "callCenter": "ניהול מוקד",
         "masuManager": "מנהלת MASU",
+        "masuTeam": "צוות MASU",
+        "canadaTeam": "צוות קנדה",
+        "boardCommercePresident": "חבר הבורד ונשיא איגוד לשכות המסחר",
+        "bizTeam": "צוות Biz",
+        "aiCallCenter": "אחראית AI במוקד",
         "operations": "ניהול ואחזקה",
         "advertisingSales": "מנהל מכירות פרסום",
         "accountManager": "מנהלת תיקי לקוחות",
@@ -1029,6 +1063,8 @@ const companyData = {
         "technology": "Technologie, produit et design",
         "business": "Opérations, croissance et service"
       },
+      "teamShowMore": "Voir toute l’équipe",
+      "teamShowLess": "Réduire la liste",
       "roles": {
         "founder": "Fondateur, entrepreneur et chef de la direction du groupe",
         "vpDevelopment": "Vice-président, développement et technologies",
@@ -1036,6 +1072,7 @@ const companyData = {
         "vpOperations": "Vice-président, opérations",
         "vpFinance": "Vice-présidente, finances",
         "groupManagement": "Direction du groupe",
+        "director": "Administratrice",
         "developmentManager": "Directeur du développement",
         "developer": "Développeur logiciel",
         "uxUi": "Expérience et interface utilisateur",
@@ -1044,6 +1081,11 @@ const companyData = {
         "accounting": "Comptabilité",
         "callCenter": "Gestion du centre d’appels",
         "masuManager": "Gestionnaire de MASU",
+        "masuTeam": "Équipe MASU",
+        "canadaTeam": "Équipe Canada",
+        "boardCommercePresident": "Membre du conseil et président de la Fédération des chambres de commerce d’Israël",
+        "bizTeam": "Équipe Biz",
+        "aiCallCenter": "Responsable de l’IA au centre d’appels",
         "operations": "Opérations et entretien",
         "advertisingSales": "Directeur des ventes publicitaires",
         "accountManager": "Gestionnaire de comptes",
@@ -1110,6 +1152,8 @@ const companyData = {
         "technology": "Технологии, продукт и дизайн",
         "business": "Операции, рост и сервис"
       },
+      "teamShowMore": "Показать всю команду",
+      "teamShowLess": "Свернуть список",
       "roles": {
         "founder": "Основатель, предприниматель и генеральный директор группы",
         "vpDevelopment": "Вице-президент по разработке и технологиям",
@@ -1117,6 +1161,7 @@ const companyData = {
         "vpOperations": "Вице-президент по операциям",
         "vpFinance": "Вице-президент по финансам",
         "groupManagement": "Руководство группы",
+        "director": "Член совета директоров",
         "developmentManager": "Руководитель разработки",
         "developer": "Разработчик",
         "uxUi": "UX и UI",
@@ -1125,6 +1170,11 @@ const companyData = {
         "accounting": "Бухгалтерия",
         "callCenter": "Управление колл-центром",
         "masuManager": "Руководитель MASU",
+        "masuTeam": "Команда MASU",
+        "canadaTeam": "Команда в Канаде",
+        "boardCommercePresident": "Член совета директоров и президент Федерации торговых палат Израиля",
+        "bizTeam": "Команда Biz",
+        "aiCallCenter": "Руководитель направления ИИ в колл-центре",
         "operations": "Операции и обслуживание",
         "advertisingSales": "Руководитель рекламных продаж",
         "accountManager": "Менеджер по работе с клиентами",
@@ -1191,6 +1241,8 @@ const companyData = {
         "technology": "Τεχνολογία, προϊόν και σχεδιασμός",
         "business": "Λειτουργία, ανάπτυξη και εξυπηρέτηση"
       },
+      "teamShowMore": "Προβολή όλης της ομάδας",
+      "teamShowLess": "Προβολή λιγότερων",
       "roles": {
         "founder": "Ιδρυτής, επιχειρηματίας και διευθύνων σύμβουλος του ομίλου",
         "vpDevelopment": "Αντιπρόεδρος ανάπτυξης και τεχνολογίας",
@@ -1198,6 +1250,7 @@ const companyData = {
         "vpOperations": "Αντιπρόεδρος λειτουργίας",
         "vpFinance": "Αντιπρόεδρος οικονομικών",
         "groupManagement": "Διοίκηση ομίλου",
+        "director": "Μέλος διοικητικού συμβουλίου",
         "developmentManager": "Διευθυντής ανάπτυξης",
         "developer": "Προγραμματιστής",
         "uxUi": "UX και UI",
@@ -1206,6 +1259,11 @@ const companyData = {
         "accounting": "Λογιστήριο",
         "callCenter": "Διαχείριση τηλεφωνικού κέντρου",
         "masuManager": "Υπεύθυνη MASU",
+        "masuTeam": "Ομάδα MASU",
+        "canadaTeam": "Ομάδα Καναδά",
+        "boardCommercePresident": "Μέλος του διοικητικού συμβουλίου και πρόεδρος της Ομοσπονδίας Εμπορικών Επιμελητηρίων του Ισραήλ",
+        "bizTeam": "Ομάδα Biz",
+        "aiCallCenter": "Υπεύθυνη AI στο τηλεφωνικό κέντρο",
         "operations": "Λειτουργία και συντήρηση",
         "advertisingSales": "Διευθυντής πωλήσεων διαφήμισης",
         "accountManager": "Υπεύθυνη πελατών",
@@ -1272,6 +1330,8 @@ const companyData = {
         "technology": "Tecnologia, prodotto e design",
         "business": "Operazioni, crescita e servizio"
       },
+      "teamShowMore": "Mostra tutto il team",
+      "teamShowLess": "Mostra meno",
       "roles": {
         "founder": "Fondatore, imprenditore e CEO del gruppo",
         "vpDevelopment": "Vicepresidente sviluppo e tecnologia",
@@ -1279,6 +1339,7 @@ const companyData = {
         "vpOperations": "Vicepresidente operazioni",
         "vpFinance": "Vicepresidente finanza",
         "groupManagement": "Direzione del gruppo",
+        "director": "Consigliera di amministrazione",
         "developmentManager": "Responsabile sviluppo",
         "developer": "Sviluppatore software",
         "uxUi": "UX e UI",
@@ -1287,6 +1348,11 @@ const companyData = {
         "accounting": "Amministrazione contabile",
         "callCenter": "Gestione call center",
         "masuManager": "Responsabile MASU",
+        "masuTeam": "Team MASU",
+        "canadaTeam": "Team Canada",
+        "boardCommercePresident": "Membro del consiglio e presidente della Federazione delle Camere di Commercio Israeliane",
+        "bizTeam": "Team Biz",
+        "aiCallCenter": "Responsabile AI del call center",
         "operations": "Operazioni e manutenzione",
         "advertisingSales": "Responsabile vendite pubblicitarie",
         "accountManager": "Account manager",
@@ -1353,6 +1419,8 @@ const companyData = {
         "technology": "Technológia, termék és design",
         "business": "Üzemeltetés, növekedés és szolgáltatás"
       },
+      "teamShowMore": "A teljes csapat megjelenítése",
+      "teamShowLess": "Kevesebb megjelenítése",
       "roles": {
         "founder": "Alapító, vállalkozó és csoportvezérigazgató",
         "vpDevelopment": "Fejlesztési és technológiai alelnök",
@@ -1360,6 +1428,7 @@ const companyData = {
         "vpOperations": "Üzemeltetési alelnök",
         "vpFinance": "Pénzügyi alelnök",
         "groupManagement": "Csoportvezetés",
+        "director": "Igazgatósági tag",
         "developmentManager": "Fejlesztési vezető",
         "developer": "Szoftverfejlesztő",
         "uxUi": "UX és UI",
@@ -1368,6 +1437,11 @@ const companyData = {
         "accounting": "Könyvelés",
         "callCenter": "Call center vezetés",
         "masuManager": "MASU vezető",
+        "masuTeam": "MASU csapat",
+        "canadaTeam": "Kanadai csapat",
+        "boardCommercePresident": "Igazgatósági tag és az Izraeli Kereskedelmi Kamarák Szövetségének elnöke",
+        "bizTeam": "Biz csapat",
+        "aiCallCenter": "A call center AI-felelőse",
         "operations": "Üzemeltetés és karbantartás",
         "advertisingSales": "Hirdetési értékesítési vezető",
         "accountManager": "Ügyfélkapcsolati menedzser",
@@ -1434,6 +1508,8 @@ const companyData = {
         "technology": "Technologia, produkt i design",
         "business": "Operacje, wzrost i obsługa"
       },
+      "teamShowMore": "Pokaż cały zespół",
+      "teamShowLess": "Pokaż mniej",
       "roles": {
         "founder": "Założyciel, przedsiębiorca i CEO grupy",
         "vpDevelopment": "Wiceprezes ds. rozwoju i technologii",
@@ -1441,6 +1517,7 @@ const companyData = {
         "vpOperations": "Wiceprezes ds. operacyjnych",
         "vpFinance": "Wiceprezes ds. finansów",
         "groupManagement": "Zarząd grupy",
+        "director": "Członkini rady",
         "developmentManager": "Kierownik rozwoju",
         "developer": "Programista",
         "uxUi": "UX i UI",
@@ -1449,6 +1526,11 @@ const companyData = {
         "accounting": "Księgowość",
         "callCenter": "Zarządzanie call center",
         "masuManager": "Menedżer MASU",
+        "masuTeam": "Zespół MASU",
+        "canadaTeam": "Zespół Kanada",
+        "boardCommercePresident": "Członek rady i prezes Federacji Izraelskich Izb Handlowych",
+        "bizTeam": "Zespół Biz",
+        "aiCallCenter": "Osoba odpowiedzialna za AI w call center",
         "operations": "Operacje i utrzymanie",
         "advertisingSales": "Kierownik sprzedaży reklam",
         "accountManager": "Opiekun klienta",
@@ -1515,6 +1597,8 @@ const companyData = {
         "technology": "Tecnología, producto y diseño",
         "business": "Operaciones, crecimiento y servicio"
       },
+      "teamShowMore": "Ver todo el equipo",
+      "teamShowLess": "Ver menos",
       "roles": {
         "founder": "Fundador, emprendedor y CEO del grupo",
         "vpDevelopment": "Vicepresidente de desarrollo y tecnología",
@@ -1522,6 +1606,7 @@ const companyData = {
         "vpOperations": "Vicepresidente de operaciones",
         "vpFinance": "Vicepresidenta de finanzas",
         "groupManagement": "Dirección del grupo",
+        "director": "Miembro del consejo",
         "developmentManager": "Director de desarrollo",
         "developer": "Desarrollador de software",
         "uxUi": "UX y UI",
@@ -1530,6 +1615,11 @@ const companyData = {
         "accounting": "Contabilidad",
         "callCenter": "Gestión del centro de atención",
         "masuManager": "Responsable de MASU",
+        "masuTeam": "Equipo MASU",
+        "canadaTeam": "Equipo de Canadá",
+        "boardCommercePresident": "Miembro del consejo y presidente de la Federación de Cámaras de Comercio de Israel",
+        "bizTeam": "Equipo Biz",
+        "aiCallCenter": "Responsable de IA del centro de atención",
         "operations": "Operaciones y mantenimiento",
         "advertisingSales": "Director de ventas publicitarias",
         "accountManager": "Gestora de cuentas",
@@ -1637,10 +1727,11 @@ const renderTeam = (locale, company) => {
   document.querySelectorAll("[data-team-group]").forEach((groupElement) => {
     const group = groupElement.dataset.teamGroup;
     groupElement.querySelector("h3").textContent = company.groups[group];
-    const cards = teamMembers.filter((member) => member.group === group).map((member) => {
+    const cards = teamMembers.filter((member) => member.group === group).map((member, index) => {
       const displayName = locale === "he" ? member.nameHe : member.nameLatin;
       const card = document.createElement("article");
       card.className = "team-member";
+      card.hidden = index >= 3;
       const initials = document.createElement("span");
       initials.className = "team-initials";
       initials.setAttribute("aria-hidden", "true");
@@ -1655,6 +1746,27 @@ const renderTeam = (locale, company) => {
       return card;
     });
     groupElement.querySelector(".team-list").replaceChildren(...cards);
+    groupElement.querySelector(".team-toggle")?.remove();
+    if (cards.length > 3) {
+      const toggle = document.createElement("button");
+      toggle.className = "team-toggle";
+      toggle.type = "button";
+      toggle.setAttribute("aria-expanded", "false");
+      const label = document.createElement("span");
+      label.textContent = company.teamShowMore;
+      const arrow = document.createElement("i");
+      arrow.setAttribute("aria-hidden", "true");
+      toggle.append(label, arrow);
+      toggle.addEventListener("click", () => {
+        const expanded = toggle.getAttribute("aria-expanded") === "true";
+        toggle.setAttribute("aria-expanded", String(!expanded));
+        cards.forEach((card, index) => {
+          card.hidden = expanded ? index >= 3 : false;
+        });
+        label.textContent = expanded ? company.teamShowMore : company.teamShowLess;
+      });
+      groupElement.append(toggle);
+    }
   });
 };
 

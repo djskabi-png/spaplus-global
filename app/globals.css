@@ -1006,6 +1006,48 @@ h1 span {
   line-height: 1.45;
 }
 
+.team-member[hidden] {
+  display: none;
+}
+
+.team-toggle {
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease;
+}
+
+.team-toggle:hover,
+.team-toggle:focus-visible {
+  border-color: rgba(255, 186, 211, 0.55);
+  background: rgba(233, 23, 106, 0.13);
+}
+
+.team-toggle i {
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 180ms ease;
+}
+
+.team-toggle[aria-expanded="true"] i {
+  transform: translateY(2px) rotate(225deg);
+}
+
 .service-team-note {
   margin-top: 18px;
   padding: 30px;
