@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+/* eslint-disable @next/next/no-img-element */
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   isLocale,
@@ -15,25 +15,34 @@ const israelUrl = "https://www.spaplus.co.il/";
 const localeStorageKey = "spaplus-global-locale";
 const contactEmail = "info@spaplus.ca";
 const contactFormEndpoint = "/api/contact";
+const platformPillars: Record<Locale, string[]> = {
+  en: ["Discovery", "Booking", "Business tools", "Data and automation"],
+  he: ["חיפוש וגילוי", "הזמנה", "כלים לעסקים", "מידע ואוטומציה"],
+  "fr-CA": ["Découverte", "Réservation", "Outils d’affaires", "Données et automatisation"],
+  ru: ["Поиск", "Бронирование", "Инструменты для бизнеса", "Данные и автоматизация"],
+  el: ["Ανακάλυψη", "Κράτηση", "Εργαλεία επιχειρήσεων", "Δεδομένα και αυτοματισμοί"],
+  it: ["Scoperta", "Prenotazione", "Strumenti gestionali", "Dati e automazione"],
+  hu: ["Felfedezés", "Foglalás", "Üzleti eszközök", "Adatok és automatizálás"],
+  pl: ["Odkrywanie", "Rezerwacja", "Narzędzia biznesowe", "Dane i automatyzacja"],
+  es: ["Descubrimiento", "Reserva", "Herramientas de gestión", "Datos y automatización"],
+};
 
 function BrandLockup({ footer = false }: { footer?: boolean }) {
   return (
     <span className={`brand-lockup ${footer ? "footer-lockup" : ""}`}>
-      <Image
+      <img
         className="brand-mark"
         src="/spaplus-mark.png"
         alt=""
         width={80}
         height={80}
-        priority={!footer}
       />
-      <Image
+      <img
         className="brand-wordmark"
         src="/spaplus-wordmark.png"
         alt="SpaPlus"
         width={112}
         height={60}
-        priority={!footer}
       />
     </span>
   );
@@ -43,6 +52,7 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const [locale, setLocale] = useState<Locale>("en");
   const [emailCopied, setEmailCopied] = useState(false);
   const [expandedTeams, setExpandedTeams] = useState<Record<string, boolean>>(
@@ -60,13 +70,12 @@ export default function Home() {
   useEffect(() => {
     const queryLocale = new URLSearchParams(window.location.search).get("lang");
     const storedLocale = window.localStorage.getItem(localeStorageKey);
-    if (isLocale(queryLocale)) {
-      setLocale(queryLocale);
-    } else if (isLocale(storedLocale)) {
-      setLocale(storedLocale);
-    } else {
-      setLocale(localeFromBrowser(navigator.languages));
-    }
+    const initialLocale = isLocale(queryLocale)
+      ? queryLocale
+      : isLocale(storedLocale)
+        ? storedLocale
+        : localeFromBrowser(navigator.languages);
+    queueMicrotask(() => setLocale(initialLocale));
   }, []);
 
   useEffect(() => {
@@ -109,6 +118,8 @@ export default function Home() {
     const onScroll = () => {
       setScrolled(window.scrollY > 18);
       setShowBackToTop(window.scrollY > 640);
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress(scrollable > 0 ? Math.min(window.scrollY / scrollable, 1) : 0);
     };
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setMenuOpen(false);
@@ -209,6 +220,11 @@ export default function Home() {
       <a className="skip-link" href="#main-content">
         {t.skip}
       </a>
+      <div
+        className="scroll-progress"
+        aria-hidden="true"
+        style={{ transform: `scaleX(${scrollProgress})` }}
+      />
 
       <header className={`site-header ${scrolled ? "is-scrolled" : ""}`}>
         <a className="brand" href="#top" aria-label={t.homeLabel}>
@@ -367,6 +383,36 @@ export default function Home() {
               <p>{t.usaBody}</p>
             </div>
           </div>
+
+          <div className="global-route" data-reveal>
+            <div className="route-orbit" aria-hidden="true">
+              <span className="route-line" />
+              <span className="route-node route-israel">
+                <i />
+                <strong>{t.israelName}</strong>
+                <small>{t.israelLabel}</small>
+              </span>
+              <span className="route-node route-canada">
+                <i />
+                <strong>{t.canadaName}</strong>
+                <small>{t.canadaLabel}</small>
+              </span>
+              <span className="route-node route-usa">
+                <i />
+                <strong>{t.usaName}</strong>
+                <small>{t.comingSoon}</small>
+              </span>
+              <span className="route-brand">SpaPlus Global</span>
+            </div>
+            <div className="route-proof">
+              {company.timeline.slice(0, 3).map((item) => (
+                <div key={`${item.year}-${item.title}`}>
+                  <strong>{item.year}</strong>
+                  <span>{item.title}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </section>
 
         <section className="section vision-section" id="vision">
@@ -459,6 +505,14 @@ export default function Home() {
               <p className="eyebrow light">{company.technologyEyebrow}</p>
               <h3>{company.technologyTitle}</h3>
               <p>{company.technologyBody}</p>
+              <div className="platform-pillars" aria-label={company.technologyEyebrow}>
+                {platformPillars[locale].map((pillar, index) => (
+                  <span key={pillar}>
+                    <i aria-hidden="true">{String(index + 1).padStart(2, "0")}</i>
+                    {pillar}
+                  </span>
+                ))}
+              </div>
               <strong>{company.technologyStatement}</strong>
             </aside>
           </div>
@@ -479,7 +533,7 @@ export default function Home() {
           <div className="founder-team-grid">
             <article className="founder-card" data-reveal>
               <div className="founder-identity">
-                <Image
+                <img
                   className="founder-photo"
                   src="/adir-naor-founder.jpg"
                   alt={locale === "he" ? "אדיר נאור" : "Adir Naor"}

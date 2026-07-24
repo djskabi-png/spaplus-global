@@ -43,6 +43,12 @@ test("static preview is a complete standalone website", async () => {
   assert.match(html, /href="https:\/\/spaplus\.ca\/en\/"/);
   assert.match(html, /class="usa-flag"/);
   assert.match(html, /class="usa-coming">COMING SOON/);
+  assert.match(html, /class="global-route"/);
+  assert.match(html, /class="route-node route-israel"/);
+  assert.match(html, /class="route-node route-canada"/);
+  assert.match(html, /class="route-node route-usa"/);
+  assert.match(html, /class="platform-pillars"/);
+  assert.match(html, /class="scroll-progress"/);
 });
 
 test("all nine localized experiences are included", async () => {
@@ -61,6 +67,9 @@ test("all nine localized experiences are included", async () => {
   assert.match(script, /contactForm\.addEventListener\("submit"/);
   assert.match(script, /backToTopButton\.addEventListener\("click"/);
   assert.match(script, /setText\("\.usa-status-local", t\.comingSoon\)/);
+  assert.match(script, /setText\("\.route-israel strong", t\.israelName\)/);
+  assert.match(script, /setAllText\("\.platform-pillars span", platformPillars\[locale\]\)/);
+  assert.match(script, /scrollProgress\.style\.transform/);
   assert.match(script, /formsubmit\.co\/ajax\//);
   assert.match(script, /_template: "box"/);
   assert.match(script, /await fetch\(contactFormEndpoint/);

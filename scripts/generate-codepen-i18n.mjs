@@ -32,7 +32,19 @@ const companyContent = companyData.copy;
 const teamMembers = companyData.team;
 const localeStorageKey = "spaplus-global-locale";
 const supportedLocales = Object.keys(translations);
+const platformPillars = ${JSON.stringify({
+  en: ["Discovery", "Booking", "Business tools", "Data and automation"],
+  he: ["חיפוש וגילוי", "הזמנה", "כלים לעסקים", "מידע ואוטומציה"],
+  "fr-CA": ["Découverte", "Réservation", "Outils d’affaires", "Données et automatisation"],
+  ru: ["Поиск", "Бронирование", "Инструменты для бизнеса", "Данные и автоматизация"],
+  el: ["Ανακάλυψη", "Κράτηση", "Εργαλεία επιχειρήσεων", "Δεδομένα και αυτοματισμοί"],
+  it: ["Scoperta", "Prenotazione", "Strumenti gestionali", "Dati e automazione"],
+  hu: ["Felfedezés", "Foglalás", "Üzleti eszközök", "Adatok és automatizálás"],
+  pl: ["Odkrywanie", "Rezerwacja", "Narzędzia biznesowe", "Dane i automatyzacja"],
+  es: ["Descubrimiento", "Reserva", "Herramientas de gestión", "Datos y automatización"],
+}, null, 2)};
 const header = document.querySelector(".site-header");
+const scrollProgress = document.querySelector(".scroll-progress");
 const menuButton = document.querySelector(".menu-button");
 const mobileMenu = document.querySelector(".mobile-menu");
 const languageSelect = document.querySelector(".language-switcher select");
@@ -183,7 +195,11 @@ const applyLocale = (locale) => {
   document.querySelector(".language-switcher .sr-only").textContent = t.languageLabel;
 
   const url = new URL(location.href);
-  locale === "en" ? url.searchParams.delete("lang") : url.searchParams.set("lang", locale);
+  if (locale === "en") {
+    url.searchParams.delete("lang");
+  } else {
+    url.searchParams.set("lang", locale);
+  }
   history.replaceState({}, "", url.pathname + url.search + url.hash);
 
   setText(".skip-link", t.skip);
@@ -229,6 +245,18 @@ const applyLocale = (locale) => {
   setText(".coming-card h3", t.usaName);
   setText(".coming-card p", t.usaBody);
   setText(".usa-status-local", t.comingSoon);
+  setText(".route-israel strong", t.israelName);
+  setText(".route-israel small", t.israelLabel);
+  setText(".route-canada strong", t.canadaName);
+  setText(".route-canada small", t.canadaLabel);
+  setText(".route-usa strong", t.usaName);
+  setText(".route-usa small", t.comingSoon);
+  document.querySelectorAll(".route-proof div").forEach((item, index) => {
+    const timelineItem = company.timeline[index];
+    if (!timelineItem) return;
+    item.querySelector("strong").textContent = timelineItem.year;
+    item.querySelector("span").textContent = timelineItem.title;
+  });
 
   setAllText(".vision-copy > .eyebrow, .vision-copy > h2, .vision-copy > p", [
     t.visionEyebrow, t.visionTitle, t.visionBodyOne, t.visionBodyTwo,
@@ -250,12 +278,12 @@ const applyLocale = (locale) => {
   setText(".partner-section > .button", t.partnerButton);
 
   setAllText(".about-intro-copy > *", [t.aboutEyebrow, t.aboutTitle, t.aboutBody]);
-  setAllText(".technology-principle > *", [
-    company.technologyEyebrow,
-    company.technologyTitle,
-    company.technologyBody,
-    company.technologyStatement,
-  ]);
+  setText(".technology-principle > .eyebrow", company.technologyEyebrow);
+  setText(".technology-principle > h3", company.technologyTitle);
+  setText(".technology-principle > p:not(.eyebrow)", company.technologyBody);
+  setText(".technology-principle > strong", company.technologyStatement);
+  setAllText(".platform-pillars span", platformPillars[locale]);
+  document.querySelector(".platform-pillars").setAttribute("aria-label", company.technologyEyebrow);
   setText(".timeline-block > h3", company.timelineTitle);
   renderTimeline(company);
   setText(".founder-identity span", t.founderRole);
@@ -328,6 +356,9 @@ window.addEventListener(
   () => {
     header.classList.toggle("is-scrolled", window.scrollY > 18);
     backToTopButton.classList.toggle("is-visible", window.scrollY > 640);
+    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = scrollable > 0 ? Math.min(window.scrollY / scrollable, 1) : 0;
+    scrollProgress.style.transform = "scaleX(" + progress + ")";
   },
   { passive: true },
 );
