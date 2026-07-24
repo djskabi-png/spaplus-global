@@ -167,7 +167,7 @@ export default function Home() {
           _honey: honey,
           _replyto: email,
           [company.formName]: name,
-          [company.formEmail]: email,
+          Email: email,
           [company.formCompany]: organization || "Not provided",
           [company.formTopic]: topic,
           [company.formMessage]: message,
