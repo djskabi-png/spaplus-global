@@ -31,7 +31,11 @@ test("static preview is a complete standalone website", async () => {
 
   assert.match(html, /class="founder-photo"/);
   assert.match(html, /href="mailto:info@spaplus\.ca"/);
-  assert.match(html, /class="button button-primary copy-email"/);
+  assert.match(html, /class="contact-form"/);
+  assert.match(html, /class="copy-email"/);
+  assert.match(html, /data-team-group="leadership"/);
+  assert.match(html, /data-team-group="technology"/);
+  assert.match(html, /data-team-group="business"/);
   assert.match(html, /href="https:\/\/www\.spaplus\.co\.il\/"/);
   assert.match(html, /href="https:\/\/spaplus\.ca\/en\/"/);
 });
@@ -47,6 +51,13 @@ test("all nine localized experiences are included", async () => {
   assert.match(script, /history\.replaceState/);
   assert.match(script, /founderPhotoDataUri/);
   assert.match(script, /emailCopied/);
+  assert.match(script, /spaplus-mark\.png/);
+  assert.match(script, /spaplus-wordmark\.png/);
+  assert.match(script, /contactForm\.addEventListener\("submit"/);
+  assert.match(script, /"mailto:" \+ contactEmail/);
+  assert.match(script, /"Roy Plombo"/);
+  assert.match(script, /"Shahaf Yifrah"/);
+  assert.equal((script.match(/"nameLatin":/g) || []).length, 22);
 });
 
 test("public copy follows the SpaPlus writing rules", async () => {
@@ -54,6 +65,7 @@ test("public copy follows the SpaPlus writing rules", async () => {
     read("codepen/index.html"),
     read("codepen/script.js"),
     read("app/page.tsx"),
+    read("app/company-data.json"),
     ...localeCodes.map((locale) => read(`app/i18n/${locale}.ts`)),
   ]);
   const copy = files.join("\n");

@@ -5,6 +5,14 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const locales = ["en", "he", "fr-CA", "ru", "el", "it", "hu", "pl", "es"];
 const translations = {};
+const companyData = JSON.parse(
+  await readFile(path.join(root, "app", "company-data.json"), "utf8"),
+);
+const sourceCss = await readFile(path.join(root, "app", "globals.css"), "utf8");
+const previewCss = sourceCss.replace(
+  '@import "tailwindcss";',
+  '@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:wdth,wght@75..100,100..900&family=Noto+Sans+Hebrew:wdth,wght@75..100,100..900&display=swap");',
+).replaceAll('url("/', 'url("./');
 const founderPhoto = await readFile(
   path.join(root, "public", "adir-naor-founder.jpg"),
 );
@@ -19,6 +27,9 @@ for (const locale of locales) {
 }
 
 const runtime = `const translations = ${JSON.stringify(translations, null, 2)};
+const companyData = ${JSON.stringify(companyData, null, 2)};
+const companyContent = companyData.copy;
+const teamMembers = companyData.team;
 const localeStorageKey = "spaplus-global-locale";
 const supportedLocales = Object.keys(translations);
 const header = document.querySelector(".site-header");
@@ -26,9 +37,26 @@ const menuButton = document.querySelector(".menu-button");
 const mobileMenu = document.querySelector(".mobile-menu");
 const languageSelect = document.querySelector(".language-switcher select");
 const copyEmailButton = document.querySelector(".copy-email");
+const contactForm = document.querySelector(".contact-form");
 const contactEmail = "info@spaplus.ca";
 const founderPhotoDataUri = ${JSON.stringify(founderPhotoDataUri)};
 document.querySelector(".founder-photo").src = founderPhotoDataUri;
+
+const createBrandLockup = (footer = false) => {
+  const wrapper = document.createElement("span");
+  wrapper.className = "brand-lockup" + (footer ? " footer-lockup" : "");
+  wrapper.innerHTML =
+    '<img class="brand-mark" src="./spaplus-mark.png" alt="">' +
+    '<img class="brand-wordmark" src="./spaplus-wordmark.png" alt="SpaPlus">';
+  return wrapper;
+};
+
+const headerLogo = document.querySelector(".brand > img");
+if (headerLogo) headerLogo.replaceWith(createBrandLockup());
+const visionLogo = document.querySelector(".logo-card > img");
+if (visionLogo) visionLogo.replaceWith(createBrandLockup());
+const footerLogo = document.querySelector(".footer-main > img");
+if (footerLogo) footerLogo.replaceWith(createBrandLockup(true));
 
 const browserLocale = () => {
   for (const language of navigator.languages || [navigator.language]) {
@@ -65,8 +93,58 @@ const setAllText = (selector, values) => {
   });
 };
 
+const initialsFor = (name) =>
+  name.split(/\\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("");
+
+const renderTeam = (locale, company) => {
+  document.querySelectorAll("[data-team-group]").forEach((groupElement) => {
+    const group = groupElement.dataset.teamGroup;
+    groupElement.querySelector("h3").textContent = company.groups[group];
+    const cards = teamMembers.filter((member) => member.group === group).map((member) => {
+      const displayName = locale === "he" ? member.nameHe : member.nameLatin;
+      const card = document.createElement("article");
+      card.className = "team-member";
+      const initials = document.createElement("span");
+      initials.className = "team-initials";
+      initials.setAttribute("aria-hidden", "true");
+      initials.textContent = initialsFor(displayName);
+      const copy = document.createElement("div");
+      const name = document.createElement("strong");
+      name.textContent = displayName;
+      const role = document.createElement("span");
+      role.textContent = company.roles[member.role];
+      copy.append(name, role);
+      card.append(initials, copy);
+      return card;
+    });
+    groupElement.querySelector(".team-list").replaceChildren(...cards);
+  });
+};
+
+const renderTimeline = (company) => {
+  const articles = document.querySelectorAll(".timeline-grid article");
+  company.timeline.forEach((item, index) => {
+    const article = articles[index];
+    if (!article) return;
+    article.querySelector("span").textContent = item.year;
+    article.querySelector("h4").textContent = item.title;
+    article.querySelector("p").textContent = item.body;
+  });
+};
+
+const renderTopics = (company) => {
+  const select = contactForm.querySelector('select[name="topic"]');
+  select.replaceChildren(...company.topics.map((topic) => {
+    const option = document.createElement("option");
+    option.value = topic;
+    option.textContent = topic;
+    return option;
+  }));
+};
+
 const applyLocale = (locale) => {
   const t = translations[locale] || translations.en;
+  const company = companyContent[locale] || companyContent.en;
   activeLocale = locale;
   document.documentElement.lang = locale;
   document.documentElement.dir = locale === "he" ? "rtl" : "ltr";
@@ -86,20 +164,10 @@ const applyLocale = (locale) => {
   mobileMenu.setAttribute("aria-label", t.mobileNavigation);
   document.querySelector(".footer-main nav").setAttribute("aria-label", t.footerNavigation);
   setAllText(".desktop-nav a", [
-    t.navVision,
-    t.navCountries,
-    t.navStory,
-    t.aboutEyebrow,
-    t.contact,
-    t.chooseCountry,
+    t.navVision, t.navCountries, t.navStory, t.aboutEyebrow, t.contact, t.chooseCountry,
   ]);
   setAllText(".mobile-menu a", [
-    t.navVision,
-    t.navCountries,
-    t.navStory,
-    t.aboutEyebrow,
-    t.contact,
-    t.chooseCountry,
+    t.navVision, t.navCountries, t.navStory, t.aboutEyebrow, t.contact, t.chooseCountry,
   ]);
   menuButton.setAttribute(
     "aria-label",
@@ -111,8 +179,7 @@ const applyLocale = (locale) => {
     t.heroTitle + " <span>" + t.heroTitleAccent + "</span>";
   setText(".hero-intro", t.heroIntro);
   setText(".hero-actions .button", t.chooseCountry);
-  document.querySelector(".hero-actions .text-link").textContent =
-    t.discoverVision;
+  setText(".hero-actions .text-link", t.discoverVision);
   document.querySelector(".hero-image").setAttribute("aria-label", t.promiseBody);
   setText(".promise-card strong", t.promiseTitle);
   setText(".promise-card span", t.promiseBody);
@@ -120,19 +187,13 @@ const applyLocale = (locale) => {
   setAllText("#countries > .section-heading > *", [t.worldEyebrow, t.worldTitle, t.worldBody]);
   document.querySelector(".israel-card").setAttribute("aria-label", t.israelAria);
   setAllText(".israel-card .country-content > *", [
-    t.israelLabel,
-    t.israelName,
-    t.israelBody,
-    t.israelButton,
+    t.israelLabel, t.israelName, t.israelBody, t.israelButton,
   ]);
   const canadaCard = document.querySelector(".canada-card");
   canadaCard.setAttribute("aria-label", t.canadaAria);
   canadaCard.href = locale === "fr-CA" ? "https://spaplus.ca/fr/" : "https://spaplus.ca/en/";
   setAllText(".canada-card .country-content > *", [
-    t.canadaLabel,
-    t.canadaName,
-    t.canadaBody,
-    t.canadaButton,
+    t.canadaLabel, t.canadaName, t.canadaBody, t.canadaButton,
   ]);
   document.querySelector(".coming-card").setAttribute("aria-label", t.usaAria);
   setText(".coming-card strong", t.usaName);
@@ -140,23 +201,12 @@ const applyLocale = (locale) => {
   setText(".coming-card > span", t.comingSoon);
 
   setAllText(".vision-copy > .eyebrow, .vision-copy > h2, .vision-copy > p", [
-    t.visionEyebrow,
-    t.visionTitle,
-    t.visionBodyOne,
-    t.visionBodyTwo,
+    t.visionEyebrow, t.visionTitle, t.visionBodyOne, t.visionBodyTwo,
   ]);
   setAllText(".proof-grid span", [t.proofYears, t.proofMarkets, t.proofPromise]);
-  setAllText(".story-copy > *", [
-    t.storyEyebrow,
-    t.storyTitle,
-    t.storyBodyOne,
-    t.storyBodyTwo,
-  ]);
+  setAllText(".story-copy > *", [t.storyEyebrow, t.storyTitle, t.storyBodyOne, t.storyBodyTwo]);
   setText(".story-image span", t.storyImage);
-  setAllText(".benefits-section .section-heading > *", [
-    t.experienceEyebrow,
-    t.experienceTitle,
-  ]);
+  setAllText(".benefits-section .section-heading > *", [t.experienceEyebrow, t.experienceTitle]);
   const benefits = document.querySelectorAll(".benefit-grid article");
   [
     [t.benefitOneTitle, t.benefitOneBody],
@@ -166,33 +216,44 @@ const applyLocale = (locale) => {
     benefits[index].querySelector("h3").textContent = content[0];
     benefits[index].querySelector("p").textContent = content[1];
   });
-  setAllText(".partner-section > div > *", [
-    t.partnerEyebrow,
-    t.partnerTitle,
-    t.partnerBody,
-  ]);
+  setAllText(".partner-section > div > *", [t.partnerEyebrow, t.partnerTitle, t.partnerBody]);
   setText(".partner-section > .button", t.partnerButton);
 
-  setAllText(".contact-section > div:first-child > *", [
-    t.contact,
-    t.partnerTitle,
-    t.partnerBody,
+  setAllText(".about-intro-copy > *", [t.aboutEyebrow, t.aboutTitle, t.aboutBody]);
+  setAllText(".technology-principle > *", [
+    company.technologyEyebrow,
+    company.technologyTitle,
+    company.technologyBody,
+    company.technologyStatement,
   ]);
-  if (copyEmailButton.dataset.copied !== "true") {
-    copyEmailButton.textContent = t.copyEmail;
-  }
-
-  setAllText(".footer-about-copy > *", [
-    t.aboutEyebrow,
-    t.aboutTitle,
-    t.aboutBody,
-  ]);
+  setText(".timeline-block > h3", company.timelineTitle);
+  renderTimeline(company);
   setText(".founder-identity span", t.founderRole);
   setText(".founder-card h3", locale === "he" ? "אדיר נאור" : "Adir Naor");
-  document.querySelector(".founder-photo").alt =
-    locale === "he" ? "אדיר נאור" : "Adir Naor";
-  setText(".founder-card p", t.founderBio);
+  document.querySelector(".founder-photo").alt = locale === "he" ? "אדיר נאור" : "Adir Naor";
+  setText(".founder-card > p", t.founderBio);
   setText(".founder-card blockquote", t.founderQuote);
+  setAllText(".team-heading > *", [company.teamEyebrow, company.teamTitle, company.teamIntro]);
+  renderTeam(locale, company);
+  setAllText(".service-team-note > *", [company.serviceTeamTitle, company.serviceTeamBody]);
+
+  setAllText(".contact-copy > .eyebrow, .contact-copy > h2, .contact-copy > p", [
+    t.contact, company.contactTitle, company.contactBody,
+  ]);
+  setText(".direct-email > span", company.directEmail);
+  if (copyEmailButton.dataset.copied !== "true") copyEmailButton.textContent = t.copyEmail;
+  setAllText(".contact-form label > span", [
+    company.formName,
+    company.formEmail,
+    company.formCompany,
+    company.formTopic,
+    company.formMessage,
+  ]);
+  renderTopics(company);
+  setText(".form-submit button", company.formSubmit);
+  setText(".form-submit > p", company.formNote);
+  setText(".form-status", "");
+
   setText(".footer-main > p", t.footerTagline);
   const footerItems = document.querySelectorAll(".footer-main nav > *");
   footerItems[0].textContent = t.navVision;
@@ -256,6 +317,26 @@ copyEmailButton.addEventListener("click", async () => {
   }, 2200);
 });
 
+contactForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const company = companyContent[activeLocale] || companyContent.en;
+  const data = new FormData(contactForm);
+  const lines = [
+    company.formName + ": " + data.get("name"),
+    company.formEmail + ": " + data.get("email"),
+    company.formCompany + ": " + (data.get("organization") || ""),
+    company.formTopic + ": " + data.get("topic"),
+    "",
+    company.formMessage + ":",
+    data.get("message"),
+  ];
+  setText(".form-status", company.formReady);
+  window.location.href =
+    "mailto:" + contactEmail +
+    "?subject=" + encodeURIComponent(company.formSubject) +
+    "&body=" + encodeURIComponent(lines.join("\\n"));
+});
+
 languageSelect.addEventListener("change", (event) => applyLocale(event.target.value));
 mobileMenu.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
 document.addEventListener("keydown", (event) => {
@@ -267,14 +348,12 @@ if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
   revealElements.forEach((element) => element.classList.add("is-visible"));
 } else {
   const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
-        }
-      });
-    },
+    (entries) => entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("is-visible");
+        observer.unobserve(entry.target);
+      }
+    }),
     { threshold: 0.14 },
   );
   revealElements.forEach((element) => observer.observe(element));
@@ -283,4 +362,7 @@ if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
 applyLocale(activeLocale);
 `;
 
-await writeFile(path.join(root, "codepen", "script.js"), runtime, "utf8");
+await Promise.all([
+  writeFile(path.join(root, "codepen", "script.js"), runtime, "utf8"),
+  writeFile(path.join(root, "codepen", "style.css"), previewCss, "utf8"),
+]);

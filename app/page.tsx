@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import {
   isLocale,
   localeFromBrowser,
@@ -9,17 +9,43 @@ import {
   translations,
   type Locale,
 } from "./i18n";
+import companyData from "./company-data.json";
 
 const israelUrl = "https://www.spaplus.co.il/";
 const localeStorageKey = "spaplus-global-locale";
 const contactEmail = "info@spaplus.ca";
+
+function BrandLockup({ footer = false }: { footer?: boolean }) {
+  return (
+    <span className={`brand-lockup ${footer ? "footer-lockup" : ""}`}>
+      <Image
+        className="brand-mark"
+        src="/spaplus-mark.png"
+        alt=""
+        width={80}
+        height={80}
+        priority={!footer}
+      />
+      <Image
+        className="brand-wordmark"
+        src="/spaplus-wordmark.png"
+        alt="SpaPlus"
+        width={112}
+        height={60}
+        priority={!footer}
+      />
+    </span>
+  );
+}
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [locale, setLocale] = useState<Locale>("en");
   const [emailCopied, setEmailCopied] = useState(false);
+  const [formReady, setFormReady] = useState(false);
   const t = translations[locale];
+  const company = companyData.copy[locale];
   const canadaUrl =
     locale === "fr-CA" ? "https://spaplus.ca/fr/" : "https://spaplus.ca/en/";
 
@@ -107,6 +133,28 @@ export default function Home() {
     window.setTimeout(() => setEmailCopied(false), 2200);
   };
 
+  const openContactEmail = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const name = String(data.get("name") || "");
+    const email = String(data.get("email") || "");
+    const organization = String(data.get("organization") || "");
+    const topic = String(data.get("topic") || company.topics[0]);
+    const message = String(data.get("message") || "");
+    const subject = `${company.formSubject}: ${topic}`;
+    const body = [
+      `${company.formName}: ${name}`,
+      `${company.formEmail}: ${email}`,
+      `${company.formCompany}: ${organization}`,
+      `${company.formTopic}: ${topic}`,
+      "",
+      message,
+    ].join("\n");
+
+    setFormReady(true);
+    window.location.href = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
+
   return (
     <>
       <a className="skip-link" href="#main-content">
@@ -115,13 +163,7 @@ export default function Home() {
 
       <header className={`site-header ${scrolled ? "is-scrolled" : ""}`}>
         <a className="brand" href="#top" aria-label={t.homeLabel}>
-          <Image
-            src="/spaplus-logo.png"
-            alt="SpaPlus"
-            width={200}
-            height={80}
-            priority
-          />
+          <BrandLockup />
         </a>
 
         <div className="header-actions">
@@ -274,7 +316,7 @@ export default function Home() {
         <section className="section vision-section" id="vision">
           <div className="vision-brand" data-reveal>
             <div className="logo-card">
-              <Image src="/spaplus-logo.png" alt="" width={200} height={80} />
+              <BrandLockup />
             </div>
           </div>
           <div className="vision-copy" data-reveal>
@@ -346,64 +388,171 @@ export default function Home() {
           </a>
         </section>
 
-        <section className="contact-section" id="contact" data-reveal>
-          <div>
+        <section
+          className="about-section"
+          id="about"
+          aria-labelledby="about-title"
+        >
+          <div className="about-intro-grid">
+            <div className="about-intro-copy" data-reveal>
+              <p className="eyebrow light">{t.aboutEyebrow}</p>
+              <h2 id="about-title">{t.aboutTitle}</h2>
+              <p>{t.aboutBody}</p>
+            </div>
+            <aside className="technology-principle" data-reveal>
+              <p className="eyebrow light">{company.technologyEyebrow}</p>
+              <h3>{company.technologyTitle}</h3>
+              <p>{company.technologyBody}</p>
+              <strong>{company.technologyStatement}</strong>
+            </aside>
+          </div>
+
+          <div className="timeline-block" data-reveal>
+            <h3>{company.timelineTitle}</h3>
+            <div className="timeline-grid">
+              {company.timeline.map((item) => (
+                <article key={`${item.year}-${item.title}`}>
+                  <span>{item.year}</span>
+                  <h4>{item.title}</h4>
+                  <p>{item.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <div className="founder-team-grid">
+            <article className="founder-card" data-reveal>
+              <div className="founder-identity">
+                <Image
+                  className="founder-photo"
+                  src="/adir-naor-founder.jpg"
+                  alt={locale === "he" ? "אדיר נאור" : "Adir Naor"}
+                  width={720}
+                  height={720}
+                />
+                <div>
+                  <span>{t.founderRole}</span>
+                  <h3>{locale === "he" ? "אדיר נאור" : "Adir Naor"}</h3>
+                </div>
+              </div>
+              <p>{t.founderBio}</p>
+              <blockquote>{t.founderQuote}</blockquote>
+            </article>
+
+            <div className="team-heading" data-reveal>
+              <p className="eyebrow light">{company.teamEyebrow}</p>
+              <h3>{company.teamTitle}</h3>
+              <p>{company.teamIntro}</p>
+            </div>
+          </div>
+
+          <div className="organization-grid">
+            {(["leadership", "technology", "business"] as const).map((group) => (
+              <section className="team-group" key={group} data-reveal>
+                <h3>{company.groups[group]}</h3>
+                <div className="team-list">
+                  {companyData.team
+                    .filter((member) => member.group === group)
+                    .map((member) => {
+                      const name =
+                        locale === "he" ? member.nameHe : member.nameLatin;
+                      const initials = name
+                        .split(" ")
+                        .slice(0, 2)
+                        .map((part) => part[0])
+                        .join("");
+                      return (
+                        <article className="team-member" key={member.nameLatin}>
+                          <span className="team-initials" aria-hidden="true">
+                            {initials}
+                          </span>
+                          <div>
+                            <h4>{name}</h4>
+                            <p>
+                              {
+                                (company.roles as Record<string, string>)[
+                                  member.role
+                                ]
+                              }
+                            </p>
+                          </div>
+                        </article>
+                      );
+                    })}
+                </div>
+              </section>
+            ))}
+          </div>
+
+          <div className="service-team-note" data-reveal>
+            <h3>{company.serviceTeamTitle}</h3>
+            <p>{company.serviceTeamBody}</p>
+          </div>
+        </section>
+
+        <section className="contact-section" id="contact">
+          <div className="contact-copy" data-reveal>
             <p className="eyebrow">{t.contact}</p>
-            <h2>{t.partnerTitle}</h2>
-            <p>{t.partnerBody}</p>
+            <h2>{company.contactTitle}</h2>
+            <p>{company.contactBody}</p>
+            <div className="direct-email">
+              <span>{company.directEmail}</span>
+              <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
+              <button
+                type="button"
+                onClick={copyContactEmail}
+                aria-live="polite"
+              >
+                {emailCopied ? t.emailCopied : t.copyEmail}
+              </button>
+            </div>
           </div>
-          <div className="contact-actions">
-            <a className="contact-email" href={`mailto:${contactEmail}`}>
-              {contactEmail}
-            </a>
-            <button
-              className="button button-primary"
-              type="button"
-              onClick={copyContactEmail}
-              aria-live="polite"
-            >
-              {emailCopied ? t.emailCopied : t.copyEmail}
-            </button>
-          </div>
+
+          <form key={locale} className="contact-form" onSubmit={openContactEmail} data-reveal>
+            <label>
+              <span>{company.formName}</span>
+              <input name="name" type="text" autoComplete="name" required />
+            </label>
+            <label>
+              <span>{company.formEmail}</span>
+              <input name="email" type="email" autoComplete="email" required />
+            </label>
+            <label className="form-wide">
+              <span>{company.formCompany}</span>
+              <input
+                name="organization"
+                type="text"
+                autoComplete="organization"
+              />
+            </label>
+            <label className="form-wide">
+              <span>{company.formTopic}</span>
+              <select name="topic" defaultValue={company.topics[0]}>
+                {company.topics.map((topic) => (
+                  <option key={topic} value={topic}>
+                    {topic}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="form-wide">
+              <span>{company.formMessage}</span>
+              <textarea name="message" rows={6} required />
+            </label>
+            <div className="form-submit form-wide">
+              <button className="button button-primary" type="submit">
+                {company.formSubmit}
+              </button>
+              <p>{company.formNote}</p>
+              {formReady && <strong role="status">{company.formReady}</strong>}
+            </div>
+          </form>
         </section>
       </main>
 
       <footer className="site-footer">
-        <section
-          className="footer-about"
-          id="about"
-          aria-labelledby="about-title"
-        >
-          <div className="footer-about-copy">
-            <p className="eyebrow light">{t.aboutEyebrow}</p>
-            <h2 id="about-title">{t.aboutTitle}</h2>
-            <p>{t.aboutBody}</p>
-          </div>
-          <article className="founder-card">
-            <div className="founder-identity">
-              <Image
-                className="founder-photo"
-                src="/adir-naor-founder.jpg"
-                alt={locale === "he" ? "אדיר נאור" : "Adir Naor"}
-                width={720}
-                height={720}
-              />
-              <div>
-                <span>{t.founderRole}</span>
-                <h3>{locale === "he" ? "אדיר נאור" : "Adir Naor"}</h3>
-              </div>
-            </div>
-            <p>{t.founderBio}</p>
-            <blockquote>{t.founderQuote}</blockquote>
-          </article>
-        </section>
         <div className="footer-main">
-          <Image
-            src="/spaplus-logo.png"
-            alt="SpaPlus"
-            width={200}
-            height={80}
-          />
+          <BrandLockup footer />
           <p>{t.footerTagline}</p>
           <nav aria-label={t.footerNavigation}>
             <a href="#vision">{t.navVision}</a>
