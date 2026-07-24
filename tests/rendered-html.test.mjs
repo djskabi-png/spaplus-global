@@ -106,6 +106,15 @@ test("public copy follows the SpaPlus writing rules", async () => {
   assert.doesNotMatch(copy, /🌐|→/);
 });
 
+test("brand images use direct public assets", async () => {
+  const page = await read("app/page.tsx");
+
+  assert.doesNotMatch(page, /from "next\/image"/);
+  assert.match(page, /src="\/spaplus-mark\.png"/);
+  assert.match(page, /src="\/spaplus-wordmark\.png"/);
+  assert.match(page, /src="\/adir-naor-founder\.jpg"/);
+});
+
 test("contact email delivery is branded and sends two messages", async () => {
   const [route, templates] = await Promise.all([
     read("app/api/contact/route.ts"),
