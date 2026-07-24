@@ -339,11 +339,18 @@ export default function Home() {
           </div>
 
           <div className="coming-card" data-reveal aria-label={t.usaAria}>
-            <div>
-              <strong>{t.usaName}</strong>
+            <div className="usa-visual" aria-hidden="true">
+              <span className="usa-flag">
+                <span className="usa-canton" />
+              </span>
+              <span className="usa-code">USA</span>
+            </div>
+            <div className="usa-copy">
+              <span className="usa-status-local">{t.comingSoon}</span>
+              <strong className="usa-coming">COMING SOON</strong>
+              <h3>{t.usaName}</h3>
               <p>{t.usaBody}</p>
             </div>
-            <span>{t.comingSoon}</span>
           </div>
         </section>
 

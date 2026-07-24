@@ -223,9 +223,9 @@ const applyLocale = (locale) => {
     t.canadaLabel, t.canadaName, t.canadaBody, t.canadaButton,
   ]);
   document.querySelector(".coming-card").setAttribute("aria-label", t.usaAria);
-  setText(".coming-card strong", t.usaName);
+  setText(".coming-card h3", t.usaName);
   setText(".coming-card p", t.usaBody);
-  setText(".coming-card > span", t.comingSoon);
+  setText(".usa-status-local", t.comingSoon);
 
   setAllText(".vision-copy > .eyebrow, .vision-copy > h2, .vision-copy > p", [
     t.visionEyebrow, t.visionTitle, t.visionBodyOne, t.visionBodyTwo,

@@ -39,6 +39,8 @@ test("static preview is a complete standalone website", async () => {
   assert.match(html, /data-team-group="business"/);
   assert.match(html, /href="https:\/\/www\.spaplus\.co\.il\/"/);
   assert.match(html, /href="https:\/\/spaplus\.ca\/en\/"/);
+  assert.match(html, /class="usa-flag"/);
+  assert.match(html, /class="usa-coming">COMING SOON/);
 });
 
 test("all nine localized experiences are included", async () => {
@@ -56,6 +58,7 @@ test("all nine localized experiences are included", async () => {
   assert.match(script, /spaplus-wordmark\.png/);
   assert.match(script, /contactForm\.addEventListener\("submit"/);
   assert.match(script, /backToTopButton\.addEventListener\("click"/);
+  assert.match(script, /setText\("\.usa-status-local", t\.comingSoon\)/);
   assert.match(script, /formsubmit\.co\/ajax\//);
   assert.match(script, /_template: "box"/);
   assert.match(script, /await fetch\(contactFormEndpoint/);
