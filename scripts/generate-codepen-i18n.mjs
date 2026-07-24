@@ -11,7 +11,7 @@ const companyData = JSON.parse(
 const sourceCss = await readFile(path.join(root, "app", "globals.css"), "utf8");
 const previewCss = sourceCss.replace(
   '@import "tailwindcss";',
-  '@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:wdth,wght@75..100,100..900&family=Noto+Sans+Hebrew:wdth,wght@75..100,100..900&display=swap");',
+  '@import url("https://fonts.googleapis.com/css2?family=Heebo:wght@100..900&family=Noto+Sans:wdth,wght@75..100,100..900&display=swap");',
 ).replaceAll('url("/', 'url("./');
 const founderPhoto = await readFile(
   path.join(root, "public", "adir-naor-founder.jpg"),

@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:wdth,wght@75..100,100..900&family=Noto+Sans+Hebrew:wdth,wght@75..100,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Heebo:wght@100..900&family=Noto+Sans:wdth,wght@75..100,100..900&display=swap");
 
 :root {
   --pink: #e9176a;
@@ -25,16 +25,13 @@ body {
   margin: 0;
   background: var(--white);
   color: var(--ink);
-  font-family: var(--font-noto-sans), "Noto Sans", Arial, sans-serif;
+  font-family: var(--font-noto-sans, "Noto Sans"), Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
 [lang="he"] body {
   font-family:
-    var(--font-noto-sans-hebrew),
-    "Noto Sans Hebrew",
-    var(--font-noto-sans),
-    "Noto Sans",
+    var(--font-heebo, "Heebo"),
     Arial,
     sans-serif;
 }
@@ -1927,6 +1924,28 @@ h1 span {
   .button:hover {
     transform: none;
   }
+}
+
+[lang="he"] :is(h1, h2, h3, h4) {
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+}
+
+[lang="he"] :is(p, a, button, input, select, textarea, label, span) {
+  letter-spacing: 0;
+}
+
+[lang="he"] :is(.desktop-nav, .mobile-menu, .button, .eyebrow, .language-switcher) {
+  font-weight: 600;
+}
+
+[lang="he"] .hero-copy h1 {
+  line-height: 1.04;
+}
+
+[lang="he"] .team-member strong {
+  font-weight: 650;
 }
 
 @media (prefers-reduced-motion: reduce) {
