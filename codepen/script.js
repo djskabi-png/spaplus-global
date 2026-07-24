@@ -869,10 +869,10 @@ const companyData = {
       },
       "roles": {
         "founder": "Founder, entrepreneur and Group CEO",
-        "vpDevelopment": "VP Development and Technology",
-        "vpSales": "VP Sales",
-        "vpOperations": "VP Operations",
-        "vpFinance": "VP Finance",
+        "vpDevelopment": "VP of Development and Technology",
+        "vpSales": "VP of Sales",
+        "vpOperations": "VP of Operations",
+        "vpFinance": "VP of Finance",
         "groupManagement": "Group Management",
         "developmentManager": "Development Manager",
         "developer": "Software Developer",
@@ -1646,9 +1646,9 @@ const renderTeam = (locale, company) => {
       initials.setAttribute("aria-hidden", "true");
       initials.textContent = initialsFor(displayName);
       const copy = document.createElement("div");
-      const name = document.createElement("strong");
+      const name = document.createElement("h4");
       name.textContent = displayName;
-      const role = document.createElement("span");
+      const role = document.createElement("p");
       role.textContent = company.roles[member.role];
       copy.append(name, role);
       card.append(initials, copy);

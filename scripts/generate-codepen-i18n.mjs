@@ -112,9 +112,9 @@ const renderTeam = (locale, company) => {
       initials.setAttribute("aria-hidden", "true");
       initials.textContent = initialsFor(displayName);
       const copy = document.createElement("div");
-      const name = document.createElement("strong");
+      const name = document.createElement("h4");
       name.textContent = displayName;
-      const role = document.createElement("span");
+      const role = document.createElement("p");
       role.textContent = company.roles[member.role];
       copy.append(name, role);
       card.append(initials, copy);

@@ -63,6 +63,9 @@ test("all nine localized experiences are included", async () => {
   assert.match(script, /"Roy Plombo"/);
   assert.match(script, /"Shahaf Yifrah"/);
   assert.equal((script.match(/"nameLatin":/g) || []).length, 22);
+  assert.match(script, /document\.createElement\("h4"\)/);
+  assert.match(script, /document\.createElement\("p"\)/);
+  assert.doesNotMatch(script, /const name = document\.createElement\("strong"\)/);
 });
 
 test("public copy follows the SpaPlus writing rules", async () => {
