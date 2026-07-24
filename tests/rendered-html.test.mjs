@@ -14,8 +14,8 @@ test("static preview is a complete standalone website", async () => {
 
   assert.match(html, /^<!doctype html>/i);
   assert.match(html, /<meta charset="utf-8">/i);
-  assert.match(html, /href="\.\/style\.css"/i);
-  assert.match(html, /src="\.\/script\.js"/i);
+  assert.match(html, /href="\.\/style\.css\?v=[^"]+"/i);
+  assert.match(html, /src="\.\/script\.js\?v=[^"]+"/i);
 
   for (const id of [
     "main-content",
