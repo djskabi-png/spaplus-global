@@ -696,7 +696,7 @@ function renderFunnelPage(market, type) {
     <div><p>${escapeHtml(ui.en.legal)}</p></div>
     <nav><a href="/spaplus-global${marketPath(market)}">Market preview</a><a href="/spaplus-global/en/#privacy">Privacy</a></nav>
   </footer>
-  <script src="/spaplus-global/markets/market.js"></script>
+  <script src="/spaplus-global/markets/market.js?v=20260725-2"></script>
 </body>
 </html>`;
 }
@@ -902,7 +902,7 @@ function renderMarketPage(market) {
 
   <button class="share-market" type="button" aria-label="Share this page">Share</button>
   <div class="share-toast" role="status" aria-live="polite"></div>
-  <script src="/spaplus-global/markets/market.js"></script>
+  <script src="/spaplus-global/markets/market.js?v=20260725-2"></script>
 </body>
 </html>`;
 }
