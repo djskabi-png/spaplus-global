@@ -1,8 +1,13 @@
 
+@import url("https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap");
 :root{--navy:#142b4b;--navy-deep:#0d1f37;--pink:#ed1764;--rose:#fff2f6;--cream:#fbf9f7;--ink:#172d4f;--muted:#667289;--line:#dce2e8;--white:#fff}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--cream);color:var(--ink);font-family:Inter,"Noto Sans","Noto Sans Hebrew",Arial,sans-serif;line-height:1.6}
+[dir="rtl"] body{font-family:Heebo,Arial,sans-serif}
+[dir="rtl"] .market-hero-shade{background:linear-gradient(270deg,rgba(10,29,52,.88),rgba(10,29,52,.5) 46%,rgba(10,29,52,.1)),linear-gradient(0deg,rgba(10,29,52,.55),transparent 55%)}
+[dir="rtl"] .funnel-hero{background-image:linear-gradient(270deg,rgba(9,26,48,.94),rgba(9,26,48,.55)),var(--market-image)}
+[dir="rtl"] .share-market,[dir="rtl"] .share-toast{right:auto;left:20px}
 a{color:inherit}
 img{max-width:100%}
 .skip-link{position:fixed;inset-block-start:8px;inset-inline-start:8px;z-index:50;transform:translateY(-140%);background:#fff;padding:10px 14px;border-radius:8px}.skip-link:focus{transform:none}
