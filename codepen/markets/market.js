@@ -107,12 +107,39 @@ if (funnelForm) {
     submit.disabled = true;
     status.textContent = "Sending...";
     try {
-      const response = await fetch("https://spaplus-global-brand.adir-naor-7510.chatgpt.site/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) throw new Error("Primary endpoint failed");
+      let response = null;
+      try {
+        response = await fetch("https://spaplus-global-brand.adir-naor-7510.chatgpt.site/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify(payload),
+        });
+      } catch {
+        response = null;
+      }
+      if (!response?.ok) {
+        response = await fetch("https://formsubmit.co/ajax/93567c940af3bbace0ca1b462708c256", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({
+            name: formValues.name,
+            email: formValues.email,
+            phone: formValues.phone,
+            company: formValues.company,
+            website: formValues.website || "Not provided",
+            market: formValues.market,
+            lead_type: formValues.leadType,
+            message: formValues.message,
+            campaign_attribution: campaignDetails || "Direct",
+            page: location.href,
+            _subject: "[SpaPlus Global] " + topic,
+            _template: "box",
+            _autoresponse:
+              "Thank you for contacting SpaPlus Global. We have received your enquiry and our team will review it shortly.",
+          }),
+        });
+      }
+      if (!response.ok) throw new Error("Delivery endpoints failed");
       window.dataLayer.push({
         event: "generate_lead",
         lead_type: formValues.leadType,
