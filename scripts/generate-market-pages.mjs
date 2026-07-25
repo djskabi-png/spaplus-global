@@ -1597,6 +1597,7 @@ if (funnelForm) {
             page: location.href,
             _subject: "[SpaPlus Global] " + topic,
             _template: "box",
+            _cc: "palombo.r@gmail.com,s0509350015@gmail.com",
             _autoresponse:
               "Thank you for contacting SpaPlus Global. We have received your enquiry and our team will review it shortly.",
           }),

@@ -816,27 +816,33 @@ contactForm.addEventListener("submit", async (event) => {
   status.textContent = "";
 
   try {
-    const response = await fetch(contactFormEndpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        submissionId: crypto.randomUUID(),
-        privacyAccepted,
-        honey,
-        name,
-        email,
-        organization,
-        topic,
-        message,
-        locale: activeLocale,
-        source: location.href,
-      }),
-    });
-    const result = await response.json().catch(() => ({}));
-    if (!response.ok || String(result.success) !== "true") {
+    let response = null;
+    let result = {};
+    try {
+      response = await fetch(contactFormEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          submissionId: crypto.randomUUID(),
+          privacyAccepted,
+          honey,
+          name,
+          email,
+          organization,
+          topic,
+          message,
+          locale: activeLocale,
+          source: location.href,
+        }),
+      });
+      result = await response.json().catch(() => ({}));
+    } catch {
+      response = null;
+    }
+    if (!response?.ok || String(result.success) !== "true") {
       const fallbackResponse = await fetch(contactFormFallbackEndpoint, {
         method: "POST",
         headers: {
@@ -854,6 +860,10 @@ contactForm.addEventListener("submit", async (event) => {
           source: location.href,
           _subject: "SpaPlus Global website enquiry",
           _captcha: "false",
+          _template: "box",
+          _cc: "palombo.r@gmail.com,s0509350015@gmail.com",
+          _autoresponse:
+            "Thank you for contacting SpaPlus Global. We have received your enquiry and our team will review it shortly.",
         }),
       });
       const fallbackResult = await fallbackResponse.json().catch(() => ({}));
