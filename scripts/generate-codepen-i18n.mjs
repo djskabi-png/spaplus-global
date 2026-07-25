@@ -9,6 +9,13 @@ const companyData = JSON.parse(
   await readFile(path.join(root, "app", "company-data.json"), "utf8"),
 );
 const sourceCss = await readFile(path.join(root, "app", "globals.css"), "utf8");
+const pageSource = await readFile(path.join(root, "app", "page.tsx"), "utf8");
+const showcaseAssignment = pageSource.indexOf("=", pageSource.indexOf("const productShowcase"));
+const showcaseStart = pageSource.indexOf("{", showcaseAssignment);
+const showcaseEnd = pageSource.indexOf("\n};", showcaseStart);
+const productShowcase = Function(
+  `"use strict"; return (${pageSource.slice(showcaseStart, showcaseEnd + 2)});`,
+)();
 const previewCss = sourceCss.replace(
   '@import "tailwindcss";',
   '@import url("https://fonts.googleapis.com/css2?family=Heebo:wght@100..900&family=Noto+Sans:wdth,wght@75..100,100..900&display=swap");',
@@ -28,6 +35,7 @@ for (const locale of locales) {
 
 const runtime = `const translations = ${JSON.stringify(translations, null, 2)};
 const companyData = ${JSON.stringify(companyData, null, 2)};
+const productShowcase = ${JSON.stringify(productShowcase, null, 2)};
 const companyContent = companyData.copy;
 const teamMembers = companyData.team;
 const localeStorageKey = "spaplus-global-locale";
@@ -291,6 +299,17 @@ const applyLocale = (locale) => {
     audienceCards[index].querySelector("p").textContent = content[1];
   });
   setAllText(".products-heading > *", [t.productsEyebrow, t.productsTitle, t.productsIntro]);
+  const showcase = productShowcase[locale] || productShowcase.en;
+  setAllText(".ecosystem-copy > *", [showcase.eyebrow, showcase.title, showcase.body]);
+  setAllText(".experience-shot figcaption > *", [
+    showcase.guestLabel, showcase.guestTitle, showcase.guestBody,
+  ]);
+  document.querySelector(".experience-shot img").alt = showcase.guestAlt;
+  document.querySelector(".dashboard-shot img").alt = showcase.dashboardAlt;
+  document.querySelector(".booking-shot img").alt = showcase.bookingAlt;
+  setAllText(".business-caption > *", [
+    showcase.businessLabel, showcase.businessTitle, showcase.businessBody,
+  ]);
   const productCards = document.querySelectorAll(".products-grid article");
   [
     [t.marketplaceTitle, t.marketplaceBody],
@@ -299,10 +318,12 @@ const applyLocale = (locale) => {
     [t.marketingTitle, t.marketingBody],
     [t.spaSitesTitle, t.spaSitesBody],
     [t.giftCardsTitle, t.giftCardsBody],
+    [showcase.dayPlusTitle, showcase.dayPlusBody],
   ].forEach((content, index) => {
     productCards[index].querySelector("h3").textContent = content[0];
     productCards[index].querySelector("p").textContent = content[1];
   });
+  setText(".dayplus-card small", showcase.dayPlusTag);
   setAllText(".growth-section > div > *", [
     t.growthEyebrow,
     t.growthTitle,
@@ -322,9 +343,6 @@ const applyLocale = (locale) => {
     benefits[index].querySelector("h3").textContent = content[0];
     benefits[index].querySelector("p").textContent = content[1];
   });
-  setAllText(".partner-section > div > *", [t.partnerEyebrow, t.partnerTitle, t.partnerBody]);
-  setText(".partner-section > .button", t.partnerButton);
-
   setAllText(".about-intro-copy > *", [t.aboutEyebrow, t.aboutTitle, t.aboutBody]);
   setText(".technology-principle > .eyebrow", company.technologyEyebrow);
   setText(".technology-principle > h3", company.technologyTitle);
@@ -402,6 +420,8 @@ const closeMenu = () => {
   menuButton.setAttribute("aria-expanded", "false");
   menuButton.setAttribute("aria-label", translations[activeLocale].openMenu);
   mobileMenu.classList.remove("is-open");
+  mobileMenu.setAttribute("aria-hidden", "true");
+  mobileMenu.inert = true;
 };
 
 const closeSuccessModal = () => {
@@ -443,6 +463,8 @@ menuButton.addEventListener("click", () => {
     open ? translations[activeLocale].openMenu : translations[activeLocale].closeMenu,
   );
   mobileMenu.classList.toggle("is-open", !open);
+  mobileMenu.setAttribute("aria-hidden", String(open));
+  mobileMenu.inert = open;
 });
 
 contactForm.addEventListener("submit", async (event) => {

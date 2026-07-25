@@ -1064,6 +1064,157 @@ h1 span {
   line-height: 1.72;
 }
 
+.ecosystem-intro {
+  margin: 0 0 42px;
+  padding: clamp(26px, 4vw, 54px);
+  display: grid;
+  grid-template-columns: minmax(260px, 0.72fr) minmax(0, 1.28fr);
+  align-items: center;
+  gap: clamp(28px, 5vw, 72px);
+  overflow: hidden;
+  border: 1px solid rgba(20, 36, 61, 0.1);
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 5% 8%, rgba(233, 23, 106, 0.12), transparent 34%),
+    linear-gradient(145deg, #fff8fb, #f5f8fc 62%, #eef4fb);
+}
+
+.ecosystem-copy h3 {
+  max-width: 610px;
+  margin: 0;
+  color: var(--navy);
+  font-size: clamp(34px, 4vw, 58px);
+  line-height: 1.04;
+  letter-spacing: -2.4px;
+}
+
+.ecosystem-copy > p:last-child {
+  max-width: 580px;
+  margin: 22px 0 0;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.72;
+}
+
+.ecosystem-visual {
+  position: relative;
+  min-height: 570px;
+}
+
+.ecosystem-visual figure {
+  margin: 0;
+}
+
+.experience-shot {
+  position: absolute;
+  inset: 0 26% 16% 0;
+  overflow: hidden;
+  border-radius: 24px;
+  background: var(--navy);
+  box-shadow: 0 28px 70px rgba(20, 36, 61, 0.18);
+}
+
+.experience-shot::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 35%, rgba(11, 25, 46, 0.9));
+  content: "";
+}
+
+.experience-shot img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.experience-shot figcaption {
+  position: absolute;
+  z-index: 1;
+  right: 28px;
+  bottom: 26px;
+  left: 28px;
+  display: grid;
+  gap: 7px;
+  color: white;
+}
+
+.experience-shot figcaption span,
+.business-caption span {
+  color: #ff94bb;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.experience-shot figcaption strong,
+.business-caption strong {
+  font-size: 20px;
+  line-height: 1.22;
+}
+
+.experience-shot figcaption small,
+.business-caption small {
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.product-shot {
+  position: absolute;
+  overflow: hidden;
+  border: 6px solid white;
+  border-radius: 18px;
+  background: white;
+  box-shadow: 0 22px 58px rgba(20, 36, 61, 0.24);
+}
+
+.product-shot img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: top left;
+}
+
+.dashboard-shot {
+  top: 8%;
+  right: 0;
+  width: 57%;
+  height: 38%;
+  background:
+    radial-gradient(circle at 85% 10%, rgba(233, 23, 106, 0.25), transparent 36%),
+    #14243d;
+}
+
+.dashboard-shot img {
+  padding: 18%;
+  object-fit: contain;
+  filter: invert(1);
+}
+
+.booking-shot {
+  right: 4%;
+  bottom: 17%;
+  width: 47%;
+  height: 30%;
+}
+
+.business-caption {
+  position: absolute;
+  right: 1%;
+  bottom: 0;
+  width: 54%;
+  padding: 18px 20px;
+  display: grid;
+  gap: 5px;
+  border-radius: 16px;
+  background: var(--navy);
+  color: white;
+  box-shadow: 0 18px 45px rgba(20, 36, 61, 0.22);
+}
+
 .products-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1106,6 +1257,50 @@ h1 span {
   color: var(--muted);
   font-size: 14px;
   line-height: 1.65;
+}
+
+.products-grid .dayplus-card {
+  position: relative;
+  grid-column: span 3;
+  min-height: 210px;
+  padding-right: min(35vw, 450px);
+  overflow: hidden;
+  border-color: rgba(233, 23, 106, 0.24);
+  background:
+    radial-gradient(circle at 88% 30%, rgba(233, 23, 106, 0.18), transparent 24%),
+    linear-gradient(120deg, #fff6fa, #f3f7fc);
+}
+
+.products-grid .dayplus-card::after {
+  position: absolute;
+  right: 7%;
+  bottom: -44px;
+  width: 220px;
+  height: 220px;
+  border: 42px solid rgba(233, 23, 106, 0.13);
+  border-radius: 50%;
+  content: "";
+}
+
+.products-grid .dayplus-card h3 {
+  margin-top: 42px;
+}
+
+.products-grid .dayplus-card small {
+  margin-top: 18px;
+  color: var(--pink);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+[dir="rtl"] .products-grid .dayplus-card {
+  padding-right: 30px;
+  padding-left: min(35vw, 450px);
+}
+
+[dir="rtl"] .products-grid .dayplus-card::after {
+  right: auto;
+  left: 7%;
 }
 
 .growth-section {
@@ -2414,6 +2609,36 @@ body.modal-open {
     padding: 76px 24px;
   }
 
+  .ecosystem-intro {
+    grid-template-columns: 1fr;
+  }
+
+  .ecosystem-visual {
+    min-height: 600px;
+  }
+
+  .products-grid .dayplus-card {
+    grid-column: auto;
+    padding-right: 30px;
+    padding-bottom: 150px;
+  }
+
+  [dir="rtl"] .products-grid .dayplus-card {
+    padding-left: 30px;
+    padding-bottom: 150px;
+  }
+
+  .products-grid .dayplus-card::after {
+    right: 50%;
+    bottom: -110px;
+    transform: translateX(50%);
+  }
+
+  [dir="rtl"] .products-grid .dayplus-card::after {
+    right: 50%;
+    left: auto;
+  }
+
   .legal-section {
     padding: 34px 24px 62px;
     grid-template-columns: 1fr;
@@ -2622,6 +2847,53 @@ body.modal-open {
 
   .story-image {
     min-height: 350px;
+  }
+
+  .products-section {
+    padding-inline: 18px;
+  }
+
+  .products-heading h2,
+  .ecosystem-copy h3 {
+    font-size: 39px;
+    letter-spacing: -1.7px;
+  }
+
+  .ecosystem-intro {
+    padding: 22px;
+    border-radius: 22px;
+  }
+
+  .ecosystem-visual {
+    min-height: 640px;
+  }
+
+  .experience-shot {
+    inset: 0 0 36% 0;
+  }
+
+  .dashboard-shot {
+    top: auto;
+    right: 2%;
+    bottom: 20%;
+    width: 78%;
+    height: 25%;
+  }
+
+  .booking-shot {
+    display: none;
+  }
+
+  .business-caption {
+    right: 0;
+    bottom: 0;
+    width: 92%;
+  }
+
+  .experience-shot figcaption {
+    right: 20px;
+    bottom: 20px;
+    left: 20px;
   }
 
   .benefit-grid article {

@@ -1275,11 +1275,11 @@ const companyData = {
       "formTopic": "What would you like to discuss?",
       "formMessage": "Your message",
       "topics": [
-        "Partnership",
+        "Strategic partnership",
         "Join SpaPlus as a spa",
         "Technology",
         "Media",
-        "Investment",
+        "International expansion",
         "Something else"
       ],
       "formSubmit": "Send message",
@@ -1370,11 +1370,11 @@ const companyData = {
       "formTopic": "על מה תרצו לדבר?",
       "formMessage": "ההודעה שלכם",
       "topics": [
-        "שותפות",
+        "שותפות אסטרטגית",
         "הצטרפות ל־SpaPlus כבית ספא",
         "טכנולוגיה",
         "תקשורת",
-        "השקעה",
+        "התרחבות בינלאומית",
         "נושא אחר"
       ],
       "formSubmit": "שליחת ההודעה",
@@ -1465,11 +1465,11 @@ const companyData = {
       "formTopic": "De quoi aimeriez-vous discuter?",
       "formMessage": "Votre message",
       "topics": [
-        "Partenariat",
+        "Partenariat stratégique",
         "Inscrire un spa à SpaPlus",
         "Technologie",
         "Médias",
-        "Investissement",
+        "Expansion internationale",
         "Autre sujet"
       ],
       "formSubmit": "Envoyer le message",
@@ -1560,11 +1560,11 @@ const companyData = {
       "formTopic": "Что вы хотите обсудить?",
       "formMessage": "Ваше сообщение",
       "topics": [
-        "Партнёрство",
+        "Стратегическое партнёрство",
         "Подключить спа к SpaPlus",
         "Технологии",
         "СМИ",
-        "Инвестиции",
+        "Международное развитие",
         "Другая тема"
       ],
       "formSubmit": "Отправить сообщение",
@@ -1655,11 +1655,11 @@ const companyData = {
       "formTopic": "Τι θέλετε να συζητήσουμε;",
       "formMessage": "Το μήνυμά σας",
       "topics": [
-        "Συνεργασία",
+        "Στρατηγική συνεργασία",
         "Ένταξη spa στη SpaPlus",
         "Τεχνολογία",
         "Μέσα",
-        "Επένδυση",
+        "Διεθνής ανάπτυξη",
         "Άλλο θέμα"
       ],
       "formSubmit": "Αποστολή μηνύματος",
@@ -1750,11 +1750,11 @@ const companyData = {
       "formTopic": "Di cosa vuoi parlare?",
       "formMessage": "Il tuo messaggio",
       "topics": [
-        "Partnership",
+        "Partnership strategica",
         "Aggiungere una spa a SpaPlus",
         "Tecnologia",
         "Media",
-        "Investimento",
+        "Espansione internazionale",
         "Altro"
       ],
       "formSubmit": "Invia il messaggio",
@@ -1845,11 +1845,11 @@ const companyData = {
       "formTopic": "Miről szeretnél beszélni?",
       "formMessage": "Üzenet",
       "topics": [
-        "Partnerség",
+        "Stratégiai partnerség",
         "Spa csatlakoztatása",
         "Technológia",
         "Média",
-        "Befektetés",
+        "Nemzetközi terjeszkedés",
         "Más téma"
       ],
       "formSubmit": "Üzenet küldése",
@@ -1940,11 +1940,11 @@ const companyData = {
       "formTopic": "O czym chcesz porozmawiać?",
       "formMessage": "Twoja wiadomość",
       "topics": [
-        "Partnerstwo",
+        "Partnerstwo strategiczne",
         "Dołączenie spa do SpaPlus",
         "Technologia",
         "Media",
-        "Inwestycja",
+        "Ekspansja międzynarodowa",
         "Inny temat"
       ],
       "formSubmit": "Wyślij wiadomość",
@@ -2035,11 +2035,11 @@ const companyData = {
       "formTopic": "¿De qué quieres hablar?",
       "formMessage": "Tu mensaje",
       "topics": [
-        "Alianza",
+        "Alianza estratégica",
         "Incorporar un spa a SpaPlus",
         "Tecnología",
         "Medios",
-        "Inversión",
+        "Expansión internacional",
         "Otro tema"
       ],
       "formSubmit": "Enviar mensaje",
@@ -2052,6 +2052,161 @@ const companyData = {
       "formError": "No se pudo enviar el mensaje. Inténtalo de nuevo o escríbenos por correo.",
       "directEmail": "¿Prefieres escribir directamente?"
     }
+  }
+};
+const productShowcase = {
+  "en": {
+    "eyebrow": "One connected ecosystem",
+    "title": "A better experience for guests. A stronger business for spa partners.",
+    "body": "SpaPlus connects inspiration, booking, operations and long-term guest relationships in one wellness ecosystem.",
+    "guestLabel": "For guests",
+    "guestTitle": "From a moment of inspiration to a day worth remembering.",
+    "guestBody": "Couples, groups and solo guests discover the right experience and book it with confidence.",
+    "businessLabel": "For spa businesses",
+    "businessTitle": "Real tools for the people running the experience.",
+    "businessBody": "BizSpa brings bookings, schedules, payments, performance and customer relationships into one clear workspace.",
+    "dayPlusTitle": "DayPlus",
+    "dayPlusBody": "A dedicated Day Pass and day experience management system for groups, organizations and hospitality businesses.",
+    "dayPlusTag": "Groups and organizations",
+    "guestAlt": "A real SpaPlus treatment room prepared for two guests",
+    "dashboardAlt": "BizSpa business management platform",
+    "bookingAlt": "BizSpa online booking system in English"
+  },
+  "he": {
+    "eyebrow": "מערכת אחת שמחברת הכל",
+    "title": "חוויה טובה יותר לאורחים. עסק חזק יותר לשותפי הספא.",
+    "body": "SpaPlus מחברת בין השראה, הזמנה, תפעול וקשר ארוך טווח עם הלקוחות, בתוך עולם וולנס אחד.",
+    "guestLabel": "לאורחים",
+    "guestTitle": "מרגע של השראה ליום ששווה לזכור.",
+    "guestBody": "זוגות, קבוצות וגם מי שבא לבד מוצאים את החוויה שמתאימה להם ומזמינים בביטחון.",
+    "businessLabel": "לעסקי הספא",
+    "businessTitle": "כלים אמיתיים לאנשים שמנהלים את החוויה.",
+    "businessBody": "BizSpa מרכזת הזמנות, יומנים, תשלומים, ביצועים וקשרי לקוחות בסביבת עבודה אחת וברורה.",
+    "dayPlusTitle": "DayPlus",
+    "dayPlusBody": "מערכת ייעודית לניהול Day Pass וימי כיף לקבוצות, ארגונים ומקומות אירוח.",
+    "dayPlusTag": "קבוצות וארגונים",
+    "guestAlt": "חדר טיפולים אמיתי של SpaPlus המוכן לשני אורחים",
+    "dashboardAlt": "פלטפורמת הניהול העסקי BizSpa",
+    "bookingAlt": "מערכת ההזמנות המקוונת של BizSpa באנגלית"
+  },
+  "fr-CA": {
+    "eyebrow": "Un écosystème connecté",
+    "title": "Une meilleure expérience pour les clients. Une entreprise plus forte pour nos partenaires.",
+    "body": "SpaPlus relie l’inspiration, la réservation, les opérations et la relation client dans un même écosystème mieux-être.",
+    "guestLabel": "Pour les clients",
+    "guestTitle": "D’une envie de décrocher à une journée qui fait vraiment du bien.",
+    "guestBody": "En couple, en groupe ou en solo, chacun trouve l’expérience qui lui convient et réserve en toute confiance.",
+    "businessLabel": "Pour les entreprises",
+    "businessTitle": "Des outils concrets pour celles et ceux qui font vivre l’expérience.",
+    "businessBody": "BizSpa réunit réservations, horaires, paiements, performance et relations clients dans un espace clair.",
+    "dayPlusTitle": "DayPlus",
+    "dayPlusBody": "Une solution dédiée à la gestion des journées détente et des Day Pass pour les groupes, les organisations et l’hôtellerie.",
+    "dayPlusTag": "Groupes et organisations",
+    "guestAlt": "Une salle de soins SpaPlus préparée pour deux personnes",
+    "dashboardAlt": "Plateforme de gestion BizSpa",
+    "bookingAlt": "Système de réservation en ligne BizSpa en anglais"
+  },
+  "ru": {
+    "eyebrow": "Единая экосистема",
+    "title": "Лучший опыт для гостей. Более сильный бизнес для спа-партнеров.",
+    "body": "SpaPlus объединяет вдохновение, бронирование, управление и долгосрочные отношения с гостями.",
+    "guestLabel": "Для гостей",
+    "guestTitle": "От желания отдохнуть до дня, который хочется запомнить.",
+    "guestBody": "Пары, группы и самостоятельные гости легко находят подходящий формат и уверенно бронируют.",
+    "businessLabel": "Для спа-бизнеса",
+    "businessTitle": "Практичные инструменты для тех, кто создает впечатления.",
+    "businessBody": "BizSpa объединяет бронирования, расписания, платежи, аналитику и работу с клиентами.",
+    "dayPlusTitle": "DayPlus",
+    "dayPlusBody": "Система управления Day Pass и днями отдыха для групп, компаний и объектов гостеприимства.",
+    "dayPlusTag": "Группы и компании",
+    "guestAlt": "Реальный кабинет SpaPlus, подготовленный для двух гостей",
+    "dashboardAlt": "Платформа управления BizSpa",
+    "bookingAlt": "Онлайн-бронирование BizSpa на английском языке"
+  },
+  "el": {
+    "eyebrow": "Ένα ενιαίο οικοσύστημα",
+    "title": "Καλύτερη εμπειρία για τους επισκέπτες. Ισχυρότερη επιχείρηση για τους συνεργάτες spa.",
+    "body": "Το SpaPlus συνδέει την έμπνευση, την κράτηση, τη λειτουργία και τη σχέση με τον πελάτη σε ένα οικοσύστημα ευεξίας.",
+    "guestLabel": "Για τους επισκέπτες",
+    "guestTitle": "Από την ανάγκη για ξεκούραση σε μια ημέρα που αξίζει να θυμάσαι.",
+    "guestBody": "Ζευγάρια, παρέες και μεμονωμένοι επισκέπτες βρίσκουν τη σωστή εμπειρία και κλείνουν με σιγουριά.",
+    "businessLabel": "Για τις επιχειρήσεις spa",
+    "businessTitle": "Πραγματικά εργαλεία για όσους δημιουργούν την εμπειρία.",
+    "businessBody": "Το BizSpa συγκεντρώνει κρατήσεις, πρόγραμμα, πληρωμές, απόδοση και πελατολόγιο.",
+    "dayPlusTitle": "DayPlus",
+    "dayPlusBody": "Σύστημα διαχείρισης Day Pass και ημερήσιων εμπειριών για ομάδες, οργανισμούς και μονάδες φιλοξενίας.",
+    "dayPlusTag": "Ομάδες και οργανισμοί",
+    "guestAlt": "Πραγματική αίθουσα θεραπείας SpaPlus για δύο επισκέπτες",
+    "dashboardAlt": "Πλατφόρμα διαχείρισης BizSpa",
+    "bookingAlt": "Ηλεκτρονικό σύστημα κρατήσεων BizSpa στα αγγλικά"
+  },
+  "it": {
+    "eyebrow": "Un unico ecosistema",
+    "title": "Un’esperienza migliore per gli ospiti. Un business più forte per i partner spa.",
+    "body": "SpaPlus unisce ispirazione, prenotazione, gestione e relazione con il cliente in un solo ecosistema wellness.",
+    "guestLabel": "Per gli ospiti",
+    "guestTitle": "Da un momento di ispirazione a una giornata da ricordare.",
+    "guestBody": "Coppie, gruppi e ospiti singoli trovano l’esperienza giusta e prenotano con fiducia.",
+    "businessLabel": "Per le attività spa",
+    "businessTitle": "Strumenti concreti per chi crea l’esperienza.",
+    "businessBody": "BizSpa riunisce prenotazioni, agenda, pagamenti, performance e relazioni con i clienti.",
+    "dayPlusTitle": "DayPlus",
+    "dayPlusBody": "Il sistema per gestire Day Pass e giornate benessere per gruppi, aziende e strutture ricettive.",
+    "dayPlusTag": "Gruppi e aziende",
+    "guestAlt": "Una vera cabina SpaPlus preparata per due ospiti",
+    "dashboardAlt": "Piattaforma gestionale BizSpa",
+    "bookingAlt": "Sistema di prenotazione online BizSpa in inglese"
+  },
+  "hu": {
+    "eyebrow": "Egy összekapcsolt rendszer",
+    "title": "Jobb élmény a vendégeknek. Erősebb üzlet a spa partnereknek.",
+    "body": "A SpaPlus egyetlen wellness ökoszisztémában kapcsolja össze az inspirációt, a foglalást, a működést és az ügyfélkapcsolatokat.",
+    "guestLabel": "Vendégeknek",
+    "guestTitle": "Az első ötlettől egy emlékezetes napig.",
+    "guestBody": "Párok, csoportok és egyéni vendégek könnyen megtalálják és magabiztosan lefoglalják a megfelelő élményt.",
+    "businessLabel": "Spa vállalkozásoknak",
+    "businessTitle": "Valódi eszközök azoknak, akik az élményt működtetik.",
+    "businessBody": "A BizSpa egy helyen kezeli a foglalásokat, időbeosztást, fizetéseket, teljesítményt és ügyfélkapcsolatokat.",
+    "dayPlusTitle": "DayPlus",
+    "dayPlusBody": "Day Pass és élménynap-kezelő rendszer csoportok, szervezetek és vendéglátóhelyek számára.",
+    "dayPlusTag": "Csoportok és szervezetek",
+    "guestAlt": "Két vendég számára előkészített valódi SpaPlus kezelőszoba",
+    "dashboardAlt": "BizSpa üzleti platform",
+    "bookingAlt": "BizSpa online foglalási rendszer angol nyelven"
+  },
+  "pl": {
+    "eyebrow": "Jeden połączony ekosystem",
+    "title": "Lepsze doświadczenie dla gości. Silniejszy biznes dla partnerów spa.",
+    "body": "SpaPlus łączy inspirację, rezerwację, obsługę i relacje z klientami w jednym ekosystemie wellness.",
+    "guestLabel": "Dla gości",
+    "guestTitle": "Od pomysłu na odpoczynek do dnia, który warto zapamiętać.",
+    "guestBody": "Pary, grupy i osoby odwiedzające spa solo łatwo znajdują właściwe doświadczenie i rezerwują bez obaw.",
+    "businessLabel": "Dla biznesu spa",
+    "businessTitle": "Praktyczne narzędzia dla ludzi, którzy tworzą doświadczenie.",
+    "businessBody": "BizSpa łączy rezerwacje, grafik, płatności, wyniki i relacje z klientami.",
+    "dayPlusTitle": "DayPlus",
+    "dayPlusBody": "System do zarządzania Day Pass i dniami wellness dla grup, firm i obiektów hotelarskich.",
+    "dayPlusTag": "Grupy i firmy",
+    "guestAlt": "Prawdziwy gabinet SpaPlus przygotowany dla dwóch gości",
+    "dashboardAlt": "Platforma zarządzania BizSpa",
+    "bookingAlt": "System rezerwacji online BizSpa w języku angielskim"
+  },
+  "es": {
+    "eyebrow": "Un ecosistema conectado",
+    "title": "Una experiencia mejor para los clientes. Un negocio más sólido para los spas.",
+    "body": "SpaPlus conecta inspiración, reservas, operaciones y relación con el cliente dentro de un mismo ecosistema de bienestar.",
+    "guestLabel": "Para los clientes",
+    "guestTitle": "De las ganas de desconectar a un día que merece la pena recordar.",
+    "guestBody": "Parejas, grupos y personas que vienen solas encuentran la experiencia adecuada y reservan con confianza.",
+    "businessLabel": "Para los negocios de spa",
+    "businessTitle": "Herramientas reales para quienes hacen posible la experiencia.",
+    "businessBody": "BizSpa reúne reservas, agenda, pagos, rendimiento y relación con clientes en un espacio claro.",
+    "dayPlusTitle": "DayPlus",
+    "dayPlusBody": "Sistema para gestionar Day Pass y jornadas de bienestar para grupos, empresas y alojamientos.",
+    "dayPlusTag": "Grupos y empresas",
+    "guestAlt": "Una sala real de SpaPlus preparada para dos clientes",
+    "dashboardAlt": "Plataforma de gestión BizSpa",
+    "bookingAlt": "Sistema de reservas online BizSpa en inglés"
   }
 };
 const companyContent = companyData.copy;
@@ -2398,6 +2553,17 @@ const applyLocale = (locale) => {
     audienceCards[index].querySelector("p").textContent = content[1];
   });
   setAllText(".products-heading > *", [t.productsEyebrow, t.productsTitle, t.productsIntro]);
+  const showcase = productShowcase[locale] || productShowcase.en;
+  setAllText(".ecosystem-copy > *", [showcase.eyebrow, showcase.title, showcase.body]);
+  setAllText(".experience-shot figcaption > *", [
+    showcase.guestLabel, showcase.guestTitle, showcase.guestBody,
+  ]);
+  document.querySelector(".experience-shot img").alt = showcase.guestAlt;
+  document.querySelector(".dashboard-shot img").alt = showcase.dashboardAlt;
+  document.querySelector(".booking-shot img").alt = showcase.bookingAlt;
+  setAllText(".business-caption > *", [
+    showcase.businessLabel, showcase.businessTitle, showcase.businessBody,
+  ]);
   const productCards = document.querySelectorAll(".products-grid article");
   [
     [t.marketplaceTitle, t.marketplaceBody],
@@ -2406,10 +2572,12 @@ const applyLocale = (locale) => {
     [t.marketingTitle, t.marketingBody],
     [t.spaSitesTitle, t.spaSitesBody],
     [t.giftCardsTitle, t.giftCardsBody],
+    [showcase.dayPlusTitle, showcase.dayPlusBody],
   ].forEach((content, index) => {
     productCards[index].querySelector("h3").textContent = content[0];
     productCards[index].querySelector("p").textContent = content[1];
   });
+  setText(".dayplus-card small", showcase.dayPlusTag);
   setAllText(".growth-section > div > *", [
     t.growthEyebrow,
     t.growthTitle,
@@ -2429,9 +2597,6 @@ const applyLocale = (locale) => {
     benefits[index].querySelector("h3").textContent = content[0];
     benefits[index].querySelector("p").textContent = content[1];
   });
-  setAllText(".partner-section > div > *", [t.partnerEyebrow, t.partnerTitle, t.partnerBody]);
-  setText(".partner-section > .button", t.partnerButton);
-
   setAllText(".about-intro-copy > *", [t.aboutEyebrow, t.aboutTitle, t.aboutBody]);
   setText(".technology-principle > .eyebrow", company.technologyEyebrow);
   setText(".technology-principle > h3", company.technologyTitle);
@@ -2509,6 +2674,8 @@ const closeMenu = () => {
   menuButton.setAttribute("aria-expanded", "false");
   menuButton.setAttribute("aria-label", translations[activeLocale].openMenu);
   mobileMenu.classList.remove("is-open");
+  mobileMenu.setAttribute("aria-hidden", "true");
+  mobileMenu.inert = true;
 };
 
 const closeSuccessModal = () => {
@@ -2550,6 +2717,8 @@ menuButton.addEventListener("click", () => {
     open ? translations[activeLocale].openMenu : translations[activeLocale].closeMenu,
   );
   mobileMenu.classList.toggle("is-open", !open);
+  mobileMenu.setAttribute("aria-hidden", String(open));
+  mobileMenu.inert = open;
 });
 
 contactForm.addEventListener("submit", async (event) => {
