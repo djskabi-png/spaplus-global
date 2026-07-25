@@ -1266,7 +1266,7 @@ function renderFunnelPage(market, type) {
   <script type="application/ld+json">${JSON.stringify(schema).replaceAll("<", "\\u003c")}</script>
   <title>${escapeHtml(title)} | SpaPlus Global</title>
   <link rel="icon" href="/spaplus-global/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/spaplus-global/markets/market.css">
+  <link rel="stylesheet" href="/spaplus-global/markets/market.css?v=20260725-2">
 </head>
 <body class="funnel-page">
   <a class="skip-link" href="#main">${escapeHtml(commonUi.skip)}</a>
@@ -1515,7 +1515,7 @@ function renderMarketPage(market) {
   <meta name="twitter:image" content="${previewOrigin}/${market.image}">
   <title>${escapeHtml(pageTitle)}</title>
   <link rel="icon" href="/spaplus-global/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/spaplus-global/markets/market.css">
+  <link rel="stylesheet" href="/spaplus-global/markets/market.css?v=20260725-2">
   <script type="application/ld+json">${JSON.stringify(schema)}</script>
 </head>
 <body>
@@ -1697,7 +1697,7 @@ function renderMarketsHub(locale) {
   <meta name="twitter:card" content="summary_large_image">
   <title>${escapeHtml(title)} | SpaPlus Global</title>
   <link rel="icon" href="/spaplus-global/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/spaplus-global/markets/market.css">
+  <link rel="stylesheet" href="/spaplus-global/markets/market.css?v=20260725-2">
 </head>
 <body class="hub-page">
   <header class="market-header">
