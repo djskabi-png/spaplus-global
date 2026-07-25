@@ -39,8 +39,8 @@ export const ru: Translation = {
   canadaName: "Канада",
   canadaBody:
     "Откройте для себя спа и велнес в разных уголках Квебека, на английском и французском языках.",
-  canadaButton: "SpaPlus в Канаде",
-  canadaAria: "Перейти на сайт SpaPlus в Канаде",
+  canadaButton: "Связаться с командой в Канаде",
+  canadaAria: "Связаться с командой SpaPlus в Канаде",
   usaName: "США",
   usaBody: "Следующее направление SpaPlus уже на пути.",
   comingSoon: "Скоро",

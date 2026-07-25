@@ -39,8 +39,8 @@ export const he: Translation = {
   canadaName: "קנדה",
   canadaBody:
     "מגלים חוויות ספא וולנס ברחבי קוויבק, באנגלית ובצרפתית.",
-  canadaButton: "לאתר SpaPlus קנדה",
-  canadaAria: "מעבר לאתר SpaPlus קנדה",
+  canadaButton: "דברו עם הצוות בקנדה",
+  canadaAria: "יצירת קשר עם צוות SpaPlus קנדה",
   usaName: "ארצות הברית",
   usaBody: "היעד הבא של SpaPlus כבר בדרך.",
   comingSoon: "בקרוב",

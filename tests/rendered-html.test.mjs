@@ -51,7 +51,8 @@ test("static preview is a complete standalone website", async () => {
   assert.match(html, /data-team-group="technology"/);
   assert.match(html, /data-team-group="business"/);
   assert.match(html, /href="https:\/\/www\.spaplus\.co\.il\/"/);
-  assert.match(html, /href="https:\/\/spaplus\.ca\/en\/"/);
+  assert.match(html, /class="country-card canada-card" href="#contact"/);
+  assert.doesNotMatch(html, /href="https:\/\/(?:www\.)?spaplus\.ca/);
   assert.match(html, /class="usa-flag"/);
   assert.match(html, /class="usa-coming">COMING SOON/);
   assert.match(html, /class="global-route"/);

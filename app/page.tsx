@@ -285,8 +285,7 @@ export default function Home() {
   const t = translations[locale];
   const company = companyData.copy[locale];
   const showcase = productShowcase[locale];
-  const canadaUrl =
-    locale === "fr-CA" ? "https://spaplus.ca/fr/" : "https://spaplus.ca/en/";
+  const canadaUrl = "#contact";
 
   useEffect(() => {
     const queryLocale = new URLSearchParams(window.location.search).get("lang");

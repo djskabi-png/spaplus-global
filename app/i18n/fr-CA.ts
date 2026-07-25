@@ -39,8 +39,8 @@ export const frCA: Translation = {
   canadaName: "Canada",
   canadaBody:
     "Découvrez des expériences de spa et de mieux-être partout au Québec, en français et en anglais.",
-  canadaButton: "Visiter SpaPlus Canada",
-  canadaAria: "Visiter SpaPlus Canada",
+  canadaButton: "Parler à notre équipe au Canada",
+  canadaAria: "Communiquer avec l’équipe SpaPlus au Canada",
   usaName: "États-Unis",
   usaBody: "La prochaine destination SpaPlus se prépare.",
   comingSoon: "À venir",

@@ -39,8 +39,8 @@ export const hu: Translation = {
   canadaName: "Kanada",
   canadaBody:
     "Fedezze fel Québec spa- és wellnessélményeit angol és francia nyelven.",
-  canadaButton: "SpaPlus Kanada megnyitása",
-  canadaAria: "A SpaPlus Kanada oldalának megnyitása",
+  canadaButton: "Kapcsolat a kanadai csapattal",
+  canadaAria: "Kapcsolatfelvétel a SpaPlus kanadai csapatával",
   usaName: "Egyesült Államok",
   usaBody: "Hamarosan újabb országban folytatódik a SpaPlus története.",
   comingSoon: "Hamarosan",

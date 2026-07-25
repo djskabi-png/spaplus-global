@@ -33,8 +33,8 @@ const translations = {
     "canadaLabel": "Our Next Chapter",
     "canadaName": "Canada",
     "canadaBody": "Discover spa and wellness experiences across Quebec, in English and French.",
-    "canadaButton": "Visit SpaPlus Canada",
-    "canadaAria": "Visit SpaPlus Canada",
+    "canadaButton": "Talk to our Canada team",
+    "canadaAria": "Contact the SpaPlus Canada team",
     "usaName": "United States",
     "usaBody": "The next SpaPlus destination is on its way.",
     "comingSoon": "Coming Soon",
@@ -143,8 +143,8 @@ const translations = {
     "canadaLabel": "הפרק הבא שלנו",
     "canadaName": "קנדה",
     "canadaBody": "מגלים חוויות ספא וולנס ברחבי קוויבק, באנגלית ובצרפתית.",
-    "canadaButton": "לאתר SpaPlus קנדה",
-    "canadaAria": "מעבר לאתר SpaPlus קנדה",
+    "canadaButton": "דברו עם הצוות בקנדה",
+    "canadaAria": "יצירת קשר עם צוות SpaPlus קנדה",
     "usaName": "ארצות הברית",
     "usaBody": "היעד הבא של SpaPlus כבר בדרך.",
     "comingSoon": "בקרוב",
@@ -253,8 +253,8 @@ const translations = {
     "canadaLabel": "Notre prochain chapitre",
     "canadaName": "Canada",
     "canadaBody": "Découvrez des expériences de spa et de mieux-être partout au Québec, en français et en anglais.",
-    "canadaButton": "Visiter SpaPlus Canada",
-    "canadaAria": "Visiter SpaPlus Canada",
+    "canadaButton": "Parler à notre équipe au Canada",
+    "canadaAria": "Communiquer avec l’équipe SpaPlus au Canada",
     "usaName": "États-Unis",
     "usaBody": "La prochaine destination SpaPlus se prépare.",
     "comingSoon": "À venir",
@@ -363,8 +363,8 @@ const translations = {
     "canadaLabel": "Новая глава",
     "canadaName": "Канада",
     "canadaBody": "Откройте для себя спа и велнес в разных уголках Квебека, на английском и французском языках.",
-    "canadaButton": "SpaPlus в Канаде",
-    "canadaAria": "Перейти на сайт SpaPlus в Канаде",
+    "canadaButton": "Связаться с командой в Канаде",
+    "canadaAria": "Связаться с командой SpaPlus в Канаде",
     "usaName": "США",
     "usaBody": "Следующее направление SpaPlus уже на пути.",
     "comingSoon": "Скоро",
@@ -473,8 +473,8 @@ const translations = {
     "canadaLabel": "Το επόμενο κεφάλαιο",
     "canadaName": "Καναδάς",
     "canadaBody": "Ανακαλύψτε εμπειρίες spa και ευεξίας σε όλο το Κεμπέκ, στα αγγλικά και στα γαλλικά.",
-    "canadaButton": "SpaPlus Καναδάς",
-    "canadaAria": "Μετάβαση στον ιστότοπο SpaPlus Καναδάς",
+    "canadaButton": "Μιλήστε με την ομάδα μας στον Καναδά",
+    "canadaAria": "Επικοινωνήστε με την ομάδα SpaPlus στον Καναδά",
     "usaName": "Ηνωμένες Πολιτείες",
     "usaBody": "Ο επόμενος προορισμός της SpaPlus είναι καθ’ οδόν.",
     "comingSoon": "Σύντομα κοντά σας",
@@ -583,8 +583,8 @@ const translations = {
     "canadaLabel": "Il nostro prossimo capitolo",
     "canadaName": "Canada",
     "canadaBody": "Scopri esperienze spa e benessere in tutto il Québec, in francese e in inglese.",
-    "canadaButton": "Visita SpaPlus Canada",
-    "canadaAria": "Visita SpaPlus Canada",
+    "canadaButton": "Parla con il team in Canada",
+    "canadaAria": "Contatta il team SpaPlus in Canada",
     "usaName": "Stati Uniti",
     "usaBody": "La prossima destinazione SpaPlus è in arrivo.",
     "comingSoon": "Prossimamente",
@@ -693,8 +693,8 @@ const translations = {
     "canadaLabel": "A következő fejezet",
     "canadaName": "Kanada",
     "canadaBody": "Fedezze fel Québec spa- és wellnessélményeit angol és francia nyelven.",
-    "canadaButton": "SpaPlus Kanada megnyitása",
-    "canadaAria": "A SpaPlus Kanada oldalának megnyitása",
+    "canadaButton": "Kapcsolat a kanadai csapattal",
+    "canadaAria": "Kapcsolatfelvétel a SpaPlus kanadai csapatával",
     "usaName": "Egyesült Államok",
     "usaBody": "Hamarosan újabb országban folytatódik a SpaPlus története.",
     "comingSoon": "Hamarosan",
@@ -803,8 +803,8 @@ const translations = {
     "canadaLabel": "Nasz kolejny rozdział",
     "canadaName": "Kanada",
     "canadaBody": "Odkrywaj miejsca spa i doświadczenia wellness w całym Quebecu, po angielsku i francusku.",
-    "canadaButton": "Odwiedź SpaPlus Kanada",
-    "canadaAria": "Odwiedź stronę SpaPlus Kanada",
+    "canadaButton": "Porozmawiaj z zespołem w Kanadzie",
+    "canadaAria": "Skontaktuj się z zespołem SpaPlus w Kanadzie",
     "usaName": "Stany Zjednoczone",
     "usaBody": "SpaPlus już wkrótce pojawi się na kolejnym rynku.",
     "comingSoon": "Już wkrótce",
@@ -913,8 +913,8 @@ const translations = {
     "canadaLabel": "Nuestro próximo capítulo",
     "canadaName": "Canadá",
     "canadaBody": "Descubre experiencias de spa y bienestar en todo Quebec, en francés y en inglés.",
-    "canadaButton": "Visita SpaPlus Canadá",
-    "canadaAria": "Visita SpaPlus Canadá",
+    "canadaButton": "Habla con el equipo de Canadá",
+    "canadaAria": "Contacta con el equipo de SpaPlus en Canadá",
     "usaName": "Estados Unidos",
     "usaBody": "El próximo destino SpaPlus está en camino.",
     "comingSoon": "Próximamente",
@@ -2834,7 +2834,7 @@ const applyLocale = (locale) => {
   ]);
   const canadaCard = document.querySelector(".canada-card");
   canadaCard.setAttribute("aria-label", t.canadaAria);
-  canadaCard.href = locale === "fr-CA" ? "https://spaplus.ca/fr/" : "https://spaplus.ca/en/";
+  canadaCard.href = "#contact";
   setAllText(".canada-card .country-content > *", [
     t.canadaLabel, t.canadaName, t.canadaBody, t.canadaButton,
   ]);
@@ -2991,7 +2991,7 @@ const applyLocale = (locale) => {
   footerItems[4].textContent = showcase.dayPlusTitle;
   footerItems[5].textContent = t.israelName;
   footerItems[6].textContent = t.canadaName;
-  footerItems[6].href = canadaCard.href;
+  footerItems[6].href = "#countries";
   footerItems[7].textContent = t.usaName + " " + t.comingSoon;
   footerItems[8].textContent = enhancement.footerStory;
   footerItems[9].textContent = t.aboutEyebrow;

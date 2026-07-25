@@ -39,8 +39,8 @@ export const el: Translation = {
   canadaName: "Καναδάς",
   canadaBody:
     "Ανακαλύψτε εμπειρίες spa και ευεξίας σε όλο το Κεμπέκ, στα αγγλικά και στα γαλλικά.",
-  canadaButton: "SpaPlus Καναδάς",
-  canadaAria: "Μετάβαση στον ιστότοπο SpaPlus Καναδάς",
+  canadaButton: "Μιλήστε με την ομάδα μας στον Καναδά",
+  canadaAria: "Επικοινωνήστε με την ομάδα SpaPlus στον Καναδά",
   usaName: "Ηνωμένες Πολιτείες",
   usaBody: "Ο επόμενος προορισμός της SpaPlus είναι καθ’ οδόν.",
   comingSoon: "Σύντομα κοντά σας",

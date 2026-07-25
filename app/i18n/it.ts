@@ -39,8 +39,8 @@ export const it: Translation = {
   canadaName: "Canada",
   canadaBody:
     "Scopri esperienze spa e benessere in tutto il Québec, in francese e in inglese.",
-  canadaButton: "Visita SpaPlus Canada",
-  canadaAria: "Visita SpaPlus Canada",
+  canadaButton: "Parla con il team in Canada",
+  canadaAria: "Contatta il team SpaPlus in Canada",
   usaName: "Stati Uniti",
   usaBody: "La prossima destinazione SpaPlus è in arrivo.",
   comingSoon: "Prossimamente",

@@ -437,7 +437,7 @@ const applyLocale = (locale) => {
   ]);
   const canadaCard = document.querySelector(".canada-card");
   canadaCard.setAttribute("aria-label", t.canadaAria);
-  canadaCard.href = locale === "fr-CA" ? "https://spaplus.ca/fr/" : "https://spaplus.ca/en/";
+  canadaCard.href = "#contact";
   setAllText(".canada-card .country-content > *", [
     t.canadaLabel, t.canadaName, t.canadaBody, t.canadaButton,
   ]);
@@ -594,7 +594,7 @@ const applyLocale = (locale) => {
   footerItems[4].textContent = showcase.dayPlusTitle;
   footerItems[5].textContent = t.israelName;
   footerItems[6].textContent = t.canadaName;
-  footerItems[6].href = canadaCard.href;
+  footerItems[6].href = "#countries";
   footerItems[7].textContent = t.usaName + " " + t.comingSoon;
   footerItems[8].textContent = enhancement.footerStory;
   footerItems[9].textContent = t.aboutEyebrow;
