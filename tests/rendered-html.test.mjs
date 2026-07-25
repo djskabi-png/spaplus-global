@@ -240,6 +240,59 @@ test("country partner page is complete, bilingual and connected", async () => {
   assert.match(script, /chatgpt\.site\/api\/contact/);
 });
 
+test("every country market includes Hebrew, English and the local language", async () => {
+  const slugs = [
+    "united-states",
+    "cyprus",
+    "greece",
+    "hungary",
+    "italy",
+    "united-kingdom",
+    "germany",
+    "france",
+    "netherlands",
+    "sweden",
+    "norway",
+    "switzerland",
+    "united-arab-emirates",
+  ];
+  const nativeEnglishRoutes = {
+    "united-states": "en-us",
+    cyprus: "en",
+    "united-kingdom": "en-gb",
+    "united-arab-emirates": "en-ae",
+  };
+  const css = await read("codepen/markets/market.css");
+
+  assert.match(css, /family=Heebo/);
+  assert.match(css, /\[dir="rtl"\] body\{font-family:Heebo/);
+
+  for (const slug of slugs) {
+    const englishLocale = nativeEnglishRoutes[slug] || "en";
+    const [hebrewMarket, hebrewPartner, hebrewSpa, englishMarket] =
+      await Promise.all([
+        read(`codepen/he/markets/${slug}/index.html`),
+        read(`codepen/he/partners/${slug}/index.html`),
+        read(`codepen/he/spas/join/${slug}/index.html`),
+        read(`codepen/${englishLocale}/markets/${slug}/index.html`),
+      ]);
+
+    for (const page of [hebrewMarket, hebrewPartner, hebrewSpa]) {
+      assert.match(page, /<html lang="he" dir="rtl">/);
+      assert.match(page, /hreflang="he"/);
+      assert.match(page, /data-market-language/);
+      assert.match(page, />עברית<\/option>/);
+      assert.match(page, />English<\/option>/);
+    }
+
+    assert.match(englishMarket, /hreflang="he"/);
+    assert.match(
+      hebrewMarket,
+      new RegExp(`value="/he/markets/${slug}/" selected`),
+    );
+  }
+});
+
 test("cookie consent is localized, persistent and available on every page", async () => {
   const [page, homeHtml, homeScript, partnerHtml, partnerHebrewHtml, partnerScript] =
     await Promise.all([
