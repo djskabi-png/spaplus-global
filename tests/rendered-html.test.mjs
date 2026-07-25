@@ -22,17 +22,28 @@ test("static preview is a complete standalone website", async () => {
     "top",
     "countries",
     "vision",
+    "better-day",
+    "products",
+    "global-partners",
     "story",
     "contact",
     "about",
+    "privacy",
+    "accessibility",
   ]) {
     assert.match(html, new RegExp(`id="${id}"`));
   }
 
   assert.match(html, /class="founder-photo"/);
-  assert.match(html, /href="mailto:info@spaplus\.ca"/);
   assert.match(html, /class="contact-form"/);
-  assert.match(html, /class="copy-email"/);
+  assert.match(html, /class="contact-assurance"/);
+  assert.match(html, /class="privacy-consent form-wide"/);
+  assert.match(html, /name="privacy" type="checkbox" value="accepted" required/);
+  assert.match(html, /class="legal-section"/);
+  assert.match(html, /class="audience-grid"/);
+  assert.match(html, /class="products-grid"/);
+  assert.match(html, /class="growth-section"/);
+  assert.doesNotMatch(html, /info@spaplus\.ca/);
   assert.match(html, /class="back-to-top"/);
   assert.match(html, /class="success-modal"/);
   assert.match(html, /role="dialog"/);
@@ -49,6 +60,10 @@ test("static preview is a complete standalone website", async () => {
   assert.match(html, /class="route-node route-usa"/);
   assert.match(html, /class="platform-pillars"/);
   assert.match(html, /class="scroll-progress"/);
+  assert.match(html, /class="atmosphere-section"/);
+  assert.match(html, /src="\.\/vision-resort\.webp"/);
+  assert.match(html, /src="\.\/vision-people\.webp"/);
+  assert.match(html, /src="\.\/vision-ritual\.webp"/);
 });
 
 test("all nine localized experiences are included", async () => {
@@ -61,7 +76,6 @@ test("all nine localized experiences are included", async () => {
   assert.match(script, /new URLSearchParams\(location\.search\)\.get\("lang"\)/);
   assert.match(script, /history\.replaceState/);
   assert.match(script, /founderPhotoDataUri/);
-  assert.match(script, /emailCopied/);
   assert.match(script, /spaplus-mark\.png/);
   assert.match(script, /spaplus-wordmark\.png/);
   assert.match(script, /contactForm\.addEventListener\("submit"/);
@@ -74,17 +88,30 @@ test("all nine localized experiences are included", async () => {
   assert.match(script, /_template: "box"/);
   assert.match(script, /await fetch\(contactFormEndpoint/);
   assert.match(script, /openSuccessModal\(\)/);
+  assert.match(script, /"Privacy consent": privacyAccepted \? "Accepted" : "Not accepted"/);
+  assert.match(script, /setText\("#privacy summary", t\.privacyTitle\)/);
+  assert.match(script, /setAllText\("\.products-heading > \*"/);
   assert.match(script, /successModalClose\.focus\(\)/);
   assert.doesNotMatch(script, /djskabi@gmail\.com/);
   assert.match(script, /"Roy Plombo"/);
   assert.match(script, /"Shahaf Yifrah"/);
   assert.match(script, /"Shahar Turgeman"/);
   assert.match(script, /"Rachel Shilman"/);
+  assert.match(script, /"Galia"/);
   assert.match(script, /"Noy Saib"/);
   assert.match(script, /"Maxim"/);
+  assert.match(script, /"Anat"/);
+  assert.match(script, /"Karin"/);
+  assert.match(script, /"Shiraz"/);
+  assert.match(script, /"Sapir"/);
+  assert.match(script, /"Or"/);
+  assert.match(script, /"Adi"/);
+  assert.match(script, /"Betty"/);
+  assert.match(script, /"Liran Sweisa"/);
+  assert.match(script, /"vacationEventsOperations"/);
   assert.doesNotMatch(script, /"Tova Lavi"/);
   assert.doesNotMatch(script, /"Koral Cohen"/);
-  assert.equal((script.match(/"nameLatin":/g) || []).length, 25);
+  assert.equal((script.match(/"nameLatin":/g) || []).length, 32);
   assert.match(script, /document\.createElement\("h4"\)/);
   assert.match(script, /document\.createElement\("p"\)/);
   assert.match(script, /toggle\.setAttribute\("aria-expanded", "false"\)/);
@@ -124,10 +151,12 @@ test("contact email delivery is branded and sends two messages", async () => {
   assert.match(route, /api\.resend\.com\/emails\/batch/);
   assert.match(route, /process\.env\.RESEND_API_KEY/);
   assert.match(route, /process\.env\.CONTACT_TO_EMAILS/);
+  assert.match(route, /body\.privacyAccepted === true/);
+  assert.match(route, /!privacyAccepted/);
   assert.match(route, /to: ownerEmails/);
   assert.match(route, /to: \[data\.email\]/);
   assert.match(route, /reply_to: data\.email/);
-  assert.match(route, /reply_to: "info@spaplus\.ca"/);
+  assert.match(route, /reply_to: ownerEmails\[0\]/);
   assert.match(route, /Idempotency-Key/);
   assert.match(route, /SpaPlus-Global-Contact\/1\.0/);
   assert.match(route, /text: owner\.text/);
@@ -137,6 +166,7 @@ test("contact email delivery is branded and sends two messages", async () => {
   assert.match(templates, /preheader/);
   assert.match(templates, /'Segoe UI', Tahoma, Arial, sans-serif/);
   assert.doesNotMatch(templates, /fonts\.googleapis\.com/);
+  assert.doesNotMatch(templates, /info@spaplus\.ca/);
   assert.match(templates, /dir="\$\{dir\}"/);
   assert.match(templates, /direction:\$\{dir\}/);
   assert.match(route, /hello@mail\.spaplus\.co/);

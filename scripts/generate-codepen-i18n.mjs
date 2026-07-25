@@ -43,18 +43,27 @@ const platformPillars = ${JSON.stringify({
   pl: ["Odkrywanie", "Rezerwacja", "Narzędzia biznesowe", "Dane i automatyzacja"],
   es: ["Descubrimiento", "Reserva", "Herramientas de gestión", "Datos y automatización"],
 }, null, 2)};
+const atmosphereAlts = ${JSON.stringify({
+  en: ["A spa resort at dusk with a warm pool and guests walking in robes", "Two friends relaxing together beside a thermal spa pool", "A wellness ritual with warm towels, tea and natural oils"],
+  he: ["ריזורט ספא בשעת ערב עם בריכה חמה ואורחים בחלוקים", "שתי חברות נרגעות יחד לצד בריכת ספא תרמית", "טקס וולנס עם מגבות חמות, תה ושמנים טבעיים"],
+  "fr-CA": ["Un centre de villégiature spa au crépuscule avec piscine chaude et invités en peignoir", "Deux amies se détendent près d’un bassin thermal", "Un rituel bien-être avec serviettes chaudes, thé et huiles naturelles"],
+  ru: ["Спа-курорт на закате с теплым бассейном и гостями в халатах", "Две подруги отдыхают у термального бассейна", "Велнес-ритуал с теплыми полотенцами, чаем и натуральными маслами"],
+  el: ["Θέρετρο σπα στο σούρουπο με ζεστή πισίνα και επισκέπτες με μπουρνούζια", "Δύο φίλες χαλαρώνουν δίπλα σε θερμική πισίνα", "Τελετουργία ευεξίας με ζεστές πετσέτες, τσάι και φυσικά έλαια"],
+  it: ["Resort spa al tramonto con piscina calda e ospiti in accappatoio", "Due amiche si rilassano accanto a una piscina termale", "Rituale wellness con asciugamani caldi, tè e oli naturali"],
+  hu: ["Spa üdülőhely alkonyatkor meleg medencével és köntösben sétáló vendégekkel", "Két barát pihen egy termálmedence mellett", "Wellness rituálé meleg törölközőkkel, teával és természetes olajokkal"],
+  pl: ["Resort spa o zmierzchu z ciepłym basenem i gośćmi w szlafrokach", "Dwie przyjaciółki odpoczywają przy basenie termalnym", "Rytuał wellness z ciepłymi ręcznikami, herbatą i naturalnymi olejkami"],
+  es: ["Resort de spa al atardecer con piscina cálida y huéspedes en albornoz", "Dos amigas descansan junto a una piscina termal", "Ritual de bienestar con toallas calientes, té y aceites naturales"],
+}, null, 2)};
 const header = document.querySelector(".site-header");
 const scrollProgress = document.querySelector(".scroll-progress");
 const menuButton = document.querySelector(".menu-button");
 const mobileMenu = document.querySelector(".mobile-menu");
 const languageSelect = document.querySelector(".language-switcher select");
-const copyEmailButton = document.querySelector(".copy-email");
 const contactForm = document.querySelector(".contact-form");
 const backToTopButton = document.querySelector(".back-to-top");
 const successModal = document.querySelector(".success-modal");
 const successModalCard = document.querySelector(".success-modal-card");
 const successModalClose = document.querySelector(".success-modal-close");
-const contactEmail = "info@spaplus.ca";
 const contactFormEndpoint =
   "https://formsubmit.co/ajax/93567c940af3bbace0ca1b462708c256";
 const founderPhotoDataUri = ${JSON.stringify(founderPhotoDataUri)};
@@ -210,10 +219,10 @@ const applyLocale = (locale) => {
   mobileMenu.setAttribute("aria-label", t.mobileNavigation);
   document.querySelector(".footer-main nav").setAttribute("aria-label", t.footerNavigation);
   setAllText(".desktop-nav a", [
-    t.navVision, t.navCountries, t.navStory, t.aboutEyebrow, t.contact, t.chooseCountry,
+    t.navVision, t.navCountries, t.productsEyebrow, t.navStory, t.aboutEyebrow, t.contact, t.chooseCountry,
   ]);
   setAllText(".mobile-menu a", [
-    t.navVision, t.navCountries, t.navStory, t.aboutEyebrow, t.contact, t.chooseCountry,
+    t.navVision, t.navCountries, t.productsEyebrow, t.navStory, t.aboutEyebrow, t.contact, t.chooseCountry,
   ]);
   menuButton.setAttribute(
     "aria-label",
@@ -262,6 +271,45 @@ const applyLocale = (locale) => {
     t.visionEyebrow, t.visionTitle, t.visionBodyOne, t.visionBodyTwo,
   ]);
   setAllText(".proof-grid span", [t.proofYears, t.proofMarkets, t.proofPromise]);
+  setAllText(".atmosphere-heading > *", [
+    t.promiseTitle,
+    company.technologyStatement,
+    t.visionBodyOne,
+  ]);
+  document.querySelector(".atmosphere-section").setAttribute("aria-label", t.visionEyebrow);
+  document.querySelectorAll(".atmosphere-gallery img").forEach((image, index) => {
+    image.alt = atmosphereAlts[locale][index];
+  });
+  setAllText(".audience-heading > *", [t.audienceEyebrow, t.audienceTitle]);
+  const audienceCards = document.querySelectorAll(".audience-grid article");
+  [
+    [t.coupleTitle, t.coupleBody],
+    [t.groupTitle, t.groupBody],
+    [t.soloTitle, t.soloBody],
+  ].forEach((content, index) => {
+    audienceCards[index].querySelector("h3").textContent = content[0];
+    audienceCards[index].querySelector("p").textContent = content[1];
+  });
+  setAllText(".products-heading > *", [t.productsEyebrow, t.productsTitle, t.productsIntro]);
+  const productCards = document.querySelectorAll(".products-grid article");
+  [
+    [t.marketplaceTitle, t.marketplaceBody],
+    [t.bizSpaTitle, t.bizSpaBody],
+    [t.aiServiceTitle, t.aiServiceBody],
+    [t.marketingTitle, t.marketingBody],
+    [t.spaSitesTitle, t.spaSitesBody],
+    [t.giftCardsTitle, t.giftCardsBody],
+  ].forEach((content, index) => {
+    productCards[index].querySelector("h3").textContent = content[0];
+    productCards[index].querySelector("p").textContent = content[1];
+  });
+  setAllText(".growth-section > div > *", [
+    t.growthEyebrow,
+    t.growthTitle,
+    t.growthBody,
+    t.growthStatus,
+  ]);
+  setText(".growth-section > .button", t.growthCta);
   setAllText(".story-copy > *", [t.storyEyebrow, t.storyTitle, t.storyBodyOne, t.storyBodyTwo]);
   setText(".story-image span", t.storyImage);
   setAllText(".benefits-section .section-heading > *", [t.experienceEyebrow, t.experienceTitle]);
@@ -298,15 +346,31 @@ const applyLocale = (locale) => {
   setAllText(".contact-copy > .eyebrow, .contact-copy > h2, .contact-copy > p", [
     t.contact, company.contactTitle, company.contactBody,
   ]);
-  setText(".direct-email > span", company.directEmail);
-  if (copyEmailButton.dataset.copied !== "true") copyEmailButton.textContent = t.copyEmail;
-  setAllText(".contact-form label:not(.form-honey) > span", [
+  setText(".contact-assurance > p", company.formNote);
+  setAllText(".contact-form label:not(.form-honey):not(.privacy-consent) > span", [
     company.formName,
     company.formEmail,
     company.formCompany,
     company.formTopic,
     company.formMessage,
   ]);
+  const consentText = document.querySelector(".privacy-consent > span");
+  consentText.textContent = t.privacyConsent + " ";
+  const privacyLink = document.createElement("a");
+  privacyLink.href = "#privacy";
+  privacyLink.textContent = t.privacyTitle;
+  consentText.append(privacyLink);
+  document.querySelector(".legal-section").setAttribute(
+    "aria-label",
+    t.privacyTitle + ", " + t.accessibilityTitle,
+  );
+  setText("#privacy summary", t.privacyTitle);
+  setText("#privacy p", t.privacyBody);
+  setText("#privacy small", t.legalUpdated);
+  setText("#accessibility summary", t.accessibilityTitle);
+  setText("#accessibility p", t.accessibilityBody);
+  setText("#accessibility a", t.contact);
+  setText("#accessibility small", t.legalUpdated);
   renderTopics(company);
   setText(".form-submit button", company.formSubmit);
   setText(".form-submit > p", company.formNote);
@@ -318,12 +382,16 @@ const applyLocale = (locale) => {
   setText(".footer-main > p", t.footerTagline);
   const footerItems = document.querySelectorAll(".footer-main nav > *");
   footerItems[0].textContent = t.navVision;
-  footerItems[1].textContent = t.israelName;
-  footerItems[2].textContent = t.canadaName;
-  footerItems[2].href = canadaCard.href;
-  footerItems[3].textContent = t.usaName + " " + t.comingSoon;
-  footerItems[4].textContent = t.aboutEyebrow;
-  footerItems[5].textContent = t.contact;
+  footerItems[1].textContent = t.productsEyebrow;
+  footerItems[2].textContent = t.growthEyebrow;
+  footerItems[3].textContent = t.israelName;
+  footerItems[4].textContent = t.canadaName;
+  footerItems[4].href = canadaCard.href;
+  footerItems[5].textContent = t.usaName + " " + t.comingSoon;
+  footerItems[6].textContent = t.aboutEyebrow;
+  footerItems[7].textContent = t.contact;
+  footerItems[8].textContent = t.privacyTitle;
+  footerItems[9].textContent = t.accessibilityTitle;
   setText(
     ".footer-bottom span:first-child",
     "© " + new Date().getFullYear() + " SpaPlus Global. " + t.rights,
@@ -377,32 +445,6 @@ menuButton.addEventListener("click", () => {
   mobileMenu.classList.toggle("is-open", !open);
 });
 
-const copyContactEmail = async () => {
-  try {
-    if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
-    await navigator.clipboard.writeText(contactEmail);
-  } catch {
-    const input = document.createElement("textarea");
-    input.value = contactEmail;
-    input.style.position = "fixed";
-    input.style.opacity = "0";
-    document.body.appendChild(input);
-    input.select();
-    document.execCommand("copy");
-    input.remove();
-  }
-};
-
-copyEmailButton.addEventListener("click", async () => {
-  await copyContactEmail();
-  copyEmailButton.dataset.copied = "true";
-  copyEmailButton.textContent = translations[activeLocale].emailCopied;
-  window.setTimeout(() => {
-    copyEmailButton.dataset.copied = "false";
-    copyEmailButton.textContent = translations[activeLocale].copyEmail;
-  }, 2200);
-});
-
 contactForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const company = companyContent[activeLocale] || companyContent.en;
@@ -412,6 +454,7 @@ contactForm.addEventListener("submit", async (event) => {
   const organization = String(data.get("organization") || "");
   const topic = String(data.get("topic") || company.topics[0]);
   const message = String(data.get("message") || "");
+  const privacyAccepted = data.get("privacy") === "accepted";
   const honey = String(data.get("_honey") || "");
   const button = contactForm.querySelector('button[type="submit"]');
   const status = contactForm.querySelector(".form-status");
@@ -439,6 +482,7 @@ contactForm.addEventListener("submit", async (event) => {
         [company.formCompany]: organization || "Not provided",
         [company.formTopic]: topic,
         [company.formMessage]: message,
+        "Privacy consent": privacyAccepted ? "Accepted" : "Not accepted",
         Language: activeLocale,
         Source: location.href,
       }),
@@ -462,6 +506,18 @@ contactForm.addEventListener("submit", async (event) => {
 
 languageSelect.addEventListener("change", (event) => applyLocale(event.target.value));
 mobileMenu.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
+const openLegalFromHash = () => {
+  if (!location.hash) return;
+  const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+  if (target && target.matches(".legal-section details")) target.open = true;
+};
+document.querySelectorAll('a[href="#privacy"], a[href="#accessibility"]').forEach((link) => {
+  link.addEventListener("click", () => {
+    const target = document.querySelector(link.getAttribute("href"));
+    if (target) target.open = true;
+  });
+});
+window.addEventListener("hashchange", openLegalFromHash);
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     closeMenu();
@@ -486,6 +542,7 @@ if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
 }
 
 applyLocale(activeLocale);
+openLegalFromHash();
 `;
 
 await Promise.all([

@@ -23,7 +23,6 @@ export type ContactEmailData = {
 const logoUrl =
   "https://djskabi-png.github.io/spaplus-global/spaplus-wordmark.png";
 const siteUrl = "https://spaplus.co";
-const contactEmail = "info@spaplus.ca";
 
 type VisitorCopy = {
   dir: "ltr" | "rtl";
@@ -272,8 +271,6 @@ const frame = ({
             <tr>
               <td class="footer-pad" dir="${dir}" style="padding:26px 38px;background-color:#172744;color:#cbd3df;direction:${dir};text-align:center;font-size:12px;line-height:1.7;">
                 <p style="margin:0 0 6px;">${escapeHtml(footer)}</p>
-                <a href="mailto:${contactEmail}" style="color:#ffffff;text-decoration:none;">${contactEmail}</a>
-                <span style="color:#7f8ba0;"> &nbsp;|&nbsp; </span>
                 <a href="${siteUrl}" style="color:#ffffff;text-decoration:none;">spaplus.co</a>
               </td>
             </tr>
@@ -325,7 +322,7 @@ export function buildVisitorEmail(data: ContactEmailData) {
       "",
       copy.response,
       "",
-      `${contactEmail} | ${siteUrl}`,
+      siteUrl,
     ]
       .filter(Boolean)
       .join("\n"),

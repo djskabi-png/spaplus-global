@@ -123,6 +123,7 @@ export async function POST(request: Request) {
 
     const localeValue = clean(body.locale, 10);
     const submissionId = clean(body.submissionId, 80);
+    const privacyAccepted = body.privacyAccepted === true;
     const locale = supportedLocales.includes(localeValue as SupportedLocale)
       ? (localeValue as SupportedLocale)
       : "en";
@@ -143,6 +144,7 @@ export async function POST(request: Request) {
 
     if (
       !isSubmissionId(submissionId) ||
+      !privacyAccepted ||
       data.name.length < 2 ||
       !isEmail(data.email) ||
       data.topic.length < 2 ||
@@ -198,7 +200,7 @@ export async function POST(request: Request) {
         {
           from: fromEmail,
           to: [data.email],
-          reply_to: "info@spaplus.ca",
+          reply_to: ownerEmails[0],
           subject: visitor.subject,
           html: visitor.html,
           text: visitor.text,

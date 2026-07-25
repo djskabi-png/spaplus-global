@@ -13,7 +13,6 @@ import companyData from "./company-data.json";
 
 const israelUrl = "https://www.spaplus.co.il/";
 const localeStorageKey = "spaplus-global-locale";
-const contactEmail = "info@spaplus.ca";
 const contactFormEndpoint = "/api/contact";
 const platformPillars: Record<Locale, string[]> = {
   en: ["Discovery", "Booking", "Business tools", "Data and automation"],
@@ -25,6 +24,53 @@ const platformPillars: Record<Locale, string[]> = {
   hu: ["Felfedezés", "Foglalás", "Üzleti eszközök", "Adatok és automatizálás"],
   pl: ["Odkrywanie", "Rezerwacja", "Narzędzia biznesowe", "Dane i automatyzacja"],
   es: ["Descubrimiento", "Reserva", "Herramientas de gestión", "Datos y automatización"],
+};
+const atmosphereAlts: Record<Locale, [string, string, string]> = {
+  en: [
+    "A spa resort at dusk with a warm pool and guests walking in robes",
+    "Two friends relaxing together beside a thermal spa pool",
+    "A wellness ritual with warm towels, tea and natural oils",
+  ],
+  he: [
+    "ריזורט ספא בשעת ערב עם בריכה חמה ואורחים בחלוקים",
+    "שתי חברות נרגעות יחד לצד בריכת ספא תרמית",
+    "טקס וולנס עם מגבות חמות, תה ושמנים טבעיים",
+  ],
+  "fr-CA": [
+    "Un centre de villégiature spa au crépuscule avec piscine chaude et invités en peignoir",
+    "Deux amies se détendent près d’un bassin thermal",
+    "Un rituel bien-être avec serviettes chaudes, thé et huiles naturelles",
+  ],
+  ru: [
+    "Спа-курорт на закате с теплым бассейном и гостями в халатах",
+    "Две подруги отдыхают у термального бассейна",
+    "Велнес-ритуал с теплыми полотенцами, чаем и натуральными маслами",
+  ],
+  el: [
+    "Θέρετρο σπα στο σούρουπο με ζεστή πισίνα και επισκέπτες με μπουρνούζια",
+    "Δύο φίλες χαλαρώνουν δίπλα σε θερμική πισίνα",
+    "Τελετουργία ευεξίας με ζεστές πετσέτες, τσάι και φυσικά έλαια",
+  ],
+  it: [
+    "Resort spa al tramonto con piscina calda e ospiti in accappatoio",
+    "Due amiche si rilassano accanto a una piscina termale",
+    "Rituale wellness con asciugamani caldi, tè e oli naturali",
+  ],
+  hu: [
+    "Spa üdülőhely alkonyatkor meleg medencével és köntösben sétáló vendégekkel",
+    "Két barát pihen egy termálmedence mellett",
+    "Wellness rituálé meleg törölközőkkel, teával és természetes olajokkal",
+  ],
+  pl: [
+    "Resort spa o zmierzchu z ciepłym basenem i gośćmi w szlafrokach",
+    "Dwie przyjaciółki odpoczywają przy basenie termalnym",
+    "Rytuał wellness z ciepłymi ręcznikami, herbatą i naturalnymi olejkami",
+  ],
+  es: [
+    "Resort de spa al atardecer con piscina cálida y huéspedes en albornoz",
+    "Dos amigas descansan junto a una piscina termal",
+    "Ritual de bienestar con toallas calientes, té y aceites naturales",
+  ],
 };
 
 function BrandLockup({ footer = false }: { footer?: boolean }) {
@@ -54,7 +100,6 @@ export default function Home() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [locale, setLocale] = useState<Locale>("en");
-  const [emailCopied, setEmailCopied] = useState(false);
   const [expandedTeams, setExpandedTeams] = useState<Record<string, boolean>>(
     {},
   );
@@ -154,24 +199,24 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
 
-  const closeMenu = () => setMenuOpen(false);
-  const copyContactEmail = async () => {
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(contactEmail);
-    } else {
-      const input = document.createElement("textarea");
-      input.value = contactEmail;
-      input.style.position = "fixed";
-      input.style.opacity = "0";
-      document.body.appendChild(input);
-      input.select();
-      document.execCommand("copy");
-      input.remove();
-    }
-    setEmailCopied(true);
-    window.setTimeout(() => setEmailCopied(false), 2200);
-  };
+  useEffect(() => {
+    const openLegalFromHash = () => {
+      if (!window.location.hash) return;
+      const target = document.getElementById(
+        decodeURIComponent(window.location.hash.slice(1)),
+      );
+      if (target instanceof HTMLDetailsElement) target.open = true;
+    };
+    openLegalFromHash();
+    window.addEventListener("hashchange", openLegalFromHash);
+    return () => window.removeEventListener("hashchange", openLegalFromHash);
+  }, []);
 
+  const closeMenu = () => setMenuOpen(false);
+  const openLegalSection = (id: string) => {
+    const section = document.getElementById(id) as HTMLDetailsElement | null;
+    if (section) section.open = true;
+  };
   const submitContactForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.currentTarget;
@@ -181,6 +226,7 @@ export default function Home() {
     const organization = String(data.get("organization") || "");
     const topic = String(data.get("topic") || company.topics[0]);
     const message = String(data.get("message") || "");
+    const privacyAccepted = data.get("privacy") === "accepted";
     const honey = String(data.get("_honey") || "");
     const submissionId = crypto.randomUUID();
 
@@ -200,6 +246,7 @@ export default function Home() {
           organization,
           topic,
           message,
+          privacyAccepted,
           locale,
           source: window.location.href,
         }),
@@ -235,6 +282,7 @@ export default function Home() {
           <nav className="desktop-nav" aria-label={t.mainNavigation}>
             <a href="#vision">{t.navVision}</a>
             <a href="#countries">{t.navCountries}</a>
+            <a href="#products">{t.productsEyebrow}</a>
             <a href="#story">{t.navStory}</a>
             <a href="#about">{t.aboutEyebrow}</a>
             <a href="#contact">{t.contact}</a>
@@ -283,6 +331,9 @@ export default function Home() {
         </a>
         <a href="#countries" onClick={closeMenu}>
           {t.navCountries}
+        </a>
+        <a href="#products" onClick={closeMenu}>
+          {t.productsEyebrow}
         </a>
         <a href="#story" onClick={closeMenu}>
           {t.navStory}
@@ -441,6 +492,86 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </section>
+
+        <section
+          className="atmosphere-section"
+          id="better-day"
+          aria-label={t.visionEyebrow}
+        >
+          <div className="atmosphere-heading" data-reveal>
+            <p className="eyebrow">{t.promiseTitle}</p>
+            <h2>{company.technologyStatement}</h2>
+            <p>{t.visionBodyOne}</p>
+          </div>
+          <div className="audience-heading" data-reveal>
+            <p className="eyebrow">{t.audienceEyebrow}</p>
+            <h3>{t.audienceTitle}</h3>
+          </div>
+          <div className="audience-grid">
+            <article data-reveal>
+              <span aria-hidden="true">01</span>
+              <h3>{t.coupleTitle}</h3>
+              <p>{t.coupleBody}</p>
+            </article>
+            <article data-reveal>
+              <span aria-hidden="true">02</span>
+              <h3>{t.groupTitle}</h3>
+              <p>{t.groupBody}</p>
+            </article>
+            <article data-reveal>
+              <span aria-hidden="true">03</span>
+              <h3>{t.soloTitle}</h3>
+              <p>{t.soloBody}</p>
+            </article>
+          </div>
+          <div className="atmosphere-gallery">
+            <figure className="atmosphere-resort" data-reveal>
+              <img src="/vision-resort.webp" alt={atmosphereAlts[locale][0]} />
+            </figure>
+            <figure data-reveal>
+              <img src="/vision-people.webp" alt={atmosphereAlts[locale][1]} />
+            </figure>
+            <figure data-reveal>
+              <img src="/vision-ritual.webp" alt={atmosphereAlts[locale][2]} />
+            </figure>
+          </div>
+        </section>
+
+        <section className="products-section" id="products">
+          <div className="products-heading" data-reveal>
+            <p className="eyebrow">{t.productsEyebrow}</p>
+            <h2>{t.productsTitle}</h2>
+            <p>{t.productsIntro}</p>
+          </div>
+          <div className="products-grid">
+            {[
+              [t.marketplaceTitle, t.marketplaceBody],
+              [t.bizSpaTitle, t.bizSpaBody],
+              [t.aiServiceTitle, t.aiServiceBody],
+              [t.marketingTitle, t.marketingBody],
+              [t.spaSitesTitle, t.spaSitesBody],
+              [t.giftCardsTitle, t.giftCardsBody],
+            ].map(([title, body], index) => (
+              <article key={title} data-reveal>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <h3>{title}</h3>
+                <p>{body}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="growth-section" id="global-partners">
+          <div data-reveal>
+            <p className="eyebrow light">{t.growthEyebrow}</p>
+            <h2>{t.growthTitle}</h2>
+            <p>{t.growthBody}</p>
+            <strong>{t.growthStatus}</strong>
+          </div>
+          <a className="button button-light" href="#contact">
+            {t.growthCta}
+          </a>
         </section>
 
         <section className="section story-section" id="story">
@@ -633,16 +764,9 @@ export default function Home() {
             <p className="eyebrow">{t.contact}</p>
             <h2>{company.contactTitle}</h2>
             <p>{company.contactBody}</p>
-            <div className="direct-email">
-              <span>{company.directEmail}</span>
-              <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
-              <button
-                type="button"
-                onClick={copyContactEmail}
-                aria-live="polite"
-              >
-                {emailCopied ? t.emailCopied : t.copyEmail}
-              </button>
+            <div className="contact-assurance">
+              <strong>SpaPlus Global</strong>
+              <p>{company.formNote}</p>
             </div>
           </div>
 
@@ -681,6 +805,15 @@ export default function Home() {
               <span>{company.formMessage}</span>
               <textarea name="message" rows={6} required />
             </label>
+            <label className="privacy-consent form-wide">
+              <input name="privacy" type="checkbox" value="accepted" required />
+              <span>
+                {t.privacyConsent}{" "}
+                <a href="#privacy" onClick={() => openLegalSection("privacy")}>
+                  {t.privacyTitle}
+                </a>
+              </span>
+            </label>
             <div className="form-submit form-wide">
               <button
                 className="button button-primary"
@@ -699,6 +832,24 @@ export default function Home() {
               )}
             </div>
           </form>
+        </section>
+
+        <section className="legal-section" aria-label={`${t.privacyTitle}, ${t.accessibilityTitle}`}>
+          <details id="privacy">
+            <summary>{t.privacyTitle}</summary>
+            <div>
+              <p>{t.privacyBody}</p>
+              <small>{t.legalUpdated}</small>
+            </div>
+          </details>
+          <details id="accessibility">
+            <summary>{t.accessibilityTitle}</summary>
+            <div>
+              <p>{t.accessibilityBody}</p>
+              <a href="#contact">{t.contact}</a>
+              <small>{t.legalUpdated}</small>
+            </div>
+          </details>
         </section>
       </main>
 
@@ -743,6 +894,8 @@ export default function Home() {
           <p>{t.footerTagline}</p>
           <nav aria-label={t.footerNavigation}>
             <a href="#vision">{t.navVision}</a>
+            <a href="#products">{t.productsEyebrow}</a>
+            <a href="#global-partners">{t.growthEyebrow}</a>
             <a href={israelUrl}>{t.israelName}</a>
             <a href={canadaUrl}>{t.canadaName}</a>
             <span>
@@ -750,6 +903,15 @@ export default function Home() {
             </span>
             <a href="#about">{t.aboutEyebrow}</a>
             <a href="#contact">{t.contact}</a>
+            <a href="#privacy" onClick={() => openLegalSection("privacy")}>
+              {t.privacyTitle}
+            </a>
+            <a
+              href="#accessibility"
+              onClick={() => openLegalSection("accessibility")}
+            >
+              {t.accessibilityTitle}
+            </a>
           </nav>
         </div>
         <div className="footer-bottom">
