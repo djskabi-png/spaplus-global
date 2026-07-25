@@ -19,7 +19,7 @@ if (shareButton) {
         return;
       }
       await navigator.clipboard.writeText(shareUrl);
-    } catch {
+    } catch (error) {
       if (error && error.name === "AbortError") return;
       const field = document.createElement("textarea");
       field.value = shareUrl;
@@ -38,6 +38,57 @@ if (shareButton) {
 }
 const funnelForm = document.querySelector("[data-country-funnel]");
 if (funnelForm) {
+  const formSteps = [...funnelForm.querySelectorAll("[data-form-step]")];
+  const progressLabel = funnelForm.querySelector("[data-progress-label]");
+  const progressBar = funnelForm.querySelector("[data-progress-bar]");
+  const showStep = (stepNumber) => {
+    formSteps.forEach((step) => {
+      const active = Number(step.dataset.formStep) === stepNumber;
+      step.hidden = !active;
+      step.classList.toggle("is-active", active);
+    });
+    if (progressLabel) {
+      progressLabel.textContent = stepNumber === 1
+        ? funnelForm.dataset.stepOneLabel
+        : funnelForm.dataset.stepTwoLabel;
+    }
+    if (progressBar) progressBar.style.width = stepNumber === 1 ? "50%" : "100%";
+  };
+  funnelForm.querySelector("[data-step-next]")?.addEventListener("click", () => {
+    const firstStep = funnelForm.querySelector("[data-form-step='1']");
+    const invalid = [...firstStep.querySelectorAll("input, select, textarea")].find(
+      (field) => !field.checkValidity(),
+    );
+    if (invalid) {
+      invalid.reportValidity();
+      invalid.focus();
+      return;
+    }
+    window.dataLayer.push({
+      event: "spaplus_funnel_step_complete",
+      step: 1,
+      lead_type: funnelForm.elements.namedItem("leadType").value,
+      market: funnelForm.elements.namedItem("market").value,
+    });
+    showStep(2);
+    funnelForm.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  funnelForm.querySelector("[data-step-back]")?.addEventListener("click", () => {
+    showStep(1);
+    funnelForm.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  const successModal = document.querySelector("[data-success-modal]");
+  const closeSuccessModal = () => {
+    if (!successModal) return;
+    successModal.hidden = true;
+    document.body.style.overflow = "";
+  };
+  successModal?.querySelectorAll("[data-modal-close]").forEach((button) => {
+    button.addEventListener("click", closeSuccessModal);
+  });
+  successModal?.addEventListener("click", (event) => {
+    if (event.target === successModal) closeSuccessModal();
+  });
   const attributionKeys = [
     "utm_source",
     "utm_medium",
@@ -45,7 +96,10 @@ if (funnelForm) {
     "utm_content",
     "utm_term",
     "gclid",
+    "wbraid",
+    "gbraid",
     "fbclid",
+    "msclkid",
   ];
   const attributionParams = new URLSearchParams(location.search);
   const storedAttribution = JSON.parse(sessionStorage.getItem("spaplus_attribution") || "{}");
@@ -64,6 +118,16 @@ if (funnelForm) {
     market: funnelForm.elements.namedItem("market").value,
     locale: funnelForm.elements.namedItem("locale").value,
   });
+  funnelForm.addEventListener("focusin", () => {
+    if (funnelForm.dataset.started) return;
+    funnelForm.dataset.started = "true";
+    window.dataLayer.push({
+      event: "spaplus_funnel_start",
+      lead_type: funnelForm.elements.namedItem("leadType").value,
+      market: funnelForm.elements.namedItem("market").value,
+      locale: funnelForm.elements.namedItem("locale").value,
+    });
+  });
   funnelForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const status = funnelForm.querySelector(".form-status");
@@ -74,7 +138,24 @@ if (funnelForm) {
       "el-gr": "el",
       "hu-hu": "hu",
       "it-it": "it",
-      "fr-fr": "fr-CA",
+      "de-de": "de",
+      "de-ch": "de",
+      "fr-fr": "fr",
+      "nl-nl": "nl",
+      "sv-se": "sv",
+      "nb-no": "nb",
+    };
+    const fallbackAutoResponses = {
+      "el-cy": "Ευχαριστούμε. Λάβαμε τα στοιχεία σας και η ομάδα SpaPlus θα επικοινωνήσει μαζί σας σύντομα.",
+      "el-gr": "Ευχαριστούμε. Λάβαμε τα στοιχεία σας και η ομάδα SpaPlus θα επικοινωνήσει μαζί σας σύντομα.",
+      "hu-hu": "Köszönjük. Megkaptuk az adatokat, és a SpaPlus csapata hamarosan jelentkezik.",
+      "it-it": "Grazie. Abbiamo ricevuto i tuoi dati e il team SpaPlus ti contatterà presto.",
+      "de-de": "Vielen Dank. Wir haben Ihre Angaben erhalten. Das SpaPlus-Team meldet sich in Kürze.",
+      "de-ch": "Vielen Dank. Wir haben Ihre Angaben erhalten. Das SpaPlus-Team meldet sich in Kürze.",
+      "fr-fr": "Merci. Nous avons bien reçu vos informations. L’équipe SpaPlus reviendra vers vous prochainement.",
+      "nl-nl": "Bedankt. We hebben je gegevens ontvangen. Het SpaPlus-team neemt binnenkort contact op.",
+      "sv-se": "Tack. Vi har tagit emot dina uppgifter. SpaPlus-teamet återkommer snart.",
+      "nb-no": "Takk. Vi har mottatt opplysningene dine. SpaPlus-teamet tar snart kontakt.",
     };
     const topic = formValues.leadType === "spa_business"
       ? "Spa business lead | " + formValues.market
@@ -90,6 +171,7 @@ if (funnelForm) {
       email: formValues.email,
       organization: formValues.company,
       topic,
+      publicTopic: formValues.displayTopic,
       locale: emailLocaleMap[formValues.locale] || "en",
       source: location.href,
       message: [
@@ -99,13 +181,19 @@ if (funnelForm) {
         "Lead type: " + formValues.leadType,
         "Phone: " + formValues.phone,
         "Website: " + (formValues.website || "Not provided"),
+        formValues.city ? "City or region: " + formValues.city : "",
+        formValues.role ? "Contact role: " + formValues.role : "",
+        formValues.businessType ? "Business type: " + formValues.businessType : "",
+        formValues.treatmentRooms ? "Treatment rooms: " + formValues.treatmentRooms : "",
+        formValues.onlineBooking ? "Online booking: " + formValues.onlineBooking : "",
+        formValues.authorityConfirmed ? "Authority confirmed: Yes" : "",
         campaignDetails ? "\nCampaign attribution:\n" + campaignDetails : "",
         "Referrer: " + (formValues.referrer || "Direct"),
       ].filter(Boolean).join("\n"),
     };
     funnelForm.classList.add("is-sending");
     submit.disabled = true;
-    status.textContent = "Sending...";
+    status.textContent = funnelForm.dataset.sending;
     try {
       let response = null;
       try {
@@ -127,6 +215,12 @@ if (funnelForm) {
             phone: formValues.phone,
             company: formValues.company,
             website: formValues.website || "Not provided",
+            city_or_region: formValues.city || "Not provided",
+            contact_role: formValues.role || "Not provided",
+            business_type: formValues.businessType || "Not provided",
+            treatment_rooms: formValues.treatmentRooms || "Not provided",
+            online_booking: formValues.onlineBooking || "Not provided",
+            authority_confirmed: formValues.authorityConfirmed || "Not applicable",
             market: formValues.market,
             lead_type: formValues.leadType,
             message: formValues.message,
@@ -136,6 +230,7 @@ if (funnelForm) {
             _template: "box",
             _cc: "palombo.r@gmail.com,s0509350015@gmail.com",
             _autoresponse:
+              fallbackAutoResponses[formValues.locale] ||
               "Thank you for contacting SpaPlus Global. We have received your enquiry and our team will review it shortly.",
           }),
         });
@@ -149,8 +244,20 @@ if (funnelForm) {
       });
       funnelForm.reset();
       status.textContent = funnelForm.dataset.success;
+      if (formSteps.length) showStep(1);
+      if (successModal) {
+        successModal.hidden = false;
+        document.body.style.overflow = "hidden";
+        successModal.querySelector("[data-modal-close]")?.focus();
+      }
     } catch {
-      status.textContent = "The message could not be sent. Please try again.";
+      status.textContent = funnelForm.dataset.error;
+      window.dataLayer.push({
+        event: "spaplus_funnel_error",
+        lead_type: formValues.leadType,
+        market: formValues.market,
+        locale: formValues.locale,
+      });
     } finally {
       funnelForm.classList.remove("is-sending");
       submit.disabled = false;

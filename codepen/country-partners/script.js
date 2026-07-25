@@ -288,7 +288,9 @@ function applyLocale(nextLocale) {
   cookieAllButton.textContent = t.cookieAcceptAll;
   cookieSettingsButton.textContent = t.cookieSettings;
   languageSelect.value = locale;
-  const isHebrewPath = /\/country-partners\/he\/?$/.test(location.pathname);
+  const isHebrewPath =
+    /\/country-partners\/he\/?$/.test(location.pathname) ||
+    /\/he\/country-partners\/?$/.test(location.pathname);
   const canonicalUrl = locale === "he"
     ? "https://djskabi-png.github.io/spaplus-global/country-partners/he/"
     : "https://djskabi-png.github.io/spaplus-global/country-partners/";

@@ -932,6 +932,123 @@ const funnelCommonUi = {
   "nb-NO": { skip: "Gå til innholdet", routes: "Kontaktalternativer", choose: "Velg type henvendelse", market: "Forhåndsvisning av markedet", privacy: "Personvern" },
 };
 
+const spaQualificationUi = {
+  en: {
+    step: (current) => `Step ${current} of 2`,
+    stepOne: "Your spa and contact details",
+    stepTwo: "A little about your business",
+    city: "City or region",
+    role: "Your role",
+    businessType: "Type of business",
+    rooms: "Treatment rooms",
+    booking: "Do you currently offer online booking?",
+    choose: "Select an option",
+    types: ["Hotel spa", "Day spa", "Wellness centre", "Medical or aesthetic spa", "Other"],
+    roomOptions: ["1 to 3", "4 to 7", "8 or more"],
+    bookingOptions: ["Yes", "No", "In progress"],
+    authority: "I confirm that I am authorised to provide these details on behalf of the spa.",
+    next: "Continue",
+    back: "Back",
+    successTitle: "Your spa is on our list",
+    successBody: "Thank you. We received your details and our market team will review them before getting in touch.",
+    close: "Close",
+    sending: "Sending...",
+    error: "We could not send the form. Please try again.",
+  },
+  "el-CY": {
+    step: (current) => `Βήμα ${current} από 2`,
+    stepOne: "Το spa και τα στοιχεία επικοινωνίας",
+    stepTwo: "Λίγα στοιχεία για την επιχείρησή σας",
+    city: "Πόλη ή περιοχή", role: "Ο ρόλος σας", businessType: "Τύπος επιχείρησης", rooms: "Αίθουσες θεραπειών",
+    booking: "Προσφέρετε σήμερα online κρατήσεις;", choose: "Επιλέξτε",
+    types: ["Spa ξενοδοχείου", "Day spa", "Κέντρο ευεξίας", "Ιατρικό ή αισθητικό spa", "Άλλο"],
+    roomOptions: ["1 έως 3", "4 έως 7", "8 ή περισσότερες"], bookingOptions: ["Ναι", "Όχι", "Σε εξέλιξη"],
+    authority: "Επιβεβαιώνω ότι έχω εξουσιοδότηση να υποβάλω τα στοιχεία εκ μέρους του spa.",
+    next: "Συνέχεια", back: "Πίσω", successTitle: "Το spa σας είναι στη λίστα μας",
+    successBody: "Ευχαριστούμε. Λάβαμε τα στοιχεία σας και η ομάδα της αγοράς θα τα εξετάσει πριν επικοινωνήσει μαζί σας.",
+    close: "Κλείσιμο", sending: "Αποστολή...", error: "Η φόρμα δεν στάλθηκε. Δοκιμάστε ξανά.",
+  },
+  "hu-HU": {
+    step: (current) => `${current}. lépés a 2-ből`, stepOne: "A spa és kapcsolattartó adatai", stepTwo: "Néhány adat a vállalkozásról",
+    city: "Város vagy régió", role: "Beosztás", businessType: "Vállalkozás típusa", rooms: "Kezelőhelyiségek száma",
+    booking: "Van jelenleg online foglalás?", choose: "Válasszon",
+    types: ["Szállodai spa", "Day spa", "Wellnessközpont", "Orvosi vagy esztétikai spa", "Egyéb"],
+    roomOptions: ["1–3", "4–7", "8 vagy több"], bookingOptions: ["Igen", "Nem", "Bevezetés alatt"],
+    authority: "Megerősítem, hogy jogosult vagyok a spa nevében megadni ezeket az adatokat.",
+    next: "Tovább", back: "Vissza", successTitle: "Spa vállalkozása felkerült a listánkra",
+    successBody: "Köszönjük. Megkaptuk az adatokat, és piaci csapatunk átnézi őket, mielőtt felvesszük Önnel a kapcsolatot.",
+    close: "Bezárás", sending: "Küldés...", error: "Az űrlapot nem sikerült elküldeni. Próbálja újra.",
+  },
+  "it-IT": {
+    step: (current) => `Passaggio ${current} di 2`, stepOne: "La spa e il referente", stepTwo: "Qualche informazione sull’attività",
+    city: "Città o area", role: "Il tuo ruolo", businessType: "Tipo di struttura", rooms: "Cabine trattamenti",
+    booking: "Offrite già la prenotazione online?", choose: "Seleziona",
+    types: ["Spa in hotel", "Day spa", "Centro benessere", "Spa medicale o estetica", "Altro"],
+    roomOptions: ["Da 1 a 3", "Da 4 a 7", "8 o più"], bookingOptions: ["Sì", "No", "In fase di attivazione"],
+    authority: "Confermo di essere autorizzato a inviare questi dati per conto della spa.",
+    next: "Continua", back: "Indietro", successTitle: "La tua spa è nella nostra lista",
+    successBody: "Grazie. Abbiamo ricevuto i dati e il team dedicato al mercato li esaminerà prima di contattarti.",
+    close: "Chiudi", sending: "Invio in corso...", error: "Non è stato possibile inviare il modulo. Riprova.",
+  },
+  "de-DE": {
+    step: (current) => `Schritt ${current} von 2`, stepOne: "Ihr Spa und Ihre Kontaktdaten", stepTwo: "Ein paar Angaben zu Ihrem Betrieb",
+    city: "Stadt oder Region", role: "Ihre Position", businessType: "Art des Betriebs", rooms: "Behandlungsräume",
+    booking: "Bieten Sie bereits Online-Buchungen an?", choose: "Bitte auswählen",
+    types: ["Hotel-Spa", "Day Spa", "Wellnesszentrum", "Medical oder Aesthetic Spa", "Sonstiges"],
+    roomOptions: ["1 bis 3", "4 bis 7", "8 oder mehr"], bookingOptions: ["Ja", "Nein", "In Vorbereitung"],
+    authority: "Ich bestätige, dass ich berechtigt bin, diese Angaben im Namen des Spa-Betriebs zu übermitteln.",
+    next: "Weiter", back: "Zurück", successTitle: "Ihr Spa ist auf unserer Liste",
+    successBody: "Vielen Dank. Wir haben Ihre Angaben erhalten. Unser Marktteam prüft sie und meldet sich anschließend bei Ihnen.",
+    close: "Schließen", sending: "Wird gesendet...", error: "Das Formular konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+  },
+  "fr-FR": {
+    step: (current) => `Étape ${current} sur 2`, stepOne: "Votre spa et vos coordonnées", stepTwo: "Quelques informations sur votre établissement",
+    city: "Ville ou région", role: "Votre fonction", businessType: "Type d’établissement", rooms: "Cabines de soins",
+    booking: "Proposez-vous déjà la réservation en ligne ?", choose: "Sélectionnez",
+    types: ["Spa hôtelier", "Day spa", "Centre de bien-être", "Spa médical ou esthétique", "Autre"],
+    roomOptions: ["1 à 3", "4 à 7", "8 ou plus"], bookingOptions: ["Oui", "Non", "En cours de mise en place"],
+    authority: "Je confirme être habilité à transmettre ces informations au nom de l’établissement.",
+    next: "Continuer", back: "Retour", successTitle: "Votre spa est sur notre liste",
+    successBody: "Merci. Nous avons bien reçu vos informations. Notre équipe marché va les étudier avant de vous contacter.",
+    close: "Fermer", sending: "Envoi en cours...", error: "Le formulaire n’a pas pu être envoyé. Veuillez réessayer.",
+  },
+  "nl-NL": {
+    step: (current) => `Stap ${current} van 2`, stepOne: "Je spa en contactgegevens", stepTwo: "Een paar gegevens over je onderneming",
+    city: "Plaats of regio", role: "Je functie", businessType: "Type onderneming", rooms: "Behandelruimtes",
+    booking: "Bieden jullie al online boeken aan?", choose: "Maak een keuze",
+    types: ["Hotelspa", "Day spa", "Wellnesscentrum", "Medische of esthetische spa", "Anders"],
+    roomOptions: ["1 tot 3", "4 tot 7", "8 of meer"], bookingOptions: ["Ja", "Nee", "In voorbereiding"],
+    authority: "Ik bevestig dat ik bevoegd ben om deze gegevens namens de spa te verstrekken.",
+    next: "Verder", back: "Terug", successTitle: "Je spa staat op onze lijst",
+    successBody: "Bedankt. We hebben je gegevens ontvangen. Ons marktteam bekijkt ze voordat we contact opnemen.",
+    close: "Sluiten", sending: "Versturen...", error: "Het formulier kon niet worden verzonden. Probeer het opnieuw.",
+  },
+  "sv-SE": {
+    step: (current) => `Steg ${current} av 2`, stepOne: "Ditt spa och kontaktuppgifter", stepTwo: "Lite om verksamheten",
+    city: "Ort eller region", role: "Din roll", businessType: "Typ av verksamhet", rooms: "Behandlingsrum",
+    booking: "Erbjuder ni onlinebokning i dag?", choose: "Välj ett alternativ",
+    types: ["Hotellspa", "Day spa", "Wellnesscenter", "Medicinskt eller estetiskt spa", "Annat"],
+    roomOptions: ["1 till 3", "4 till 7", "8 eller fler"], bookingOptions: ["Ja", "Nej", "Under införande"],
+    authority: "Jag bekräftar att jag har rätt att lämna dessa uppgifter för spa-verksamheten.",
+    next: "Fortsätt", back: "Tillbaka", successTitle: "Ditt spa finns nu på vår lista",
+    successBody: "Tack. Vi har tagit emot uppgifterna. Vårt marknadsteam går igenom dem innan vi kontaktar dig.",
+    close: "Stäng", sending: "Skickar...", error: "Formuläret kunde inte skickas. Försök igen.",
+  },
+  "nb-NO": {
+    step: (current) => `Trinn ${current} av 2`, stepOne: "Spaet og kontaktinformasjonen", stepTwo: "Litt om virksomheten",
+    city: "Sted eller region", role: "Din rolle", businessType: "Type virksomhet", rooms: "Behandlingsrom",
+    booking: "Tilbyr dere nettbestilling i dag?", choose: "Velg et alternativ",
+    types: ["Hotellspa", "Day spa", "Velværesenter", "Medisinsk eller estetisk spa", "Annet"],
+    roomOptions: ["1 til 3", "4 til 7", "8 eller flere"], bookingOptions: ["Ja", "Nei", "Under utvikling"],
+    authority: "Jeg bekrefter at jeg har fullmakt til å sende inn disse opplysningene på vegne av spaet.",
+    next: "Fortsett", back: "Tilbake", successTitle: "Spaet deres er på listen vår",
+    successBody: "Takk. Vi har mottatt opplysningene. Markedsteamet vårt går gjennom dem før vi tar kontakt.",
+    close: "Lukk", sending: "Sender...", error: "Skjemaet kunne ikke sendes. Prøv igjen.",
+  },
+};
+spaQualificationUi["el-GR"] = spaQualificationUi["el-CY"];
+spaQualificationUi["de-CH"] = spaQualificationUi["de-DE"];
+
 const marketPreviewUi = {
   "el-GR": {
     status: "ΣΥΝΤΟΜΑ", guestCta: "Δείτε πώς θα μπορούσε να είναι", previewLabel: "ΠΡΟΕΠΙΣΚΟΠΗΣΗ",
@@ -1062,6 +1179,7 @@ function renderFunnelPage(market, type) {
       }
     : baseCopy;
   const isSpa = type === "spa";
+  const spaUi = spaQualificationUi[market.lang] || spaQualificationUi.en;
   const currentPath = isSpa ? spaJoinPath(market) : entrepreneurPath(market);
   const otherPath = isSpa ? entrepreneurPath(market) : spaJoinPath(market);
   const canonical = `${previewOrigin}${currentPath}`;
@@ -1192,13 +1310,18 @@ function renderFunnelPage(market, type) {
         <ul>${copy.points.map((point) => `<li>${escapeHtml(point)}</li>`).join("")}</ul>
         <a class="text-link" href="/spaplus-global${otherPath}">${escapeHtml(copy.tabSecondary)}</a>
       </div>
-      <form class="funnel-form" data-country-funnel data-success="${escapeHtml(copy.success)}">
+      <form class="funnel-form" data-country-funnel data-success="${escapeHtml(copy.success)}" data-sending="${escapeHtml(
+        isSpa ? spaUi.sending : "Sending...",
+      )}" data-error="${escapeHtml(isSpa ? spaUi.error : "The message could not be sent. Please try again.")}" data-step-one-label="${escapeHtml(
+        isSpa ? spaUi.step(1) : "",
+      )}" data-step-two-label="${escapeHtml(isSpa ? spaUi.step(2) : "")}">
         <div>
           <p class="eyebrow">${escapeHtml(copy.formTitle)}</p>
           <h2>${escapeHtml(copy.formTitle)}</h2>
           <p>${escapeHtml(copy.formLead)}</p>
         </div>
         <input type="hidden" name="leadType" value="${formType}">
+        <input type="hidden" name="displayTopic" value="${escapeHtml(copy.formTitle)}">
         <input type="hidden" name="market" value="${escapeHtml(market.slug)}">
         <input type="hidden" name="locale" value="${escapeHtml(market.locale)}">
         <input type="hidden" name="pageUrl" value="${canonical}">
@@ -1208,27 +1331,75 @@ function renderFunnelPage(market, type) {
         <input type="hidden" name="utm_content">
         <input type="hidden" name="utm_term">
         <input type="hidden" name="gclid">
+        <input type="hidden" name="wbraid">
+        <input type="hidden" name="gbraid">
         <input type="hidden" name="fbclid">
+        <input type="hidden" name="msclkid">
         <input type="hidden" name="referrer">
-        <label>${escapeHtml(labels.name)}<input name="name" autocomplete="name" required></label>
+        ${
+          isSpa
+            ? `<div class="form-progress field-wide" aria-label="${escapeHtml(spaUi.step(1))}">
+          <span data-progress-label>${escapeHtml(spaUi.step(1))}</span><i><b data-progress-bar></b></i>
+        </div>
+        <fieldset class="form-step field-wide is-active" data-form-step="1">
+          <legend>${escapeHtml(spaUi.stepOne)}</legend>
+          <div class="step-grid">
+            <label>${escapeHtml(labels.company)}<input name="company" autocomplete="organization" required></label>
+            <label>${escapeHtml(labels.website)}<input name="website" type="url" inputmode="url" placeholder="https://"></label>
+            <label>${escapeHtml(spaUi.city)}<input name="city" autocomplete="address-level2" required></label>
+            <label>${escapeHtml(labels.name)}<input name="name" autocomplete="name" required></label>
+            <label>${escapeHtml(spaUi.role)}<input name="role" autocomplete="organization-title" required></label>
+            <label>${escapeHtml(labels.email)}<input name="email" type="email" autocomplete="email" required></label>
+            <label class="field-wide">${escapeHtml(labels.phone)}<input name="phone" type="tel" autocomplete="tel" required></label>
+          </div>
+          <button class="button button-primary step-next" type="button" data-step-next>${escapeHtml(spaUi.next)}</button>
+        </fieldset>
+        <fieldset class="form-step field-wide" data-form-step="2" hidden>
+          <legend>${escapeHtml(spaUi.stepTwo)}</legend>
+          <div class="step-grid">
+            <label>${escapeHtml(spaUi.businessType)}<select name="businessType" required><option value="">${escapeHtml(spaUi.choose)}</option>${spaUi.types.map((item) => `<option>${escapeHtml(item)}</option>`).join("")}</select></label>
+            <label>${escapeHtml(spaUi.rooms)}<select name="treatmentRooms" required><option value="">${escapeHtml(spaUi.choose)}</option>${spaUi.roomOptions.map((item) => `<option>${escapeHtml(item)}</option>`).join("")}</select></label>
+            <label class="field-wide">${escapeHtml(spaUi.booking)}<select name="onlineBooking" required><option value="">${escapeHtml(spaUi.choose)}</option>${spaUi.bookingOptions.map((item) => `<option>${escapeHtml(item)}</option>`).join("")}</select></label>
+            <label class="field-wide">${escapeHtml(labels.message)}<textarea name="message" rows="4"></textarea></label>
+            <label class="consent field-wide"><input name="authorityConfirmed" type="checkbox" required value="confirmed"><span>${escapeHtml(spaUi.authority)}</span></label>
+            <label class="consent field-wide"><input name="privacyConsent" type="checkbox" required value="accepted"><span>${escapeHtml(labels.consent)}</span></label>
+          </div>
+          <div class="step-actions">
+            <button class="button button-secondary" type="button" data-step-back>${escapeHtml(spaUi.back)}</button>
+            <button class="button button-primary" type="submit">${escapeHtml(copy.submit)}</button>
+          </div>
+        </fieldset>`
+            : `<label>${escapeHtml(labels.name)}<input name="name" autocomplete="name" required></label>
         <label>${escapeHtml(labels.email)}<input name="email" type="email" autocomplete="email" required></label>
         <label>${escapeHtml(labels.phone)}<input name="phone" type="tel" autocomplete="tel" required></label>
         <label>${escapeHtml(labels.company)}<input name="company" autocomplete="organization" required></label>
         <label class="field-wide">${escapeHtml(labels.website)}<input name="website" type="url" inputmode="url"></label>
         <label class="field-wide">${escapeHtml(labels.message)}<textarea name="message" rows="5" required></textarea></label>
-        <label class="consent field-wide"><input name="privacyConsent" type="checkbox" required value="accepted"><span>${escapeHtml(
-          labels.consent,
-        )}</span></label>
-        <button class="button button-primary field-wide" type="submit">${escapeHtml(copy.submit)}</button>
+        <label class="consent field-wide"><input name="privacyConsent" type="checkbox" required value="accepted"><span>${escapeHtml(labels.consent)}</span></label>
+        <button class="button button-primary field-wide" type="submit">${escapeHtml(copy.submit)}</button>`
+        }
         <p class="form-status field-wide" role="status" aria-live="polite"></p>
       </form>
     </section>
   </main>
+  ${
+    isSpa
+      ? `<div class="success-modal" data-success-modal hidden>
+    <div class="success-modal-card" role="dialog" aria-modal="true" aria-labelledby="success-title">
+      <button class="modal-close" type="button" data-modal-close aria-label="${escapeHtml(spaUi.close)}">×</button>
+      <span class="success-mark" aria-hidden="true">✓</span>
+      <h2 id="success-title">${escapeHtml(spaUi.successTitle)}</h2>
+      <p>${escapeHtml(spaUi.successBody)}</p>
+      <button class="button button-primary" type="button" data-modal-close>${escapeHtml(spaUi.close)}</button>
+    </div>
+  </div>`
+      : ""
+  }
   <footer class="market-footer">
     <div><p>${escapeHtml(ui.en.legal)}</p></div>
     <nav><a href="/spaplus-global${marketPath(market)}">${escapeHtml(commonUi.market)}</a><a href="/spaplus-global/en/#privacy">${escapeHtml(commonUi.privacy)}</a></nav>
   </footer>
-  <script src="/spaplus-global/markets/market.js?v=20260725-3"></script>
+  <script src="/spaplus-global/markets/market.js?v=20260725-4"></script>
 </body>
 </html>`;
 }
@@ -1596,10 +1767,10 @@ h1,h2,h3,p{margin-top:0}
 .market-footer{padding:38px clamp(20px,6vw,92px);background:#091a30;color:#fff;display:flex;justify-content:space-between;gap:30px;align-items:center}.market-footer>div{max-width:680px}.market-footer .market-brand{filter:brightness(0) invert(1);margin-bottom:16px}.market-footer p{margin:0;color:rgba(255,255,255,.68);font-size:13px}.market-footer nav{display:flex;gap:18px;flex-wrap:wrap}.market-footer nav a{color:#fff}
 .share-market{position:fixed;right:20px;bottom:20px;z-index:15;border:0;border-radius:999px;background:var(--pink);color:#fff;padding:13px 18px;font-weight:900;box-shadow:0 12px 30px rgba(237,23,100,.32)}.share-toast{position:fixed;right:20px;bottom:78px;z-index:16;background:var(--navy);color:#fff;border-radius:10px;padding:10px 14px;opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s}.share-toast.is-visible{opacity:1;transform:none}
 .hub-page{background:linear-gradient(180deg,#fff5f8,#f4f7fb 55%,#fff)}.hub-hero{padding:clamp(80px,12vw,160px) clamp(20px,7vw,110px) 60px;max-width:1200px}.hub-hero>p:last-of-type{max-width:780px;color:var(--muted);font-size:20px}.live-markets{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.live-markets span{background:#fff;border:1px solid var(--line);padding:10px 15px;border-radius:999px;font-weight:800}.live-markets strong{color:#168263;font-size:12px;letter-spacing:.12em}.hub-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding-top:20px}.hub-card{text-decoration:none;background:#fff;border:1px solid var(--line);border-radius:24px;padding:26px;min-height:250px;position:relative;transition:.2s;box-shadow:0 12px 30px rgba(20,43,75,.06)}.hub-card:hover{transform:translateY(-5px);box-shadow:0 20px 45px rgba(20,43,75,.13)}.hub-flag{font-size:42px}.hub-status{position:absolute;top:26px;right:26px;color:var(--pink);font-size:10px;font-weight:900;letter-spacing:.12em}.hub-card h2{font-size:30px;margin:32px 0 4px}.hub-card p{color:var(--muted)}.hub-card strong{display:block;margin-top:30px;color:var(--pink)}
-.funnel-page{background:#f6f7fa}.funnel-hero{min-height:590px;display:grid;align-items:end;background-image:linear-gradient(90deg,rgba(9,26,48,.94),rgba(9,26,48,.55)),var(--market-image);background-size:cover;background-position:center}.funnel-hero-copy{color:#fff;max-width:920px;padding:clamp(70px,10vw,135px) clamp(20px,7vw,110px)}.funnel-hero h1{font-size:clamp(48px,7vw,92px);line-height:.98;letter-spacing:-.055em;margin:24px 0}.funnel-hero-copy>p{font-size:clamp(18px,2vw,24px);color:rgba(255,255,255,.82);max-width:760px}.funnel-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:34px}.funnel-tabs a{padding:12px 17px;border:1px solid rgba(255,255,255,.38);border-radius:999px;color:#fff;text-decoration:none;font-weight:850}.funnel-tabs a.is-active{background:#fff;color:var(--navy)}.funnel-content{display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(36px,7vw,100px);align-items:start}.funnel-explainer{position:sticky;top:120px}.funnel-explainer h2,.funnel-form h2{font-size:clamp(34px,4vw,56px);line-height:1.03;letter-spacing:-.04em}.funnel-explainer>p,.funnel-form>div>p{color:var(--muted);font-size:17px}.funnel-explainer ul{padding-inline-start:22px;margin:28px 0}.funnel-explainer li{margin:14px 0}.text-link{color:var(--pink);font-weight:850}.funnel-form{display:grid;grid-template-columns:1fr 1fr;gap:18px;background:#fff;border:1px solid var(--line);border-radius:28px;padding:clamp(24px,4vw,48px);box-shadow:0 24px 70px rgba(20,43,75,.1)}.funnel-form>div,.field-wide{grid-column:1/-1}.funnel-form label{font-weight:800;font-size:13px}.funnel-form input,.funnel-form textarea{display:block;width:100%;margin-top:7px;border:1px solid #cfd6df;border-radius:13px;background:#fff;color:var(--ink);padding:13px 14px;font:inherit}.funnel-form input:focus,.funnel-form textarea:focus{outline:3px solid rgba(237,23,100,.17);border-color:var(--pink)}.funnel-form .consent{display:flex;gap:10px;align-items:flex-start;font-weight:500;color:var(--muted)}.funnel-form .consent input{width:18px;height:18px;margin:3px 0 0;flex:0 0 auto}.form-status{min-height:24px;margin:0;color:#11684f;font-weight:800}.funnel-form.is-sending{opacity:.72;pointer-events:none}
+.funnel-page{background:#f6f7fa}.funnel-hero{min-height:590px;display:grid;align-items:end;background-image:linear-gradient(90deg,rgba(9,26,48,.94),rgba(9,26,48,.55)),var(--market-image);background-size:cover;background-position:center}.funnel-hero-copy{color:#fff;max-width:920px;padding:clamp(70px,10vw,135px) clamp(20px,7vw,110px)}.funnel-hero h1{font-size:clamp(48px,7vw,92px);line-height:.98;letter-spacing:-.055em;margin:24px 0}.funnel-hero-copy>p{font-size:clamp(18px,2vw,24px);color:rgba(255,255,255,.82);max-width:760px}.funnel-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:34px}.funnel-tabs a{padding:12px 17px;border:1px solid rgba(255,255,255,.38);border-radius:999px;color:#fff;text-decoration:none;font-weight:850}.funnel-tabs a.is-active{background:#fff;color:var(--navy)}.funnel-content{display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(36px,7vw,100px);align-items:start}.funnel-explainer{position:sticky;top:120px}.funnel-explainer h2,.funnel-form h2{font-size:clamp(34px,4vw,56px);line-height:1.03;letter-spacing:-.04em}.funnel-explainer>p,.funnel-form>div>p{color:var(--muted);font-size:17px}.funnel-explainer ul{padding-inline-start:22px;margin:28px 0}.funnel-explainer li{margin:14px 0}.text-link{color:var(--pink);font-weight:850}.funnel-form{display:grid;grid-template-columns:1fr 1fr;gap:18px;background:#fff;border:1px solid var(--line);border-radius:28px;padding:clamp(24px,4vw,48px);box-shadow:0 24px 70px rgba(20,43,75,.1)}.funnel-form>div,.field-wide{grid-column:1/-1}.funnel-form label{font-weight:800;font-size:13px}.funnel-form input,.funnel-form textarea,.funnel-form select{display:block;width:100%;margin-top:7px;border:1px solid #cfd6df;border-radius:13px;background:#fff;color:var(--ink);padding:13px 14px;font:inherit}.funnel-form input:focus,.funnel-form textarea:focus,.funnel-form select:focus{outline:3px solid rgba(237,23,100,.17);border-color:var(--pink)}.funnel-form .consent{display:flex;gap:10px;align-items:flex-start;font-weight:500;color:var(--muted)}.funnel-form .consent input{width:18px;height:18px;margin:3px 0 0;flex:0 0 auto}.form-status{min-height:24px;margin:0;color:#11684f;font-weight:800}.funnel-form.is-sending{opacity:.72;pointer-events:none}.form-progress{display:grid;gap:8px;color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}.form-progress i{display:block;height:7px;border-radius:999px;background:#e7ebf0;overflow:hidden}.form-progress b{display:block;width:50%;height:100%;border-radius:inherit;background:var(--pink);transition:width .25s ease}.form-step{border:0;padding:0;margin:8px 0 0;min-width:0}.form-step legend{font-size:22px;font-weight:900;margin-bottom:22px;color:var(--navy)}.step-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.step-grid .field-wide{grid-column:1/-1}.step-next{margin-top:24px;width:100%}.step-actions{display:flex;justify-content:space-between;gap:12px;margin-top:24px}.step-actions .button{flex:1}.success-modal{position:fixed;inset:0;z-index:100;background:rgba(4,17,34,.72);display:grid;place-items:center;padding:20px}.success-modal[hidden]{display:none}.success-modal-card{position:relative;width:min(520px,100%);background:#fff;border-radius:28px;padding:clamp(30px,6vw,52px);text-align:center;box-shadow:0 30px 100px rgba(0,0,0,.3)}.success-modal-card h2{font-size:clamp(30px,5vw,46px);line-height:1.05;margin:18px 0 12px}.success-modal-card p{color:var(--muted);font-size:17px;margin:0 0 28px}.success-mark{display:grid;place-items:center;width:64px;height:64px;margin:auto;border-radius:50%;background:#e9fbf4;color:#11805e;font-size:34px;font-weight:900}.modal-close{position:absolute;top:14px;right:16px;border:0;background:transparent;color:var(--muted);font-size:28px;line-height:1;padding:8px}
 @media(max-width:900px){.market-header nav{display:none}.market-hero{min-height:650px}.market-hero-shade{background:linear-gradient(0deg,rgba(10,29,52,.9),rgba(10,29,52,.22))}.search-mockup{grid-template-columns:1fr 1fr}.search-mockup button{grid-column:1/-1}.sample-grid,.benefit-grid,.hub-grid{grid-template-columns:1fr 1fr}.entrepreneur-section{grid-template-columns:1fr}.spa-section,.market-footer{align-items:flex-start;flex-direction:column}}
 @media(max-width:900px){.funnel-content{grid-template-columns:1fr}.funnel-explainer{position:static}}
-@media(max-width:620px){.market-header{min-height:70px;padding:10px 16px}.market-brand img:first-child{width:38px;height:38px}.market-brand img:last-child{width:90px}.market-language>span{display:none}.market-hero{min-height:630px}.market-hero-copy{padding:70px 20px 42px}.market-hero h1{font-size:48px}.section{padding:70px 16px}.search-mockup,.sample-grid,.benefit-grid,.hub-grid{grid-template-columns:1fr}.sample-grid{padding:16px}.sample-card-image{height:170px}.entrepreneur-section{padding:70px 20px}.spa-section{padding:70px 20px}.market-footer{padding:34px 20px}.share-market{right:14px;bottom:14px}.hub-status{right:20px}.funnel-hero{min-height:540px}.funnel-hero-copy{padding:76px 18px 42px}.funnel-hero h1{font-size:47px}.funnel-form{grid-template-columns:1fr}.funnel-form label{grid-column:1/-1}}
+@media(max-width:620px){.market-header{min-height:70px;padding:10px 16px}.market-brand img:first-child{width:38px;height:38px}.market-brand img:last-child{width:90px}.market-language>span{display:none}.market-hero{min-height:630px}.market-hero-copy{padding:70px 20px 42px}.market-hero h1{font-size:48px}.section{padding:70px 16px}.search-mockup,.sample-grid,.benefit-grid,.hub-grid{grid-template-columns:1fr}.sample-grid{padding:16px}.sample-card-image{height:170px}.entrepreneur-section{padding:70px 20px}.spa-section{padding:70px 20px}.market-footer{padding:34px 20px}.share-market{right:14px;bottom:14px}.hub-status{right:20px}.funnel-hero{min-height:540px}.funnel-hero-copy{padding:76px 18px 42px}.funnel-hero h1{font-size:47px}.funnel-form{grid-template-columns:1fr}.funnel-form label{grid-column:1/-1}.step-grid{grid-template-columns:1fr}.step-grid .field-wide{grid-column:1}.step-actions{flex-direction:column-reverse}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.button,.hub-card{transition:none}}
 `;
 
@@ -1624,7 +1795,7 @@ if (shareButton) {
         return;
       }
       await navigator.clipboard.writeText(shareUrl);
-    } catch {
+    } catch (error) {
       if (error && error.name === "AbortError") return;
       const field = document.createElement("textarea");
       field.value = shareUrl;
@@ -1643,6 +1814,57 @@ if (shareButton) {
 }
 const funnelForm = document.querySelector("[data-country-funnel]");
 if (funnelForm) {
+  const formSteps = [...funnelForm.querySelectorAll("[data-form-step]")];
+  const progressLabel = funnelForm.querySelector("[data-progress-label]");
+  const progressBar = funnelForm.querySelector("[data-progress-bar]");
+  const showStep = (stepNumber) => {
+    formSteps.forEach((step) => {
+      const active = Number(step.dataset.formStep) === stepNumber;
+      step.hidden = !active;
+      step.classList.toggle("is-active", active);
+    });
+    if (progressLabel) {
+      progressLabel.textContent = stepNumber === 1
+        ? funnelForm.dataset.stepOneLabel
+        : funnelForm.dataset.stepTwoLabel;
+    }
+    if (progressBar) progressBar.style.width = stepNumber === 1 ? "50%" : "100%";
+  };
+  funnelForm.querySelector("[data-step-next]")?.addEventListener("click", () => {
+    const firstStep = funnelForm.querySelector("[data-form-step='1']");
+    const invalid = [...firstStep.querySelectorAll("input, select, textarea")].find(
+      (field) => !field.checkValidity(),
+    );
+    if (invalid) {
+      invalid.reportValidity();
+      invalid.focus();
+      return;
+    }
+    window.dataLayer.push({
+      event: "spaplus_funnel_step_complete",
+      step: 1,
+      lead_type: funnelForm.elements.namedItem("leadType").value,
+      market: funnelForm.elements.namedItem("market").value,
+    });
+    showStep(2);
+    funnelForm.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  funnelForm.querySelector("[data-step-back]")?.addEventListener("click", () => {
+    showStep(1);
+    funnelForm.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  const successModal = document.querySelector("[data-success-modal]");
+  const closeSuccessModal = () => {
+    if (!successModal) return;
+    successModal.hidden = true;
+    document.body.style.overflow = "";
+  };
+  successModal?.querySelectorAll("[data-modal-close]").forEach((button) => {
+    button.addEventListener("click", closeSuccessModal);
+  });
+  successModal?.addEventListener("click", (event) => {
+    if (event.target === successModal) closeSuccessModal();
+  });
   const attributionKeys = [
     "utm_source",
     "utm_medium",
@@ -1650,7 +1872,10 @@ if (funnelForm) {
     "utm_content",
     "utm_term",
     "gclid",
+    "wbraid",
+    "gbraid",
     "fbclid",
+    "msclkid",
   ];
   const attributionParams = new URLSearchParams(location.search);
   const storedAttribution = JSON.parse(sessionStorage.getItem("spaplus_attribution") || "{}");
@@ -1669,6 +1894,16 @@ if (funnelForm) {
     market: funnelForm.elements.namedItem("market").value,
     locale: funnelForm.elements.namedItem("locale").value,
   });
+  funnelForm.addEventListener("focusin", () => {
+    if (funnelForm.dataset.started) return;
+    funnelForm.dataset.started = "true";
+    window.dataLayer.push({
+      event: "spaplus_funnel_start",
+      lead_type: funnelForm.elements.namedItem("leadType").value,
+      market: funnelForm.elements.namedItem("market").value,
+      locale: funnelForm.elements.namedItem("locale").value,
+    });
+  });
   funnelForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const status = funnelForm.querySelector(".form-status");
@@ -1679,7 +1914,24 @@ if (funnelForm) {
       "el-gr": "el",
       "hu-hu": "hu",
       "it-it": "it",
-      "fr-fr": "fr-CA",
+      "de-de": "de",
+      "de-ch": "de",
+      "fr-fr": "fr",
+      "nl-nl": "nl",
+      "sv-se": "sv",
+      "nb-no": "nb",
+    };
+    const fallbackAutoResponses = {
+      "el-cy": "Ευχαριστούμε. Λάβαμε τα στοιχεία σας και η ομάδα SpaPlus θα επικοινωνήσει μαζί σας σύντομα.",
+      "el-gr": "Ευχαριστούμε. Λάβαμε τα στοιχεία σας και η ομάδα SpaPlus θα επικοινωνήσει μαζί σας σύντομα.",
+      "hu-hu": "Köszönjük. Megkaptuk az adatokat, és a SpaPlus csapata hamarosan jelentkezik.",
+      "it-it": "Grazie. Abbiamo ricevuto i tuoi dati e il team SpaPlus ti contatterà presto.",
+      "de-de": "Vielen Dank. Wir haben Ihre Angaben erhalten. Das SpaPlus-Team meldet sich in Kürze.",
+      "de-ch": "Vielen Dank. Wir haben Ihre Angaben erhalten. Das SpaPlus-Team meldet sich in Kürze.",
+      "fr-fr": "Merci. Nous avons bien reçu vos informations. L’équipe SpaPlus reviendra vers vous prochainement.",
+      "nl-nl": "Bedankt. We hebben je gegevens ontvangen. Het SpaPlus-team neemt binnenkort contact op.",
+      "sv-se": "Tack. Vi har tagit emot dina uppgifter. SpaPlus-teamet återkommer snart.",
+      "nb-no": "Takk. Vi har mottatt opplysningene dine. SpaPlus-teamet tar snart kontakt.",
     };
     const topic = formValues.leadType === "spa_business"
       ? "Spa business lead | " + formValues.market
@@ -1695,6 +1947,7 @@ if (funnelForm) {
       email: formValues.email,
       organization: formValues.company,
       topic,
+      publicTopic: formValues.displayTopic,
       locale: emailLocaleMap[formValues.locale] || "en",
       source: location.href,
       message: [
@@ -1704,13 +1957,19 @@ if (funnelForm) {
         "Lead type: " + formValues.leadType,
         "Phone: " + formValues.phone,
         "Website: " + (formValues.website || "Not provided"),
+        formValues.city ? "City or region: " + formValues.city : "",
+        formValues.role ? "Contact role: " + formValues.role : "",
+        formValues.businessType ? "Business type: " + formValues.businessType : "",
+        formValues.treatmentRooms ? "Treatment rooms: " + formValues.treatmentRooms : "",
+        formValues.onlineBooking ? "Online booking: " + formValues.onlineBooking : "",
+        formValues.authorityConfirmed ? "Authority confirmed: Yes" : "",
         campaignDetails ? "\\nCampaign attribution:\\n" + campaignDetails : "",
         "Referrer: " + (formValues.referrer || "Direct"),
       ].filter(Boolean).join("\\n"),
     };
     funnelForm.classList.add("is-sending");
     submit.disabled = true;
-    status.textContent = "Sending...";
+    status.textContent = funnelForm.dataset.sending;
     try {
       let response = null;
       try {
@@ -1732,6 +1991,12 @@ if (funnelForm) {
             phone: formValues.phone,
             company: formValues.company,
             website: formValues.website || "Not provided",
+            city_or_region: formValues.city || "Not provided",
+            contact_role: formValues.role || "Not provided",
+            business_type: formValues.businessType || "Not provided",
+            treatment_rooms: formValues.treatmentRooms || "Not provided",
+            online_booking: formValues.onlineBooking || "Not provided",
+            authority_confirmed: formValues.authorityConfirmed || "Not applicable",
             market: formValues.market,
             lead_type: formValues.leadType,
             message: formValues.message,
@@ -1741,6 +2006,7 @@ if (funnelForm) {
             _template: "box",
             _cc: "palombo.r@gmail.com,s0509350015@gmail.com",
             _autoresponse:
+              fallbackAutoResponses[formValues.locale] ||
               "Thank you for contacting SpaPlus Global. We have received your enquiry and our team will review it shortly.",
           }),
         });
@@ -1754,8 +2020,20 @@ if (funnelForm) {
       });
       funnelForm.reset();
       status.textContent = funnelForm.dataset.success;
+      if (formSteps.length) showStep(1);
+      if (successModal) {
+        successModal.hidden = false;
+        document.body.style.overflow = "hidden";
+        successModal.querySelector("[data-modal-close]")?.focus();
+      }
     } catch {
-      status.textContent = "The message could not be sent. Please try again.";
+      status.textContent = funnelForm.dataset.error;
+      window.dataLayer.push({
+        event: "spaplus_funnel_error",
+        lead_type: formValues.leadType,
+        market: formValues.market,
+        locale: formValues.locale,
+      });
     } finally {
       funnelForm.classList.remove("is-sending");
       submit.disabled = false;

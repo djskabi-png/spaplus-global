@@ -174,8 +174,8 @@ test("contact email delivery is branded and sends two messages", async () => {
   assert.match(templates, /buildOwnerEmail/);
   assert.match(templates, /buildVisitorEmail/);
   assert.match(templates, /preheader/);
-  assert.match(templates, /'Segoe UI', Tahoma, Arial, sans-serif/);
-  assert.doesNotMatch(templates, /fonts\.googleapis\.com/);
+  assert.match(templates, /'Heebo', Arial, sans-serif/);
+  assert.match(templates, /fonts\.googleapis\.com/);
   assert.doesNotMatch(templates, /info@spaplus\.ca/);
   assert.match(templates, /dir="\$\{dir\}"/);
   assert.match(templates, /direction:\$\{dir\}/);
@@ -229,7 +229,7 @@ test("country partner page is complete, bilingual and connected", async () => {
   assert.match(css, /@media \(max-width: 700px\)/);
   assert.match(css, /@media \(max-width: 380px\)/);
   assert.match(homeHtml, /href="\.\/country-partners\/\?lang=en"/);
-  assert.match(homeScript, /\.\/country-partners\/\?lang=/);
+  assert.match(homeScript, /siteRoot \+ "country-partners\/\?lang="/);
   assert.match(hebrewHtml, /<html lang="he" dir="rtl">/);
   assert.match(hebrewHtml, /<link rel="canonical" href="https:\/\/djskabi-png\.github\.io\/spaplus-global\/country-partners\/he\/">/);
   assert.match(hebrewHtml, /<title>שותפי מדינה של SpaPlus/);

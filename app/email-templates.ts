@@ -2,6 +2,11 @@ type EmailLocale =
   | "en"
   | "he"
   | "fr-CA"
+  | "fr"
+  | "de"
+  | "nl"
+  | "sv"
+  | "nb"
   | "ru"
   | "el"
   | "it"
@@ -14,6 +19,7 @@ export type ContactEmailData = {
   email: string;
   organization: string;
   topic: string;
+  publicTopic?: string;
   message: string;
   locale: EmailLocale;
   source: string;
@@ -22,7 +28,7 @@ export type ContactEmailData = {
 
 const logoUrl =
   "https://djskabi-png.github.io/spaplus-global/spaplus-wordmark.png";
-const siteUrl = "https://spaplus.co";
+const siteUrl = "https://djskabi-png.github.io/spaplus-global/";
 
 type VisitorCopy = {
   dir: "ltr" | "rtl";
@@ -80,6 +86,76 @@ const visitorCopy: Record<EmailLocale, VisitorCopy> = {
     response: "Un membre de notre équipe vous répondra directement à l’adresse courriel fournie.",
     cta: "Découvrir SpaPlus Global",
     footer: "Une expérience spa d’ici. Une vision SpaPlus mondiale.",
+  },
+  fr: {
+    dir: "ltr",
+    subject: "Nous avons bien reçu votre demande | SpaPlus Global",
+    preheader: "Merci d’avoir contacté SpaPlus. Notre équipe reviendra vers vous prochainement.",
+    eyebrow: "Demande reçue",
+    title: (name) => `Merci, ${name}.`,
+    intro:
+      "Votre demande est bien arrivée auprès de l’équipe SpaPlus. Nous allons l’étudier avec attention et revenir vers vous prochainement.",
+    topic: "Votre demande",
+    message: "Les informations transmises",
+    response: "Un membre de notre équipe vous répondra directement à l’adresse e-mail indiquée.",
+    cta: "Découvrir SpaPlus Global",
+    footer: "Une expérience spa locale. Une vision SpaPlus mondiale.",
+  },
+  de: {
+    dir: "ltr",
+    subject: "Wir haben Ihre Anfrage erhalten | SpaPlus Global",
+    preheader: "Vielen Dank für Ihre Anfrage. Unser Team meldet sich in Kürze bei Ihnen.",
+    eyebrow: "Anfrage eingegangen",
+    title: (name) => `Vielen Dank, ${name}.`,
+    intro:
+      "Ihre Angaben sind beim SpaPlus-Team eingegangen. Wir prüfen sie sorgfältig und melden uns anschließend bei Ihnen.",
+    topic: "Ihre Anfrage",
+    message: "Ihre Angaben",
+    response: "Ein Mitglied unseres Teams antwortet direkt an die von Ihnen angegebene E-Mail-Adresse.",
+    cta: "SpaPlus Global entdecken",
+    footer: "Lokale Spa-Erlebnisse. Eine globale SpaPlus-Vision.",
+  },
+  nl: {
+    dir: "ltr",
+    subject: "We hebben je aanvraag ontvangen | SpaPlus Global",
+    preheader: "Bedankt voor je aanvraag. Ons team neemt binnenkort contact met je op.",
+    eyebrow: "Aanvraag ontvangen",
+    title: (name) => `Bedankt, ${name}.`,
+    intro:
+      "Je gegevens zijn bij het SpaPlus-team binnengekomen. We bekijken ze zorgvuldig en nemen daarna contact met je op.",
+    topic: "Je aanvraag",
+    message: "Je gegevens",
+    response: "Iemand van ons team reageert rechtstreeks op het e-mailadres dat je hebt opgegeven.",
+    cta: "Ontdek SpaPlus Global",
+    footer: "Een lokale spa-ervaring. Een wereldwijde SpaPlus-visie.",
+  },
+  sv: {
+    dir: "ltr",
+    subject: "Vi har tagit emot din anmälan | SpaPlus Global",
+    preheader: "Tack för din anmälan. Vårt team återkommer snart.",
+    eyebrow: "Anmälan mottagen",
+    title: (name) => `Tack, ${name}.`,
+    intro:
+      "Dina uppgifter har kommit fram till SpaPlus-teamet. Vi går igenom dem noggrant och återkommer därefter.",
+    topic: "Din anmälan",
+    message: "Dina uppgifter",
+    response: "En person i vårt team svarar direkt till den e-postadress du angav.",
+    cta: "Upptäck SpaPlus Global",
+    footer: "En lokal spaupplevelse. En global SpaPlus-vision.",
+  },
+  nb: {
+    dir: "ltr",
+    subject: "Vi har mottatt henvendelsen din | SpaPlus Global",
+    preheader: "Takk for henvendelsen. Teamet vårt tar snart kontakt.",
+    eyebrow: "Henvendelse mottatt",
+    title: (name) => `Takk, ${name}.`,
+    intro:
+      "Opplysningene dine har kommet frem til SpaPlus-teamet. Vi går nøye gjennom dem og tar deretter kontakt.",
+    topic: "Henvendelsen din",
+    message: "Opplysningene dine",
+    response: "En i teamet vårt svarer direkte til e-postadressen du oppga.",
+    cta: "Oppdag SpaPlus Global",
+    footer: "En lokal spaopplevelse. En global SpaPlus-visjon.",
   },
   ru: {
     dir: "ltr",
@@ -206,10 +282,11 @@ const frame = ({
     <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
     <title>${escapeHtml(title)}</title>
     <style>
+      @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap');
       table { border-collapse: separate; }
       a { color: inherit; }
       body, table, td, a, p, h1 {
-        font-family: ${lang === "he" ? "'Segoe UI', Tahoma, Arial, sans-serif" : "Arial, 'Helvetica Neue', sans-serif"} !important;
+        font-family: ${lang === "he" ? "'Heebo', Arial, sans-serif" : "Arial, 'Helvetica Neue', sans-serif"} !important;
       }
       @media only screen and (max-width: 620px) {
         .page-pad { padding: 16px 8px !important; }
@@ -226,11 +303,11 @@ const frame = ({
       }
     </style>
   </head>
-  <body dir="${dir}" style="margin:0;padding:0;background-color:#f4f1f3;color:#172744;direction:${dir};font-family:${lang === "he" ? "'Segoe UI',Tahoma,Arial,sans-serif" : "Arial,'Helvetica Neue',sans-serif"};">
+  <body dir="${dir}" style="margin:0;padding:0;background-color:#f4f1f3;color:#172744;direction:${dir};font-family:${lang === "he" ? "'Heebo',Arial,sans-serif" : "Arial,'Helvetica Neue',sans-serif"};">
     <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;mso-hide:all;">
       ${escapeHtml(preheader)}&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;
     </div>
-    <table dir="${dir}" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background-color:#f4f1f3;direction:${dir};font-family:${lang === "he" ? "'Segoe UI',Tahoma,Arial,sans-serif" : "Arial,'Helvetica Neue',sans-serif"};">
+    <table dir="${dir}" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background-color:#f4f1f3;direction:${dir};font-family:${lang === "he" ? "'Heebo',Arial,sans-serif" : "Arial,'Helvetica Neue',sans-serif"};">
       <tr>
         <td class="page-pad" dir="${dir}" align="center" style="padding:36px 14px;direction:${dir};">
           <!--[if mso]><table role="presentation" width="640" cellspacing="0" cellpadding="0" border="0"><tr><td><![endif]-->
@@ -271,7 +348,7 @@ const frame = ({
             <tr>
               <td class="footer-pad" dir="${dir}" style="padding:26px 38px;background-color:#172744;color:#cbd3df;direction:${dir};text-align:center;font-size:12px;line-height:1.7;">
                 <p style="margin:0 0 6px;">${escapeHtml(footer)}</p>
-                <a href="${siteUrl}" style="color:#ffffff;text-decoration:none;">spaplus.co</a>
+                <a href="${siteUrl}" style="color:#ffffff;text-decoration:none;">SpaPlus Global</a>
               </td>
             </tr>
           </table>
@@ -292,7 +369,7 @@ export function buildVisitorEmail(data: ContactEmailData) {
       <tr>
         <td class="panel-pad" style="padding:22px 24px;text-align:${copy.dir === "rtl" ? "right" : "left"};">
           <p style="margin:0;color:#9b456a;font-size:12px;line-height:1.4;font-weight:700;letter-spacing:.04em;text-transform:uppercase;">${escapeHtml(copy.topic)}</p>
-          <p style="margin:7px 0 0;color:#172744;font-size:17px;line-height:1.45;font-weight:700;">${escapeHtml(data.topic)}</p>
+          <p style="margin:7px 0 0;color:#172744;font-size:17px;line-height:1.45;font-weight:700;">${escapeHtml(data.publicTopic || data.topic)}</p>
           ${organization}
         </td>
       </tr>
@@ -314,7 +391,7 @@ export function buildVisitorEmail(data: ContactEmailData) {
       copy.title(data.name),
       copy.intro,
       "",
-      `${copy.topic}: ${data.topic}`,
+      `${copy.topic}: ${data.publicTopic || data.topic}`,
       data.organization ? data.organization : "",
       "",
       `${copy.message}:`,

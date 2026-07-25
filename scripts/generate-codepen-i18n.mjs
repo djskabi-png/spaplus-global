@@ -469,7 +469,8 @@ const applyLocale = (locale) => {
   setAllText(".mobile-menu a", [
     t.navVision, t.navCountries, t.productsEyebrow, enhancement.navPartners, t.aboutEyebrow, t.contact, t.chooseCountry,
   ]);
-  const partnerHref = "./country-partners/?lang=" + (locale === "he" ? "he" : "en");
+  const siteRoot = location.hostname.endsWith("github.io") ? "/spaplus-global/" : "/";
+  const partnerHref = siteRoot + "country-partners/?lang=" + (locale === "he" ? "he" : "en");
   document.querySelectorAll(".desktop-nav a, .mobile-menu a").forEach((link) => {
     if (link.textContent === enhancement.navPartners) link.href = partnerHref;
   });
