@@ -546,9 +546,118 @@ const italyFunnelCopy = {
   },
 };
 
+const campaignLocalizations = {
+  "el-GR": {
+    marketH1: "Η Ελλάδα μπορεί να γίνει η επόμενη αγορά της SpaPlus.",
+    marketLead: "Αναζητούμε έναν ισχυρό τοπικό συνεργάτη και ποιοτικούς χώρους spa και ευεξίας, ώστε να δημιουργήσουμε μια εμπειρία που ταιριάζει πραγματικά στην ελληνική αγορά.",
+    entrepreneurH1: "Αναπτύξτε τη SpaPlus στην Ελλάδα.",
+    entrepreneurLead: "Εσείς γνωρίζετε την αγορά, τους ανθρώπους και τις τοπικές επιχειρήσεις. Εμείς προσφέρουμε το brand, την τεχνολογία, τα συστήματα και την τεχνογνωσία για να χτίσουμε μαζί μια ισχυρή παρουσία.",
+    spaH1: "Εντάξτε το spa σας στη SpaPlus.",
+    spaLead: "Γίνετε μέρος ενός δικτύου που βοηθά περισσότερους ανθρώπους να ανακαλύπτουν και να επιλέγουν αξιόλογες εμπειρίες spa με σιγουριά.",
+    entrepreneurCta: "Εκδήλωση ενδιαφέροντος για συνεργασία",
+    spaCta: "Εκδήλωση ενδιαφέροντος για το spa μου",
+    formTitle: "Πείτε μας για εσάς και την αγορά σας",
+    consent: "Συμφωνώ η SpaPlus να χρησιμοποιήσει τα στοιχεία που υποβάλλω για την αξιολόγηση του αιτήματός μου και την επικοινωνία μαζί μου.",
+  },
+  "hu-HU": {
+    marketH1: "Magyarország lehet a SpaPlus következő piaca.",
+    marketLead: "Olyan erős helyi vállalkozót és minőségi spa- és wellnesspartnereket keresünk, akikkel a magyar piacra szabott, megbízható szolgáltatást építhetünk.",
+    entrepreneurH1: "Vezesse a SpaPlus magyarországi bevezetését.",
+    entrepreneurLead: "Ön hozza a helyi piacismeretet, az üzleti kapcsolatokat és az operatív vezetést. Mi adjuk a márkát, a technológiát, a rendszereket és a több mint húsz év alatt felhalmozott tudást.",
+    spaH1: "Legyen spa vállalkozása a SpaPlus partnere.",
+    spaLead: "Érjen el új vendégeket egy olyan hálózaton keresztül, amely egyszerűbbé és megbízhatóbbá teszi a spaélmények felfedezését és foglalását.",
+    entrepreneurCta: "Jelentkezem országpartnernek",
+    spaCta: "Érdekel a spa partnerség",
+    formTitle: "Mutatkozzon be, és meséljen a piacáról",
+    consent: "Hozzájárulok, hogy a SpaPlus a megadott adataimat a jelentkezésem értékelésére és a kapcsolatfelvételre használja.",
+  },
+  "de-DE": {
+    marketH1: "Deutschland könnte der nächste SpaPlus-Markt werden.",
+    marketLead: "Wir suchen eine unternehmerisch starke Partnerin oder einen Partner vor Ort sowie hochwertige Spa- und Wellnessbetriebe, um SpaPlus passend für den deutschen Markt aufzubauen.",
+    entrepreneurH1: "Bauen Sie SpaPlus in Deutschland auf.",
+    entrepreneurLead: "Sie kennen den Markt, gewinnen passende Spa-Partner und führen das lokale Geschäft. Wir bringen Marke, Technologie, Systeme und mehr als zwanzig Jahre Branchenerfahrung ein.",
+    spaH1: "Werden Sie mit Ihrem Spa Teil von SpaPlus.",
+    spaLead: "Erreichen Sie neue Gäste über eine Plattform, die hochwertige Spa-Erlebnisse leichter auffindbar, verständlich und buchbar macht.",
+    entrepreneurCta: "Als Länderpartner bewerben",
+    spaCta: "Interesse als Spa-Betrieb anmelden",
+    formTitle: "Erzählen Sie uns von sich und Ihrem Markt",
+    consent: "Ich bin damit einverstanden, dass SpaPlus meine Angaben zur Prüfung meiner Anfrage und zur Kontaktaufnahme verwendet.",
+  },
+  "fr-FR": {
+    marketH1: "Et si la France devenait le prochain marché SpaPlus ?",
+    marketLead: "Nous recherchons une entrepreneuse ou un entrepreneur solidement implanté en France, ainsi que des établissements spa et bien-être de qualité, pour construire une offre réellement adaptée au marché français.",
+    entrepreneurH1: "Développez SpaPlus en France.",
+    entrepreneurLead: "Vous apportez votre connaissance du terrain, votre réseau et votre capacité à piloter l’activité locale. Nous apportons la marque, la technologie, les outils et plus de vingt ans d’expérience du secteur.",
+    spaH1: "Rejoignez le futur réseau SpaPlus en France.",
+    spaLead: "Faites découvrir votre établissement à de nouveaux clients grâce à une expérience pensée pour faciliter la recherche, le choix et la réservation d’un spa de qualité.",
+    entrepreneurCta: "Proposer ma candidature",
+    spaCta: "Préinscrire mon établissement",
+    formTitle: "Parlez-nous de votre parcours et de votre marché",
+    consent: "J’accepte que SpaPlus utilise les informations transmises afin d’étudier ma demande et de me recontacter.",
+  },
+  "nl-NL": {
+    marketH1: "Nederland kan de volgende SpaPlus-markt worden.",
+    marketLead: "We zoeken een ondernemende lokale partner en hoogwaardige spa- en wellnesslocaties om samen een aanbod te bouwen dat echt aansluit op de Nederlandse markt.",
+    entrepreneurH1: "Bouw SpaPlus op in Nederland.",
+    entrepreneurLead: "Jij kent de markt, bouwt het lokale netwerk op en leidt de dagelijkse groei. Wij leveren het merk, de technologie, de systemen en ruim twintig jaar ervaring in de spa-branche.",
+    spaH1: "Laat jouw spa groeien met SpaPlus.",
+    spaLead: "Bereik nieuwe gasten via een platform dat het ontdekken, vergelijken en boeken van kwalitatieve spa-ervaringen eenvoudiger maakt.",
+    entrepreneurCta: "Meld je aan als landpartner",
+    spaCta: "Meld je spa aan",
+    formTitle: "Vertel ons over jezelf en jouw markt",
+    consent: "Ik ga ermee akkoord dat SpaPlus mijn gegevens gebruikt om mijn aanvraag te beoordelen en contact met mij op te nemen.",
+  },
+  "sv-SE": {
+    marketH1: "Sverige kan bli nästa marknad för SpaPlus.",
+    marketLead: "Vi söker en driven lokal partner och kvalitativa spa- och wellnessanläggningar för att tillsammans bygga ett erbjudande som passar den svenska marknaden.",
+    entrepreneurH1: "Bygg SpaPlus i Sverige.",
+    entrepreneurLead: "Du bidrar med lokal marknadskännedom, affärsrelationer och operativt ledarskap. Vi bidrar med varumärket, tekniken, systemen och mer än tjugo års erfarenhet av spa-branschen.",
+    spaH1: "Låt ditt spa växa med SpaPlus.",
+    spaLead: "Nå nya gäster genom en plattform som gör det enklare att upptäcka, välja och boka spa-upplevelser av hög kvalitet.",
+    entrepreneurCta: "Anmäl intresse som landspartner",
+    spaCta: "Anmäl mitt spa",
+    formTitle: "Berätta om dig och din marknad",
+    consent: "Jag godkänner att SpaPlus använder de uppgifter jag lämnar för att bedöma min förfrågan och kontakta mig.",
+  },
+  "nb-NO": {
+    marketH1: "Norge kan bli det neste markedet for SpaPlus.",
+    marketLead: "Vi ser etter en sterk lokal samarbeidspartner og spa- og velværebedrifter av høy kvalitet for å bygge et tilbud som er tilpasset det norske markedet.",
+    entrepreneurH1: "Bygg SpaPlus i Norge.",
+    entrepreneurLead: "Du bidrar med lokalkunnskap, forretningsnettverk og operativ ledelse. Vi bidrar med merkevaren, teknologien, systemene og mer enn tjue års erfaring fra spa-bransjen.",
+    spaH1: "La spaet ditt vokse med SpaPlus.",
+    spaLead: "Nå ut til nye gjester gjennom en plattform som gjør det enklere å oppdage, velge og bestille spaopplevelser av høy kvalitet.",
+    entrepreneurCta: "Meld interesse som landspartner",
+    spaCta: "Meld interesse for spaet mitt",
+    formTitle: "Fortell oss om deg og markedet ditt",
+    consent: "Jeg samtykker til at SpaPlus bruker opplysningene jeg sender inn for å vurdere henvendelsen min og kontakte meg.",
+  },
+  "de-CH": {
+    marketH1: "Die Schweiz könnte der nächste SpaPlus-Markt werden.",
+    marketLead: "Wir suchen eine unternehmerisch starke Partnerin oder einen Partner mit lokalem Netzwerk sowie hochwertige Spa- und Wellnessbetriebe, um SpaPlus passend für den mehrsprachigen Schweizer Markt aufzubauen.",
+    entrepreneurH1: "Bauen Sie SpaPlus in der Schweiz auf.",
+    entrepreneurLead: "Sie kennen die regionalen Besonderheiten, gewinnen passende Spa-Partner und führen das lokale Geschäft. Wir bringen Marke, Technologie, Systeme und mehr als zwanzig Jahre Branchenerfahrung ein.",
+    spaH1: "Werden Sie mit Ihrem Spa Teil von SpaPlus.",
+    spaLead: "Erreichen Sie neue Gäste über eine Plattform, die hochwertige Spa-Erlebnisse leichter auffindbar, verständlich und buchbar macht.",
+    entrepreneurCta: "Interesse als Länderpartner anmelden",
+    spaCta: "Spa-Betrieb vormerken",
+    formTitle: "Erzählen Sie uns von sich und Ihrem Markt",
+    consent: "Ich bin damit einverstanden, dass SpaPlus meine Angaben zur Prüfung meiner Anfrage und zur Kontaktaufnahme verwendet.",
+  },
+};
+
 function renderFunnelPage(market, type) {
-  const copy =
+  const baseCopy =
     market.slug === "italy" ? italyFunnelCopy[type] : funnelCopy[type];
+  const localized = campaignLocalizations[market.lang];
+  const copy = localized
+    ? {
+        ...baseCopy,
+        title: () => (type === "spa" ? localized.spaH1 : localized.entrepreneurH1),
+        lead: type === "spa" ? localized.spaLead : localized.entrepreneurLead,
+        formTitle: localized.formTitle,
+        submit: type === "spa" ? localized.spaCta : localized.entrepreneurCta,
+      }
+    : baseCopy;
   const isSpa = type === "spa";
   const currentPath = isSpa ? spaJoinPath(market) : entrepreneurPath(market);
   const otherPath = isSpa ? entrepreneurPath(market) : spaJoinPath(market);
@@ -575,6 +684,7 @@ function renderFunnelPage(market, type) {
           website: isSpa ? "Website or social profile" : "LinkedIn or website",
           message: "Tell us more",
           consent:
+            localized?.consent ||
             "I agree that SpaPlus may use these details to assess and respond to this enquiry.",
         };
   const schema = {
@@ -703,8 +813,9 @@ function renderFunnelPage(market, type) {
 
 function renderMarketPage(market) {
   const copy = ui[market.ui] || ui.en;
+  const localized = campaignLocalizations[market.lang];
   const pageTitle = `${copy.status}: SpaPlus ${market.display} | SpaPlus Global`;
-  const description = copy.heroLead(market.display);
+  const description = localized?.marketLead || copy.heroLead(market.display);
   const schema = {
     "@context": "https://schema.org",
     "@graph": [
@@ -799,16 +910,19 @@ function renderMarketPage(market) {
         <div class="market-status"><span>${market.flag}</span>${escapeHtml(copy.status)}</div>
         <p class="eyebrow">SpaPlus ${escapeHtml(market.display)}</p>
         <h1>${escapeHtml(
-          market.ui === "elCy"
+          localized?.marketH1 ||
+          (market.ui === "elCy"
             ? "Το SpaPlus έρχεται στην Κύπρο"
             : market.ui === "it"
               ? "SpaPlus sta arrivando in Italia"
-            : `SpaPlus is coming to ${market.display}`,
+              : `SpaPlus is coming to ${market.display}`),
         )}</h1>
         <p>${escapeHtml(description)}</p>
         <div class="hero-actions">
           <a class="button button-primary" href="#preview">${escapeHtml(copy.guestCta)}</a>
-          <a class="button button-glass" href="#entrepreneur">${escapeHtml(copy.partnerCta)}</a>
+          <a class="button button-glass" href="#entrepreneur">${escapeHtml(
+            localized?.entrepreneurCta || copy.partnerCta,
+          )}</a>
         </div>
       </div>
     </section>
@@ -868,7 +982,7 @@ function renderMarketPage(market) {
           ${copy.entrepreneurPoints.map((point) => `<li>${escapeHtml(point)}</li>`).join("")}
         </ul>
         <a class="button button-light" href="/spaplus-global${entrepreneurPath(market)}">${escapeHtml(
-          copy.apply,
+          localized?.entrepreneurCta || copy.apply,
         )}</a>
       </div>
     </section>
@@ -880,7 +994,7 @@ function renderMarketPage(market) {
         <p>${escapeHtml(copy.spaBody)}</p>
       </div>
       <a class="button button-primary" href="/spaplus-global${spaJoinPath(market)}">${escapeHtml(
-        copy.spaCta,
+        localized?.spaCta || copy.spaCta,
       )}</a>
     </section>
   </main>
