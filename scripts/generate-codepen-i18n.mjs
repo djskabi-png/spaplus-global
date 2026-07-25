@@ -280,9 +280,9 @@ const applyLocale = (locale) => {
   ]);
   setAllText(".proof-grid span", [t.proofYears, t.proofMarkets, t.proofPromise]);
   setAllText(".atmosphere-heading > *", [
-    t.promiseTitle,
+    company.technologyEyebrow,
+    company.technologyTitle,
     company.technologyStatement,
-    t.visionBodyOne,
   ]);
   document.querySelector(".atmosphere-section").setAttribute("aria-label", t.visionEyebrow);
   document.querySelectorAll(".atmosphere-gallery img").forEach((image, index) => {

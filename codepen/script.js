@@ -1199,9 +1199,9 @@ const companyData = {
   "copy": {
     "en": {
       "technologyEyebrow": "Technology with a purpose",
-      "technologyTitle": "We are a technology company. We build better days.",
+      "technologyTitle": "We build technology for better days.",
       "technologyBody": "SpaPlus develops marketplaces, booking journeys, business management tools, automations and data infrastructure for the spa and wellness world. The technology makes every step simpler for guests and gives local businesses a smarter way to grow.",
-      "technologyStatement": "We do not build technology for technology’s sake. We build it to create more calm, confidence and wellbeing in people’s lives.",
+      "technologyStatement": "More calm. More confidence. More wellbeing.",
       "timelineTitle": "From one local idea to a global platform",
       "timeline": [
         {
@@ -1294,9 +1294,9 @@ const companyData = {
     },
     "he": {
       "technologyEyebrow": "טכנולוגיה עם מטרה",
-      "technologyTitle": "אנחנו חברת טכנולוגיה. המוצר שלנו הוא יום טוב יותר.",
+      "technologyTitle": "אנחנו בונים טכנולוגיה לימים טובים יותר.",
       "technologyBody": "SpaPlus מפתחת זירות מסחר, תהליכי הזמנה, מערכות לניהול עסקים, אוטומציות ותשתיות מידע לעולמות הספא והוולנס. הטכנולוגיה מפשטת כל שלב עבור הלקוחות ונותנת לעסקים מקומיים דרך חכמה יותר לצמוח.",
-      "technologyStatement": "אנחנו לא מפתחים טכנולוגיה רק בשביל הטכנולוגיה. אנחנו מפתחים אותה כדי להוסיף לחיים של אנשים יותר רוגע, ביטחון והרגשה טובה.",
+      "technologyStatement": "יותר רוגע. יותר ביטחון. יותר הרגשה טובה.",
       "timelineTitle": "מרעיון מקומי אחד לפלטפורמה עולמית",
       "timeline": [
         {
@@ -1389,9 +1389,9 @@ const companyData = {
     },
     "fr-CA": {
       "technologyEyebrow": "La technologie au service du mieux-être",
-      "technologyTitle": "Nous sommes une entreprise technologique. Notre produit, c’est une meilleure journée.",
+      "technologyTitle": "Nous créons de la technologie pour de meilleures journées.",
       "technologyBody": "SpaPlus développe des plateformes, des parcours de réservation, des outils de gestion, des automatisations et une infrastructure de données pour le spa et le mieux-être. La technologie simplifie chaque étape pour les clients et aide les entreprises locales à grandir intelligemment.",
-      "technologyStatement": "Nous ne créons pas de la technologie pour la technologie. Nous la créons pour apporter plus de calme, de confiance et de mieux-être dans la vie des gens.",
+      "technologyStatement": "Plus de calme. Plus de confiance. Plus de mieux-être.",
       "timelineTitle": "D’une idée locale à une plateforme mondiale",
       "timeline": [
         {
@@ -1484,9 +1484,9 @@ const companyData = {
     },
     "ru": {
       "technologyEyebrow": "Технологии со смыслом",
-      "technologyTitle": "Мы технологическая компания. Наш продукт делает день людей лучше.",
+      "technologyTitle": "Мы создаём технологии для лучших дней.",
       "technologyBody": "SpaPlus создаёт маркетплейсы, процессы бронирования, инструменты управления бизнесом, автоматизацию и инфраструктуру данных для индустрии спа и велнеса. Технологии упрощают путь гостя и помогают местным компаниям расти.",
-      "technologyStatement": "Мы создаём технологии не ради технологий. Мы создаём их, чтобы в жизни людей было больше спокойствия, уверенности и хорошего самочувствия.",
+      "technologyStatement": "Больше спокойствия. Больше уверенности. Больше хорошего самочувствия.",
       "timelineTitle": "От локальной идеи к глобальной платформе",
       "timeline": [
         {
@@ -1579,9 +1579,9 @@ const companyData = {
     },
     "el": {
       "technologyEyebrow": "Τεχνολογία με σκοπό",
-      "technologyTitle": "Είμαστε εταιρεία τεχνολογίας. Το προϊόν μας είναι μια καλύτερη μέρα.",
+      "technologyTitle": "Χτίζουμε τεχνολογία για καλύτερες μέρες.",
       "technologyBody": "Η SpaPlus αναπτύσσει marketplaces, διαδρομές κράτησης, εργαλεία διαχείρισης, αυτοματισμούς και υποδομές δεδομένων για τον χώρο του spa και του wellness. Η τεχνολογία απλοποιεί κάθε βήμα για τον επισκέπτη και βοηθά τις τοπικές επιχειρήσεις να αναπτυχθούν.",
-      "technologyStatement": "Δεν δημιουργούμε τεχνολογία για την τεχνολογία. Τη δημιουργούμε για να φέρνουμε περισσότερη ηρεμία, σιγουριά και ευεξία στη ζωή των ανθρώπων.",
+      "technologyStatement": "Περισσότερη ηρεμία. Περισσότερη σιγουριά. Περισσότερη ευεξία.",
       "timelineTitle": "Από μια τοπική ιδέα σε μια παγκόσμια πλατφόρμα",
       "timeline": [
         {
@@ -1674,9 +1674,9 @@ const companyData = {
     },
     "it": {
       "technologyEyebrow": "Tecnologia con uno scopo",
-      "technologyTitle": "Siamo un’azienda tecnologica. Il nostro prodotto è una giornata migliore.",
+      "technologyTitle": "Creiamo tecnologia per giornate migliori.",
       "technologyBody": "SpaPlus sviluppa marketplace, percorsi di prenotazione, strumenti gestionali, automazioni e infrastrutture dati per il mondo spa e wellness. La tecnologia semplifica ogni passaggio per gli ospiti e aiuta le attività locali a crescere.",
-      "technologyStatement": "Non creiamo tecnologia fine a sé stessa. La creiamo per portare più calma, fiducia e benessere nella vita delle persone.",
+      "technologyStatement": "Più calma. Più fiducia. Più benessere.",
       "timelineTitle": "Da un’idea locale a una piattaforma globale",
       "timeline": [
         {
@@ -1769,9 +1769,9 @@ const companyData = {
     },
     "hu": {
       "technologyEyebrow": "Technológia valódi céllal",
-      "technologyTitle": "Technológiai vállalat vagyunk. A termékünk egy jobb nap.",
+      "technologyTitle": "Technológiát építünk a jobb napokért.",
       "technologyBody": "A SpaPlus piactereket, foglalási folyamatokat, üzleti rendszereket, automatizációkat és adatinfrastruktúrát fejleszt a spa és wellness világának. A technológia egyszerűbbé teszi a vendégek útját, a helyi vállalkozásokat pedig növekedéshez segíti.",
-      "technologyStatement": "Nem önmagáért építünk technológiát. Azért építjük, hogy több nyugalmat, bizalmat és jóllétet vigyünk az emberek életébe.",
+      "technologyStatement": "Több nyugalom. Több magabiztosság. Több jóllét.",
       "timelineTitle": "Egy helyi ötlettől a globális platformig",
       "timeline": [
         {
@@ -1864,9 +1864,9 @@ const companyData = {
     },
     "pl": {
       "technologyEyebrow": "Technologia z konkretnym celem",
-      "technologyTitle": "Jesteśmy firmą technologiczną. Naszym produktem jest lepszy dzień.",
+      "technologyTitle": "Tworzymy technologię dla lepszych dni.",
       "technologyBody": "SpaPlus tworzy platformy sprzedażowe, procesy rezerwacji, narzędzia do zarządzania, automatyzacje i infrastrukturę danych dla branży spa i wellness. Technologia upraszcza drogę gościa i pomaga lokalnym firmom rozwijać się mądrzej.",
-      "technologyStatement": "Nie tworzymy technologii dla samej technologii. Tworzymy ją po to, by wnosić do życia ludzi więcej spokoju, pewności i dobrego samopoczucia.",
+      "technologyStatement": "Więcej spokoju. Więcej pewności. Więcej dobrego samopoczucia.",
       "timelineTitle": "Od lokalnego pomysłu do globalnej platformy",
       "timeline": [
         {
@@ -1959,9 +1959,9 @@ const companyData = {
     },
     "es": {
       "technologyEyebrow": "Tecnología con propósito",
-      "technologyTitle": "Somos una empresa tecnológica. Nuestro producto es un día mejor.",
+      "technologyTitle": "Creamos tecnología para vivir días mejores.",
       "technologyBody": "SpaPlus desarrolla marketplaces, procesos de reserva, herramientas de gestión, automatizaciones e infraestructura de datos para el mundo del spa y el bienestar. La tecnología simplifica cada paso para los clientes y ayuda a los negocios locales a crecer.",
-      "technologyStatement": "No creamos tecnología por crear tecnología. La creamos para aportar más calma, confianza y bienestar a la vida de las personas.",
+      "technologyStatement": "Más calma. Más confianza. Más bienestar.",
       "timelineTitle": "De una idea local a una plataforma global",
       "timeline": [
         {
@@ -2534,9 +2534,9 @@ const applyLocale = (locale) => {
   ]);
   setAllText(".proof-grid span", [t.proofYears, t.proofMarkets, t.proofPromise]);
   setAllText(".atmosphere-heading > *", [
-    t.promiseTitle,
+    company.technologyEyebrow,
+    company.technologyTitle,
     company.technologyStatement,
-    t.visionBodyOne,
   ]);
   document.querySelector(".atmosphere-section").setAttribute("aria-label", t.visionEyebrow);
   document.querySelectorAll(".atmosphere-gallery img").forEach((image, index) => {

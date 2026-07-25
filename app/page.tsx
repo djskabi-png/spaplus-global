@@ -678,9 +678,9 @@ export default function Home() {
           aria-label={t.visionEyebrow}
         >
           <div className="atmosphere-heading" data-reveal>
-            <p className="eyebrow">{t.promiseTitle}</p>
-            <h2>{company.technologyStatement}</h2>
-            <p>{t.visionBodyOne}</p>
+            <p className="eyebrow">{company.technologyEyebrow}</p>
+            <h2>{company.technologyTitle}</h2>
+            <p>{company.technologyStatement}</p>
           </div>
           <div className="audience-heading" data-reveal>
             <p className="eyebrow">{t.audienceEyebrow}</p>
