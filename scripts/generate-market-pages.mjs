@@ -747,13 +747,193 @@ const campaignLocalizations = {
   },
 };
 
+const funnelLanguageUi = {
+  "el-CY": {
+    entrepreneur: {
+      eyebrow: "ΣΥΝΕΡΓΑΣΙΑ ΧΩΡΑΣ",
+      tabPrimary: "Για επιχειρηματίες",
+      tabSecondary: "Για επιχειρήσεις spa",
+      whatTitle: "Τοπική επιχείρηση με διεθνή υποδομή",
+      whatBody: "Εσείς αναπτύσσετε τις τοπικές συνεργασίες, το δίκτυο και την καθημερινή λειτουργία. Η SpaPlus προσφέρει το brand, την πλατφόρμα κρατήσεων, τα συστήματα και την υποστήριξη για το λανσάρισμα.",
+      points: ["Δημιουργήστε ένα επιλεγμένο δίκτυο επιχειρήσεων spa", "Αναπτύξτε την τοπική ζήτηση και την εμπορική δραστηριότητα", "Ξεκινήστε με έτοιμη τεχνολογία, εμπειρία και υποστήριξη"],
+      formLead: "Η αίτησή σας συνδέεται αυτόματα με την αγορά της Κύπρου και την καμπάνια.",
+      success: "Ευχαριστούμε. Η αίτησή σας για τη SpaPlus Κύπρου στάλθηκε με επιτυχία.",
+    },
+    spa: {
+      eyebrow: "ΓΙΑ ΕΠΙΧΕΙΡΗΣΕΙΣ SPA",
+      tabPrimary: "Για επιχειρήσεις spa",
+      tabSecondary: "Για επιχειρηματίες",
+      whatTitle: "Ένας νέος δρόμος προς περισσότερους επισκέπτες",
+      whatBody: "Παρουσιάστε καθαρά τις εμπειρίες, τις θεραπείες και τα πακέτα σας και προετοιμαστείτε για online κρατήσεις μέσα από μια πλατφόρμα σχεδιασμένη για το spa και την ευεξία.",
+      points: ["Προβάλετε day spa, θεραπείες, πακέτα, ομάδες και δωροκάρτες", "Προσεγγίστε ζευγάρια, μεμονωμένους επισκέπτες και ομάδες", "Μπείτε στη διαδικασία επιλογής του πρώτου τοπικού δικτύου"],
+      formLead: "Η εκδήλωση ενδιαφέροντος συνδέεται αυτόματα με την αγορά της Κύπρου και την καμπάνια.",
+      success: "Ευχαριστούμε. Τα στοιχεία του spa σας στάλθηκαν με επιτυχία.",
+    },
+  },
+  "el-GR": null,
+  "hu-HU": {
+    entrepreneur: {
+      eyebrow: "ORSZÁGOS PARTNERSÉG", tabPrimary: "Országpartnereknek", tabSecondary: "Spa vállalkozásoknak",
+      whatTitle: "Helyi vállalkozás nemzetközi háttérrel",
+      whatBody: "Ön építi a helyi kapcsolatokat, a partnerhálózatot és a napi működést. A SpaPlus biztosítja a márkát, a foglalási technológiát, az üzleti rendszereket és a bevezetés támogatását.",
+      points: ["Építsen minőségi spa- és wellnesspartneri hálózatot", "Fejlessze a helyi keresletet és vezesse a napi működést", "Induljon kész technológiával, tapasztalattal és támogatással"],
+      formLead: "Jelentkezését automatikusan a magyar piachoz és a kampányhoz kapcsoljuk.",
+      success: "Köszönjük. Országpartneri jelentkezését sikeresen elküldtük.",
+    },
+    spa: {
+      eyebrow: "SPA VÁLLALKOZÁSOKNAK", tabPrimary: "Spa vállalkozásoknak", tabSecondary: "Országpartnereknek",
+      whatTitle: "Erősebb út az új vendégekhez",
+      whatBody: "Mutassa be átláthatóan élményeit, kezeléseit és csomagjait, és készüljön fel az online foglalásokra egy kifejezetten spa- és wellnessvállalkozások számára készült platformon.",
+      points: ["Mutassa be day spa ajánlatait, kezeléseit, csomagjait, csoportos programjait és ajándékkártyáit", "Érjen el párokat, egyéni vendégeket és csoportokat", "Kerüljön be az első ellenőrzött helyi partnerhálózat kiválasztásába"],
+      formLead: "Érdeklődését automatikusan a magyar piachoz és a kampányhoz kapcsoljuk.",
+      success: "Köszönjük. Spa vállalkozásának adatait sikeresen elküldtük.",
+    },
+  },
+  "de-DE": {
+    entrepreneur: {
+      eyebrow: "LÄNDERPARTNERSCHAFT", tabPrimary: "Für Länderpartner", tabSecondary: "Für Spa-Betriebe",
+      whatTitle: "Ein lokales Unternehmen mit globalem Fundament",
+      whatBody: "Sie bauen Beziehungen, Partnernetzwerk und Tagesgeschäft vor Ort auf. SpaPlus stellt Marke, Marktplatz, Buchungstechnologie, Geschäftssysteme und Unterstützung für den Marktstart bereit.",
+      points: ["Ein Netzwerk hochwertiger Spa- und Wellnessbetriebe aufbauen", "Lokale Nachfrage entwickeln und das Tagesgeschäft führen", "Mit erprobter Technologie, Erfahrung und Unterstützung starten"],
+      formLead: "Ihre Anfrage wird automatisch dem deutschen Markt und der Kampagne zugeordnet.",
+      success: "Vielen Dank. Ihre Bewerbung als Länderpartner wurde erfolgreich gesendet.",
+    },
+    spa: {
+      eyebrow: "FÜR SPA-BETRIEBE", tabPrimary: "Für Spa-Betriebe", tabSecondary: "Für Länderpartner",
+      whatTitle: "Ein stärkerer Weg zu neuen Gästen",
+      whatBody: "Präsentieren Sie Erlebnisse, Anwendungen und Pakete klar und bereiten Sie Online-Buchungen mit einer Plattform vor, die speziell für Spa und Wellness entwickelt wird.",
+      points: ["Day Spa, Anwendungen, Pakete, Gruppen und Gutscheine präsentieren", "Paare, Einzelgäste und Gruppen mit echtem Interesse erreichen", "Für das erste geprüfte lokale Partnernetzwerk berücksichtigt werden"],
+      formLead: "Ihre Anfrage wird automatisch dem deutschen Markt und der Kampagne zugeordnet.",
+      success: "Vielen Dank. Die Angaben zu Ihrem Spa wurden erfolgreich gesendet.",
+    },
+  },
+  "de-CH": null,
+  "fr-FR": {
+    entrepreneur: {
+      eyebrow: "PARTENARIAT NATIONAL", tabPrimary: "Pour les entrepreneurs", tabSecondary: "Pour les établissements spa",
+      whatTitle: "Une entreprise locale portée par une base internationale",
+      whatBody: "Vous développez les relations, le réseau de partenaires et l’activité au quotidien. SpaPlus fournit la marque, la plateforme, la technologie de réservation, les outils et l’accompagnement au lancement.",
+      points: ["Constituer un réseau d’établissements spa et bien-être de qualité", "Développer la demande locale et piloter l’activité", "Lancer le marché avec une technologie, une expérience et un accompagnement déjà prêts"],
+      formLead: "Votre demande est automatiquement rattachée au marché français et à la campagne.",
+      success: "Merci. Votre candidature pour développer SpaPlus en France a bien été envoyée.",
+    },
+    spa: {
+      eyebrow: "POUR LES ÉTABLISSEMENTS SPA", tabPrimary: "Pour les établissements spa", tabSecondary: "Pour les entrepreneurs",
+      whatTitle: "Un nouveau levier pour toucher davantage de clients",
+      whatBody: "Présentez clairement vos expériences, soins et forfaits, et préparez la réservation en ligne avec une plateforme conçue pour le spa et le bien-être.",
+      points: ["Valoriser day spa, soins, forfaits, groupes et cartes cadeaux", "Toucher couples, clients individuels et groupes en recherche active", "Être étudié pour intégrer le premier réseau local d’établissements sélectionnés"],
+      formLead: "Votre demande est automatiquement rattachée au marché français et à la campagne.",
+      success: "Merci. Les informations de votre établissement ont bien été envoyées.",
+    },
+  },
+  "nl-NL": {
+    entrepreneur: {
+      eyebrow: "LANDPARTNERSCHAP", tabPrimary: "Voor ondernemers", tabSecondary: "Voor spa-ondernemingen",
+      whatTitle: "Een lokale onderneming met een internationaal fundament",
+      whatBody: "Jij bouwt lokale relaties, het partnernetwerk en de dagelijkse operatie op. SpaPlus levert het merk, de marktplaats, boekingstechnologie, bedrijfssystemen en ondersteuning bij de lancering.",
+      points: ["Bouw een netwerk van hoogwaardige spa- en wellnesslocaties", "Ontwikkel lokale vraag en leid de dagelijkse activiteiten", "Start met bewezen technologie, ervaring en ondersteuning"],
+      formLead: "Je aanvraag wordt automatisch gekoppeld aan de Nederlandse markt en campagne.",
+      success: "Bedankt. Je aanvraag als landpartner is succesvol verzonden.",
+    },
+    spa: {
+      eyebrow: "VOOR SPA-ONDERNEMINGEN", tabPrimary: "Voor spa-ondernemingen", tabSecondary: "Voor ondernemers",
+      whatTitle: "Een sterkere route naar nieuwe gasten",
+      whatBody: "Presenteer je ervaringen, behandelingen en arrangementen helder en bereid online boekingen voor met een platform dat speciaal voor spa en wellness wordt ontwikkeld.",
+      points: ["Presenteer day spa, behandelingen, arrangementen, groepen en cadeaubonnen", "Bereik stellen, individuele gasten en groepen die actief zoeken", "Kom in aanmerking voor het eerste gecontroleerde lokale partnernetwerk"],
+      formLead: "Je aanvraag wordt automatisch gekoppeld aan de Nederlandse markt en campagne.",
+      success: "Bedankt. De gegevens van je spa zijn succesvol verzonden.",
+    },
+  },
+  "sv-SE": {
+    entrepreneur: {
+      eyebrow: "LANDSPARTNERSKAP", tabPrimary: "För entreprenörer", tabSecondary: "För spa-verksamheter",
+      whatTitle: "Ett lokalt företag med en global grund",
+      whatBody: "Du bygger lokala relationer, partnernätverket och den dagliga verksamheten. SpaPlus bidrar med varumärket, marknadsplatsen, bokningstekniken, affärssystemen och stöd inför lanseringen.",
+      points: ["Bygg ett nätverk av kvalitetssäkrade spa- och wellnessverksamheter", "Utveckla lokal efterfrågan och led den dagliga verksamheten", "Starta med beprövad teknik, erfarenhet och stöd"],
+      formLead: "Din ansökan kopplas automatiskt till den svenska marknaden och kampanjen.",
+      success: "Tack. Din ansökan som landspartner har skickats.",
+    },
+    spa: {
+      eyebrow: "FÖR SPA-VERKSAMHETER", tabPrimary: "För spa-verksamheter", tabSecondary: "För entreprenörer",
+      whatTitle: "En starkare väg till nya gäster",
+      whatBody: "Presentera upplevelser, behandlingar och paket tydligt och förbered onlinebokning med en plattform som utvecklas särskilt för spa och wellness.",
+      points: ["Visa day spa, behandlingar, paket, grupper och presentkort", "Nå par, enskilda gäster och grupper som aktivt söker", "Bli aktuell för det första kvalitetssäkrade lokala partnernätverket"],
+      formLead: "Din intresseanmälan kopplas automatiskt till den svenska marknaden och kampanjen.",
+      success: "Tack. Uppgifterna om ditt spa har skickats.",
+    },
+  },
+  "nb-NO": {
+    entrepreneur: {
+      eyebrow: "LANDPARTNERSKAP", tabPrimary: "For gründere", tabSecondary: "For spa-bedrifter",
+      whatTitle: "En lokal virksomhet med et globalt fundament",
+      whatBody: "Du bygger lokale relasjoner, partnernettverket og den daglige driften. SpaPlus leverer merkevaren, markedsplassen, bookingteknologien, forretningssystemene og støtte til lanseringen.",
+      points: ["Bygg et nettverk av spa- og velværebedrifter med høy kvalitet", "Utvikle lokal etterspørsel og led den daglige driften", "Start med velprøvd teknologi, erfaring og støtte"],
+      formLead: "Søknaden din knyttes automatisk til det norske markedet og kampanjen.",
+      success: "Takk. Søknaden din som landspartner er sendt.",
+    },
+    spa: {
+      eyebrow: "FOR SPA-BEDRIFTER", tabPrimary: "For spa-bedrifter", tabSecondary: "For gründere",
+      whatTitle: "En sterkere vei til nye gjester",
+      whatBody: "Presenter opplevelser, behandlinger og pakker tydelig, og forbered nettbestilling med en plattform som utvikles spesielt for spa og velvære.",
+      points: ["Vis frem day spa, behandlinger, pakker, grupper og gavekort", "Nå par, enkeltgjester og grupper som aktivt søker", "Bli vurdert for det første kvalitetssikrede lokale partnernettverket"],
+      formLead: "Interessen din knyttes automatisk til det norske markedet og kampanjen.",
+      success: "Takk. Opplysningene om spaet ditt er sendt.",
+    },
+  },
+};
+
+funnelLanguageUi["el-GR"] = {
+  entrepreneur: {
+    ...funnelLanguageUi["el-CY"].entrepreneur,
+    formLead: "Η αίτησή σας συνδέεται αυτόματα με την ελληνική αγορά και την καμπάνια.",
+    success: "Ευχαριστούμε. Η αίτησή σας για τη SpaPlus Ελλάδα στάλθηκε με επιτυχία.",
+  },
+  spa: {
+    ...funnelLanguageUi["el-CY"].spa,
+    formLead: "Η εκδήλωση ενδιαφέροντος συνδέεται αυτόματα με την ελληνική αγορά και την καμπάνια.",
+  },
+};
+funnelLanguageUi["de-CH"] = {
+  entrepreneur: {
+    ...funnelLanguageUi["de-DE"].entrepreneur,
+    formLead: "Ihre Anfrage wird automatisch dem Schweizer Markt und der Kampagne zugeordnet.",
+    success: "Vielen Dank. Ihre Bewerbung als Länderpartner für die Schweiz wurde erfolgreich gesendet.",
+  },
+  spa: {
+    ...funnelLanguageUi["de-DE"].spa,
+    formLead: "Ihre Anfrage wird automatisch dem Schweizer Markt und der Kampagne zugeordnet.",
+  },
+};
+
+const funnelCommonUi = {
+  "el-CY": { skip: "Μετάβαση στο περιεχόμενο", routes: "Επιλογές ενδιαφέροντος", choose: "Επιλέξτε τύπο ενδιαφέροντος", market: "Προεπισκόπηση αγοράς", privacy: "Πολιτική απορρήτου" },
+  "el-GR": { skip: "Μετάβαση στο περιεχόμενο", routes: "Επιλογές ενδιαφέροντος", choose: "Επιλέξτε τύπο ενδιαφέροντος", market: "Προεπισκόπηση αγοράς", privacy: "Πολιτική απορρήτου" },
+  "hu-HU": { skip: "Ugrás a tartalomhoz", routes: "Érdeklődési lehetőségek", choose: "Válasszon jelentkezési típust", market: "Piaci előnézet", privacy: "Adatvédelmi tájékoztató" },
+  "it-IT": { skip: "Vai al contenuto", routes: "Percorsi di contatto", choose: "Scegli il tipo di richiesta", market: "Anteprima del mercato", privacy: "Privacy" },
+  "de-DE": { skip: "Zum Inhalt springen", routes: "Kontaktmöglichkeiten", choose: "Art der Anfrage wählen", market: "Marktvorschau", privacy: "Datenschutz" },
+  "de-CH": { skip: "Zum Inhalt springen", routes: "Kontaktmöglichkeiten", choose: "Art der Anfrage wählen", market: "Marktvorschau", privacy: "Datenschutz" },
+  "fr-FR": { skip: "Aller au contenu", routes: "Parcours de contact", choose: "Choisissez votre demande", market: "Aperçu du marché", privacy: "Confidentialité" },
+  "nl-NL": { skip: "Naar de inhoud", routes: "Contactroutes", choose: "Kies het type aanvraag", market: "Marktvoorbeeld", privacy: "Privacy" },
+  "sv-SE": { skip: "Gå till innehållet", routes: "Kontaktalternativ", choose: "Välj typ av intresse", market: "Förhandsvisning av marknaden", privacy: "Integritet" },
+  "nb-NO": { skip: "Gå til innholdet", routes: "Kontaktalternativer", choose: "Velg type henvendelse", market: "Forhåndsvisning av markedet", privacy: "Personvern" },
+};
+
 function renderFunnelPage(market, type) {
   const baseCopy =
     market.slug === "italy" ? italyFunnelCopy[type] : funnelCopy[type];
   const localized = campaignLocalizations[market.lang];
+  const localizedUi = funnelLanguageUi[market.lang]?.[type];
+  const commonUi = funnelCommonUi[market.lang] || {
+    skip: "Skip to content",
+    routes: "Campaign routes",
+    choose: "Choose enquiry type",
+    market: "Market preview",
+    privacy: "Privacy",
+  };
   const copy = localized
     ? {
         ...baseCopy,
+        ...localizedUi,
         title: () => (type === "spa" ? localized.spaH1 : localized.entrepreneurH1),
         lead: type === "spa" ? localized.spaLead : localized.entrepreneurLead,
         formTitle: localized.formTitle,
@@ -845,13 +1025,13 @@ function renderFunnelPage(market, type) {
   <link rel="stylesheet" href="/spaplus-global/markets/market.css">
 </head>
 <body class="funnel-page">
-  <a class="skip-link" href="#main">Skip to content</a>
+  <a class="skip-link" href="#main">${escapeHtml(commonUi.skip)}</a>
   <header class="market-header">
     <a class="market-brand" href="/spaplus-global${marketPath(market)}" aria-label="SpaPlus ${escapeHtml(market.display)}">
       <img src="/spaplus-global/spaplus-mark.png" alt="">
       <img src="/spaplus-global/spaplus-wordmark.png" alt="SpaPlus">
     </a>
-    <nav aria-label="Campaign routes">
+    <nav aria-label="${escapeHtml(commonUi.routes)}">
       <a href="/spaplus-global${entrepreneurPath(market)}">${escapeHtml(
         isSpa ? copy.tabSecondary : copy.tabPrimary,
       )}</a>
@@ -868,7 +1048,7 @@ function renderFunnelPage(market, type) {
         <p class="eyebrow">${escapeHtml(copy.eyebrow)}</p>
         <h1>${escapeHtml(title)}</h1>
         <p>${escapeHtml(copy.lead)}</p>
-        <div class="funnel-tabs" aria-label="Choose enquiry type">
+        <div class="funnel-tabs" aria-label="${escapeHtml(commonUi.choose)}">
           <a class="${isSpa ? "is-active" : ""}" href="/spaplus-global${spaJoinPath(market)}">${escapeHtml(
             isSpa ? copy.tabPrimary : copy.tabSecondary,
           )}</a>
@@ -920,7 +1100,7 @@ function renderFunnelPage(market, type) {
   </main>
   <footer class="market-footer">
     <div><p>${escapeHtml(ui.en.legal)}</p></div>
-    <nav><a href="/spaplus-global${marketPath(market)}">Market preview</a><a href="/spaplus-global/en/#privacy">Privacy</a></nav>
+    <nav><a href="/spaplus-global${marketPath(market)}">${escapeHtml(commonUi.market)}</a><a href="/spaplus-global/en/#privacy">${escapeHtml(commonUi.privacy)}</a></nav>
   </footer>
   <script src="/spaplus-global/markets/market.js?v=20260725-2"></script>
 </body>
