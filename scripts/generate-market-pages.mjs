@@ -547,6 +547,28 @@ const italyFunnelCopy = {
 };
 
 const campaignLocalizations = {
+  "el-CY": {
+    marketH1: "Η Κύπρος μπορεί να γίνει η επόμενη αγορά της SpaPlus.",
+    marketLead: "Αναζητούμε τον κατάλληλο επιχειρηματία και επιλεγμένους χώρους spa και ευεξίας, για να χτίσουμε μια δυνατή τοπική παρουσία με τη διεθνή υποδομή της SpaPlus.",
+    entrepreneurH1: "Αναπτύξτε τη SpaPlus στην Κύπρο.",
+    entrepreneurLead: "Εσείς γνωρίζετε την κυπριακή αγορά, δημιουργείτε τις τοπικές συνεργασίες και αναλαμβάνετε την καθημερινή ανάπτυξη. Εμείς προσφέρουμε το brand, την τεχνολογία, τα συστήματα και την τεχνογνωσία.",
+    spaH1: "Εντάξτε το spa σας στη SpaPlus Κύπρου.",
+    spaLead: "Μπείτε από νωρίς στο δίκτυο που σχεδιάζουμε για να συνδέει ποιοτικές εμπειρίες spa με ντόπιους και επισκέπτες που αναζητούν μια καλύτερη μέρα.",
+    entrepreneurCta: "Ενδιαφέρομαι για τη συνεργασία στην Κύπρο",
+    spaCta: "Ενδιαφέρομαι για το spa μου",
+    formTitle: "Πείτε μας για εσάς και την επιχείρησή σας",
+    consent: "Συμφωνώ η SpaPlus να χρησιμοποιήσει τα στοιχεία που υποβάλλω για την αξιολόγηση του αιτήματός μου και την επικοινωνία μαζί μου.",
+    labels: {
+      name: "Ονοματεπώνυμο",
+      email: "Email",
+      phone: "Τηλέφωνο",
+      entrepreneurCompany: "Εταιρεία ή επαγγελματική εμπειρία",
+      spaCompany: "Όνομα spa ή επιχείρησης",
+      entrepreneurWebsite: "LinkedIn ή ιστοσελίδα",
+      spaWebsite: "Ιστοσελίδα ή προφίλ στα social media",
+      message: "Πείτε μας περισσότερα",
+    },
+  },
   "el-GR": {
     marketH1: "Η Ελλάδα μπορεί να γίνει η επόμενη αγορά της SpaPlus.",
     marketLead: "Αναζητούμε έναν ισχυρό τοπικό συνεργάτη και ποιοτικούς χώρους spa και ευεξίας, ώστε να δημιουργήσουμε μια εμπειρία που ταιριάζει πραγματικά στην ελληνική αγορά.",
@@ -558,6 +580,16 @@ const campaignLocalizations = {
     spaCta: "Εκδήλωση ενδιαφέροντος για το spa μου",
     formTitle: "Πείτε μας για εσάς και την αγορά σας",
     consent: "Συμφωνώ η SpaPlus να χρησιμοποιήσει τα στοιχεία που υποβάλλω για την αξιολόγηση του αιτήματός μου και την επικοινωνία μαζί μου.",
+    labels: {
+      name: "Ονοματεπώνυμο",
+      email: "Email",
+      phone: "Τηλέφωνο",
+      entrepreneurCompany: "Εταιρεία ή επαγγελματική εμπειρία",
+      spaCompany: "Όνομα spa ή επιχείρησης",
+      entrepreneurWebsite: "LinkedIn ή ιστοσελίδα",
+      spaWebsite: "Ιστοσελίδα ή προφίλ στα social media",
+      message: "Πείτε μας περισσότερα",
+    },
   },
   "hu-HU": {
     marketH1: "Magyarország lehet a SpaPlus következő piaca.",
@@ -570,6 +602,16 @@ const campaignLocalizations = {
     spaCta: "Érdekel a spa partnerség",
     formTitle: "Mutatkozzon be, és meséljen a piacáról",
     consent: "Hozzájárulok, hogy a SpaPlus a megadott adataimat a jelentkezésem értékelésére és a kapcsolatfelvételre használja.",
+    labels: {
+      name: "Teljes név",
+      email: "E-mail",
+      phone: "Telefonszám",
+      entrepreneurCompany: "Vállalkozás vagy szakmai háttér",
+      spaCompany: "A spa vagy vállalkozás neve",
+      entrepreneurWebsite: "LinkedIn vagy weboldal",
+      spaWebsite: "Weboldal vagy közösségi oldal",
+      message: "Mutatkozzon be röviden",
+    },
   },
   "de-DE": {
     marketH1: "Deutschland könnte der nächste SpaPlus-Markt werden.",
@@ -582,6 +624,16 @@ const campaignLocalizations = {
     spaCta: "Interesse als Spa-Betrieb anmelden",
     formTitle: "Erzählen Sie uns von sich und Ihrem Markt",
     consent: "Ich bin damit einverstanden, dass SpaPlus meine Angaben zur Prüfung meiner Anfrage und zur Kontaktaufnahme verwendet.",
+    labels: {
+      name: "Vor- und Nachname",
+      email: "E-Mail",
+      phone: "Telefon",
+      entrepreneurCompany: "Unternehmen oder beruflicher Hintergrund",
+      spaCompany: "Name des Spa-Betriebs",
+      entrepreneurWebsite: "LinkedIn oder Website",
+      spaWebsite: "Website oder Social-Media-Profil",
+      message: "Erzählen Sie uns mehr",
+    },
   },
   "fr-FR": {
     marketH1: "Et si la France devenait le prochain marché SpaPlus ?",
@@ -594,6 +646,16 @@ const campaignLocalizations = {
     spaCta: "Préinscrire mon établissement",
     formTitle: "Parlez-nous de votre parcours et de votre marché",
     consent: "J’accepte que SpaPlus utilise les informations transmises afin d’étudier ma demande et de me recontacter.",
+    labels: {
+      name: "Nom et prénom",
+      email: "E-mail",
+      phone: "Téléphone",
+      entrepreneurCompany: "Entreprise ou parcours professionnel",
+      spaCompany: "Nom de l’établissement",
+      entrepreneurWebsite: "LinkedIn ou site internet",
+      spaWebsite: "Site internet ou réseaux sociaux",
+      message: "Parlez-nous de votre projet",
+    },
   },
   "nl-NL": {
     marketH1: "Nederland kan de volgende SpaPlus-markt worden.",
@@ -606,6 +668,16 @@ const campaignLocalizations = {
     spaCta: "Meld je spa aan",
     formTitle: "Vertel ons over jezelf en jouw markt",
     consent: "Ik ga ermee akkoord dat SpaPlus mijn gegevens gebruikt om mijn aanvraag te beoordelen en contact met mij op te nemen.",
+    labels: {
+      name: "Volledige naam",
+      email: "E-mail",
+      phone: "Telefoonnummer",
+      entrepreneurCompany: "Bedrijf of professionele achtergrond",
+      spaCompany: "Naam van de spa of onderneming",
+      entrepreneurWebsite: "LinkedIn of website",
+      spaWebsite: "Website of socialmediaprofiel",
+      message: "Vertel ons meer",
+    },
   },
   "sv-SE": {
     marketH1: "Sverige kan bli nästa marknad för SpaPlus.",
@@ -618,6 +690,16 @@ const campaignLocalizations = {
     spaCta: "Anmäl mitt spa",
     formTitle: "Berätta om dig och din marknad",
     consent: "Jag godkänner att SpaPlus använder de uppgifter jag lämnar för att bedöma min förfrågan och kontakta mig.",
+    labels: {
+      name: "För- och efternamn",
+      email: "E-post",
+      phone: "Telefonnummer",
+      entrepreneurCompany: "Företag eller yrkesbakgrund",
+      spaCompany: "Namn på spa eller företag",
+      entrepreneurWebsite: "LinkedIn eller webbplats",
+      spaWebsite: "Webbplats eller sociala medier",
+      message: "Berätta mer",
+    },
   },
   "nb-NO": {
     marketH1: "Norge kan bli det neste markedet for SpaPlus.",
@@ -630,6 +712,16 @@ const campaignLocalizations = {
     spaCta: "Meld interesse for spaet mitt",
     formTitle: "Fortell oss om deg og markedet ditt",
     consent: "Jeg samtykker til at SpaPlus bruker opplysningene jeg sender inn for å vurdere henvendelsen min og kontakte meg.",
+    labels: {
+      name: "Fullt navn",
+      email: "E-post",
+      phone: "Telefonnummer",
+      entrepreneurCompany: "Bedrift eller yrkesbakgrunn",
+      spaCompany: "Navn på spa eller bedrift",
+      entrepreneurWebsite: "LinkedIn eller nettsted",
+      spaWebsite: "Nettsted eller profil i sosiale medier",
+      message: "Fortell oss mer",
+    },
   },
   "de-CH": {
     marketH1: "Die Schweiz könnte der nächste SpaPlus-Markt werden.",
@@ -642,6 +734,16 @@ const campaignLocalizations = {
     spaCta: "Spa-Betrieb vormerken",
     formTitle: "Erzählen Sie uns von sich und Ihrem Markt",
     consent: "Ich bin damit einverstanden, dass SpaPlus meine Angaben zur Prüfung meiner Anfrage und zur Kontaktaufnahme verwendet.",
+    labels: {
+      name: "Vor- und Nachname",
+      email: "E-Mail",
+      phone: "Telefon",
+      entrepreneurCompany: "Unternehmen oder beruflicher Hintergrund",
+      spaCompany: "Name des Spa-Betriebs",
+      entrepreneurWebsite: "LinkedIn oder Website",
+      spaWebsite: "Website oder Social-Media-Profil",
+      message: "Erzählen Sie uns mehr",
+    },
   },
 };
 
@@ -665,7 +767,21 @@ function renderFunnelPage(market, type) {
   const title = copy.title(market.display);
   const formType = isSpa ? "spa_business" : "country_entrepreneur";
   const labels =
-    market.slug === "italy"
+    localized?.labels
+      ? {
+          name: localized.labels.name,
+          email: localized.labels.email,
+          phone: localized.labels.phone,
+          company: isSpa
+            ? localized.labels.spaCompany
+            : localized.labels.entrepreneurCompany,
+          website: isSpa
+            ? localized.labels.spaWebsite
+            : localized.labels.entrepreneurWebsite,
+          message: localized.labels.message,
+          consent: localized.consent,
+        }
+      : market.slug === "italy"
       ? {
           name: "Nome e cognome",
           email: "Email",
