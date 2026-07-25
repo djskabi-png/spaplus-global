@@ -1097,8 +1097,11 @@ h1 span {
 }
 
 .ecosystem-visual {
-  position: relative;
-  min-height: 570px;
+  min-height: 610px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(250px, 0.85fr);
+  grid-template-rows: 150px minmax(230px, 1fr) auto;
+  gap: 16px;
 }
 
 .ecosystem-visual figure {
@@ -1106,8 +1109,9 @@ h1 span {
 }
 
 .experience-shot {
-  position: absolute;
-  inset: 0 26% 16% 0;
+  position: relative;
+  grid-column: 1;
+  grid-row: 1 / 4;
   overflow: hidden;
   border-radius: 24px;
   background: var(--navy);
@@ -1162,9 +1166,8 @@ h1 span {
 }
 
 .product-shot {
-  position: absolute;
   overflow: hidden;
-  border: 6px solid white;
+  border: 5px solid white;
   border-radius: 18px;
   background: white;
   box-shadow: 0 22px 58px rgba(20, 36, 61, 0.24);
@@ -1179,33 +1182,27 @@ h1 span {
 }
 
 .dashboard-shot {
-  top: 8%;
-  right: 0;
-  width: 57%;
-  height: 38%;
+  grid-column: 2;
+  grid-row: 1;
   background:
     radial-gradient(circle at 85% 10%, rgba(233, 23, 106, 0.25), transparent 36%),
     #14243d;
 }
 
 .dashboard-shot img {
-  padding: 18%;
+  padding: 13%;
   object-fit: contain;
   filter: invert(1);
 }
 
 .booking-shot {
-  right: 4%;
-  bottom: 17%;
-  width: 47%;
-  height: 30%;
+  grid-column: 2;
+  grid-row: 2;
 }
 
 .business-caption {
-  position: absolute;
-  right: 1%;
-  bottom: 0;
-  width: 54%;
+  grid-column: 2;
+  grid-row: 3;
   padding: 18px 20px;
   display: grid;
   gap: 5px;
@@ -2614,7 +2611,8 @@ body.modal-open {
   }
 
   .ecosystem-visual {
-    min-height: 600px;
+    min-height: 580px;
+    grid-template-columns: minmax(0, 1.1fr) minmax(220px, 0.9fr);
   }
 
   .products-grid .dayplus-card {
@@ -2865,29 +2863,30 @@ body.modal-open {
   }
 
   .ecosystem-visual {
-    min-height: 640px;
+    min-height: 0;
+    grid-template-columns: 1fr;
+    grid-template-rows: 390px 120px 235px auto;
   }
 
   .experience-shot {
-    inset: 0 0 36% 0;
+    grid-column: 1;
+    grid-row: 1;
   }
 
   .dashboard-shot {
-    top: auto;
-    right: 2%;
-    bottom: 20%;
-    width: 78%;
-    height: 25%;
+    grid-column: 1;
+    grid-row: 2;
   }
 
   .booking-shot {
-    display: none;
+    display: block;
+    grid-column: 1;
+    grid-row: 3;
   }
 
   .business-caption {
-    right: 0;
-    bottom: 0;
-    width: 92%;
+    grid-column: 1;
+    grid-row: 4;
   }
 
   .experience-shot figcaption {
