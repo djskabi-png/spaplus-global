@@ -78,7 +78,7 @@ export const frCA: Translation = {
   bizSpaTitle: "BizSpa",
   bizSpaBody: "Le logiciel qui aide les équipes spa à gérer leurs activités avec clarté et efficacité.",
   aiServiceTitle: "Service à la clientèle propulsé par l’IA",
-  aiServiceBody: "Une solution intelligente qui traite les demandes, fait gagner du temps et réduit les coûts.",
+  aiServiceBody: "Une solution intelligente qui aide les équipes à traiter les demandes efficacement et à gagner un temps précieux.",
   marketingTitle: "Marketing et gestion des canaux",
   marketingBody: "Gestion d’Instagram, campagnes payantes et stratégie de croissance adaptée à chaque spa.",
   spaSitesTitle: "Sites Web pour spas",

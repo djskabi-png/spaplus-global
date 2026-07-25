@@ -65,7 +65,7 @@ const translations = {
     "bizSpaTitle": "BizSpa",
     "bizSpaBody": "Business software that helps spa teams manage their operation clearly and efficiently.",
     "aiServiceTitle": "AI Customer Service",
-    "aiServiceBody": "An intelligent service layer that handles enquiries, saves valuable time and lowers operating costs.",
+    "aiServiceBody": "An intelligent service layer that helps teams handle enquiries efficiently and save valuable time.",
     "marketingTitle": "Marketing and Channel Management",
     "marketingBody": "Instagram management, paid campaigns and a focused growth plan for each spa.",
     "spaSitesTitle": "Spa Websites",
@@ -175,7 +175,7 @@ const translations = {
     "bizSpaTitle": "BizSpa",
     "bizSpaBody": "התוכנה שעוזרת לבתי ספא לנהל את העסק בצורה מסודרת, פשוטה ויעילה.",
     "aiServiceTitle": "שירות לקוחות מבוסס AI",
-    "aiServiceBody": "מערכת חכמה שמטפלת בפניות, חוסכת לצוות זמן ומצמצמת עלויות תפעול.",
+    "aiServiceBody": "מערכת חכמה שעוזרת לצוות לטפל בפניות ביעילות ולחסוך זמן יקר.",
     "marketingTitle": "שיווק וניהול הערוץ הדיגיטלי",
     "marketingBody": "ניהול אינסטגרם, קידום ממומן ותוכנית צמיחה שמותאמת לכל בית ספא.",
     "spaSitesTitle": "אתרים לבתי ספא",
@@ -285,7 +285,7 @@ const translations = {
     "bizSpaTitle": "BizSpa",
     "bizSpaBody": "Le logiciel qui aide les équipes spa à gérer leurs activités avec clarté et efficacité.",
     "aiServiceTitle": "Service à la clientèle propulsé par l’IA",
-    "aiServiceBody": "Une solution intelligente qui traite les demandes, fait gagner du temps et réduit les coûts.",
+    "aiServiceBody": "Une solution intelligente qui aide les équipes à traiter les demandes efficacement et à gagner un temps précieux.",
     "marketingTitle": "Marketing et gestion des canaux",
     "marketingBody": "Gestion d’Instagram, campagnes payantes et stratégie de croissance adaptée à chaque spa.",
     "spaSitesTitle": "Sites Web pour spas",
@@ -395,7 +395,7 @@ const translations = {
     "bizSpaTitle": "BizSpa",
     "bizSpaBody": "Программа для понятного и эффективного управления спа-бизнесом.",
     "aiServiceTitle": "Клиентский сервис на базе ИИ",
-    "aiServiceBody": "Умная система обработки обращений, которая экономит время команды и снижает расходы.",
+    "aiServiceBody": "Умная система, которая помогает команде эффективно обрабатывать обращения и экономить ценное время.",
     "marketingTitle": "Маркетинг и управление каналами",
     "marketingBody": "Ведение Instagram, платная реклама и план роста с учётом задач конкретного спа.",
     "spaSitesTitle": "Сайты для спа",
@@ -505,7 +505,7 @@ const translations = {
     "bizSpaTitle": "BizSpa",
     "bizSpaBody": "Το λογισμικό που βοηθά τις ομάδες spa να λειτουργούν οργανωμένα και αποτελεσματικά.",
     "aiServiceTitle": "Εξυπηρέτηση πελατών με AI",
-    "aiServiceBody": "Ένα έξυπνο σύστημα που χειρίζεται αιτήματα, εξοικονομεί χρόνο και μειώνει το κόστος.",
+    "aiServiceBody": "Ένα έξυπνο σύστημα που βοηθά τις ομάδες να διαχειρίζονται αποτελεσματικά τα αιτήματα και να εξοικονομούν πολύτιμο χρόνο.",
     "marketingTitle": "Marketing και διαχείριση καναλιών",
     "marketingBody": "Διαχείριση Instagram, πληρωμένες καμπάνιες και πλάνο ανάπτυξης για κάθε spa.",
     "spaSitesTitle": "Ιστοσελίδες για spa",
@@ -615,7 +615,7 @@ const translations = {
     "bizSpaTitle": "BizSpa",
     "bizSpaBody": "Il software che aiuta i team delle spa a gestire l’attività in modo chiaro ed efficiente.",
     "aiServiceTitle": "Servizio clienti con AI",
-    "aiServiceBody": "Una soluzione intelligente che gestisce le richieste, fa risparmiare tempo e riduce i costi.",
+    "aiServiceBody": "Una soluzione intelligente che aiuta il team a gestire le richieste con efficienza e a risparmiare tempo prezioso.",
     "marketingTitle": "Marketing e gestione dei canali",
     "marketingBody": "Gestione Instagram, campagne a pagamento e un piano di crescita su misura per ogni spa.",
     "spaSitesTitle": "Siti web per spa",
@@ -725,7 +725,7 @@ const translations = {
     "bizSpaTitle": "BizSpa",
     "bizSpaBody": "Üzleti szoftver a spa-csapatok átlátható és hatékony működéséhez.",
     "aiServiceTitle": "AI-alapú ügyfélszolgálat",
-    "aiServiceBody": "Intelligens rendszer, amely kezeli a megkereséseket, időt takarít meg és csökkenti a költségeket.",
+    "aiServiceBody": "Intelligens rendszer, amely segít a csapatnak hatékonyan kezelni a megkereséseket és értékes időt megtakarítani.",
     "marketingTitle": "Marketing és csatornakezelés",
     "marketingBody": "Instagram-kezelés, fizetett kampányok és minden spa számára személyre szabott növekedési terv.",
     "spaSitesTitle": "Weboldalak spa-k számára",
@@ -835,7 +835,7 @@ const translations = {
     "bizSpaTitle": "BizSpa",
     "bizSpaBody": "Oprogramowanie pomagające zespołom spa sprawnie i przejrzyście zarządzać działalnością.",
     "aiServiceTitle": "Obsługa klienta oparta na AI",
-    "aiServiceBody": "Inteligentny system obsługi zapytań, który oszczędza czas zespołu i obniża koszty.",
+    "aiServiceBody": "Inteligentny system, który pomaga zespołowi sprawnie obsługiwać zapytania i oszczędzać cenny czas.",
     "marketingTitle": "Marketing i zarządzanie kanałami",
     "marketingBody": "Prowadzenie Instagrama, kampanie płatne i plan wzrostu dopasowany do każdego spa.",
     "spaSitesTitle": "Strony internetowe dla spa",
@@ -945,7 +945,7 @@ const translations = {
     "bizSpaTitle": "BizSpa",
     "bizSpaBody": "El software que ayuda a los equipos de spa a gestionar el negocio con claridad y eficiencia.",
     "aiServiceTitle": "Atención al cliente con IA",
-    "aiServiceBody": "Una solución inteligente que gestiona consultas, ahorra tiempo y reduce costes.",
+    "aiServiceBody": "Una solución inteligente que ayuda al equipo a gestionar consultas con eficacia y ahorrar tiempo valioso.",
     "marketingTitle": "Marketing y gestión de canales",
     "marketingBody": "Gestión de Instagram, campañas de pago y un plan de crecimiento adaptado a cada spa.",
     "spaSitesTitle": "Webs para spas",
@@ -988,6 +988,305 @@ const translations = {
     "copyEmail": "Copiar correo electrónico",
     "emailCopied": "Correo electrónico copiado",
     "rights": "Todos los derechos reservados."
+  }
+};
+const siteEnhancements = {
+  "en": {
+    "navPartners": "Country Partners",
+    "pathEyebrow": "Your way into SpaPlus",
+    "pathTitle": "What would you like to do with SpaPlus?",
+    "pathIntro": "Choose the path that fits you and go straight to the right place.",
+    "paths": [
+      [
+        "Book a spa experience",
+        "Find the spa experience that fits your moment and book with confidence.",
+        "Choose your country"
+      ],
+      [
+        "For spa owners",
+        "Reach new guests, grow bookings and manage your business with SpaPlus tools.",
+        "Join SpaPlus"
+      ],
+      [
+        "For country entrepreneurs",
+        "Lead SpaPlus in your market and build a local network with our brand, technology and know-how.",
+        "Explore country partnerships"
+      ],
+      [
+        "For business partners",
+        "Wellness brands, hospitality groups and strategic partners are invited to build new opportunities with us.",
+        "Talk to our team"
+      ]
+    ],
+    "productAction": "Discuss this solution",
+    "productGuestAction": "Find SpaPlus near you",
+    "footerStory": "Our Story",
+    "metaDescription": "SpaPlus connects guests, spa businesses and local partners through trusted wellness marketplaces, booking technology and business tools.",
+    "interfaceAria": "SpaPlus booking and management interface"
+  },
+  "he": {
+    "navPartners": "שותפים בעולם",
+    "pathEyebrow": "הדרך שלכם ל־SpaPlus",
+    "pathTitle": "מה תרצו לעשות עם SpaPlus?",
+    "pathIntro": "בחרו את המסלול שמתאים לכם וניקח אתכם ישירות למקום הנכון.",
+    "paths": [
+      [
+        "להזמין חוויית ספא",
+        "מצאו את חוויית הספא שמתאימה לרגע שלכם והזמינו בראש שקט.",
+        "בחרו מדינה"
+      ],
+      [
+        "לבעלי בתי ספא",
+        "הגיעו לאורחים חדשים, הגדילו הזמנות ונהלו את הפעילות עם הכלים של SpaPlus.",
+        "הצטרפו ל־SpaPlus"
+      ],
+      [
+        "ליזמי מדינה",
+        "הובילו את SpaPlus בשוק שלכם ובנו רשת מקומית עם המותג, הטכנולוגיה והידע שלנו.",
+        "הכירו את שותפות המדינות"
+      ],
+      [
+        "לשותפים עסקיים",
+        "מותגי וולנס, קבוצות אירוח ושותפים אסטרטגיים מוזמנים לבנות איתנו הזדמנויות חדשות.",
+        "דברו עם הצוות שלנו"
+      ]
+    ],
+    "productAction": "דברו איתנו על הפתרון",
+    "productGuestAction": "מצאו את SpaPlus במדינה שלכם",
+    "footerStory": "הסיפור שלנו",
+    "metaDescription": "SpaPlus מחברת בין אורחים, בתי ספא ושותפים מקומיים באמצעות זירות וולנס, טכנולוגיית הזמנות וכלים לניהול העסק.",
+    "interfaceAria": "ממשק ההזמנות והניהול של SpaPlus"
+  },
+  "fr-CA": {
+    "navPartners": "Partenaires internationaux",
+    "pathEyebrow": "Votre porte d’entrée chez SpaPlus",
+    "pathTitle": "Que souhaitez-vous faire avec SpaPlus?",
+    "pathIntro": "Choisissez le parcours qui vous convient et accédez directement au bon endroit.",
+    "paths": [
+      [
+        "Réserver une expérience spa",
+        "Trouvez l’expérience qui correspond à votre moment et réservez en toute confiance.",
+        "Choisir un pays"
+      ],
+      [
+        "Pour les propriétaires de spas",
+        "Rejoignez de nouveaux clients, développez les réservations et gérez vos activités avec les outils SpaPlus.",
+        "Rejoindre SpaPlus"
+      ],
+      [
+        "Pour les entrepreneurs locaux",
+        "Développez SpaPlus dans votre marché avec notre marque, notre technologie et notre savoir-faire.",
+        "Découvrir les partenariats"
+      ],
+      [
+        "Pour les partenaires d’affaires",
+        "Marques de mieux-être, groupes hôteliers et partenaires stratégiques peuvent bâtir de nouvelles occasions avec nous.",
+        "Parler à notre équipe"
+      ]
+    ],
+    "productAction": "Discuter de cette solution",
+    "productGuestAction": "Trouver SpaPlus dans votre marché",
+    "footerStory": "Notre histoire",
+    "metaDescription": "SpaPlus relie les clients, les spas et les partenaires locaux grâce à des plateformes de mieux-être, des réservations et des outils d’affaires.",
+    "interfaceAria": "Interface de réservation et de gestion SpaPlus"
+  },
+  "ru": {
+    "navPartners": "Партнёры в странах",
+    "pathEyebrow": "Ваш путь в SpaPlus",
+    "pathTitle": "Что вы хотите сделать вместе со SpaPlus?",
+    "pathIntro": "Выберите подходящее направление и сразу перейдите к нужному разделу.",
+    "paths": [
+      [
+        "Забронировать спа",
+        "Найдите подходящий формат отдыха и бронируйте с уверенностью.",
+        "Выбрать страну"
+      ],
+      [
+        "Для владельцев спа",
+        "Привлекайте новых гостей, увеличивайте бронирования и управляйте бизнесом с помощью SpaPlus.",
+        "Присоединиться к SpaPlus"
+      ],
+      [
+        "Для предпринимателей",
+        "Развивайте SpaPlus в своей стране с нашим брендом, технологиями и опытом.",
+        "Узнать о партнёрстве"
+      ],
+      [
+        "Для деловых партнёров",
+        "Велнес-бренды, гостиничные группы и стратегические партнёры могут создавать новые проекты вместе с нами.",
+        "Связаться с командой"
+      ]
+    ],
+    "productAction": "Обсудить решение",
+    "productGuestAction": "Найти SpaPlus в своей стране",
+    "footerStory": "Наша история",
+    "metaDescription": "SpaPlus объединяет гостей, спа-бизнес и местных партнёров через велнес-платформы, технологии бронирования и бизнес-инструменты.",
+    "interfaceAria": "Интерфейс бронирования и управления SpaPlus"
+  },
+  "el": {
+    "navPartners": "Συνεργάτες ανά χώρα",
+    "pathEyebrow": "Ο δρόμος σας προς το SpaPlus",
+    "pathTitle": "Τι θα θέλατε να κάνετε με το SpaPlus;",
+    "pathIntro": "Επιλέξτε τη διαδρομή που σας ταιριάζει και μεταβείτε στο σωστό σημείο.",
+    "paths": [
+      [
+        "Κλείστε μια εμπειρία spa",
+        "Βρείτε την εμπειρία που ταιριάζει στη στιγμή σας και κάντε κράτηση με σιγουριά.",
+        "Επιλέξτε χώρα"
+      ],
+      [
+        "Για ιδιοκτήτες spa",
+        "Προσεγγίστε νέους επισκέπτες, αυξήστε τις κρατήσεις και οργανώστε την επιχείρησή σας με τα εργαλεία SpaPlus.",
+        "Γίνετε μέλος του SpaPlus"
+      ],
+      [
+        "Για επιχειρηματίες χώρας",
+        "Αναπτύξτε το SpaPlus στην αγορά σας με το brand, την τεχνολογία και την τεχνογνωσία μας.",
+        "Δείτε τις συνεργασίες χωρών"
+      ],
+      [
+        "Για επιχειρηματικούς συνεργάτες",
+        "Brands ευεξίας, ξενοδοχειακοί όμιλοι και στρατηγικοί συνεργάτες μπορούν να δημιουργήσουν νέες ευκαιρίες μαζί μας.",
+        "Μιλήστε με την ομάδα μας"
+      ]
+    ],
+    "productAction": "Συζητήστε τη λύση",
+    "productGuestAction": "Βρείτε το SpaPlus στη χώρα σας",
+    "footerStory": "Η ιστορία μας",
+    "metaDescription": "Το SpaPlus συνδέει επισκέπτες, επιχειρήσεις spa και τοπικούς συνεργάτες με πλατφόρμες ευεξίας, κρατήσεις και επιχειρηματικά εργαλεία.",
+    "interfaceAria": "Περιβάλλον κρατήσεων και διαχείρισης SpaPlus"
+  },
+  "it": {
+    "navPartners": "Partner nei Paesi",
+    "pathEyebrow": "Il vostro percorso in SpaPlus",
+    "pathTitle": "Cosa volete fare con SpaPlus?",
+    "pathIntro": "Scegliete il percorso più adatto e andate direttamente al punto giusto.",
+    "paths": [
+      [
+        "Prenotare un’esperienza spa",
+        "Trovate l’esperienza giusta per il vostro momento e prenotate con fiducia.",
+        "Scegliere il Paese"
+      ],
+      [
+        "Per i titolari di spa",
+        "Raggiungete nuovi ospiti, aumentate le prenotazioni e gestite l’attività con gli strumenti SpaPlus.",
+        "Entrare in SpaPlus"
+      ],
+      [
+        "Per gli imprenditori locali",
+        "Portate SpaPlus nel vostro mercato con il nostro brand, la tecnologia e il know-how.",
+        "Scoprire le partnership"
+      ],
+      [
+        "Per i partner commerciali",
+        "Brand wellness, gruppi alberghieri e partner strategici possono creare nuove opportunità insieme a noi.",
+        "Parlare con il team"
+      ]
+    ],
+    "productAction": "Parliamo di questa soluzione",
+    "productGuestAction": "Trovate SpaPlus nel vostro Paese",
+    "footerStory": "La nostra storia",
+    "metaDescription": "SpaPlus collega ospiti, attività spa e partner locali attraverso marketplace wellness, tecnologia di prenotazione e strumenti gestionali.",
+    "interfaceAria": "Interfaccia SpaPlus per prenotazioni e gestione"
+  },
+  "hu": {
+    "navPartners": "Országos partnerek",
+    "pathEyebrow": "Az Ön útja a SpaPlushoz",
+    "pathTitle": "Mit szeretne elérni a SpaPlusszal?",
+    "pathIntro": "Válassza ki az Önnek megfelelő utat, és lépjen közvetlenül a megfelelő részhez.",
+    "paths": [
+      [
+        "Spaélmény foglalása",
+        "Találja meg az alkalomhoz illő spaélményt, és foglaljon magabiztosan.",
+        "Ország kiválasztása"
+      ],
+      [
+        "Spaüzemeltetőknek",
+        "Érjen el új vendégeket, növelje a foglalásokat, és irányítsa vállalkozását a SpaPlus eszközeivel.",
+        "Csatlakozás a SpaPlushoz"
+      ],
+      [
+        "Helyi vállalkozóknak",
+        "Építse fel a SpaPlust saját piacán márkánkkal, technológiánkkal és szakértelmünkkel.",
+        "Országos partnerségek"
+      ],
+      [
+        "Üzleti partnereknek",
+        "Wellnessmárkák, szállodacsoportok és stratégiai partnerek új lehetőségeket építhetnek velünk.",
+        "Kapcsolat a csapatunkkal"
+      ]
+    ],
+    "productAction": "Beszéljünk a megoldásról",
+    "productGuestAction": "SpaPlus az Ön országában",
+    "footerStory": "A történetünk",
+    "metaDescription": "A SpaPlus wellness piacterekkel, foglalási technológiával és üzleti eszközökkel köti össze a vendégeket, a spaüzleteket és a helyi partnereket.",
+    "interfaceAria": "SpaPlus foglalási és kezelési felület"
+  },
+  "pl": {
+    "navPartners": "Partnerzy krajowi",
+    "pathEyebrow": "Twoja droga do SpaPlus",
+    "pathTitle": "Co chcesz zrobić ze SpaPlus?",
+    "pathIntro": "Wybierz właściwą ścieżkę i przejdź bezpośrednio do odpowiedniego miejsca.",
+    "paths": [
+      [
+        "Zarezerwować pobyt w spa",
+        "Znajdź doświadczenie dopasowane do chwili i rezerwuj z pewnością.",
+        "Wybierz kraj"
+      ],
+      [
+        "Dla właścicieli spa",
+        "Docieraj do nowych gości, zwiększaj liczbę rezerwacji i zarządzaj firmą z narzędziami SpaPlus.",
+        "Dołącz do SpaPlus"
+      ],
+      [
+        "Dla lokalnych przedsiębiorców",
+        "Rozwijaj SpaPlus na swoim rynku z naszą marką, technologią i wiedzą.",
+        "Poznaj partnerstwa krajowe"
+      ],
+      [
+        "Dla partnerów biznesowych",
+        "Marki wellness, grupy hotelowe i partnerzy strategiczni mogą tworzyć z nami nowe możliwości.",
+        "Porozmawiaj z zespołem"
+      ]
+    ],
+    "productAction": "Porozmawiajmy o rozwiązaniu",
+    "productGuestAction": "Znajdź SpaPlus w swoim kraju",
+    "footerStory": "Nasza historia",
+    "metaDescription": "SpaPlus łączy gości, firmy spa i lokalnych partnerów poprzez platformy wellness, technologię rezerwacji i narzędzia biznesowe.",
+    "interfaceAria": "Interfejs rezerwacji i zarządzania SpaPlus"
+  },
+  "es": {
+    "navPartners": "Socios por país",
+    "pathEyebrow": "Tu camino hacia SpaPlus",
+    "pathTitle": "¿Qué quieres hacer con SpaPlus?",
+    "pathIntro": "Elige el camino que mejor encaje contigo y ve directamente al lugar adecuado.",
+    "paths": [
+      [
+        "Reservar una experiencia de spa",
+        "Encuentra la experiencia ideal para tu momento y reserva con confianza.",
+        "Elegir país"
+      ],
+      [
+        "Para propietarios de spas",
+        "Llega a nuevos clientes, aumenta las reservas y gestiona tu negocio con las herramientas de SpaPlus.",
+        "Unirse a SpaPlus"
+      ],
+      [
+        "Para emprendedores locales",
+        "Desarrolla SpaPlus en tu mercado con nuestra marca, tecnología y experiencia.",
+        "Conocer las alianzas por país"
+      ],
+      [
+        "Para socios comerciales",
+        "Marcas de bienestar, grupos hoteleros y socios estratégicos pueden crear nuevas oportunidades con nosotros.",
+        "Hablar con el equipo"
+      ]
+    ],
+    "productAction": "Hablemos de esta solución",
+    "productGuestAction": "Encuentra SpaPlus en tu país",
+    "footerStory": "Nuestra historia",
+    "metaDescription": "SpaPlus conecta a clientes, negocios de spa y socios locales mediante plataformas de bienestar, reservas y herramientas de gestión.",
+    "interfaceAria": "Interfaz de reservas y gestión de SpaPlus"
   }
 };
 const companyData = {
@@ -2068,7 +2367,7 @@ const productShowcase = {
     "dayPlusTitle": "DayPlus",
     "dayPlusBody": "A dedicated Day Pass and day experience management system for groups, organizations and hospitality businesses.",
     "dayPlusTag": "Groups and organizations",
-    "guestAlt": "A real SpaPlus treatment room prepared for two guests",
+    "guestAlt": "Two guests relaxing beside a thermal spa pool",
     "dashboardAlt": "BizSpa business management platform",
     "bookingAlt": "BizSpa online booking system in English"
   },
@@ -2085,7 +2384,7 @@ const productShowcase = {
     "dayPlusTitle": "DayPlus",
     "dayPlusBody": "מערכת ייעודית לניהול Day Pass וימי כיף לקבוצות, ארגונים ומקומות אירוח.",
     "dayPlusTag": "קבוצות וארגונים",
-    "guestAlt": "חדר טיפולים אמיתי של SpaPlus המוכן לשני אורחים",
+    "guestAlt": "שני אורחים נרגעים יחד לצד בריכת ספא תרמית",
     "dashboardAlt": "פלטפורמת הניהול העסקי BizSpa",
     "bookingAlt": "מערכת ההזמנות המקוונת של BizSpa באנגלית"
   },
@@ -2102,7 +2401,7 @@ const productShowcase = {
     "dayPlusTitle": "DayPlus",
     "dayPlusBody": "Une solution dédiée à la gestion des journées détente et des Day Pass pour les groupes, les organisations et l’hôtellerie.",
     "dayPlusTag": "Groupes et organisations",
-    "guestAlt": "Une salle de soins SpaPlus préparée pour deux personnes",
+    "guestAlt": "Deux personnes se détendent près d’un bassin thermal",
     "dashboardAlt": "Plateforme de gestion BizSpa",
     "bookingAlt": "Système de réservation en ligne BizSpa en anglais"
   },
@@ -2119,7 +2418,7 @@ const productShowcase = {
     "dayPlusTitle": "DayPlus",
     "dayPlusBody": "Система управления Day Pass и днями отдыха для групп, компаний и объектов гостеприимства.",
     "dayPlusTag": "Группы и компании",
-    "guestAlt": "Реальный кабинет SpaPlus, подготовленный для двух гостей",
+    "guestAlt": "Два гостя отдыхают у термального бассейна",
     "dashboardAlt": "Платформа управления BizSpa",
     "bookingAlt": "Онлайн-бронирование BizSpa на английском языке"
   },
@@ -2136,7 +2435,7 @@ const productShowcase = {
     "dayPlusTitle": "DayPlus",
     "dayPlusBody": "Σύστημα διαχείρισης Day Pass και ημερήσιων εμπειριών για ομάδες, οργανισμούς και μονάδες φιλοξενίας.",
     "dayPlusTag": "Ομάδες και οργανισμοί",
-    "guestAlt": "Πραγματική αίθουσα θεραπείας SpaPlus για δύο επισκέπτες",
+    "guestAlt": "Δύο επισκέπτες χαλαρώνουν δίπλα σε μια θερμική πισίνα",
     "dashboardAlt": "Πλατφόρμα διαχείρισης BizSpa",
     "bookingAlt": "Ηλεκτρονικό σύστημα κρατήσεων BizSpa στα αγγλικά"
   },
@@ -2153,7 +2452,7 @@ const productShowcase = {
     "dayPlusTitle": "DayPlus",
     "dayPlusBody": "Il sistema per gestire Day Pass e giornate benessere per gruppi, aziende e strutture ricettive.",
     "dayPlusTag": "Gruppi e aziende",
-    "guestAlt": "Una vera cabina SpaPlus preparata per due ospiti",
+    "guestAlt": "Due ospiti si rilassano accanto a una piscina termale",
     "dashboardAlt": "Piattaforma gestionale BizSpa",
     "bookingAlt": "Sistema di prenotazione online BizSpa in inglese"
   },
@@ -2170,7 +2469,7 @@ const productShowcase = {
     "dayPlusTitle": "DayPlus",
     "dayPlusBody": "Day Pass és élménynap-kezelő rendszer csoportok, szervezetek és vendéglátóhelyek számára.",
     "dayPlusTag": "Csoportok és szervezetek",
-    "guestAlt": "Két vendég számára előkészített valódi SpaPlus kezelőszoba",
+    "guestAlt": "Két vendég pihen egy termálmedence mellett",
     "dashboardAlt": "BizSpa üzleti platform",
     "bookingAlt": "BizSpa online foglalási rendszer angol nyelven"
   },
@@ -2187,7 +2486,7 @@ const productShowcase = {
     "dayPlusTitle": "DayPlus",
     "dayPlusBody": "System do zarządzania Day Pass i dniami wellness dla grup, firm i obiektów hotelarskich.",
     "dayPlusTag": "Grupy i firmy",
-    "guestAlt": "Prawdziwy gabinet SpaPlus przygotowany dla dwóch gości",
+    "guestAlt": "Dwoje gości odpoczywa przy basenie termalnym",
     "dashboardAlt": "Platforma zarządzania BizSpa",
     "bookingAlt": "System rezerwacji online BizSpa w języku angielskim"
   },
@@ -2204,7 +2503,7 @@ const productShowcase = {
     "dayPlusTitle": "DayPlus",
     "dayPlusBody": "Sistema para gestionar Day Pass y jornadas de bienestar para grupos, empresas y alojamientos.",
     "dayPlusTag": "Grupos y empresas",
-    "guestAlt": "Una sala real de SpaPlus preparada para dos clientes",
+    "guestAlt": "Dos personas se relajan junto a una piscina termal",
     "dashboardAlt": "Plataforma de gestión BizSpa",
     "bookingAlt": "Sistema de reservas online BizSpa en inglés"
   }
@@ -2386,6 +2685,7 @@ const initialsFor = (name) =>
   name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("");
 
 const renderTeam = (locale, company) => {
+  const previewCount = 1;
   document.querySelectorAll("[data-team-group]").forEach((groupElement) => {
     const group = groupElement.dataset.teamGroup;
     groupElement.querySelector("h3").textContent = company.groups[group];
@@ -2393,7 +2693,7 @@ const renderTeam = (locale, company) => {
       const displayName = locale === "he" ? member.nameHe : member.nameLatin;
       const card = document.createElement("article");
       card.className = "team-member";
-      card.hidden = index >= 3;
+      card.hidden = index >= previewCount;
       const initials = document.createElement("span");
       initials.className = "team-initials";
       initials.setAttribute("aria-hidden", "true");
@@ -2409,7 +2709,7 @@ const renderTeam = (locale, company) => {
     });
     groupElement.querySelector(".team-list").replaceChildren(...cards);
     groupElement.querySelector(".team-toggle")?.remove();
-    if (cards.length > 3) {
+    if (cards.length > previewCount) {
       const toggle = document.createElement("button");
       toggle.className = "team-toggle";
       toggle.type = "button";
@@ -2423,7 +2723,7 @@ const renderTeam = (locale, company) => {
         const expanded = toggle.getAttribute("aria-expanded") === "true";
         toggle.setAttribute("aria-expanded", String(!expanded));
         cards.forEach((card, index) => {
-          card.hidden = expanded ? index >= 3 : false;
+          card.hidden = expanded ? index >= previewCount : false;
         });
         label.textContent = expanded ? company.teamShowMore : company.teamShowLess;
       });
@@ -2456,10 +2756,19 @@ const renderTopics = (company) => {
 const applyLocale = (locale) => {
   const t = translations[locale] || translations.en;
   const company = companyContent[locale] || companyContent.en;
+  const enhancement = siteEnhancements[locale] || siteEnhancements.en;
   activeLocale = locale;
   document.documentElement.lang = locale;
   document.documentElement.dir = locale === "he" ? "rtl" : "ltr";
   document.title = t.pageTitle;
+  document.querySelector('meta[name="description"]').content = enhancement.metaDescription;
+  document.querySelector('meta[property="og:title"]').content = t.pageTitle;
+  document.querySelector('meta[property="og:description"]').content = enhancement.metaDescription;
+  const canonicalUrl = locale === "en"
+    ? "https://djskabi-png.github.io/spaplus-global/"
+    : "https://djskabi-png.github.io/spaplus-global/?lang=" + encodeURIComponent(locale);
+  document.querySelector('link[rel="canonical"]').href = canonicalUrl;
+  document.querySelector('meta[property="og:url"]').content = canonicalUrl;
   localStorage.setItem(localeStorageKey, locale);
   languageSelect.value = locale;
   languageSelect.setAttribute("aria-label", t.languageLabel);
@@ -2481,11 +2790,15 @@ const applyLocale = (locale) => {
   mobileMenu.setAttribute("aria-label", t.mobileNavigation);
   document.querySelector(".footer-main nav").setAttribute("aria-label", t.footerNavigation);
   setAllText(".desktop-nav a", [
-    t.navVision, t.navCountries, t.productsEyebrow, t.navStory, t.aboutEyebrow, t.contact, t.chooseCountry,
+    t.navVision, t.navCountries, t.productsEyebrow, enhancement.navPartners, t.aboutEyebrow, t.contact, t.chooseCountry,
   ]);
   setAllText(".mobile-menu a", [
-    t.navVision, t.navCountries, t.productsEyebrow, t.navStory, t.aboutEyebrow, t.contact, t.chooseCountry,
+    t.navVision, t.navCountries, t.productsEyebrow, enhancement.navPartners, t.aboutEyebrow, t.contact, t.chooseCountry,
   ]);
+  const partnerHref = "./country-partners/?lang=" + (locale === "he" ? "he" : "en");
+  document.querySelectorAll(".desktop-nav a, .mobile-menu a").forEach((link) => {
+    if (link.textContent === enhancement.navPartners) link.href = partnerHref;
+  });
   menuButton.setAttribute(
     "aria-label",
     menuButton.getAttribute("aria-expanded") === "true" ? t.closeMenu : t.openMenu,
@@ -2500,6 +2813,19 @@ const applyLocale = (locale) => {
   document.querySelector(".hero-image").setAttribute("aria-label", t.promiseBody);
   setText(".promise-card strong", t.promiseTitle);
   setText(".promise-card span", t.promiseBody);
+
+  setAllText(".pathways-heading > *", [
+    enhancement.pathEyebrow,
+    enhancement.pathTitle,
+    enhancement.pathIntro,
+  ]);
+  const pathwayCards = document.querySelectorAll(".pathway-card");
+  enhancement.paths.forEach((content, index) => {
+    pathwayCards[index].querySelector("h3").textContent = content[0];
+    pathwayCards[index].querySelector("p").textContent = content[1];
+    pathwayCards[index].querySelector("a").textContent = content[2];
+  });
+  document.querySelector(".pathway-countries a").href = partnerHref;
 
   setAllText("#countries > .section-heading > *", [t.worldEyebrow, t.worldTitle, t.worldBody]);
   document.querySelector(".israel-card").setAttribute("aria-label", t.israelAria);
@@ -2560,7 +2886,7 @@ const applyLocale = (locale) => {
   ]);
   document.querySelector(".experience-shot img").alt = showcase.guestAlt;
   document.querySelector(".dashboard-shot img").alt = showcase.dashboardAlt;
-  document.querySelector(".booking-shot img").alt = showcase.bookingAlt;
+  document.querySelector(".booking-shot").setAttribute("aria-label", enhancement.interfaceAria);
   setAllText(".business-caption > *", [
     showcase.businessLabel, showcase.businessTitle, showcase.businessBody,
   ]);
@@ -2578,6 +2904,9 @@ const applyLocale = (locale) => {
     productCards[index].querySelector("p").textContent = content[1];
   });
   setText(".dayplus-card small", showcase.dayPlusTag);
+  document.querySelectorAll(".product-action").forEach((link, index) => {
+    link.textContent = index === 0 ? enhancement.productGuestAction : enhancement.productAction;
+  });
   setAllText(".growth-section > div > *", [
     t.growthEyebrow,
     t.growthTitle,
@@ -2585,8 +2914,7 @@ const applyLocale = (locale) => {
     t.growthStatus,
   ]);
   setText(".growth-section > .button", t.growthCta);
-  document.querySelector(".growth-section > .button").href =
-    "./country-partners/?lang=" + (locale === "he" ? "he" : "en");
+  document.querySelector(".growth-section > .button").href = partnerHref;
   setAllText(".story-copy > *", [t.storyEyebrow, t.storyTitle, t.storyBodyOne, t.storyBodyTwo]);
   setText(".story-image span", t.storyImage);
   setAllText(".benefits-section .section-heading > *", [t.experienceEyebrow, t.experienceTitle]);
@@ -2657,15 +2985,19 @@ const applyLocale = (locale) => {
   const footerItems = document.querySelectorAll(".footer-main nav > *");
   footerItems[0].textContent = t.navVision;
   footerItems[1].textContent = t.productsEyebrow;
-  footerItems[2].textContent = t.growthEyebrow;
-  footerItems[3].textContent = t.israelName;
-  footerItems[4].textContent = t.canadaName;
-  footerItems[4].href = canadaCard.href;
-  footerItems[5].textContent = t.usaName + " " + t.comingSoon;
-  footerItems[6].textContent = t.aboutEyebrow;
-  footerItems[7].textContent = t.contact;
-  footerItems[8].textContent = t.privacyTitle;
-  footerItems[9].textContent = t.accessibilityTitle;
+  footerItems[2].textContent = enhancement.navPartners;
+  footerItems[2].href = partnerHref;
+  footerItems[3].textContent = t.bizSpaTitle;
+  footerItems[4].textContent = showcase.dayPlusTitle;
+  footerItems[5].textContent = t.israelName;
+  footerItems[6].textContent = t.canadaName;
+  footerItems[6].href = canadaCard.href;
+  footerItems[7].textContent = t.usaName + " " + t.comingSoon;
+  footerItems[8].textContent = enhancement.footerStory;
+  footerItems[9].textContent = t.aboutEyebrow;
+  footerItems[10].textContent = t.contact;
+  footerItems[11].textContent = t.privacyTitle;
+  footerItems[12].textContent = t.accessibilityTitle;
   setText(
     ".footer-bottom span:first-child",
     "© " + new Date().getFullYear() + " SpaPlus Global. " + t.rights,
@@ -2721,6 +3053,16 @@ menuButton.addEventListener("click", () => {
   mobileMenu.classList.toggle("is-open", !open);
   mobileMenu.setAttribute("aria-hidden", String(open));
   mobileMenu.inert = open;
+});
+
+document.querySelectorAll("[data-topic-index]").forEach((link) => {
+  link.addEventListener("click", () => {
+    const topicIndex = Number(link.dataset.topicIndex);
+    const select = contactForm.querySelector('select[name="topic"]');
+    if (Number.isInteger(topicIndex) && select.options[topicIndex]) {
+      select.selectedIndex = topicIndex;
+    }
+  });
 });
 
 contactForm.addEventListener("submit", async (event) => {

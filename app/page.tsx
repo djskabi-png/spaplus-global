@@ -106,7 +106,7 @@ const productShowcase: Record<
     dayPlusTitle: "DayPlus",
     dayPlusBody: "A dedicated Day Pass and day experience management system for groups, organizations and hospitality businesses.",
     dayPlusTag: "Groups and organizations",
-    guestAlt: "A real SpaPlus treatment room prepared for two guests",
+    guestAlt: "Two guests relaxing beside a thermal spa pool",
     dashboardAlt: "BizSpa business management platform",
     bookingAlt: "BizSpa online booking system in English",
   },
@@ -123,7 +123,7 @@ const productShowcase: Record<
     dayPlusTitle: "DayPlus",
     dayPlusBody: "מערכת ייעודית לניהול Day Pass וימי כיף לקבוצות, ארגונים ומקומות אירוח.",
     dayPlusTag: "קבוצות וארגונים",
-    guestAlt: "חדר טיפולים אמיתי של SpaPlus המוכן לשני אורחים",
+    guestAlt: "שני אורחים נרגעים יחד לצד בריכת ספא תרמית",
     dashboardAlt: "פלטפורמת הניהול העסקי BizSpa",
     bookingAlt: "מערכת ההזמנות המקוונת של BizSpa באנגלית",
   },
@@ -140,7 +140,7 @@ const productShowcase: Record<
     dayPlusTitle: "DayPlus",
     dayPlusBody: "Une solution dédiée à la gestion des journées détente et des Day Pass pour les groupes, les organisations et l’hôtellerie.",
     dayPlusTag: "Groupes et organisations",
-    guestAlt: "Une salle de soins SpaPlus préparée pour deux personnes",
+    guestAlt: "Deux personnes se détendent près d’un bassin thermal",
     dashboardAlt: "Plateforme de gestion BizSpa",
     bookingAlt: "Système de réservation en ligne BizSpa en anglais",
   },
@@ -157,7 +157,7 @@ const productShowcase: Record<
     dayPlusTitle: "DayPlus",
     dayPlusBody: "Система управления Day Pass и днями отдыха для групп, компаний и объектов гостеприимства.",
     dayPlusTag: "Группы и компании",
-    guestAlt: "Реальный кабинет SpaPlus, подготовленный для двух гостей",
+    guestAlt: "Два гостя отдыхают у термального бассейна",
     dashboardAlt: "Платформа управления BizSpa",
     bookingAlt: "Онлайн-бронирование BizSpa на английском языке",
   },
@@ -174,7 +174,7 @@ const productShowcase: Record<
     dayPlusTitle: "DayPlus",
     dayPlusBody: "Σύστημα διαχείρισης Day Pass και ημερήσιων εμπειριών για ομάδες, οργανισμούς και μονάδες φιλοξενίας.",
     dayPlusTag: "Ομάδες και οργανισμοί",
-    guestAlt: "Πραγματική αίθουσα θεραπείας SpaPlus για δύο επισκέπτες",
+    guestAlt: "Δύο επισκέπτες χαλαρώνουν δίπλα σε μια θερμική πισίνα",
     dashboardAlt: "Πλατφόρμα διαχείρισης BizSpa",
     bookingAlt: "Ηλεκτρονικό σύστημα κρατήσεων BizSpa στα αγγλικά",
   },
@@ -191,7 +191,7 @@ const productShowcase: Record<
     dayPlusTitle: "DayPlus",
     dayPlusBody: "Il sistema per gestire Day Pass e giornate benessere per gruppi, aziende e strutture ricettive.",
     dayPlusTag: "Gruppi e aziende",
-    guestAlt: "Una vera cabina SpaPlus preparata per due ospiti",
+    guestAlt: "Due ospiti si rilassano accanto a una piscina termale",
     dashboardAlt: "Piattaforma gestionale BizSpa",
     bookingAlt: "Sistema di prenotazione online BizSpa in inglese",
   },
@@ -208,7 +208,7 @@ const productShowcase: Record<
     dayPlusTitle: "DayPlus",
     dayPlusBody: "Day Pass és élménynap-kezelő rendszer csoportok, szervezetek és vendéglátóhelyek számára.",
     dayPlusTag: "Csoportok és szervezetek",
-    guestAlt: "Két vendég számára előkészített valódi SpaPlus kezelőszoba",
+    guestAlt: "Két vendég pihen egy termálmedence mellett",
     dashboardAlt: "BizSpa üzleti platform",
     bookingAlt: "BizSpa online foglalási rendszer angol nyelven",
   },
@@ -225,7 +225,7 @@ const productShowcase: Record<
     dayPlusTitle: "DayPlus",
     dayPlusBody: "System do zarządzania Day Pass i dniami wellness dla grup, firm i obiektów hotelarskich.",
     dayPlusTag: "Grupy i firmy",
-    guestAlt: "Prawdziwy gabinet SpaPlus przygotowany dla dwóch gości",
+    guestAlt: "Dwoje gości odpoczywa przy basenie termalnym",
     dashboardAlt: "Platforma zarządzania BizSpa",
     bookingAlt: "System rezerwacji online BizSpa w języku angielskim",
   },
@@ -242,7 +242,7 @@ const productShowcase: Record<
     dayPlusTitle: "DayPlus",
     dayPlusBody: "Sistema para gestionar Day Pass y jornadas de bienestar para grupos, empresas y alojamientos.",
     dayPlusTag: "Grupos y empresas",
-    guestAlt: "Una sala real de SpaPlus preparada para dos clientes",
+    guestAlt: "Dos personas se relajan junto a una piscina termal",
     dashboardAlt: "Plataforma de gestión BizSpa",
     bookingAlt: "Sistema de reservas online BizSpa en inglés",
   },
@@ -732,7 +732,7 @@ export default function Home() {
             <div className="ecosystem-visual">
               <figure className="experience-shot">
                 <img
-                  src="/spaplus-experience.jpeg"
+                  src="/vision-people.webp"
                   alt={showcase.guestAlt}
                   loading="lazy"
                 />

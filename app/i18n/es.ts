@@ -78,7 +78,7 @@ export const es: Translation = {
   bizSpaTitle: "BizSpa",
   bizSpaBody: "El software que ayuda a los equipos de spa a gestionar el negocio con claridad y eficiencia.",
   aiServiceTitle: "Atención al cliente con IA",
-  aiServiceBody: "Una solución inteligente que gestiona consultas, ahorra tiempo y reduce costes.",
+  aiServiceBody: "Una solución inteligente que ayuda al equipo a gestionar consultas con eficacia y ahorrar tiempo valioso.",
   marketingTitle: "Marketing y gestión de canales",
   marketingBody: "Gestión de Instagram, campañas de pago y un plan de crecimiento adaptado a cada spa.",
   spaSitesTitle: "Webs para spas",

@@ -115,7 +115,8 @@ test("all nine localized experiences are included", async () => {
   assert.match(script, /document\.createElement\("h4"\)/);
   assert.match(script, /document\.createElement\("p"\)/);
   assert.match(script, /toggle\.setAttribute\("aria-expanded", "false"\)/);
-  assert.match(script, /card\.hidden = index >= 3/);
+  assert.match(script, /const previewCount = 1/);
+  assert.match(script, /card\.hidden = index >= previewCount/);
   assert.doesNotMatch(script, /const name = document\.createElement\("strong"\)/);
 });
 
@@ -192,13 +193,15 @@ test("country partner page is complete, bilingual and connected", async () => {
   assert.match(html, /id="apply"/);
   assert.match(html, /class="responsibility-grid"/);
   assert.match(html, /class="process-list"/);
+  assert.match(html, /class="page-nav"/);
+  assert.match(html, /class="human-section"/);
+  assert.match(html, /class="faq-section"/);
   assert.match(html, /class="partner-form"/);
   assert.match(html, /name="privacy" type="checkbox" value="accepted" required/);
   assert.match(html, /name="partnershipAcknowledgement" type="checkbox" value="accepted" required/);
   assert.match(html, /class="privacy-link"/);
-  assert.match(html, /name="operations"/);
-  assert.match(html, /name="resources"/);
-  assert.match(html, /name="plan"/);
+  assert.match(html, /name="profile"/);
+  assert.doesNotMatch(html, /name="operations"|name="resources"|name="plan"/);
   assert.match(script, /en:\s*\{/);
   assert.match(script, /he:\s*\{/);
   assert.match(script, /formsubmit\.co\/ajax\//);

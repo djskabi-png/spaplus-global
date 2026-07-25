@@ -77,7 +77,7 @@ export const hu: Translation = {
   bizSpaTitle: "BizSpa",
   bizSpaBody: "Üzleti szoftver a spa-csapatok átlátható és hatékony működéséhez.",
   aiServiceTitle: "AI-alapú ügyfélszolgálat",
-  aiServiceBody: "Intelligens rendszer, amely kezeli a megkereséseket, időt takarít meg és csökkenti a költségeket.",
+  aiServiceBody: "Intelligens rendszer, amely segít a csapatnak hatékonyan kezelni a megkereséseket és értékes időt megtakarítani.",
   marketingTitle: "Marketing és csatornakezelés",
   marketingBody: "Instagram-kezelés, fizetett kampányok és minden spa számára személyre szabott növekedési terv.",
   spaSitesTitle: "Weboldalak spa-k számára",

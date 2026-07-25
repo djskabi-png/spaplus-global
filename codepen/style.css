@@ -19,10 +19,12 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 body {
   margin: 0;
+  overflow-x: clip;
   background: var(--white);
   color: var(--ink);
   font-family: var(--font-noto-sans, "Noto Sans"), Arial, sans-serif;
@@ -1039,6 +1041,110 @@ h1 span {
   object-position: center;
 }
 
+.pathways-section {
+  padding: 84px 5.5vw 96px;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(233, 23, 106, 0.09), transparent 30%),
+    #f7f9fc;
+}
+
+.pathways-heading {
+  max-width: 780px;
+  margin-bottom: 42px;
+}
+
+.pathways-heading h2 {
+  margin: 0;
+  color: var(--navy);
+  font-size: clamp(40px, 4.6vw, 66px);
+  line-height: 1.04;
+  letter-spacing: -2.8px;
+}
+
+.pathways-heading > p:last-child {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.pathways-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.pathway-card {
+  position: relative;
+  min-height: 310px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(20, 36, 61, 0.1);
+  border-radius: 22px;
+  background: white;
+  box-shadow: 0 18px 46px rgba(20, 36, 61, 0.06);
+}
+
+.pathway-card::after {
+  position: absolute;
+  right: -35px;
+  bottom: -55px;
+  width: 150px;
+  height: 150px;
+  border: 28px solid rgba(233, 23, 106, 0.07);
+  border-radius: 50%;
+  content: "";
+}
+
+[dir="rtl"] .pathway-card::after {
+  right: auto;
+  left: -35px;
+}
+
+.pathway-card > span {
+  color: var(--pink);
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 1px;
+}
+
+.pathway-card h3 {
+  margin: auto 0 12px;
+  color: var(--navy);
+  font-size: 25px;
+  line-height: 1.15;
+  letter-spacing: -0.7px;
+}
+
+.pathway-card p {
+  margin: 0 0 22px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.pathway-card a,
+.product-action {
+  position: relative;
+  z-index: 1;
+  width: fit-content;
+  color: var(--pink);
+  font-size: 13px;
+  font-weight: 820;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 3px;
+}
+
+.pathway-countries {
+  border-color: rgba(233, 23, 106, 0.25);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(233, 23, 106, 0.14), transparent 40%),
+    white;
+}
+
 .products-section {
   padding: 108px 5.5vw;
   background: white;
@@ -1199,6 +1305,54 @@ h1 span {
 .booking-shot {
   grid-column: 2;
   grid-row: 2;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(233, 23, 106, 0.18), transparent 42%),
+    #eef3f9;
+}
+
+.booking-demo {
+  height: 100%;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-radius: 12px;
+  background: white;
+}
+
+.demo-brand {
+  margin-bottom: 10px;
+  color: var(--navy);
+  font-size: 18px;
+  font-weight: 850;
+}
+
+.demo-line {
+  width: 55%;
+  height: 10px;
+  display: block;
+  border-radius: 99px;
+  background: #dce4ef;
+}
+
+.demo-line-wide {
+  width: 82%;
+  height: 14px;
+  background: rgba(233, 23, 106, 0.24);
+}
+
+.demo-cards {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+}
+
+.demo-cards i {
+  height: 72px;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #e7edf5, #f8fafd);
 }
 
 .business-caption {
@@ -1251,10 +1405,14 @@ h1 span {
 }
 
 .products-grid p {
-  margin: 0;
+  margin: 0 0 20px;
   color: var(--muted);
   font-size: 14px;
   line-height: 1.65;
+}
+
+.products-grid .product-action {
+  margin-top: auto;
 }
 
 .products-grid .dayplus-card {
@@ -2548,7 +2706,12 @@ body.modal-open {
   .country-grid,
   .vision-section,
   .story-section {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .vision-brand,
+  .vision-copy {
+    min-width: 0;
   }
 
   .country-card {
@@ -2566,8 +2729,17 @@ body.modal-open {
 
   .proof-grid,
   .benefit-grid,
-  .products-grid {
+  .products-grid,
+  .pathways-grid {
     grid-template-columns: 1fr;
+  }
+
+  .pathways-section {
+    padding: 72px 24px;
+  }
+
+  .pathway-card {
+    min-height: 230px;
   }
 
   .proof-grid {
@@ -2666,6 +2838,7 @@ body.modal-open {
 
 @media (max-width: 540px) {
   #vision,
+  #pathways,
   #countries,
   #story,
   #better-day,
@@ -2679,7 +2852,7 @@ body.modal-open {
   }
 
   .hero-copy {
-    padding-top: 62px;
+    padding: 46px 18px 38px;
   }
 
   .site-header {
@@ -2728,7 +2901,7 @@ body.modal-open {
   }
 
   .hero-image {
-    min-height: 350px;
+    min-height: 300px;
   }
 
   .promise-card {
@@ -2740,7 +2913,29 @@ body.modal-open {
   }
 
   .section {
-    padding: 62px 18px;
+    padding: 54px 18px;
+  }
+
+  .pathways-section {
+    padding: 56px 18px;
+  }
+
+  .pathways-heading {
+    margin-bottom: 28px;
+  }
+
+  .pathways-heading h2 {
+    font-size: 39px;
+    letter-spacing: -1.8px;
+  }
+
+  .pathways-grid {
+    gap: 10px;
+  }
+
+  .pathway-card {
+    min-height: 215px;
+    padding: 24px;
   }
 
   .section-heading h2,
@@ -2751,7 +2946,7 @@ body.modal-open {
   }
 
   .country-card {
-    min-height: 380px;
+    min-height: 340px;
     border-radius: 16px;
   }
 
@@ -2804,7 +2999,7 @@ body.modal-open {
   }
 
   .atmosphere-section {
-    padding: 64px 18px;
+    padding: 54px 18px;
   }
 
   .atmosphere-heading {
@@ -2823,7 +3018,7 @@ body.modal-open {
 
   .atmosphere-gallery {
     grid-template-columns: 1fr;
-    grid-template-rows: 390px 300px 300px;
+    grid-template-rows: 320px 235px 235px;
     gap: 13px;
   }
 
@@ -2849,7 +3044,7 @@ body.modal-open {
   }
 
   .products-section {
-    padding-inline: 18px;
+    padding: 60px 18px;
   }
 
   .products-heading h2,
@@ -2885,6 +3080,10 @@ body.modal-open {
     grid-row: 3;
   }
 
+  .booking-demo {
+    padding: 20px;
+  }
+
   .business-caption {
     grid-column: 1;
     grid-row: 4;
@@ -2897,8 +3096,8 @@ body.modal-open {
   }
 
   .benefit-grid article {
-    min-height: 250px;
-    padding: 28px;
+    min-height: 0;
+    padding: 24px;
   }
 
   .partner-section h2 {
@@ -3057,7 +3256,7 @@ body.modal-open {
   }
 
   .about-section {
-    padding: 72px 20px;
+    padding: 58px 20px;
   }
 
   .about-intro-copy h2 {
@@ -3075,7 +3274,7 @@ body.modal-open {
 
   .timeline-block,
   .founder-team-grid {
-    margin-top: 62px;
+    margin-top: 48px;
   }
 
   .timeline-grid,

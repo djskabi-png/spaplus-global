@@ -53,6 +53,7 @@ let hebrew = htmlSource
   .replace('href="./style.css', 'href="../style.css')
   .replace('src="./script.js', 'src="../script.js')
   .replaceAll('src="../spaplus-', 'src="../../spaplus-')
+  .replaceAll('src="../adir-naor-founder.jpg', 'src="../../adir-naor-founder.jpg')
   .replaceAll('href="../favicon.svg', 'href="../../favicon.svg')
   .replaceAll('href="../"', 'href="../../"')
   .replaceAll('href="../#privacy"', 'href="../../#privacy"')
