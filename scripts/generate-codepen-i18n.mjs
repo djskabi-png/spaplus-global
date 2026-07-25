@@ -331,6 +331,8 @@ const applyLocale = (locale) => {
     t.growthStatus,
   ]);
   setText(".growth-section > .button", t.growthCta);
+  document.querySelector(".growth-section > .button").href =
+    "./country-partners/?lang=" + (locale === "he" ? "he" : "en");
   setAllText(".story-copy > *", [t.storyEyebrow, t.storyTitle, t.storyBodyOne, t.storyBodyTwo]);
   setText(".story-image span", t.storyImage);
   setAllText(".benefits-section .section-heading > *", [t.experienceEyebrow, t.experienceTitle]);
