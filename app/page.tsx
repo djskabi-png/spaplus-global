@@ -13,7 +13,28 @@ import companyData from "./company-data.json";
 
 const israelUrl = "https://www.spaplus.co.il/";
 const localeStorageKey = "spaplus-global-locale";
+const cookieConsentStorageKey = "spaplus-cookie-consent-v1";
 const contactFormEndpoint = "/api/contact";
+const cookieCopy: Record<
+  Locale,
+  {
+    title: string;
+    body: string;
+    acceptAll: string;
+    essentialOnly: string;
+    settings: string;
+  }
+> = {
+  en: { title: "Your privacy matters", body: "We use essential storage to remember your language and preferences. Optional analytics will run only if you allow it.", acceptAll: "Allow all", essentialOnly: "Essential only", settings: "Cookie settings" },
+  he: { title: "הפרטיות שלכם חשובה לנו", body: "אנחנו משתמשים באחסון חיוני כדי לשמור את השפה וההעדפות שלכם. כלי מדידה אופציונליים יופעלו רק אם תאשרו.", acceptAll: "אישור הכול", essentialOnly: "חיוני בלבד", settings: "הגדרות קוקיז" },
+  "fr-CA": { title: "Votre vie privée compte", body: "Nous utilisons un stockage essentiel pour mémoriser votre langue et vos préférences. Les outils de mesure facultatifs ne seront activés qu’avec votre accord.", acceptAll: "Tout autoriser", essentialOnly: "Essentiels seulement", settings: "Préférences de témoins" },
+  ru: { title: "Ваша конфиденциальность важна", body: "Мы используем необходимое хранилище, чтобы запомнить язык и настройки. Необязательная аналитика будет включена только с вашего согласия.", acceptAll: "Разрешить всё", essentialOnly: "Только необходимое", settings: "Настройки файлов cookie" },
+  el: { title: "Η ιδιωτικότητά σας έχει σημασία", body: "Χρησιμοποιούμε απαραίτητη αποθήκευση για να θυμόμαστε τη γλώσσα και τις προτιμήσεις σας. Τα προαιρετικά εργαλεία μέτρησης θα ενεργοποιούνται μόνο με τη συγκατάθεσή σας.", acceptAll: "Αποδοχή όλων", essentialOnly: "Μόνο απαραίτητα", settings: "Ρυθμίσεις cookie" },
+  it: { title: "La tua privacy è importante", body: "Usiamo l’archiviazione essenziale per ricordare lingua e preferenze. Gli strumenti di analisi facoltativi saranno attivati solo con il tuo consenso.", acceptAll: "Accetta tutto", essentialOnly: "Solo essenziali", settings: "Impostazioni cookie" },
+  hu: { title: "Fontos számunkra az Ön adatainak védelme", body: "Alapvető tárhelyet használunk a nyelv és a beállítások megjegyzéséhez. Az opcionális elemzési eszközök csak hozzájárulással indulnak el.", acceptAll: "Összes engedélyezése", essentialOnly: "Csak szükséges", settings: "Cookie-beállítások" },
+  pl: { title: "Twoja prywatność ma znaczenie", body: "Używamy niezbędnej pamięci, aby zapamiętać język i ustawienia. Opcjonalne narzędzia analityczne uruchomimy tylko za zgodą.", acceptAll: "Zezwól na wszystkie", essentialOnly: "Tylko niezbędne", settings: "Ustawienia plików cookie" },
+  es: { title: "Tu privacidad importa", body: "Usamos almacenamiento esencial para recordar tu idioma y preferencias. Las herramientas de medición opcionales solo se activarán con tu permiso.", acceptAll: "Permitir todo", essentialOnly: "Solo esenciales", settings: "Configuración de cookies" },
+};
 const platformPillars: Record<Locale, string[]> = {
   en: ["Discovery", "Booking", "Business tools", "Data and automation"],
   he: ["חיפוש וגילוי", "הזמנה", "כלים לעסקים", "מידע ואוטומציה"],
@@ -282,10 +303,21 @@ export default function Home() {
     "idle" | "sending" | "success" | "error"
   >("idle");
   const [shareToastVisible, setShareToastVisible] = useState(false);
+  const [cookieBannerVisible, setCookieBannerVisible] = useState(false);
   const shareToastTimerRef = useRef<number | null>(null);
   const successCloseRef = useRef<HTMLButtonElement>(null);
   const t = translations[locale];
   const company = companyData.copy[locale];
+
+  useEffect(() => {
+    const consent = window.localStorage.getItem(cookieConsentStorageKey);
+    if (consent === "all" || consent === "essential") {
+      document.documentElement.dataset.cookieConsent = consent;
+    } else {
+      const frame = window.requestAnimationFrame(() => setCookieBannerVisible(true));
+      return () => window.cancelAnimationFrame(frame);
+    }
+  }, []);
   const showcase = productShowcase[locale];
   const canadaUrl = "#contact";
 
@@ -399,6 +431,14 @@ export default function Home() {
   }, []);
 
   const closeMenu = () => setMenuOpen(false);
+  const saveCookieConsent = (consent: "all" | "essential") => {
+    window.localStorage.setItem(cookieConsentStorageKey, consent);
+    document.documentElement.dataset.cookieConsent = consent;
+    window.dispatchEvent(
+      new CustomEvent("spaplus:consent-changed", { detail: { consent } }),
+    );
+    setCookieBannerVisible(false);
+  };
   const openLegalSection = (id: string) => {
     const section = document.getElementById(id) as HTMLDetailsElement | null;
     if (section) section.open = true;
@@ -1198,6 +1238,13 @@ export default function Home() {
             >
               {t.accessibilityTitle}
             </a>
+            <button
+              className="cookie-settings-link"
+              type="button"
+              onClick={() => setCookieBannerVisible(true)}
+            >
+              {cookieCopy[locale].settings}
+            </button>
           </nav>
         </div>
         <div className="footer-bottom">
@@ -1207,6 +1254,40 @@ export default function Home() {
           <span>spaplus.co</span>
         </div>
       </footer>
+
+      <section
+        className="cookie-banner"
+        role="region"
+        aria-labelledby="cookie-banner-title"
+        aria-describedby="cookie-banner-description"
+        hidden={!cookieBannerVisible}
+      >
+        <div className="cookie-banner-copy">
+          <strong id="cookie-banner-title">{cookieCopy[locale].title}</strong>
+          <p id="cookie-banner-description">
+            {cookieCopy[locale].body}{" "}
+            <a href="#privacy" onClick={() => openLegalSection("privacy")}>
+              {t.privacyTitle}
+            </a>
+          </p>
+        </div>
+        <div className="cookie-banner-actions">
+          <button
+            className="button button-outline"
+            type="button"
+            onClick={() => saveCookieConsent("essential")}
+          >
+            {cookieCopy[locale].essentialOnly}
+          </button>
+          <button
+            className="button button-primary"
+            type="button"
+            onClick={() => saveCookieConsent("all")}
+          >
+            {cookieCopy[locale].acceptAll}
+          </button>
+        </div>
+      </section>
     </>
   );
 }

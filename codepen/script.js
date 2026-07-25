@@ -2541,9 +2541,75 @@ const productShowcase = {
     "bookingAlt": "Sistema de reservas online BizSpa en inglés"
   }
 };
+const cookieCopy = {
+  "en": {
+    "title": "Your privacy matters",
+    "body": "We use essential storage to remember your language and preferences. Optional analytics will run only if you allow it.",
+    "acceptAll": "Allow all",
+    "essentialOnly": "Essential only",
+    "settings": "Cookie settings"
+  },
+  "he": {
+    "title": "הפרטיות שלכם חשובה לנו",
+    "body": "אנחנו משתמשים באחסון חיוני כדי לשמור את השפה וההעדפות שלכם. כלי מדידה אופציונליים יופעלו רק אם תאשרו.",
+    "acceptAll": "אישור הכול",
+    "essentialOnly": "חיוני בלבד",
+    "settings": "הגדרות קוקיז"
+  },
+  "fr-CA": {
+    "title": "Votre vie privée compte",
+    "body": "Nous utilisons un stockage essentiel pour mémoriser votre langue et vos préférences. Les outils de mesure facultatifs ne seront activés qu’avec votre accord.",
+    "acceptAll": "Tout autoriser",
+    "essentialOnly": "Essentiels seulement",
+    "settings": "Préférences de témoins"
+  },
+  "ru": {
+    "title": "Ваша конфиденциальность важна",
+    "body": "Мы используем необходимое хранилище, чтобы запомнить язык и настройки. Необязательная аналитика будет включена только с вашего согласия.",
+    "acceptAll": "Разрешить всё",
+    "essentialOnly": "Только необходимое",
+    "settings": "Настройки файлов cookie"
+  },
+  "el": {
+    "title": "Η ιδιωτικότητά σας έχει σημασία",
+    "body": "Χρησιμοποιούμε απαραίτητη αποθήκευση για να θυμόμαστε τη γλώσσα και τις προτιμήσεις σας. Τα προαιρετικά εργαλεία μέτρησης θα ενεργοποιούνται μόνο με τη συγκατάθεσή σας.",
+    "acceptAll": "Αποδοχή όλων",
+    "essentialOnly": "Μόνο απαραίτητα",
+    "settings": "Ρυθμίσεις cookie"
+  },
+  "it": {
+    "title": "La tua privacy è importante",
+    "body": "Usiamo l’archiviazione essenziale per ricordare lingua e preferenze. Gli strumenti di analisi facoltativi saranno attivati solo con il tuo consenso.",
+    "acceptAll": "Accetta tutto",
+    "essentialOnly": "Solo essenziali",
+    "settings": "Impostazioni cookie"
+  },
+  "hu": {
+    "title": "Fontos számunkra az Ön adatainak védelme",
+    "body": "Alapvető tárhelyet használunk a nyelv és a beállítások megjegyzéséhez. Az opcionális elemzési eszközök csak hozzájárulással indulnak el.",
+    "acceptAll": "Összes engedélyezése",
+    "essentialOnly": "Csak szükséges",
+    "settings": "Cookie-beállítások"
+  },
+  "pl": {
+    "title": "Twoja prywatność ma znaczenie",
+    "body": "Używamy niezbędnej pamięci, aby zapamiętać język i ustawienia. Opcjonalne narzędzia analityczne uruchomimy tylko za zgodą.",
+    "acceptAll": "Zezwól na wszystkie",
+    "essentialOnly": "Tylko niezbędne",
+    "settings": "Ustawienia plików cookie"
+  },
+  "es": {
+    "title": "Tu privacidad importa",
+    "body": "Usamos almacenamiento esencial para recordar tu idioma y preferencias. Las herramientas de medición opcionales solo se activarán con tu permiso.",
+    "acceptAll": "Permitir todo",
+    "essentialOnly": "Solo esenciales",
+    "settings": "Configuración de cookies"
+  }
+};
 const companyContent = companyData.copy;
 const teamMembers = companyData.team;
 const localeStorageKey = "spaplus-global-locale";
+const cookieConsentStorageKey = "spaplus-cookie-consent-v1";
 const supportedLocales = Object.keys(translations);
 const platformPillars = {
   "en": [
@@ -2658,6 +2724,10 @@ const backToTopButton = document.querySelector(".back-to-top");
 const shareButton = document.querySelector(".share-page");
 const shareButtonLabel = shareButton.querySelector("span");
 const shareToast = document.querySelector(".share-toast");
+const cookieBanner = document.querySelector(".cookie-banner");
+const cookieSettingsButton = document.querySelector(".cookie-settings-link");
+const cookieEssentialButton = document.querySelector('[data-cookie-choice="essential"]');
+const cookieAllButton = document.querySelector('[data-cookie-choice="all"]');
 const successModal = document.querySelector(".success-modal");
 const successModalCard = document.querySelector(".success-modal-card");
 const successModalClose = document.querySelector(".success-modal-close");
@@ -2790,6 +2860,29 @@ const renderTopics = (company) => {
     return option;
   }));
 };
+
+const saveCookieConsent = (consent) => {
+  localStorage.setItem(cookieConsentStorageKey, consent);
+  document.documentElement.dataset.cookieConsent = consent;
+  window.dispatchEvent(new CustomEvent("spaplus:consent-changed", {
+    detail: { consent },
+  }));
+  cookieBanner.hidden = true;
+};
+
+const storedCookieConsent = localStorage.getItem(cookieConsentStorageKey);
+if (storedCookieConsent === "all" || storedCookieConsent === "essential") {
+  document.documentElement.dataset.cookieConsent = storedCookieConsent;
+  cookieBanner.hidden = true;
+} else {
+  cookieBanner.hidden = false;
+}
+cookieEssentialButton.addEventListener("click", () => saveCookieConsent("essential"));
+cookieAllButton.addEventListener("click", () => saveCookieConsent("all"));
+cookieSettingsButton.addEventListener("click", () => {
+  cookieBanner.hidden = false;
+  cookieEssentialButton.focus();
+});
 
 const applyLocale = (locale) => {
   const t = translations[locale] || translations.en;
@@ -3014,6 +3107,13 @@ const applyLocale = (locale) => {
   setText("#accessibility p", t.accessibilityBody);
   setText("#accessibility a", t.contact);
   setText("#accessibility small", t.legalUpdated);
+  const cookies = cookieCopy[locale] || cookieCopy.en;
+  setText("#cookie-banner-title", cookies.title);
+  setText("#cookie-banner-description-text", cookies.body);
+  setText(".cookie-banner .privacy-link", t.privacyTitle);
+  setText('[data-cookie-choice="essential"]', cookies.essentialOnly);
+  setText('[data-cookie-choice="all"]', cookies.acceptAll);
+  setText(".cookie-settings-link", cookies.settings);
   renderTopics(company);
   setText(".form-submit button", company.formSubmit);
   setText(".form-submit > p", company.formNote);

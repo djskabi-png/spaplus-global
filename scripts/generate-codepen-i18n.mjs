@@ -171,6 +171,12 @@ const showcaseEnd = pageSource.indexOf("\n};", showcaseStart);
 const productShowcase = Function(
   `"use strict"; return (${pageSource.slice(showcaseStart, showcaseEnd + 2)});`,
 )();
+const cookieAssignment = pageSource.indexOf("=", pageSource.indexOf("const cookieCopy"));
+const cookieStart = pageSource.indexOf("{", cookieAssignment);
+const cookieEnd = pageSource.indexOf("\n};", cookieStart);
+const cookieCopy = Function(
+  `"use strict"; return (${pageSource.slice(cookieStart, cookieEnd + 2)});`,
+)();
 const previewCss = sourceCss.replace(
   '@import "tailwindcss";',
   '@import url("https://fonts.googleapis.com/css2?family=Heebo:wght@100..900&family=Noto+Sans:wdth,wght@75..100,100..900&display=swap");',
@@ -192,9 +198,11 @@ const runtime = `const translations = ${JSON.stringify(translations, null, 2)};
 const siteEnhancements = ${JSON.stringify(siteEnhancements, null, 2)};
 const companyData = ${JSON.stringify(companyData, null, 2)};
 const productShowcase = ${JSON.stringify(productShowcase, null, 2)};
+const cookieCopy = ${JSON.stringify(cookieCopy, null, 2)};
 const companyContent = companyData.copy;
 const teamMembers = companyData.team;
 const localeStorageKey = "spaplus-global-locale";
+const cookieConsentStorageKey = "spaplus-cookie-consent-v1";
 const supportedLocales = Object.keys(translations);
 const platformPillars = ${JSON.stringify({
   en: ["Discovery", "Booking", "Business tools", "Data and automation"],
@@ -228,6 +236,10 @@ const backToTopButton = document.querySelector(".back-to-top");
 const shareButton = document.querySelector(".share-page");
 const shareButtonLabel = shareButton.querySelector("span");
 const shareToast = document.querySelector(".share-toast");
+const cookieBanner = document.querySelector(".cookie-banner");
+const cookieSettingsButton = document.querySelector(".cookie-settings-link");
+const cookieEssentialButton = document.querySelector('[data-cookie-choice="essential"]');
+const cookieAllButton = document.querySelector('[data-cookie-choice="all"]');
 const successModal = document.querySelector(".success-modal");
 const successModalCard = document.querySelector(".success-modal-card");
 const successModalClose = document.querySelector(".success-modal-close");
@@ -360,6 +372,29 @@ const renderTopics = (company) => {
     return option;
   }));
 };
+
+const saveCookieConsent = (consent) => {
+  localStorage.setItem(cookieConsentStorageKey, consent);
+  document.documentElement.dataset.cookieConsent = consent;
+  window.dispatchEvent(new CustomEvent("spaplus:consent-changed", {
+    detail: { consent },
+  }));
+  cookieBanner.hidden = true;
+};
+
+const storedCookieConsent = localStorage.getItem(cookieConsentStorageKey);
+if (storedCookieConsent === "all" || storedCookieConsent === "essential") {
+  document.documentElement.dataset.cookieConsent = storedCookieConsent;
+  cookieBanner.hidden = true;
+} else {
+  cookieBanner.hidden = false;
+}
+cookieEssentialButton.addEventListener("click", () => saveCookieConsent("essential"));
+cookieAllButton.addEventListener("click", () => saveCookieConsent("all"));
+cookieSettingsButton.addEventListener("click", () => {
+  cookieBanner.hidden = false;
+  cookieEssentialButton.focus();
+});
 
 const applyLocale = (locale) => {
   const t = translations[locale] || translations.en;
@@ -584,6 +619,13 @@ const applyLocale = (locale) => {
   setText("#accessibility p", t.accessibilityBody);
   setText("#accessibility a", t.contact);
   setText("#accessibility small", t.legalUpdated);
+  const cookies = cookieCopy[locale] || cookieCopy.en;
+  setText("#cookie-banner-title", cookies.title);
+  setText("#cookie-banner-description-text", cookies.body);
+  setText(".cookie-banner .privacy-link", t.privacyTitle);
+  setText('[data-cookie-choice="essential"]', cookies.essentialOnly);
+  setText('[data-cookie-choice="all"]', cookies.acceptAll);
+  setText(".cookie-settings-link", cookies.settings);
   renderTopics(company);
   setText(".form-submit button", company.formSubmit);
   setText(".form-submit > p", company.formNote);

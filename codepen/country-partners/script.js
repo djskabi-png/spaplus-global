@@ -107,6 +107,11 @@ const copy = {
     formReason: "Why do you want to build SpaPlus in this market?",
     formConsent: "I agree that SpaPlus may use these details, including through an external email service provider, to review and respond to this partnership enquiry.",
     privacyLink: "Privacy Policy",
+    cookieTitle: "Your privacy matters",
+    cookieBody: "We use essential storage to remember your language and preferences. Optional analytics will run only if you allow it.",
+    cookieAcceptAll: "Allow all",
+    cookieEssentialOnly: "Essential only",
+    cookieSettings: "Cookie settings",
     formAcknowledgement: "I understand that this is an enquiry about a possible operating partnership, not an investment offer, promise of exclusivity or commercial commitment.",
     formSubmit: "Send initial details",
     formSending: "Sending application...",
@@ -225,6 +230,11 @@ const copy = {
     formReason: "למה אתם רוצים לבנות את SpaPlus בשוק הזה?",
     formConsent: "אני מסכים ש־SpaPlus תשתמש בפרטים, לרבות באמצעות ספק חיצוני לשירותי מייל, כדי לבדוק את הפנייה ולחזור אליי בנושא השותפות.",
     privacyLink: "מדיניות הפרטיות",
+    cookieTitle: "הפרטיות שלכם חשובה לנו",
+    cookieBody: "אנחנו משתמשים באחסון חיוני כדי לשמור את השפה וההעדפות שלכם. כלי מדידה אופציונליים יופעלו רק אם תאשרו.",
+    cookieAcceptAll: "אישור הכול",
+    cookieEssentialOnly: "חיוני בלבד",
+    cookieSettings: "הגדרות קוקיז",
     formAcknowledgement: "אני מבין שזו פנייה לבחינת שותפות תפעולית ואינה הצעת השקעה, הבטחת בלעדיות או התחייבות מסחרית.",
     formSubmit: "שליחת פרטים ראשוניים",
     formSending: "הבקשה נשלחת...",
@@ -244,6 +254,11 @@ const modalClose = modal.querySelector("button");
 const submitButton = form.querySelector('button[type="submit"]');
 const shareButton = document.querySelector(".share-page");
 const shareToast = document.querySelector(".share-toast");
+const cookieBanner = document.querySelector(".cookie-banner");
+const cookieSettingsButton = document.querySelector(".cookie-settings-link");
+const cookieEssentialButton = document.querySelector('[data-cookie-choice="essential"]');
+const cookieAllButton = document.querySelector('[data-cookie-choice="all"]');
+const cookieConsentStorageKey = "spaplus-cookie-consent-v1";
 const endpoint = "https://spaplus-global-brand.adir-naor-7510.chatgpt.site/api/contact";
 const fallbackEndpoint = "https://formsubmit.co/ajax/93567c940af3bbace0ca1b462708c256";
 let locale = "en";
@@ -267,6 +282,11 @@ function applyLocale(nextLocale) {
   document.querySelectorAll("a.brand").forEach((element) => {
     element.setAttribute("aria-label", t.homeLabel);
   });
+  document.querySelector("#cookie-banner-title").textContent = t.cookieTitle;
+  document.querySelector("#cookie-banner-description-text").textContent = t.cookieBody;
+  cookieEssentialButton.textContent = t.cookieEssentialOnly;
+  cookieAllButton.textContent = t.cookieAcceptAll;
+  cookieSettingsButton.textContent = t.cookieSettings;
   languageSelect.value = locale;
   const isHebrewPath = /\/country-partners\/he\/?$/.test(location.pathname);
   const canonicalUrl = locale === "he"
@@ -288,6 +308,27 @@ function applyLocale(nextLocale) {
     location.replace("./he/");
   }
 }
+
+function saveCookieConsent(consent) {
+  localStorage.setItem(cookieConsentStorageKey, consent);
+  document.documentElement.dataset.cookieConsent = consent;
+  window.dispatchEvent(new CustomEvent("spaplus:consent-changed", { detail: { consent } }));
+  cookieBanner.hidden = true;
+}
+
+const storedCookieConsent = localStorage.getItem(cookieConsentStorageKey);
+if (storedCookieConsent === "all" || storedCookieConsent === "essential") {
+  document.documentElement.dataset.cookieConsent = storedCookieConsent;
+  cookieBanner.hidden = true;
+} else {
+  cookieBanner.hidden = false;
+}
+cookieEssentialButton.addEventListener("click", () => saveCookieConsent("essential"));
+cookieAllButton.addEventListener("click", () => saveCookieConsent("all"));
+cookieSettingsButton.addEventListener("click", () => {
+  cookieBanner.hidden = false;
+  cookieEssentialButton.focus();
+});
 
 languageSelect.addEventListener("change", (event) => {
   const targetLocale = event.target.value;
