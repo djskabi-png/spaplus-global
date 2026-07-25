@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://global.spaplus.co/sitemap.xml

@@ -403,6 +403,20 @@ const markets = [
 const marketPath = (market) => `/${market.locale}/markets/${market.slug}/`;
 const entrepreneurPath = (market) => `/${market.locale}/partners/${market.slug}/`;
 const spaJoinPath = (market) => `/${market.locale}/spas/join/`;
+const productionOrigin = "https://global.spaplus.co";
+
+function alternateLanguageLinks(market, routeForMarket) {
+  const siblings = markets.filter((candidate) => candidate.slug === market.slug);
+  if (siblings.length < 2) return "";
+  const links = siblings
+    .map(
+      (candidate) =>
+        `<link rel="alternate" hreflang="${candidate.lang}" href="${productionOrigin}${routeForMarket(candidate)}">`,
+    )
+    .join("\n  ");
+  const fallback = siblings.find((candidate) => candidate.lang === "en") || siblings[0];
+  return `${links}\n  <link rel="alternate" hreflang="x-default" href="${productionOrigin}${routeForMarket(fallback)}">`;
+}
 const previewUrl = (market) => `${previewOrigin}${marketPath(market)}`;
 
 const escapeHtml = (value) =>
@@ -946,6 +960,10 @@ function renderFunnelPage(market, type) {
   const canonical = `${previewOrigin}${currentPath}`;
   const title = copy.title(market.display);
   const formType = isSpa ? "spa_business" : "country_entrepreneur";
+  const alternateLinks = alternateLanguageLinks(
+    market,
+    isSpa ? spaJoinPath : entrepreneurPath,
+  );
   const labels =
     localized?.labels
       ? {
@@ -1012,6 +1030,7 @@ function renderFunnelPage(market, type) {
   <meta name="description" content="${escapeHtml(copy.lead)}">
   <meta name="robots" content="noindex,follow">
   <link rel="canonical" href="${canonical}">
+  ${alternateLinks}
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="SpaPlus Global">
   <meta property="og:title" content="${escapeHtml(title)}">
@@ -1112,6 +1131,7 @@ function renderMarketPage(market) {
   const localized = campaignLocalizations[market.lang];
   const pageTitle = `${copy.status}: SpaPlus ${market.display} | SpaPlus Global`;
   const description = localized?.marketLead || copy.heroLead(market.display);
+  const alternateLinks = alternateLanguageLinks(market, marketPath);
   const schema = {
     "@context": "https://schema.org",
     "@graph": [
@@ -1168,6 +1188,7 @@ function renderMarketPage(market) {
   <meta name="theme-color" content="#14243d">
   <meta name="robots" content="noindex,follow">
   <link rel="canonical" href="${previewUrl(market)}">
+  ${alternateLinks}
   ${renderAlternates(market)}
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="SpaPlus Global">
@@ -1633,6 +1654,44 @@ for (const locale of ["en", "he"]) {
   await mkdir(directory, { recursive: true });
   await writeFile(path.join(directory, "index.html"), renderMarketsHub(locale), "utf8");
 }
+
+const productionPaths = [
+  "/",
+  "/en/",
+  "/he/",
+  "/fr-ca/",
+  "/ru/",
+  "/el/",
+  "/it/",
+  "/hu/",
+  "/pl/",
+  "/es/",
+  "/en/markets/",
+  "/he/markets/",
+  ...markets.flatMap((market) => [
+    marketPath(market),
+    entrepreneurPath(market),
+    spaJoinPath(market),
+  ]),
+];
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${[...new Set(productionPaths)]
+  .map(
+    (route) =>
+      `  <url><loc>${productionOrigin}${route}</loc><lastmod>2026-07-25</lastmod></url>`,
+  )
+  .join("\n")}
+</urlset>
+`;
+await Promise.all([
+  writeFile(path.join(outputRoot, "sitemap.xml"), sitemap, "utf8"),
+  writeFile(
+    path.join(outputRoot, "robots.production.txt"),
+    `User-agent: *\nAllow: /\n\nSitemap: ${productionOrigin}/sitemap.xml\n`,
+    "utf8",
+  ),
+]);
 
 console.log(
   `Generated ${markets.length} market pages, ${markets.length * 2} campaign funnels and 2 market hubs.`,
