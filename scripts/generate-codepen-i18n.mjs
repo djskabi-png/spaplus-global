@@ -282,13 +282,32 @@ const browserLocale = () => {
   return "en";
 };
 
+const localePathMap = {
+  en: "en",
+  he: "he",
+  "fr-CA": "fr-ca",
+  ru: "ru",
+  el: "el",
+  it: "it",
+  hu: "hu",
+  pl: "pl",
+  es: "es",
+};
+const pathLocaleMap = Object.fromEntries(
+  Object.entries(localePathMap).map(([locale, segment]) => [segment, locale]),
+);
+const pagePathSegments = location.pathname.split("/").filter(Boolean);
+if (pagePathSegments[0] === "spaplus-global") pagePathSegments.shift();
+const pathLocale = pathLocaleMap[pagePathSegments[0]];
 const queryLocale = new URLSearchParams(location.search).get("lang");
 const storedLocale = localStorage.getItem(localeStorageKey);
-let activeLocale = supportedLocales.includes(queryLocale)
-  ? queryLocale
-  : supportedLocales.includes(storedLocale)
-    ? storedLocale
-    : browserLocale();
+let activeLocale = supportedLocales.includes(pathLocale)
+  ? pathLocale
+  : supportedLocales.includes(queryLocale)
+    ? queryLocale
+    : supportedLocales.includes(storedLocale)
+      ? storedLocale
+      : browserLocale();
 
 const setText = (selector, value) => {
   const element = document.querySelector(selector);
@@ -407,9 +426,8 @@ const applyLocale = (locale) => {
   document.querySelector('meta[name="description"]').content = enhancement.metaDescription;
   document.querySelector('meta[property="og:title"]').content = t.pageTitle;
   document.querySelector('meta[property="og:description"]').content = enhancement.metaDescription;
-  const canonicalUrl = locale === "en"
-    ? "https://djskabi-png.github.io/spaplus-global/"
-    : "https://djskabi-png.github.io/spaplus-global/?lang=" + encodeURIComponent(locale);
+  const canonicalUrl =
+    "https://djskabi-png.github.io/spaplus-global/" + localePathMap[locale] + "/";
   document.querySelector('link[rel="canonical"]').href = canonicalUrl;
   document.querySelector('meta[property="og:url"]').content = canonicalUrl;
   localStorage.setItem(localeStorageKey, locale);
@@ -417,13 +435,12 @@ const applyLocale = (locale) => {
   languageSelect.setAttribute("aria-label", t.languageLabel);
   document.querySelector(".language-switcher .sr-only").textContent = t.languageLabel;
 
-  const url = new URL(location.href);
-  if (locale === "en") {
-    url.searchParams.delete("lang");
-  } else {
-    url.searchParams.set("lang", locale);
+  if (!pathLocale) {
+    const url = new URL(location.href);
+    if (locale === "en") url.searchParams.delete("lang");
+    else url.searchParams.set("lang", locale);
+    history.replaceState({}, "", url.pathname + url.search + url.hash);
   }
-  history.replaceState({}, "", url.pathname + url.search + url.hash);
 
   setText(".skip-link", t.skip);
   backToTopButton.setAttribute("aria-label", companyData.backToTop[locale]);
@@ -839,7 +856,12 @@ contactForm.addEventListener("submit", async (event) => {
   }
 });
 
-languageSelect.addEventListener("change", (event) => applyLocale(event.target.value));
+languageSelect.addEventListener("change", (event) => {
+  const locale = event.target.value;
+  localStorage.setItem(localeStorageKey, locale);
+  const root = location.hostname.endsWith("github.io") ? "/spaplus-global/" : "/";
+  location.href = root + localePathMap[locale] + "/" + location.hash;
+});
 mobileMenu.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeMenu));
 const openLegalFromHash = () => {
   if (!location.hash) return;

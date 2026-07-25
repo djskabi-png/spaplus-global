@@ -2389,6 +2389,48 @@ body.modal-open {
   }
 }
 
+.next-market-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 1120px;
+  margin: 18px auto 0;
+}
+
+.next-market-links a {
+  padding: 7px 11px;
+  border: 1px solid rgba(20, 43, 75, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--navy);
+  font-size: 12px;
+  font-weight: 750;
+  text-decoration: none;
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.next-market-links a:hover,
+.next-market-links a:focus-visible {
+  border-color: var(--pink);
+  color: var(--pink);
+  transform: translateY(-1px);
+}
+
+.footer-main .footer-markets {
+  width: min(100%, 1050px);
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  justify-content: center;
+  gap: 8px 16px;
+}
+
+.footer-main .footer-markets a {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.72);
+}
+
 .back-to-top {
   position: fixed;
   z-index: 80;

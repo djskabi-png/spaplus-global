@@ -7,6 +7,16 @@ The website presents the SpaPlus vision, story, leadership and international
 market presence. Israel and Canada are live, with the United States marked as
 coming soon.
 
+## Legal entity
+
+- The Israeli operating company must always be identified in English as
+  `GLOBAL SPA MANAGEMENT LTD`.
+- Israeli company number: `516106911`.
+- Do not translate or display the registered company name in Hebrew on the
+  website, legal pages, forms, email templates or public company notices.
+- `SpaPlus Global` is the public brand name. Where legal identification is
+  required, use: `SpaPlus Global, operated by GLOBAL SPA MANAGEMENT LTD`.
+
 ## Languages
 
 English, Hebrew, Canadian French, Russian, Greek, Italian, Hungarian, Polish

@@ -9,6 +9,7 @@
     "dev": "vinext dev",
     "build": "vinext build",
     "start": "vinext start",
+    "generate:preview": "node scripts/generate-codepen-i18n.mjs && node scripts/generate-country-partner-pages.mjs && node scripts/generate-market-pages.mjs && node scripts/generate-language-routes.mjs",
     "test": "pnpm run build && node --test tests/rendered-html.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"
