@@ -932,6 +932,101 @@ const funnelCommonUi = {
   "nb-NO": { skip: "Gå til innholdet", routes: "Kontaktalternativer", choose: "Velg type henvendelse", market: "Forhåndsvisning av markedet", privacy: "Personvern" },
 };
 
+const marketPreviewUi = {
+  "el-GR": {
+    status: "ΣΥΝΤΟΜΑ", guestCta: "Δείτε πώς θα μπορούσε να είναι", previewLabel: "ΠΡΟΕΠΙΣΚΟΠΗΣΗ",
+    previewTitle: (market) => `Μια πρώτη εικόνα της SpaPlus ${market}`,
+    previewBody: "Τα ονόματα, οι τιμές και οι καταχωρίσεις είναι ενδεικτικά. Δείχνουν πώς θα μπορούσε να λειτουργεί η τοπική πλατφόρμα όταν ενταχθούν επιλεγμένοι συνεργάτες spa.",
+    searchWhere: "Πού θέλετε να χαλαρώσετε;", searchWhen: "Επιλέξτε ημερομηνία", searchGuests: "Επισκέπτες", searchButton: "Βρείτε spa",
+    sample: "Ενδεικτική καταχώριση", from: "Από", marketplaceEyebrow: "ΓΙΑ ΜΙΑ ΚΑΛΥΤΕΡΗ ΜΕΡΑ",
+    marketplaceTitle: "Μια τοπική πλατφόρμα με διεθνή δύναμη",
+    marketplaceBody: "Η SpaPlus συνδέει την αναζήτηση, την κράτηση και τα επαγγελματικά εργαλεία. Οι επισκέπτες επιλέγουν πιο εύκολα και οι επιχειρήσεις spa αποκτούν έναν ισχυρότερο δρόμο προς νέα ζήτηση.",
+    benefits: [["Για τους επισκέπτες", "Day spa, hotel spa, εμπειρίες για ζευγάρια, ατομική χαλάρωση, ομάδες και δωροκάρτες σε ένα ξεκάθαρο περιβάλλον."], ["Για τις επιχειρήσεις spa", "Σωστή παρουσίαση, ποιοτική ζήτηση και τεχνολογία που εξοικονομεί χρόνο στην καθημερινή λειτουργία."], ["Για την ελληνική αγορά", "Τοπική γλώσσα, κουλτούρα και διαχείριση, με την υποστήριξη του brand, της τεχνολογίας και της εμπειρίας SpaPlus."]],
+    conceptNotice: "Ενδεικτική προεπισκόπηση. Τα spa, οι τιμές και η διαθεσιμότητα που εμφανίζονται δεν αποτελούν ενεργές προσφορές.",
+  },
+  "hu-HU": {
+    status: "HAMAROSAN", guestCta: "Nézze meg a jövő élményét", previewLabel: "KONCEPCIÓ ELŐNÉZET",
+    previewTitle: (market) => `Első pillantás a SpaPlus ${market} oldalára`,
+    previewBody: "A nevek, árak és ajánlatok szemléltető példák. Azt mutatják, milyen lehet a helyi piactér, amikor kiválasztott spa-partnerek csatlakoznak.",
+    searchWhere: "Hol szeretne kikapcsolódni?", searchWhen: "Válasszon dátumot", searchGuests: "Vendégek", searchButton: "Spa keresése",
+    sample: "Mintaajánlat", from: "Ettől", marketplaceEyebrow: "EGY JOBB NAPÉRT",
+    marketplaceTitle: "Helyi piactér nemzetközi háttérrel",
+    marketplaceBody: "A SpaPlus egyesíti a felfedezést, a foglalást és a megbízható üzleti eszközöket. A vendégek egyszerűbben választanak, a spa vállalkozások pedig új keresletet érnek el.",
+    benefits: [["Vendégeknek", "Day spa, hotel spa, páros élmények, egyéni kikapcsolódás, csoportok és ajándékkártyák egy átlátható helyen."], ["Spa vállalkozásoknak", "Megfelelő bemutatkozás, minőségi érdeklődők és időt megtakarító technológia."], ["A magyar piacnak", "Helyi nyelv, kultúra és működés a SpaPlus márkájának, technológiájának és tudásának támogatásával."]],
+    conceptNotice: "Szemléltető előnézet. A megjelenített spa-k, árak és szabad időpontok nem élő ajánlatok.",
+  },
+  "de-DE": {
+    status: "BALD VERFÜGBAR", guestCta: "Vorschau ansehen", previewLabel: "KONZEPTVORSCHAU",
+    previewTitle: (market) => `Ein erster Blick auf SpaPlus ${market}`,
+    previewBody: "Namen, Preise und Angebote sind Beispiele. Sie zeigen, wie sich der lokale Marktplatz anfühlen könnte, sobald ausgewählte Spa-Partner teilnehmen.",
+    searchWhere: "Wo möchten Sie entspannen?", searchWhen: "Datum wählen", searchGuests: "Gäste", searchButton: "Spa finden",
+    sample: "Beispielangebot", from: "Ab", marketplaceEyebrow: "FÜR EINEN BESSEREN TAG",
+    marketplaceTitle: "Ein lokaler Marktplatz mit globaler Stärke",
+    marketplaceBody: "SpaPlus verbindet Inspiration, Buchung und verlässliche Geschäftslösungen. Gäste wählen einfacher. Spa-Betriebe erhalten einen stärkeren Zugang zu neuer Nachfrage.",
+    benefits: [["Für Gäste", "Day Spa, Hotel Spa, Erlebnisse für Paare, Auszeiten allein, Gruppen und Gutscheine an einem übersichtlichen Ort."], ["Für Spa-Betriebe", "Das passende Erlebnis präsentieren, qualifizierte Nachfrage erhalten und im Hintergrund Zeit sparen."], ["Für den lokalen Markt", "Lokale Sprache, Kultur und Betreiber, unterstützt durch Marke, Technologie und Betriebserfahrung von SpaPlus."]],
+    conceptNotice: "Konzeptvorschau. Die gezeigten Spa-Betriebe, Preise und Verfügbarkeiten sind keine aktiven Angebote.",
+  },
+  "de-CH": null,
+  "fr-FR": {
+    status: "BIENTÔT", guestCta: "Découvrir l’expérience à venir", previewLabel: "APERÇU DU CONCEPT",
+    previewTitle: (market) => `Un premier aperçu de SpaPlus ${market}`,
+    previewBody: "Les noms, tarifs et établissements sont présentés à titre d’exemple. Ils illustrent ce que pourrait devenir la plateforme locale avec des partenaires spa sélectionnés.",
+    searchWhere: "Où souhaitez-vous vous détendre ?", searchWhen: "Choisir une date", searchGuests: "Personnes", searchButton: "Trouver un spa",
+    sample: "Établissement fictif", from: "À partir de", marketplaceEyebrow: "POUR UNE MEILLEURE JOURNÉE",
+    marketplaceTitle: "Une plateforme locale portée par une force internationale",
+    marketplaceBody: "SpaPlus réunit découverte, réservation et outils professionnels fiables. Les clients choisissent plus simplement et les établissements accèdent à une nouvelle demande qualifiée.",
+    benefits: [["Pour les clients", "Day spa, spa hôtelier, expériences en couple, parenthèses en solo, groupes et cartes cadeaux au même endroit."], ["Pour les établissements spa", "Présenter la bonne expérience, recevoir une demande qualifiée et gagner du temps au quotidien."], ["Pour le marché français", "Une langue, une culture et une exploitation locales, soutenues par la marque, la technologie et le savoir-faire SpaPlus."]],
+    conceptNotice: "Aperçu illustratif. Les établissements, tarifs et disponibilités affichés ne constituent pas des offres actives.",
+  },
+  "nl-NL": {
+    status: "BINNENKORT", guestCta: "Bekijk de toekomstige ervaring", previewLabel: "CONCEPTVOORBEELD",
+    previewTitle: (market) => `Een eerste blik op SpaPlus ${market}`,
+    previewBody: "Namen, prijzen en locaties zijn voorbeelden. Ze laten zien hoe de lokale marktplaats kan aanvoelen wanneer geselecteerde spa-partners aansluiten.",
+    searchWhere: "Waar wil je ontspannen?", searchWhen: "Kies een datum", searchGuests: "Gasten", searchButton: "Vind een spa",
+    sample: "Voorbeeldlocatie", from: "Vanaf", marketplaceEyebrow: "VOOR EEN BETERE DAG",
+    marketplaceTitle: "Een lokale marktplaats met internationale kracht",
+    marketplaceBody: "SpaPlus brengt ontdekken, boeken en betrouwbare bedrijfstools samen. Gasten kiezen eenvoudiger en spa-ondernemingen krijgen een sterkere route naar nieuwe vraag.",
+    benefits: [["Voor gasten", "Day spa, hotelspa, ervaringen voor stellen, solo-ontspanning, groepen en cadeaubonnen op één duidelijke plek."], ["Voor spa-ondernemingen", "Presenteer de juiste ervaring, ontvang kwalitatieve vraag en bespaar tijd achter de schermen."], ["Voor de Nederlandse markt", "Lokale taal, cultuur en ondernemers, ondersteund door het merk, de technologie en de ervaring van SpaPlus."]],
+    conceptNotice: "Conceptvoorbeeld. De getoonde spa’s, prijzen en beschikbaarheid zijn geen live aanbod.",
+  },
+  "sv-SE": {
+    status: "KOMMER SNART", guestCta: "Se den framtida upplevelsen", previewLabel: "KONCEPTFÖRHANDSVISNING",
+    previewTitle: (market) => `En första titt på SpaPlus ${market}`,
+    previewBody: "Namn, priser och anläggningar är illustrativa exempel. De visar hur den lokala marknadsplatsen kan kännas när utvalda spa-partner ansluter.",
+    searchWhere: "Var vill du koppla av?", searchWhen: "Välj datum", searchGuests: "Gäster", searchButton: "Hitta spa",
+    sample: "Exempelanläggning", from: "Från", marketplaceEyebrow: "FÖR EN BÄTTRE DAG",
+    marketplaceTitle: "En lokal marknadsplats med global styrka",
+    marketplaceBody: "SpaPlus samlar inspiration, bokning och pålitliga affärsverktyg. Gäster väljer enklare och spa-verksamheter får en starkare väg till ny efterfrågan.",
+    benefits: [["För gäster", "Day spa, hotellspa, upplevelser för par, egen avkoppling, grupper och presentkort på ett tydligt ställe."], ["För spa-verksamheter", "Presentera rätt upplevelse, ta emot kvalificerad efterfrågan och spara tid bakom kulisserna."], ["För den svenska marknaden", "Lokalt språk, kultur och drift med stöd av SpaPlus varumärke, teknik och branscherfarenhet."]],
+    conceptNotice: "Konceptförhandsvisning. De spa, priser och tider som visas är inte aktiva erbjudanden.",
+  },
+  "nb-NO": {
+    status: "KOMMER SNART", guestCta: "Se den fremtidige opplevelsen", previewLabel: "KONSEPTFORHÅNDSVISNING",
+    previewTitle: (market) => `En første titt på SpaPlus ${market}`,
+    previewBody: "Navn, priser og steder er illustrerende eksempler. De viser hvordan den lokale markedsplassen kan oppleves når utvalgte spa-partnere blir med.",
+    searchWhere: "Hvor vil du slappe av?", searchWhen: "Velg dato", searchGuests: "Gjester", searchButton: "Finn spa",
+    sample: "Eksempelsted", from: "Fra", marketplaceEyebrow: "FOR EN BEDRE DAG",
+    marketplaceTitle: "En lokal markedsplass med global styrke",
+    marketplaceBody: "SpaPlus samler inspirasjon, bestilling og pålitelige forretningsverktøy. Gjester velger enklere og spa-bedrifter får en sterkere vei til ny etterspørsel.",
+    benefits: [["For gjester", "Day spa, hotellspa, opplevelser for par, egentid, grupper og gavekort på ett oversiktlig sted."], ["For spa-bedrifter", "Presenter riktig opplevelse, motta kvalifisert etterspørsel og spar tid bak kulissene."], ["For det norske markedet", "Lokalt språk, kultur og drift med støtte fra SpaPlus-merkevaren, teknologien og bransjeerfaringen."]],
+    conceptNotice: "Konseptforhåndsvisning. Spa, priser og tilgjengelighet som vises er ikke aktive tilbud.",
+  },
+};
+marketPreviewUi["de-CH"] = marketPreviewUi["de-DE"];
+
+const marketAuxUi = {
+  "el-CY": { legal: "Νομικές πληροφορίες", privacy: "Απόρρητο", terms: "Όροι", accessibility: "Προσβασιμότητα", share: "Κοινοποίηση" },
+  "el-GR": { legal: "Νομικές πληροφορίες", privacy: "Απόρρητο", terms: "Όροι", accessibility: "Προσβασιμότητα", share: "Κοινοποίηση" },
+  "hu-HU": { legal: "Jogi információk", privacy: "Adatvédelem", terms: "Feltételek", accessibility: "Akadálymentesség", share: "Megosztás" },
+  "it-IT": { legal: "Informazioni legali", privacy: "Privacy", terms: "Condizioni", accessibility: "Accessibilità", share: "Condividi" },
+  "de-DE": { legal: "Rechtliche Informationen", privacy: "Datenschutz", terms: "Bedingungen", accessibility: "Barrierefreiheit", share: "Teilen" },
+  "de-CH": { legal: "Rechtliche Informationen", privacy: "Datenschutz", terms: "Bedingungen", accessibility: "Barrierefreiheit", share: "Teilen" },
+  "fr-FR": { legal: "Informations juridiques", privacy: "Confidentialité", terms: "Conditions", accessibility: "Accessibilité", share: "Partager" },
+  "nl-NL": { legal: "Juridische informatie", privacy: "Privacy", terms: "Voorwaarden", accessibility: "Toegankelijkheid", share: "Delen" },
+  "sv-SE": { legal: "Juridisk information", privacy: "Integritet", terms: "Villkor", accessibility: "Tillgänglighet", share: "Dela" },
+  "nb-NO": { legal: "Juridisk informasjon", privacy: "Personvern", terms: "Vilkår", accessibility: "Tilgjengelighet", share: "Del" },
+};
+
 function renderFunnelPage(market, type) {
   const baseCopy =
     market.slug === "italy" ? italyFunnelCopy[type] : funnelCopy[type];
@@ -1127,8 +1222,42 @@ function renderFunnelPage(market, type) {
 }
 
 function renderMarketPage(market) {
-  const copy = ui[market.ui] || ui.en;
+  const baseCopy = ui[market.ui] || ui.en;
   const localized = campaignLocalizations[market.lang];
+  const previewCopy = marketPreviewUi[market.lang];
+  const entrepreneurUi = funnelLanguageUi[market.lang]?.entrepreneur;
+  const spaUi = funnelLanguageUi[market.lang]?.spa;
+  const commonUi = funnelCommonUi[market.lang] || {
+    skip: "Skip to content",
+    routes: "Market navigation",
+    market: "Market preview",
+    privacy: "Privacy",
+  };
+  const auxUi = marketAuxUi[market.lang] || {
+    legal: "Legal navigation",
+    privacy: "Privacy",
+    terms: "Terms",
+    accessibility: "Accessibility",
+    share: "Share",
+  };
+  const copy = {
+    ...baseCopy,
+    ...previewCopy,
+    navMarkets: previewCopy ? commonUi.market : baseCopy.navMarkets,
+    navSpa: spaUi?.tabPrimary || baseCopy.navSpa,
+    navPartners: entrepreneurUi?.tabPrimary || baseCopy.navPartners,
+    entrepreneurEyebrow: entrepreneurUi?.eyebrow || baseCopy.entrepreneurEyebrow,
+    entrepreneurTitle: localized
+      ? () => localized.entrepreneurH1
+      : baseCopy.entrepreneurTitle,
+    entrepreneurBody: localized?.entrepreneurLead || baseCopy.entrepreneurBody,
+    entrepreneurPoints: entrepreneurUi?.points || baseCopy.entrepreneurPoints,
+    apply: localized?.entrepreneurCta || baseCopy.apply,
+    spaEyebrow: spaUi?.eyebrow || baseCopy.spaEyebrow,
+    spaTitle: localized ? localized.spaH1 : baseCopy.spaTitle,
+    spaBody: localized?.spaLead || baseCopy.spaBody,
+    spaCta: localized?.spaCta || baseCopy.spaCta,
+  };
   const pageTitle = `${copy.status}: SpaPlus ${market.display} | SpaPlus Global`;
   const description = localized?.marketLead || copy.heroLead(market.display);
   const alternateLinks = alternateLanguageLinks(market, marketPath);
@@ -1206,13 +1335,13 @@ function renderMarketPage(market) {
   <script type="application/ld+json">${JSON.stringify(schema)}</script>
 </head>
 <body>
-  <a class="skip-link" href="#main">Skip to content</a>
+  <a class="skip-link" href="#main">${escapeHtml(commonUi.skip)}</a>
   <header class="market-header">
     <a class="market-brand" href="/spaplus-global/en/" aria-label="${escapeHtml(copy.home)}">
       <img src="/spaplus-global/spaplus-mark.png" alt="">
       <img src="/spaplus-global/spaplus-wordmark.png" alt="SpaPlus">
     </a>
-    <nav aria-label="Market navigation">
+    <nav aria-label="${escapeHtml(commonUi.routes)}">
       <a href="/spaplus-global/en/markets/">${escapeHtml(copy.navMarkets)}</a>
       <a href="/spaplus-global${spaJoinPath(market)}">${escapeHtml(copy.navSpa)}</a>
       <a href="/spaplus-global${entrepreneurPath(market)}">${escapeHtml(copy.navPartners)}</a>
@@ -1324,14 +1453,14 @@ function renderMarketPage(market) {
       </a>
       <p>${escapeHtml(copy.legal)}</p>
     </div>
-    <nav aria-label="Legal navigation">
-      <a href="/spaplus-global/en/#privacy">Privacy</a>
-      <a href="/spaplus-global/en/#privacy">Terms</a>
-      <a href="/spaplus-global/en/#accessibility">Accessibility</a>
+    <nav aria-label="${escapeHtml(auxUi.legal)}">
+      <a href="/spaplus-global/en/#privacy">${escapeHtml(auxUi.privacy)}</a>
+      <a href="/spaplus-global/en/#privacy">${escapeHtml(auxUi.terms)}</a>
+      <a href="/spaplus-global/en/#accessibility">${escapeHtml(auxUi.accessibility)}</a>
     </nav>
   </footer>
 
-  <button class="share-market" type="button" aria-label="Share this page">Share</button>
+  <button class="share-market" type="button" aria-label="${escapeHtml(auxUi.share)}">${escapeHtml(auxUi.share)}</button>
   <div class="share-toast" role="status" aria-live="polite"></div>
   <script src="/spaplus-global/markets/market.js?v=20260725-2"></script>
 </body>
