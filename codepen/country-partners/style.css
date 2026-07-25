@@ -312,6 +312,48 @@ h1 {
 .success-card > p:not(.eyebrow) { color: var(--text); line-height: 1.7; }
 .success-check { width: 58px; height: 58px; margin: 0 auto 22px; display: block; border-radius: 50%; background: var(--pink); }
 .success-check::after { width: 22px; height: 11px; margin: 18px auto; display: block; border-bottom: 3px solid white; border-left: 3px solid white; content: ""; transform: rotate(-45deg); }
+.share-page {
+  position: fixed;
+  inset-inline-start: 24px;
+  bottom: 24px;
+  z-index: 70;
+  min-height: 48px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid rgba(20, 45, 78, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--navy);
+  box-shadow: 0 12px 34px rgba(16, 39, 68, 0.16);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  backdrop-filter: blur(14px);
+}
+.share-page:hover { border-color: rgba(238, 18, 101, 0.4); color: var(--pink); transform: translateY(-2px); }
+.share-page:focus-visible { outline: 3px solid rgba(238, 18, 101, 0.25); outline-offset: 3px; }
+.share-page svg { width: 19px; height: 19px; fill: currentColor; }
+.share-toast {
+  position: fixed;
+  inset-inline-start: 24px;
+  bottom: 82px;
+  z-index: 75;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--navy);
+  color: white;
+  font-size: 13px;
+  font-weight: 750;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+.share-toast.is-visible { opacity: 1; transform: translateY(0); }
 footer { padding: 54px 7vw; display: grid; grid-template-columns: auto .8fr 1.4fr auto; align-items: center; gap: 28px; background: var(--navy); color: rgba(255,255,255,.58); }
 .footer-brand img:first-child { width: 48px; height: 48px; }
 .footer-brand img:last-child { width: 90px; filter: brightness(0) invert(1); }
@@ -348,6 +390,9 @@ footer p { margin: 0; }
   .page-nav::-webkit-scrollbar { display: none; }
   .page-nav a { min-height: 44px; display: inline-flex; align-items: center; }
   .page-nav .page-nav-cta { display: none; }
+  .share-page { inset-inline-start: 16px; bottom: 16px; min-width: 48px; padding: 0 14px; }
+  .share-page span { display: none; }
+  .share-toast { inset-inline-start: 16px; bottom: 72px; }
   #model, #fit, #process, #questions, #apply { scroll-margin-top: 132px; }
   .brand img:first-child { width: 48px; height: 48px; }
   .brand img:last-child { width: 84px; }

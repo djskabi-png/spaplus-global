@@ -1495,6 +1495,39 @@ const companyData = {
     "pl": "Wróć na górę",
     "es": "Volver arriba"
   },
+  "sharePage": {
+    "en": "Share this page",
+    "he": "שיתוף העמוד",
+    "fr-CA": "Partager cette page",
+    "ru": "Поделиться страницей",
+    "el": "Κοινοποίηση σελίδας",
+    "it": "Condividi la pagina",
+    "hu": "Oldal megosztása",
+    "pl": "Udostępnij stronę",
+    "es": "Compartir esta página"
+  },
+  "shareText": {
+    "en": "Discover SpaPlus Global",
+    "he": "הכירו את SpaPlus Global",
+    "fr-CA": "Découvrez SpaPlus Global",
+    "ru": "Откройте для себя SpaPlus Global",
+    "el": "Ανακαλύψτε το SpaPlus Global",
+    "it": "Scopri SpaPlus Global",
+    "hu": "Fedezze fel a SpaPlus Global világát",
+    "pl": "Poznaj SpaPlus Global",
+    "es": "Descubre SpaPlus Global"
+  },
+  "linkCopied": {
+    "en": "Link copied",
+    "he": "הקישור הועתק",
+    "fr-CA": "Lien copié",
+    "ru": "Ссылка скопирована",
+    "el": "Ο σύνδεσμος αντιγράφηκε",
+    "it": "Link copiato",
+    "hu": "A link másolva",
+    "pl": "Link skopiowany",
+    "es": "Enlace copiado"
+  },
   "copy": {
     "en": {
       "technologyEyebrow": "Technology with a purpose",
@@ -2622,6 +2655,9 @@ const mobileMenu = document.querySelector(".mobile-menu");
 const languageSelect = document.querySelector(".language-switcher select");
 const contactForm = document.querySelector(".contact-form");
 const backToTopButton = document.querySelector(".back-to-top");
+const shareButton = document.querySelector(".share-page");
+const shareButtonLabel = shareButton.querySelector("span");
+const shareToast = document.querySelector(".share-toast");
 const successModal = document.querySelector(".success-modal");
 const successModalCard = document.querySelector(".success-modal-card");
 const successModalClose = document.querySelector(".success-modal-close");
@@ -2787,6 +2823,9 @@ const applyLocale = (locale) => {
   setText(".skip-link", t.skip);
   backToTopButton.setAttribute("aria-label", companyData.backToTop[locale]);
   backToTopButton.title = companyData.backToTop[locale];
+  shareButtonLabel.textContent = companyData.sharePage[locale];
+  shareButton.setAttribute("aria-label", companyData.sharePage[locale]);
+  shareButton.title = companyData.sharePage[locale];
   document.querySelector(".brand").setAttribute("aria-label", t.homeLabel);
   document.querySelector(".desktop-nav").setAttribute("aria-label", t.mainNavigation);
   mobileMenu.setAttribute("aria-label", t.mobileNavigation);
@@ -3043,6 +3082,49 @@ window.addEventListener(
 
 backToTopButton.addEventListener("click", () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+let shareToastTimer;
+const showShareToast = (message) => {
+  window.clearTimeout(shareToastTimer);
+  shareToast.textContent = message;
+  shareToast.classList.add("is-visible");
+  shareToastTimer = window.setTimeout(() => {
+    shareToast.classList.remove("is-visible");
+  }, 2400);
+};
+
+const copyShareUrl = async () => {
+  try {
+    await navigator.clipboard.writeText(location.href);
+  } catch {
+    const input = document.createElement("textarea");
+    input.value = location.href;
+    input.setAttribute("readonly", "");
+    input.style.position = "fixed";
+    input.style.opacity = "0";
+    document.body.append(input);
+    input.select();
+    document.execCommand("copy");
+    input.remove();
+  }
+  showShareToast(companyData.linkCopied[activeLocale]);
+};
+
+shareButton.addEventListener("click", async () => {
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: document.title,
+        text: companyData.shareText[activeLocale],
+        url: location.href,
+      });
+      return;
+    } catch (error) {
+      if (error?.name === "AbortError") return;
+    }
+  }
+  await copyShareUrl();
 });
 
 menuButton.addEventListener("click", () => {

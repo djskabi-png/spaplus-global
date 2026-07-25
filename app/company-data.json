@@ -44,6 +44,39 @@
     "pl": "Wróć na górę",
     "es": "Volver arriba"
   },
+  "sharePage": {
+    "en": "Share this page",
+    "he": "שיתוף העמוד",
+    "fr-CA": "Partager cette page",
+    "ru": "Поделиться страницей",
+    "el": "Κοινοποίηση σελίδας",
+    "it": "Condividi la pagina",
+    "hu": "Oldal megosztása",
+    "pl": "Udostępnij stronę",
+    "es": "Compartir esta página"
+  },
+  "shareText": {
+    "en": "Discover SpaPlus Global",
+    "he": "הכירו את SpaPlus Global",
+    "fr-CA": "Découvrez SpaPlus Global",
+    "ru": "Откройте для себя SpaPlus Global",
+    "el": "Ανακαλύψτε το SpaPlus Global",
+    "it": "Scopri SpaPlus Global",
+    "hu": "Fedezze fel a SpaPlus Global világát",
+    "pl": "Poznaj SpaPlus Global",
+    "es": "Descubre SpaPlus Global"
+  },
+  "linkCopied": {
+    "en": "Link copied",
+    "he": "הקישור הועתק",
+    "fr-CA": "Lien copié",
+    "ru": "Ссылка скопирована",
+    "el": "Ο σύνδεσμος αντιγράφηκε",
+    "it": "Link copiato",
+    "hu": "A link másolva",
+    "pl": "Link skopiowany",
+    "es": "Enlace copiado"
+  },
   "copy": {
     "en": {
       "technologyEyebrow": "Technology with a purpose",

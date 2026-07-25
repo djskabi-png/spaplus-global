@@ -8,6 +8,9 @@ const copy = {
     proofAria: "SpaPlus foundations",
     pageNavigation: "Partnership page navigation",
     footerNavigation: "Footer navigation",
+    sharePage: "Share this page",
+    shareText: "Explore a SpaPlus country partnership",
+    linkCopied: "Link copied",
     pageTitle: "SpaPlus Country Partners | Build SpaPlus in Your Market",
     pageDescription: "Apply to lead SpaPlus in your country and build a local spa marketplace with the SpaPlus brand, technology and operating know-how.",
     heroEyebrow: "SpaPlus Country Partners",
@@ -123,6 +126,9 @@ const copy = {
     proofAria: "הבסיס של SpaPlus",
     pageNavigation: "ניווט בעמוד השותפות",
     footerNavigation: "ניווט בפוטר",
+    sharePage: "שיתוף העמוד",
+    shareText: "הכירו את שותפות המדינות של SpaPlus",
+    linkCopied: "הקישור הועתק",
     pageTitle: "שותפי מדינה של SpaPlus | בניית הפעילות בשוק המקומי",
     pageDescription: "הגישו מועמדות להובלת SpaPlus במדינה שלכם, עם מותג, אתר, מערכת הזמנות, ידע ותשתית של SpaPlus.",
     heroEyebrow: "שותפי מדינה של SpaPlus",
@@ -236,6 +242,8 @@ const form = document.querySelector(".partner-form");
 const modal = document.querySelector(".success-modal");
 const modalClose = modal.querySelector("button");
 const submitButton = form.querySelector('button[type="submit"]');
+const shareButton = document.querySelector(".share-page");
+const shareToast = document.querySelector(".share-toast");
 const endpoint = "https://spaplus-global-brand.adir-naor-7510.chatgpt.site/api/contact";
 const fallbackEndpoint = "https://formsubmit.co/ajax/93567c940af3bbace0ca1b462708c256";
 let locale = "en";
@@ -287,6 +295,44 @@ languageSelect.addEventListener("change", (event) => {
   location.href = targetLocale === "he"
     ? (isHebrewPath ? "./" : "./he/")
     : (isHebrewPath ? "../" : "./");
+});
+
+let shareToastTimer;
+function showShareToast(message) {
+  window.clearTimeout(shareToastTimer);
+  shareToast.textContent = message;
+  shareToast.classList.add("is-visible");
+  shareToastTimer = window.setTimeout(() => shareToast.classList.remove("is-visible"), 2400);
+}
+
+async function copyShareUrl() {
+  try {
+    await navigator.clipboard.writeText(location.href);
+  } catch {
+    const input = document.createElement("textarea");
+    input.value = location.href;
+    input.setAttribute("readonly", "");
+    input.style.position = "fixed";
+    input.style.opacity = "0";
+    document.body.append(input);
+    input.select();
+    document.execCommand("copy");
+    input.remove();
+  }
+  showShareToast(copy[locale].linkCopied);
+}
+
+shareButton.addEventListener("click", async () => {
+  const t = copy[locale];
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: document.title, text: t.shareText, url: location.href });
+      return;
+    } catch (error) {
+      if (error?.name === "AbortError") return;
+    }
+  }
+  await copyShareUrl();
 });
 
 form.addEventListener("submit", async (event) => {

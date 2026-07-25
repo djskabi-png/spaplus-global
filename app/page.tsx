@@ -281,6 +281,8 @@ export default function Home() {
   const [formStatus, setFormStatus] = useState<
     "idle" | "sending" | "success" | "error"
   >("idle");
+  const [shareToastVisible, setShareToastVisible] = useState(false);
+  const shareToastTimerRef = useRef<number | null>(null);
   const successCloseRef = useRef<HTMLButtonElement>(null);
   const t = translations[locale];
   const company = companyData.copy[locale];
@@ -297,6 +299,15 @@ export default function Home() {
         : localeFromBrowser(navigator.languages);
     queueMicrotask(() => setLocale(initialLocale));
   }, []);
+
+  useEffect(
+    () => () => {
+      if (shareToastTimerRef.current !== null) {
+        window.clearTimeout(shareToastTimerRef.current);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     if (formStatus !== "success") return;
@@ -391,6 +402,47 @@ export default function Home() {
   const openLegalSection = (id: string) => {
     const section = document.getElementById(id) as HTMLDetailsElement | null;
     if (section) section.open = true;
+  };
+  const showShareToast = () => {
+    if (shareToastTimerRef.current !== null) {
+      window.clearTimeout(shareToastTimerRef.current);
+    }
+    setShareToastVisible(true);
+    shareToastTimerRef.current = window.setTimeout(
+      () => setShareToastVisible(false),
+      2400,
+    );
+  };
+  const copyShareUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+    } catch {
+      const input = document.createElement("textarea");
+      input.value = window.location.href;
+      input.setAttribute("readonly", "");
+      input.style.position = "fixed";
+      input.style.opacity = "0";
+      document.body.append(input);
+      input.select();
+      document.execCommand("copy");
+      input.remove();
+    }
+    showShareToast();
+  };
+  const shareCurrentPage = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: document.title,
+          text: companyData.shareText[locale],
+          url: window.location.href,
+        });
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+      }
+    }
+    await copyShareUrl();
   };
   const submitContactForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -1101,6 +1153,26 @@ export default function Home() {
       >
         <span aria-hidden="true" />
       </button>
+
+      <button
+        className="share-page"
+        type="button"
+        aria-label={companyData.sharePage[locale]}
+        title={companyData.sharePage[locale]}
+        onClick={shareCurrentPage}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M18 8a3 3 0 1 0-2.83-4 3 3 0 0 0 .17 1L8.91 8.22a3 3 0 1 0 0 7.56L15.34 19a3 3 0 1 0 .75-1.5l-6.42-3.21a3 3 0 0 0 0-4.58l6.42-3.21A3 3 0 0 0 18 8Z" />
+        </svg>
+        <span>{companyData.sharePage[locale]}</span>
+      </button>
+      <p
+        className={`share-toast ${shareToastVisible ? "is-visible" : ""}`}
+        role="status"
+        aria-live="polite"
+      >
+        {shareToastVisible ? companyData.linkCopied[locale] : ""}
+      </p>
 
       <footer className="site-footer">
         <div className="footer-main">

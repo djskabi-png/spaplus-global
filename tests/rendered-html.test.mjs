@@ -68,6 +68,7 @@ test("static preview is a complete standalone website", async () => {
 });
 
 test("all nine localized experiences are included", async () => {
+  const html = await read("codepen/index.html");
   const script = await read("codepen/script.js");
 
   for (const locale of localeCodes) {
@@ -81,6 +82,11 @@ test("all nine localized experiences are included", async () => {
   assert.match(script, /spaplus-wordmark\.png/);
   assert.match(script, /contactForm\.addEventListener\("submit"/);
   assert.match(script, /backToTopButton\.addEventListener\("click"/);
+  assert.match(html, /class="share-page"/);
+  assert.match(script, /shareButton\.addEventListener\("click"/);
+  assert.match(script, /navigator\.share/);
+  assert.match(script, /navigator\.clipboard\.writeText\(location\.href\)/);
+  assert.match(script, /companyData\.linkCopied\[activeLocale\]/);
   assert.match(script, /setText\("\.usa-status-local", t\.comingSoon\)/);
   assert.match(script, /setText\("\.route-israel strong", t\.israelName\)/);
   assert.match(script, /setAllText\("\.platform-pillars span", platformPillars\[locale\]\)/);
@@ -216,6 +222,10 @@ test("country partner page is complete, bilingual and connected", async () => {
   assert.match(script, /Partnership acknowledgement accepted/);
   assert.match(script, /external email service provider/);
   assert.match(script, /focusable/);
+  assert.match(html, /class="share-page"/);
+  assert.match(script, /shareButton\.addEventListener\("click"/);
+  assert.match(script, /navigator\.share/);
+  assert.match(script, /navigator\.clipboard\.writeText\(location\.href\)/);
   assert.match(css, /@media \(max-width: 700px\)/);
   assert.match(css, /@media \(max-width: 380px\)/);
   assert.match(homeHtml, /href="\.\/country-partners\/\?lang=en"/);

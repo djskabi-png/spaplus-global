@@ -225,6 +225,9 @@ const mobileMenu = document.querySelector(".mobile-menu");
 const languageSelect = document.querySelector(".language-switcher select");
 const contactForm = document.querySelector(".contact-form");
 const backToTopButton = document.querySelector(".back-to-top");
+const shareButton = document.querySelector(".share-page");
+const shareButtonLabel = shareButton.querySelector("span");
+const shareToast = document.querySelector(".share-toast");
 const successModal = document.querySelector(".success-modal");
 const successModalCard = document.querySelector(".success-modal-card");
 const successModalClose = document.querySelector(".success-modal-close");
@@ -390,6 +393,9 @@ const applyLocale = (locale) => {
   setText(".skip-link", t.skip);
   backToTopButton.setAttribute("aria-label", companyData.backToTop[locale]);
   backToTopButton.title = companyData.backToTop[locale];
+  shareButtonLabel.textContent = companyData.sharePage[locale];
+  shareButton.setAttribute("aria-label", companyData.sharePage[locale]);
+  shareButton.title = companyData.sharePage[locale];
   document.querySelector(".brand").setAttribute("aria-label", t.homeLabel);
   document.querySelector(".desktop-nav").setAttribute("aria-label", t.mainNavigation);
   mobileMenu.setAttribute("aria-label", t.mobileNavigation);
@@ -646,6 +652,49 @@ window.addEventListener(
 
 backToTopButton.addEventListener("click", () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+let shareToastTimer;
+const showShareToast = (message) => {
+  window.clearTimeout(shareToastTimer);
+  shareToast.textContent = message;
+  shareToast.classList.add("is-visible");
+  shareToastTimer = window.setTimeout(() => {
+    shareToast.classList.remove("is-visible");
+  }, 2400);
+};
+
+const copyShareUrl = async () => {
+  try {
+    await navigator.clipboard.writeText(location.href);
+  } catch {
+    const input = document.createElement("textarea");
+    input.value = location.href;
+    input.setAttribute("readonly", "");
+    input.style.position = "fixed";
+    input.style.opacity = "0";
+    document.body.append(input);
+    input.select();
+    document.execCommand("copy");
+    input.remove();
+  }
+  showShareToast(companyData.linkCopied[activeLocale]);
+};
+
+shareButton.addEventListener("click", async () => {
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: document.title,
+        text: companyData.shareText[activeLocale],
+        url: location.href,
+      });
+      return;
+    } catch (error) {
+      if (error?.name === "AbortError") return;
+    }
+  }
+  await copyShareUrl();
 });
 
 menuButton.addEventListener("click", () => {
