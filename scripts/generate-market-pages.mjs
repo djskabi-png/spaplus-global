@@ -274,7 +274,7 @@ const markets = [
     locale: "el-gr",
     lang: "el-GR",
     ui: "en",
-    cities: ["Athens", "Thessaloniki", "Crete"],
+    cities: ["Αθήνα", "Θεσσαλονίκη", "Κρήτη"],
     listings: ["Attica Wellness Club", "Aegean Ritual Spa", "Thessaloniki Day Retreat"],
     image: "vision-ritual.webp",
   },
@@ -298,7 +298,7 @@ const markets = [
     locale: "it-it",
     lang: "it-IT",
     ui: "it",
-    cities: ["Milan", "Rome", "Tuscany"],
+    cities: ["Milano", "Roma", "Toscana"],
     listings: ["Terme Toscana", "Milano Wellness House", "Roma Day Spa"],
     image: "vision-resort.webp",
   },
@@ -322,8 +322,8 @@ const markets = [
     locale: "de-de",
     lang: "de-DE",
     ui: "en",
-    cities: ["Berlin", "Munich", "Baden-Baden"],
-    listings: ["Baden Wellness Haus", "Berlin Day Spa", "Munich Thermal Club"],
+    cities: ["Berlin", "München", "Baden-Baden"],
+    listings: ["Baden Wellness Haus", "Berlin Day Spa", "München Thermal Club"],
     image: "vision-people.webp",
   },
   {
@@ -358,7 +358,7 @@ const markets = [
     locale: "sv-se",
     lang: "sv-SE",
     ui: "en",
-    cities: ["Stockholm", "Gothenburg", "Malmö"],
+    cities: ["Stockholm", "Göteborg", "Malmö"],
     listings: ["Stockholm Calm House", "Nordic Coast Spa", "Malmö Wellness Rooms"],
     image: "vision-people.webp",
   },
@@ -382,8 +382,8 @@ const markets = [
     locale: "de-ch",
     lang: "de-CH",
     ui: "en",
-    cities: ["Zurich", "Geneva", "Lucerne"],
-    listings: ["Alpine Wellness House", "Zurich Day Retreat", "Lake Geneva Spa"],
+    cities: ["Zürich", "Genf", "Luzern"],
+    listings: ["Alpine Wellness House", "Zürich Day Retreat", "Genfersee Spa"],
     image: "vision-ritual.webp",
   },
   {
@@ -1026,6 +1026,18 @@ const marketAuxUi = {
   "sv-SE": { legal: "Juridisk information", privacy: "Integritet", terms: "Villkor", accessibility: "Tillgänglighet", share: "Dela" },
   "nb-NO": { legal: "Juridisk informasjon", privacy: "Personvern", terms: "Vilkår", accessibility: "Tilgjengelighet", share: "Del" },
 };
+const sampleDayByLanguage = {
+  "el-CY": "Σάββατο",
+  "el-GR": "Σάββατο",
+  "hu-HU": "Szombat",
+  "it-IT": "Sabato",
+  "de-DE": "Samstag",
+  "de-CH": "Samstag",
+  "fr-FR": "Samedi",
+  "nl-NL": "Zaterdag",
+  "sv-SE": "Lördag",
+  "nb-NO": "Lørdag",
+};
 
 function renderFunnelPage(market, type) {
   const baseCopy =
@@ -1240,6 +1252,7 @@ function renderMarketPage(market) {
     accessibility: "Accessibility",
     share: "Share",
   };
+  const sampleDay = sampleDayByLanguage[market.lang] || "Saturday";
   const copy = {
     ...baseCopy,
     ...previewCopy,
@@ -1388,7 +1401,7 @@ function renderMarketPage(market) {
           <label><span>${escapeHtml(copy.searchWhere)}</span><strong>${escapeHtml(
             market.cities.join(" · "),
           )}</strong></label>
-          <label><span>${escapeHtml(copy.searchWhen)}</span><strong>Saturday</strong></label>
+          <label><span>${escapeHtml(copy.searchWhen)}</span><strong>${escapeHtml(sampleDay)}</strong></label>
           <label><span>${escapeHtml(copy.searchGuests)}</span><strong>2</strong></label>
           <button type="button" disabled>${escapeHtml(copy.searchButton)}</button>
         </div>
