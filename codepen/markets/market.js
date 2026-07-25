@@ -68,10 +68,41 @@ if (funnelForm) {
     event.preventDefault();
     const status = funnelForm.querySelector(".form-status");
     const submit = funnelForm.querySelector("button[type='submit']");
-    const payload = Object.fromEntries(new FormData(funnelForm).entries());
-    payload.subject = payload.leadType === "spa_business"
-      ? "Spa business lead | " + payload.market
-      : "Country entrepreneur lead | " + payload.market;
+    const formValues = Object.fromEntries(new FormData(funnelForm).entries());
+    const emailLocaleMap = {
+      "el-cy": "el",
+      "el-gr": "el",
+      "hu-hu": "hu",
+      "it-it": "it",
+      "fr-fr": "fr-CA",
+    };
+    const topic = formValues.leadType === "spa_business"
+      ? "Spa business lead | " + formValues.market
+      : "Country entrepreneur lead | " + formValues.market;
+    const campaignDetails = attributionKeys
+      .filter((key) => formValues[key])
+      .map((key) => key + ": " + formValues[key])
+      .join("\n");
+    const payload = {
+      submissionId: crypto.randomUUID(),
+      privacyAccepted: formValues.privacyConsent === "accepted",
+      name: formValues.name,
+      email: formValues.email,
+      organization: formValues.company,
+      topic,
+      locale: emailLocaleMap[formValues.locale] || "en",
+      source: location.href,
+      message: [
+        formValues.message,
+        "",
+        "Market: " + formValues.market,
+        "Lead type: " + formValues.leadType,
+        "Phone: " + formValues.phone,
+        "Website: " + (formValues.website || "Not provided"),
+        campaignDetails ? "\nCampaign attribution:\n" + campaignDetails : "",
+        "Referrer: " + (formValues.referrer || "Direct"),
+      ].filter(Boolean).join("\n"),
+    };
     funnelForm.classList.add("is-sending");
     submit.disabled = true;
     status.textContent = "Sending...";
@@ -84,9 +115,9 @@ if (funnelForm) {
       if (!response.ok) throw new Error("Primary endpoint failed");
       window.dataLayer.push({
         event: "generate_lead",
-        lead_type: payload.leadType,
-        market: payload.market,
-        locale: payload.locale,
+        lead_type: formValues.leadType,
+        market: formValues.market,
+        locale: formValues.locale,
       });
       funnelForm.reset();
       status.textContent = funnelForm.dataset.success;
