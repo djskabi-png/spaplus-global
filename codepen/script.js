@@ -2611,6 +2611,143 @@ const teamMembers = companyData.team;
 const localeStorageKey = "spaplus-global-locale";
 const cookieConsentStorageKey = "spaplus-cookie-consent-v1";
 const supportedLocales = Object.keys(translations);
+const marketLabels = {
+  "en": [
+    "United States",
+    "Cyprus",
+    "Greece",
+    "Hungary",
+    "Italy",
+    "United Kingdom",
+    "Germany",
+    "France",
+    "Netherlands",
+    "Sweden",
+    "Norway",
+    "Switzerland",
+    "Dubai and the UAE"
+  ],
+  "he": [
+    "ארצות הברית",
+    "קפריסין",
+    "יוון",
+    "הונגריה",
+    "איטליה",
+    "בריטניה",
+    "גרמניה",
+    "צרפת",
+    "הולנד",
+    "שוודיה",
+    "נורווגיה",
+    "שווייץ",
+    "דובאי ואיחוד האמירויות"
+  ],
+  "fr-CA": [
+    "États-Unis",
+    "Chypre",
+    "Grèce",
+    "Hongrie",
+    "Italie",
+    "Royaume-Uni",
+    "Allemagne",
+    "France",
+    "Pays-Bas",
+    "Suède",
+    "Norvège",
+    "Suisse",
+    "Dubaï et les Émirats arabes unis"
+  ],
+  "ru": [
+    "США",
+    "Кипр",
+    "Греция",
+    "Венгрия",
+    "Италия",
+    "Великобритания",
+    "Германия",
+    "Франция",
+    "Нидерланды",
+    "Швеция",
+    "Норвегия",
+    "Швейцария",
+    "Дубай и ОАЭ"
+  ],
+  "el": [
+    "Ηνωμένες Πολιτείες",
+    "Κύπρος",
+    "Ελλάδα",
+    "Ουγγαρία",
+    "Ιταλία",
+    "Ηνωμένο Βασίλειο",
+    "Γερμανία",
+    "Γαλλία",
+    "Ολλανδία",
+    "Σουηδία",
+    "Νορβηγία",
+    "Ελβετία",
+    "Ντουμπάι και ΗΑΕ"
+  ],
+  "it": [
+    "Stati Uniti",
+    "Cipro",
+    "Grecia",
+    "Ungheria",
+    "Italia",
+    "Regno Unito",
+    "Germania",
+    "Francia",
+    "Paesi Bassi",
+    "Svezia",
+    "Norvegia",
+    "Svizzera",
+    "Dubai ed Emirati Arabi Uniti"
+  ],
+  "hu": [
+    "Egyesült Államok",
+    "Ciprus",
+    "Görögország",
+    "Magyarország",
+    "Olaszország",
+    "Egyesült Királyság",
+    "Németország",
+    "Franciaország",
+    "Hollandia",
+    "Svédország",
+    "Norvégia",
+    "Svájc",
+    "Dubaj és az Egyesült Arab Emírségek"
+  ],
+  "pl": [
+    "Stany Zjednoczone",
+    "Cypr",
+    "Grecja",
+    "Węgry",
+    "Włochy",
+    "Wielka Brytania",
+    "Niemcy",
+    "Francja",
+    "Holandia",
+    "Szwecja",
+    "Norwegia",
+    "Szwajcaria",
+    "Dubaj i Zjednoczone Emiraty Arabskie"
+  ],
+  "es": [
+    "Estados Unidos",
+    "Chipre",
+    "Grecia",
+    "Hungría",
+    "Italia",
+    "Reino Unido",
+    "Alemania",
+    "Francia",
+    "Países Bajos",
+    "Suecia",
+    "Noruega",
+    "Suiza",
+    "Dubái y Emiratos Árabes Unidos"
+  ]
+};
 const platformPillars = {
   "en": [
     "Discovery",
@@ -2993,6 +3130,13 @@ const applyLocale = (locale) => {
   setText(".coming-card h3", t.usaName);
   setText(".coming-card p", t.usaBody);
   setText(".usa-status-local", t.comingSoon);
+  const localizedMarketLabels = marketLabels[locale] || marketLabels.en;
+  document.querySelectorAll(".next-market-links a").forEach((link, index) => {
+    if (localizedMarketLabels[index]) link.textContent = localizedMarketLabels[index];
+  });
+  document.querySelectorAll(".footer-markets a").forEach((link, index) => {
+    if (localizedMarketLabels[index]) link.textContent = localizedMarketLabels[index];
+  });
   setText(".route-israel strong", t.israelName);
   setText(".route-israel small", t.israelLabel);
   setText(".route-canada strong", t.canadaName);
