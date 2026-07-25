@@ -102,7 +102,7 @@ const copy = {
     formResources: "Team, time and resources available for the launch",
     formPlan: "Your first 90-day plan for this market",
     formReason: "Why do you want to build SpaPlus in this market?",
-    formConsent: "I agree that SpaPlus may use these details, including through an external form service provider, to review and respond to this partnership enquiry.",
+    formConsent: "I agree that SpaPlus may use these details, including through an external email service provider, to review and respond to this partnership enquiry.",
     privacyLink: "Privacy Policy",
     formAcknowledgement: "I understand that this is an enquiry about a possible operating partnership, not an investment offer, promise of exclusivity or commercial commitment.",
     formSubmit: "Send initial details",
@@ -217,7 +217,7 @@ const copy = {
     formResources: "הצוות, הזמן והמשאבים הזמינים להשקה",
     formPlan: "התוכנית הראשונית שלכם ל־90 הימים הראשונים",
     formReason: "למה אתם רוצים לבנות את SpaPlus בשוק הזה?",
-    formConsent: "אני מסכים ש־SpaPlus תשתמש בפרטים, לרבות באמצעות ספק חיצוני לשירותי טפסים, כדי לבדוק את הפנייה ולחזור אליי בנושא השותפות.",
+    formConsent: "אני מסכים ש־SpaPlus תשתמש בפרטים, לרבות באמצעות ספק חיצוני לשירותי מייל, כדי לבדוק את הפנייה ולחזור אליי בנושא השותפות.",
     privacyLink: "מדיניות הפרטיות",
     formAcknowledgement: "אני מבין שזו פנייה לבחינת שותפות תפעולית ואינה הצעת השקעה, הבטחת בלעדיות או התחייבות מסחרית.",
     formSubmit: "שליחת פרטים ראשוניים",
@@ -236,7 +236,7 @@ const form = document.querySelector(".partner-form");
 const modal = document.querySelector(".success-modal");
 const modalClose = modal.querySelector("button");
 const submitButton = form.querySelector('button[type="submit"]');
-const endpoint = "https://formsubmit.co/ajax/93567c940af3bbace0ca1b462708c256";
+const endpoint = "https://spaplus-global-brand.adir-naor-7510.chatgpt.site/api/contact";
 let locale = "en";
 let lastFocused = null;
 
@@ -303,20 +303,22 @@ form.addEventListener("submit", async (event) => {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({
-        _subject: "SpaPlus Country Partner Application | " + values.get("country") + " | " + values.get("name"),
-        _template: "box",
-        _captcha: "false",
-        _replyto: values.get("email"),
-        Name: values.get("name"),
-        Email: values.get("email"),
-        Phone: values.get("phone"),
-        "Country and city": values.get("country"),
-        "Company, activity and role": values.get("company"),
-        "Website or LinkedIn": values.get("profile") || "Not provided",
-        "Privacy consent": values.get("privacy") === "accepted" ? "Accepted" : "Not accepted",
-        "Partnership acknowledgement": values.get("partnershipAcknowledgement") === "accepted" ? "Accepted" : "Not accepted",
-        Language: locale,
-        Source: location.href
+        submissionId: crypto.randomUUID(),
+        privacyAccepted: values.get("privacy") === "accepted",
+        honey: "",
+        name: values.get("name"),
+        email: values.get("email"),
+        organization: values.get("company"),
+        topic: (locale === "he" ? "שותפות מדינה" : "Country partnership") + " | " + values.get("country"),
+        message: [
+          (locale === "he" ? "מדינה ועיר: " : "Country and city: ") + values.get("country"),
+          (locale === "he" ? "טלפון: " : "Phone: ") + values.get("phone"),
+          (locale === "he" ? "חברה, פעילות ותפקיד: " : "Company, activity and role: ") + values.get("company"),
+          (locale === "he" ? "אתר או LinkedIn: " : "Website or LinkedIn: ") + (values.get("profile") || (locale === "he" ? "לא צוין" : "Not provided")),
+          (locale === "he" ? "הצהרת השותפות אושרה." : "Partnership acknowledgement accepted.")
+        ].join("\n"),
+        locale,
+        source: location.href
       })
     });
     const result = await response.json();

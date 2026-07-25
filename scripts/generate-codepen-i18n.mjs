@@ -229,7 +229,7 @@ const successModal = document.querySelector(".success-modal");
 const successModalCard = document.querySelector(".success-modal-card");
 const successModalClose = document.querySelector(".success-modal-close");
 const contactFormEndpoint =
-  "https://formsubmit.co/ajax/93567c940af3bbace0ca1b462708c256";
+  "https://spaplus-global-brand.adir-naor-7510.chatgpt.site/api/contact";
 const founderPhotoDataUri = ${JSON.stringify(founderPhotoDataUri)};
 document.querySelector(".founder-photo").src = founderPhotoDataUri;
 
@@ -695,19 +695,16 @@ contactForm.addEventListener("submit", async (event) => {
         Accept: "application/json",
       },
       body: JSON.stringify({
-        _subject: company.formSubject + " | " + topic + " | " + name,
-        _template: "box",
-        _captcha: "false",
-        _honey: honey,
-        _replyto: email,
-        [company.formName]: name,
-        Email: email,
-        [company.formCompany]: organization || "Not provided",
-        [company.formTopic]: topic,
-        [company.formMessage]: message,
-        "Privacy consent": privacyAccepted ? "Accepted" : "Not accepted",
-        Language: activeLocale,
-        Source: location.href,
+        submissionId: crypto.randomUUID(),
+        privacyAccepted,
+        honey,
+        name,
+        email,
+        organization,
+        topic,
+        message,
+        locale: activeLocale,
+        source: location.href,
       }),
     });
     const result = await response.json();
