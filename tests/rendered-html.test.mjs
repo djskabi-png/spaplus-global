@@ -87,7 +87,8 @@ test("all nine localized experiences are included", async () => {
   assert.match(script, /scrollProgress\.style\.transform/);
   assert.match(script, /chatgpt\.site\/api\/contact/);
   assert.match(script, /submissionId: crypto\.randomUUID\(\)/);
-  assert.doesNotMatch(script, /formsubmit\.co/);
+  assert.match(script, /contactFormFallbackEndpoint/);
+  assert.match(script, /formsubmit\.co\/ajax/);
   assert.match(script, /await fetch\(contactFormEndpoint/);
   assert.match(script, /openSuccessModal\(\)/);
   assert.match(script, /privacyAccepted,/);
@@ -207,7 +208,8 @@ test("country partner page is complete, bilingual and connected", async () => {
   assert.match(script, /en:\s*\{/);
   assert.match(script, /he:\s*\{/);
   assert.match(script, /chatgpt\.site\/api\/contact/);
-  assert.doesNotMatch(script, /formsubmit\.co/);
+  assert.match(script, /fallbackEndpoint/);
+  assert.match(script, /formsubmit\.co\/ajax/);
   assert.match(script, /privacyAccepted: values\.get\("privacy"\) === "accepted"/);
   assert.match(script, /This is not an investment offer/);
   assert.match(script, /אין מדובר בהצעת השקעה/);

@@ -230,6 +230,8 @@ const successModalCard = document.querySelector(".success-modal-card");
 const successModalClose = document.querySelector(".success-modal-close");
 const contactFormEndpoint =
   "https://spaplus-global-brand.adir-naor-7510.chatgpt.site/api/contact";
+const contactFormFallbackEndpoint =
+  "https://formsubmit.co/ajax/93567c940af3bbace0ca1b462708c256";
 const founderPhotoDataUri = ${JSON.stringify(founderPhotoDataUri)};
 document.querySelector(".founder-photo").src = founderPhotoDataUri;
 
@@ -707,9 +709,31 @@ contactForm.addEventListener("submit", async (event) => {
         source: location.href,
       }),
     });
-    const result = await response.json();
+    const result = await response.json().catch(() => ({}));
     if (!response.ok || String(result.success) !== "true") {
-      throw new Error("Submission failed");
+      const fallbackResponse = await fetch(contactFormFallbackEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          organization,
+          topic,
+          message,
+          privacy: privacyAccepted ? "accepted" : "not accepted",
+          language: activeLocale,
+          source: location.href,
+          _subject: "SpaPlus Global website enquiry",
+          _captcha: "false",
+        }),
+      });
+      const fallbackResult = await fallbackResponse.json().catch(() => ({}));
+      if (!fallbackResponse.ok || String(fallbackResult.success) !== "true") {
+        throw new Error("Submission failed");
+      }
     }
     contactForm.reset();
     renderTopics(company);

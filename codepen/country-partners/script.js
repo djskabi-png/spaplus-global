@@ -237,6 +237,7 @@ const modal = document.querySelector(".success-modal");
 const modalClose = modal.querySelector("button");
 const submitButton = form.querySelector('button[type="submit"]');
 const endpoint = "https://spaplus-global-brand.adir-naor-7510.chatgpt.site/api/contact";
+const fallbackEndpoint = "https://formsubmit.co/ajax/93567c940af3bbace0ca1b462708c256";
 let locale = "en";
 let lastFocused = null;
 
@@ -321,8 +322,30 @@ form.addEventListener("submit", async (event) => {
         source: location.href
       })
     });
-    const result = await response.json();
-    if (!response.ok || String(result.success) !== "true") throw new Error("Submission failed");
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || String(result.success) !== "true") {
+      const fallbackResponse = await fetch(fallbackEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          name: values.get("name"),
+          email: values.get("email"),
+          phone: values.get("phone"),
+          country: values.get("country"),
+          company: values.get("company"),
+          profile: values.get("profile"),
+          privacy: values.get("privacy"),
+          language: locale,
+          source: location.href,
+          _subject: "SpaPlus Global country partnership enquiry",
+          _captcha: "false"
+        })
+      });
+      const fallbackResult = await fallbackResponse.json().catch(() => ({}));
+      if (!fallbackResponse.ok || String(fallbackResult.success) !== "true") {
+        throw new Error("Submission failed");
+      }
+    }
     form.reset();
     lastFocused = document.activeElement;
     modal.hidden = false;
