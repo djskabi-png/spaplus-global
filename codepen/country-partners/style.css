@@ -48,7 +48,9 @@
 .cookie-banner-copy a { color: #fff; font-weight: 700; text-underline-offset: .2em; }
 .cookie-banner-actions { display: flex; flex: 0 0 auto; gap: 10px; }
 .cookie-banner .button { min-height: 46px; white-space: nowrap; }
-.cookie-banner .button-outline { border-color: rgba(255, 255, 255, .55); color: #fff; }
+.cookie-banner .button-outline { border-color: rgba(255, 255, 255, .55); background: transparent; color: #fff; }
+.cookie-banner .button-outline:hover,
+.cookie-banner .button-outline:focus-visible { border-color: #fff; background: rgba(255, 255, 255, .12); color: #fff; }
 
 @media (max-width: 760px) {
   .cookie-banner { align-items: stretch; flex-direction: column; gap: 16px; padding: 18px; border-radius: 18px; }

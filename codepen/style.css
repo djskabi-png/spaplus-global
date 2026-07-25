@@ -83,6 +83,14 @@
 
 .cookie-banner .button-outline {
   border-color: rgba(255, 255, 255, 0.55);
+  background: transparent;
+  color: #fff;
+}
+
+.cookie-banner .button-outline:hover,
+.cookie-banner .button-outline:focus-visible {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.12);
   color: #fff;
 }
 
