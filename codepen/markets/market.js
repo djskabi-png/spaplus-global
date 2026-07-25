@@ -10,16 +10,19 @@ const shareButton = document.querySelector(".share-market");
 const shareToast = document.querySelector(".share-toast");
 if (shareButton) {
   shareButton.addEventListener("click", async () => {
+    const shareUrl =
+      document.querySelector('link[rel="canonical"]')?.href ||
+      location.origin + location.pathname;
     try {
       if (navigator.share) {
-        await navigator.share({ title: document.title, url: location.href });
+        await navigator.share({ title: document.title, url: shareUrl });
         return;
       }
-      await navigator.clipboard.writeText(location.href);
+      await navigator.clipboard.writeText(shareUrl);
     } catch {
       if (error && error.name === "AbortError") return;
       const field = document.createElement("textarea");
-      field.value = location.href;
+      field.value = shareUrl;
       field.setAttribute("readonly", "");
       field.style.position = "fixed";
       field.style.opacity = "0";
@@ -35,6 +38,32 @@ if (shareButton) {
 }
 const funnelForm = document.querySelector("[data-country-funnel]");
 if (funnelForm) {
+  const attributionKeys = [
+    "utm_source",
+    "utm_medium",
+    "utm_campaign",
+    "utm_content",
+    "utm_term",
+    "gclid",
+    "fbclid",
+  ];
+  const attributionParams = new URLSearchParams(location.search);
+  const storedAttribution = JSON.parse(sessionStorage.getItem("spaplus_attribution") || "{}");
+  attributionKeys.forEach((key) => {
+    const value = attributionParams.get(key) || storedAttribution[key] || "";
+    if (value) storedAttribution[key] = value;
+    const field = funnelForm.elements.namedItem(key);
+    if (field) field.value = value;
+  });
+  sessionStorage.setItem("spaplus_attribution", JSON.stringify(storedAttribution));
+  funnelForm.elements.namedItem("referrer").value = document.referrer;
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: "spaplus_funnel_view",
+    lead_type: funnelForm.elements.namedItem("leadType").value,
+    market: funnelForm.elements.namedItem("market").value,
+    locale: funnelForm.elements.namedItem("locale").value,
+  });
   funnelForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const status = funnelForm.querySelector(".form-status");
@@ -53,6 +82,12 @@ if (funnelForm) {
         body: JSON.stringify(payload),
       });
       if (!response.ok) throw new Error("Primary endpoint failed");
+      window.dataLayer.push({
+        event: "generate_lead",
+        lead_type: payload.leadType,
+        market: payload.market,
+        locale: payload.locale,
+      });
       funnelForm.reset();
       status.textContent = funnelForm.dataset.success;
     } catch {

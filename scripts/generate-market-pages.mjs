@@ -555,6 +555,49 @@ function renderFunnelPage(market, type) {
   const canonical = `${previewOrigin}${currentPath}`;
   const title = copy.title(market.display);
   const formType = isSpa ? "spa_business" : "country_entrepreneur";
+  const labels =
+    market.slug === "italy"
+      ? {
+          name: "Nome e cognome",
+          email: "Email",
+          phone: "Telefono",
+          company: isSpa ? "Nome della spa o dell’azienda" : "Azienda o esperienza professionale",
+          website: isSpa ? "Sito o profilo social" : "LinkedIn o sito",
+          message: "Raccontaci di più",
+          consent:
+            "Accetto che SpaPlus utilizzi questi dati per valutare e rispondere alla richiesta.",
+        }
+      : {
+          name: "Full name",
+          email: "Email",
+          phone: "Phone",
+          company: isSpa ? "Spa or company name" : "Company or professional background",
+          website: isSpa ? "Website or social profile" : "LinkedIn or website",
+          message: "Tell us more",
+          consent:
+            "I agree that SpaPlus may use these details to assess and respond to this enquiry.",
+        };
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://global.spaplus.co/#organization",
+        name: "SpaPlus Global",
+        legalName: "GLOBAL SPA MANAGEMENT LTD",
+        url: "https://global.spaplus.co/",
+      },
+      {
+        "@type": "WebPage",
+        "@id": `https://global.spaplus.co${currentPath}#webpage`,
+        url: `https://global.spaplus.co${currentPath}`,
+        name: title,
+        description: copy.lead,
+        inLanguage: market.lang,
+        about: { "@id": "https://global.spaplus.co/#organization" },
+      },
+    ],
+  };
   return `<!doctype html>
 <html lang="${market.lang}" dir="ltr">
 <head>
@@ -570,6 +613,7 @@ function renderFunnelPage(market, type) {
   <meta property="og:url" content="${canonical}">
   <meta property="og:image" content="${previewOrigin}/${market.image}">
   <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">${JSON.stringify(schema).replaceAll("<", "\\u003c")}</script>
   <title>${escapeHtml(title)} | SpaPlus Global</title>
   <link rel="icon" href="/spaplus-global/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/spaplus-global/markets/market.css">
@@ -626,13 +670,23 @@ function renderFunnelPage(market, type) {
         <input type="hidden" name="market" value="${escapeHtml(market.slug)}">
         <input type="hidden" name="locale" value="${escapeHtml(market.locale)}">
         <input type="hidden" name="pageUrl" value="${canonical}">
-        <label>Full name<input name="name" autocomplete="name" required></label>
-        <label>Email<input name="email" type="email" autocomplete="email" required></label>
-        <label>Phone<input name="phone" type="tel" autocomplete="tel" required></label>
-        <label>${isSpa ? "Spa or company name" : "Company or professional background"}<input name="company" autocomplete="organization" required></label>
-        <label class="field-wide">${isSpa ? "Website or social profile" : "LinkedIn or website"}<input name="website" type="url" inputmode="url"></label>
-        <label class="field-wide">Tell us more<textarea name="message" rows="5" required></textarea></label>
-        <label class="consent field-wide"><input name="privacyConsent" type="checkbox" required value="accepted"><span>I agree that SpaPlus may use these details to assess and respond to this enquiry.</span></label>
+        <input type="hidden" name="utm_source">
+        <input type="hidden" name="utm_medium">
+        <input type="hidden" name="utm_campaign">
+        <input type="hidden" name="utm_content">
+        <input type="hidden" name="utm_term">
+        <input type="hidden" name="gclid">
+        <input type="hidden" name="fbclid">
+        <input type="hidden" name="referrer">
+        <label>${escapeHtml(labels.name)}<input name="name" autocomplete="name" required></label>
+        <label>${escapeHtml(labels.email)}<input name="email" type="email" autocomplete="email" required></label>
+        <label>${escapeHtml(labels.phone)}<input name="phone" type="tel" autocomplete="tel" required></label>
+        <label>${escapeHtml(labels.company)}<input name="company" autocomplete="organization" required></label>
+        <label class="field-wide">${escapeHtml(labels.website)}<input name="website" type="url" inputmode="url"></label>
+        <label class="field-wide">${escapeHtml(labels.message)}<textarea name="message" rows="5" required></textarea></label>
+        <label class="consent field-wide"><input name="privacyConsent" type="checkbox" required value="accepted"><span>${escapeHtml(
+          labels.consent,
+        )}</span></label>
         <button class="button button-primary field-wide" type="submit">${escapeHtml(copy.submit)}</button>
         <p class="form-status field-wide" role="status" aria-live="polite"></p>
       </form>
@@ -988,16 +1042,19 @@ const shareButton = document.querySelector(".share-market");
 const shareToast = document.querySelector(".share-toast");
 if (shareButton) {
   shareButton.addEventListener("click", async () => {
+    const shareUrl =
+      document.querySelector('link[rel="canonical"]')?.href ||
+      location.origin + location.pathname;
     try {
       if (navigator.share) {
-        await navigator.share({ title: document.title, url: location.href });
+        await navigator.share({ title: document.title, url: shareUrl });
         return;
       }
-      await navigator.clipboard.writeText(location.href);
+      await navigator.clipboard.writeText(shareUrl);
     } catch {
       if (error && error.name === "AbortError") return;
       const field = document.createElement("textarea");
-      field.value = location.href;
+      field.value = shareUrl;
       field.setAttribute("readonly", "");
       field.style.position = "fixed";
       field.style.opacity = "0";
@@ -1013,6 +1070,32 @@ if (shareButton) {
 }
 const funnelForm = document.querySelector("[data-country-funnel]");
 if (funnelForm) {
+  const attributionKeys = [
+    "utm_source",
+    "utm_medium",
+    "utm_campaign",
+    "utm_content",
+    "utm_term",
+    "gclid",
+    "fbclid",
+  ];
+  const attributionParams = new URLSearchParams(location.search);
+  const storedAttribution = JSON.parse(sessionStorage.getItem("spaplus_attribution") || "{}");
+  attributionKeys.forEach((key) => {
+    const value = attributionParams.get(key) || storedAttribution[key] || "";
+    if (value) storedAttribution[key] = value;
+    const field = funnelForm.elements.namedItem(key);
+    if (field) field.value = value;
+  });
+  sessionStorage.setItem("spaplus_attribution", JSON.stringify(storedAttribution));
+  funnelForm.elements.namedItem("referrer").value = document.referrer;
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: "spaplus_funnel_view",
+    lead_type: funnelForm.elements.namedItem("leadType").value,
+    market: funnelForm.elements.namedItem("market").value,
+    locale: funnelForm.elements.namedItem("locale").value,
+  });
   funnelForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const status = funnelForm.querySelector(".form-status");
@@ -1031,6 +1114,12 @@ if (funnelForm) {
         body: JSON.stringify(payload),
       });
       if (!response.ok) throw new Error("Primary endpoint failed");
+      window.dataLayer.push({
+        event: "generate_lead",
+        lead_type: payload.leadType,
+        market: payload.market,
+        locale: payload.locale,
+      });
       funnelForm.reset();
       status.textContent = funnelForm.dataset.success;
     } catch {
