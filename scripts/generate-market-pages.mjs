@@ -221,7 +221,7 @@ const ui = {
   },
 };
 
-const markets = [
+const baseMarkets = [
   {
     slug: "united-states",
     name: "United States",
@@ -400,74 +400,141 @@ const markets = [
   },
 ];
 
-const englishMarketVariants = {
-  "el-cy": {
-    locale: "en-cy",
-    lang: "en-CY",
-    cities: ["Limassol", "Paphos", "Nicosia"],
+const marketNames = {
+  "united-states": {
+    en: "United States",
+    he: "ארצות הברית",
+    enCities: ["Miami", "New York", "Los Angeles"],
+    heCities: ["מיאמי", "ניו יורק", "לוס אנג׳לס"],
   },
-  "el-gr": {
-    locale: "en-gr",
-    lang: "en-GR",
-    cities: ["Athens", "Thessaloniki", "Crete"],
+  cyprus: {
+    en: "Cyprus",
+    he: "קפריסין",
+    enCities: ["Limassol", "Paphos", "Nicosia"],
+    heCities: ["לימסול", "פאפוס", "ניקוסיה"],
   },
-  "hu-hu": {
-    locale: "en-hu",
-    lang: "en-HU",
+  greece: {
+    en: "Greece",
+    he: "יוון",
+    enCities: ["Athens", "Thessaloniki", "Crete"],
+    heCities: ["אתונה", "סלוניקי", "כרתים"],
   },
-  "it-it": {
-    locale: "en-it",
-    lang: "en-IT",
-    cities: ["Milan", "Rome", "Tuscany"],
+  hungary: {
+    en: "Hungary",
+    he: "הונגריה",
+    enCities: ["Budapest", "Hévíz", "Szeged"],
+    heCities: ["בודפשט", "הוויז", "סגד"],
   },
-  "de-de": {
-    locale: "en-de",
-    lang: "en-DE",
-    cities: ["Berlin", "Munich", "Baden-Baden"],
+  italy: {
+    en: "Italy",
+    he: "איטליה",
+    enCities: ["Milan", "Rome", "Tuscany"],
+    heCities: ["מילאנו", "רומא", "טוסקנה"],
   },
-  "fr-fr": {
-    locale: "en-fr",
-    lang: "en-FR",
+  "united-kingdom": {
+    en: "United Kingdom",
+    he: "בריטניה",
+    enCities: ["London", "Bath", "Manchester"],
+    heCities: ["לונדון", "באת׳", "מנצ׳סטר"],
   },
-  "nl-nl": {
-    locale: "en-nl",
-    lang: "en-NL",
+  germany: {
+    en: "Germany",
+    he: "גרמניה",
+    enCities: ["Berlin", "Munich", "Baden-Baden"],
+    heCities: ["ברלין", "מינכן", "באדן באדן"],
   },
-  "sv-se": {
-    locale: "en-se",
-    lang: "en-SE",
-    cities: ["Stockholm", "Gothenburg", "Malmö"],
+  france: {
+    en: "France",
+    he: "צרפת",
+    enCities: ["Paris", "Lyon", "Nice"],
+    heCities: ["פריז", "ליון", "ניס"],
   },
-  "nb-no": {
-    locale: "en-no",
-    lang: "en-NO",
+  netherlands: {
+    en: "Netherlands",
+    he: "הולנד",
+    enCities: ["Amsterdam", "Rotterdam", "Utrecht"],
+    heCities: ["אמסטרדם", "רוטרדם", "אוטרכט"],
   },
-  "de-ch": {
-    locale: "en-ch",
-    lang: "en-CH",
-    cities: ["Zurich", "Geneva", "Lucerne"],
+  sweden: {
+    en: "Sweden",
+    he: "שוודיה",
+    enCities: ["Stockholm", "Gothenburg", "Malmö"],
+    heCities: ["סטוקהולם", "גטבורג", "מאלמו"],
+  },
+  norway: {
+    en: "Norway",
+    he: "נורווגיה",
+    enCities: ["Oslo", "Bergen", "Tromsø"],
+    heCities: ["אוסלו", "ברגן", "טרומסה"],
+  },
+  switzerland: {
+    en: "Switzerland",
+    he: "שווייץ",
+    enCities: ["Zurich", "Geneva", "Lucerne"],
+    heCities: ["ציריך", "ז׳נבה", "לוצרן"],
+  },
+  "united-arab-emirates": {
+    en: "Dubai, United Arab Emirates",
+    he: "דובאי, איחוד האמירויות",
+    enCities: ["Dubai Marina", "Downtown Dubai", "Palm Jumeirah"],
+    heCities: ["דובאי מרינה", "מרכז דובאי", "פאלם ג׳ומיירה"],
   },
 };
 
-for (const market of [...markets]) {
-  const variant = englishMarketVariants[market.locale];
-  if (!variant) continue;
-  if (markets.some((candidate) => candidate.slug === market.slug && candidate.lang.startsWith("en"))) {
-    continue;
+const languageNames = {
+  en: "English",
+  he: "עברית",
+  "en-US": "English",
+  "en-GB": "English",
+  "en-AE": "English",
+  "el-CY": "Ελληνικά",
+  "el-GR": "Ελληνικά",
+  "hu-HU": "Magyar",
+  "it-IT": "Italiano",
+  "de-DE": "Deutsch",
+  "de-CH": "Deutsch",
+  "fr-FR": "Français",
+  "nl-NL": "Nederlands",
+  "sv-SE": "Svenska",
+  "nb-NO": "Norsk",
+};
+
+const markets = [];
+for (const slug of [...new Set(baseMarkets.map((market) => market.slug))]) {
+  const variants = baseMarkets.filter((market) => market.slug === slug);
+  markets.push(...variants);
+
+  const source =
+    variants.find((market) => market.lang.startsWith("en")) || variants[0];
+  const names = marketNames[slug];
+
+  if (!variants.some((market) => market.lang.startsWith("en"))) {
+    markets.push({
+      ...source,
+      display: names.en,
+      locale: "en",
+      lang: "en",
+      ui: "en",
+      cities: names.enCities,
+    });
   }
+
   markets.push({
-    ...market,
-    ...variant,
-    display: market.name,
-    ui: "en",
-    cities: variant.cities || market.cities,
-    englishVariant: true,
+    ...source,
+    display: names.he,
+    locale: "he",
+    lang: "he",
+    ui: "he",
+    cities: names.heCities,
   });
 }
 
 const marketPath = (market) => `/${market.locale}/markets/${market.slug}/`;
 const entrepreneurPath = (market) => `/${market.locale}/partners/${market.slug}/`;
-const spaJoinPath = (market) => `/${market.locale}/spas/join/`;
+const spaJoinPath = (market) =>
+  market.locale === "en" || market.locale === "he"
+    ? `/${market.locale}/spas/join/${market.slug}/`
+    : `/${market.locale}/spas/join/`;
 const productionOrigin = "https://global.spaplus.co";
 
 function alternateLanguageLinks(market, routeForMarket) {
@@ -508,43 +575,19 @@ const renderCards = (market, copy) =>
     )
     .join("");
 
-const languageNames = {
-  en: "English",
-  el: "Ελληνικά",
-  hu: "Magyar",
-  it: "Italiano",
-  de: "Deutsch",
-  fr: "Français",
-  nl: "Nederlands",
-  sv: "Svenska",
-  nb: "Norsk",
-};
-
-const languageLabels = {
-  en: "Language",
-  el: "Γλώσσα",
-  hu: "Nyelv",
-  it: "Lingua",
-  de: "Sprache",
-  fr: "Langue",
-  nl: "Taal",
-  sv: "Språk",
-  nb: "Språk",
-};
-
-function renderLanguageSwitcher(market, copy, routeForMarket = marketPath) {
+function renderLanguageSwitcher(market, languageLabel, routeForMarket = marketPath) {
   const siblings = markets.filter((candidate) => candidate.slug === market.slug);
   if (siblings.length < 2) return "";
-  const languageCode = market.lang.split("-")[0];
-  return `<label class="market-language">
-      <span>${escapeHtml(languageLabels[languageCode] || copy.languageLabel || "Language")}</span>
+  return `
+    <label class="market-language">
+      <span>${escapeHtml(languageLabel)}</span>
       <select data-market-language>
         ${siblings
           .map(
             (candidate) =>
               `<option value="${routeForMarket(candidate)}"${
                 candidate.locale === market.locale ? " selected" : ""
-              }>${escapeHtml(languageNames[candidate.lang.split("-")[0]] || candidate.lang)}</option>`,
+              }>${escapeHtml(languageNames[candidate.lang] || candidate.lang)}</option>`,
           )
           .join("")}
       </select>
@@ -591,6 +634,49 @@ const funnelCopy = {
     formLead: "Your enquiry is tagged automatically with the selected country and campaign.",
     submit: "Send spa details",
     success: "Thank you. Your spa details were sent successfully.",
+  },
+};
+
+const hebrewFunnelCopy = {
+  entrepreneur: {
+    eyebrow: "שותפות במדינה",
+    title: (market) => `להוביל את SpaPlus ב${market}`,
+    lead:
+      "לבנות את השוק המקומי עם מותג בינלאומי, ניסיון תפעולי מוכח והטכנולוגיה שכבר פועלת מאחורי SpaPlus.",
+    tabPrimary: "ליזמים במדינה",
+    tabSecondary: "לבתי ספא",
+    whatTitle: "עסק מקומי עם בסיס גלובלי",
+    whatBody:
+      "אתם מובילים את הקשרים המקומיים, צירוף הספקים, השירות והפעילות המסחרית. SpaPlus מספקת את המותג, זירת החיפוש וההזמנות, הטכנולוגיה, המערכות והליווי להשקה.",
+    points: [
+      "לבנות קשרים עם בתי ספא ועסקי וולנס איכותיים",
+      "לפתח ביקוש מקומי ולנהל את הפעילות השוטפת",
+      "להשיק עם המערכות, הניסיון והליווי של SpaPlus",
+    ],
+    formTitle: "ספרו לנו למה אתם השותפים המתאימים למדינה",
+    formLead: "הפנייה משויכת אוטומטית למדינה ולקמפיין שבחרתם.",
+    submit: "שליחת פנייה לשותפות",
+    success: "תודה. הפנייה לשותפות במדינה נשלחה בהצלחה.",
+  },
+  spa: {
+    eyebrow: "לבתי ספא",
+    title: (market) => `לצרף את בית הספא שלכם ל-SpaPlus ${market}`,
+    lead:
+      "הצטרפו לקבוצה הראשונה של בתי הספא המקומיים שמתכוננים לזירת SpaPlus במדינה.",
+    tabPrimary: "לבתי ספא",
+    tabSecondary: "ליזמים במדינה",
+    whatTitle: "דרך חזקה יותר להגיע לאורחים חדשים",
+    whatBody:
+      "הציגו את החוויות, הטיפולים והחבילות בצורה ברורה, קבלו ביקוש איכותי והתכוננו להזמנות אונליין עם מערכת שנבנתה במיוחד לעולם הספא והוולנס.",
+    points: [
+      "להציג ספא יומי, טיפולים, חבילות, קבוצות וגיפט קארד",
+      "להגיע לזוגות, יחידים וקבוצות שמחפשים יום טוב יותר",
+      "להיבחן להצטרפות לרשת השותפים המקומית הראשונה",
+    ],
+    formTitle: "הציגו את בית הספא שלכם",
+    formLead: "הפנייה משויכת אוטומטית למדינה ולקמפיין שבחרתם.",
+    submit: "שליחת פרטי הספא",
+    success: "תודה. פרטי בית הספא נשלחו בהצלחה.",
   },
 };
 
@@ -997,6 +1083,7 @@ funnelLanguageUi["de-CH"] = {
 };
 
 const funnelCommonUi = {
+  he: { skip: "דילוג לתוכן", routes: "אפשרויות פנייה", choose: "בחירת סוג הפנייה", market: "תצוגת השוק", privacy: "מדיניות פרטיות" },
   "el-CY": { skip: "Μετάβαση στο περιεχόμενο", routes: "Επιλογές ενδιαφέροντος", choose: "Επιλέξτε τύπο ενδιαφέροντος", market: "Προεπισκόπηση αγοράς", privacy: "Πολιτική απορρήτου" },
   "el-GR": { skip: "Μετάβαση στο περιεχόμενο", routes: "Επιλογές ενδιαφέροντος", choose: "Επιλέξτε τύπο ενδιαφέροντος", market: "Προεπισκόπηση αγοράς", privacy: "Πολιτική απορρήτου" },
   "hu-HU": { skip: "Ugrás a tartalomhoz", routes: "Érdeklődési lehetőségek", choose: "Válasszon jelentkezési típust", market: "Piaci előnézet", privacy: "Adatvédelmi tájékoztató" },
@@ -1010,6 +1097,28 @@ const funnelCommonUi = {
 };
 
 const spaQualificationUi = {
+  he: {
+    step: (current) => `שלב ${current} מתוך 2`,
+    stepOne: "בית הספא ופרטי הקשר",
+    stepTwo: "כמה פרטים על העסק",
+    city: "עיר או אזור",
+    role: "התפקיד שלכם",
+    businessType: "סוג העסק",
+    rooms: "חדרי טיפול",
+    booking: "האם קיימת כיום הזמנה אונליין?",
+    choose: "בחירת אפשרות",
+    types: ["ספא במלון", "ספא יומי", "מרכז וולנס", "ספא רפואי או אסתטי", "אחר"],
+    roomOptions: ["1 עד 3", "4 עד 7", "8 ומעלה"],
+    bookingOptions: ["כן", "לא", "בתהליך הקמה"],
+    authority: "אני מאשר שיש לי הרשאה למסור את הפרטים בשם בית הספא.",
+    next: "המשך",
+    back: "חזרה",
+    successTitle: "בית הספא שלכם ברשימה",
+    successBody: "תודה. קיבלנו את הפרטים והצוות האחראי על השוק יבדוק אותם לפני יצירת קשר.",
+    close: "סגירה",
+    sending: "שולחים...",
+    error: "לא הצלחנו לשלוח את הטופס. נסו שוב.",
+  },
   en: {
     step: (current) => `Step ${current} of 2`,
     stepOne: "Your spa and contact details",
@@ -1186,6 +1295,71 @@ const spaExperienceUi = {
     status: "Current operating status",
     statusOptions: ["Open and operating", "Opening soon", "Renovation or relaunch"],
     responseNote: "We review every enquiry personally and respond within 72 hours through your preferred channel.",
+  },
+  he: {
+    heroCta: "הציגו את בית הספא שלכם",
+    trust: "חשיפה ללא עלות. בלי דמי הצטרפות ובלי תשלום חודשי.",
+    valueEyebrow: "ערוץ צמיחה מעשי",
+    valueTitle: "יותר חשיפה ושליטה, בלי עלות קבועה",
+    valueCards: [
+      ["חשיפה ללא עלות", "הנוכחות ב-SpaPlus אינה כרוכה בתשלום. אם לא הושלמה הזמנה, אין עמלת הזמנה."],
+      ["פרופיל ברמה גבוהה", "אנחנו מכינים את הפרופיל הראשוני מחומרים שאישרתם, ללא עלות. אתם עוברים עליו לפני הפרסום."],
+      ["לקוחות חדשים", "הגיעו לזוגות, יחידים וקבוצות שמחפשים באופן פעיל חוויית ספא וולנס."],
+      ["הזמנות בדרך שמתאימה לכם", "אשרו בקשות במייל, נהלו זמינות ב-SpaPlus ובהמשך תוכלו להתחבר ליומן שלכם."],
+    ],
+    previewEyebrow: "המחשה בלבד",
+    previewTitle: "כך יכול להיראות הפרופיל של בית הספא שלכם",
+    previewBody: "ההמחשה מציגה את סוג הפרופיל ש-SpaPlus יכולה להכין. היא אינה מציגה בית ספא אמיתי או עמוד פעיל.",
+    bookingEyebrow: "הזמנות שמתאימות לאופן העבודה שלכם",
+    bookingTitle: "מתחילים פשוט ומתחברים יותר כשזה נכון לעסק",
+    bookingCards: [
+      ["אישור במייל", "בקשת ההזמנה מגיעה במייל ובמערכת SpaPlus, ואפשר לאשר אותה ישירות."],
+      ["ניהול זמינות ב-SpaPlus", "כאשר הזמינות מנוהלת במערכת, הזמנות מתאימות יכולות להתאשר מיד."],
+      ["חיבור ליומן בהמשך", "בעתיד יהיה אפשר לבדוק זמינות אמיתית ולהכניס הזמנות ישירות ליומן שלכם."],
+    ],
+    paymentEyebrow: "תהליך תשלום ברור",
+    paymentTitle: "הלקוח בוחר איך לשלם",
+    paymentCards: [
+      ["תשלום במקום", "בית הספא מחייב את הלקוח כשהוא מגיע."],
+      ["תשלום בזמן ההזמנה", "SpaPlus מחייבת את הלקוח באופן מאובטח בזמן ההזמנה."],
+      ["התחשבנות חודשית", "דוח מסודר מציג הזמנות, חיובים, עמלה והיתרה לתשלום לכל צד."],
+    ],
+    localTerms: "התנאים המסחריים המקומיים, מדיניות הביטול והעמלה יוצגו בצורה ברורה לאישור לפני הפעלת הפרופיל.",
+    fitEyebrow: "את מי אנחנו מחפשים",
+    fitTitle: "בתי ספא ועסקי וולנס פעילים ומקצועיים",
+    fitBody: "אנחנו מחפשים עסקים עם מקום קבוע, צוות מקצועי וחוויית אירוח מלאה ועקבית. השירות אינו מיועד למטפל יחיד שמגיע לבתי לקוחות או עובד מקליניקה פרטית בלבד.",
+    fitPoints: [
+      "מיקום פיזי קבוע",
+      "צוות מקצועי ורישיונות או ביטוחים שנדרשים במדינה",
+      "שעות פעילות מסודרות ויכולת לכבד הזמנות שאושרו",
+      "אתר פעיל או נוכחות עסקית ברשתות החברתיות",
+    ],
+    processEyebrow: "מה קורה אחרי ההרשמה",
+    processTitle: "בדיקה אישית, לא פרסום אוטומטי",
+    processSteps: [
+      ["1", "שולחים פרטים ראשוניים", "הטופס הקצר נותן לנו מספיק מידע כדי להכיר את העסק."],
+      ["2", "חוזרים בתוך 72 שעות", "הצוות שאחראי על המדינה ייצור קשר בדרך שבחרתם."],
+      ["3", "מקיימים שיחה קצרה", "בודקים התאמה, תנאים מקומיים, דרך ניהול ההזמנות והמידע שנדרש לפרופיל."],
+      ["4", "אתם מאשרים את הפרופיל", "SpaPlus מכינה פרופיל ראשוני מחומרים מאושרים ואתם בודקים אותו לפני הפרסום."],
+    ],
+    faqTitle: "לפני שנרשמים",
+    faqs: [
+      ["כמה עולה להופיע באתר?", "אין דמי הצטרפות, תשלום חודשי או עלות על החשיפה. עמלה חלה רק על הזמנה שהושלמה, בהתאם להסכם המקומי."],
+      ["אפשר להפסיק בהמשך?", "כן. אפשר להפסיק בהודעה מראש, תוך כיבוד הזמנות שכבר אושרו. לאחר מכן הפרופיל יוסר בצורה מסודרת."],
+      ["מי שולט בתוכן?", "SpaPlus יכולה להכין ולשפר את התוכן מחומרים שאישרתם. אתם עוברים על הפרופיל לפני הפרסום ויכולים לבקש עדכונים."],
+      ["איך מטפלים בביטולים?", "לכל בית ספא תהיה מדיניות ברורה שתוצג לפני הרכישה ותעמוד בדרישות המינימום של SpaPlus ובחוק המקומי."],
+    ],
+    contactMethod: "איך נוח לכם שנחזור אליכם?",
+    contactOptions: ["אימייל", "טלפון", "WhatsApp"],
+    branches: "מספר סניפים",
+    branchOptions: ["1", "2 עד 4", "5 ומעלה"],
+    facilities: "מתקנים במקום",
+    facilityOptions: ["סאונה", "בריכה", "ג'קוזי", "חמאם", "מתחם מנוחה"],
+    bookingMethod: "איך תרצו לנהל הזמנות?",
+    bookingMethodOptions: ["אישור במייל", "ניהול זמינות ב-SpaPlus", "מעוניינים בחיבור עתידי ליומן"],
+    status: "מצב הפעילות כיום",
+    statusOptions: ["פתוח ופעיל", "נפתח בקרוב", "בשיפוץ או בהשקה מחדש"],
+    responseNote: "אנחנו בודקים כל פנייה באופן אישי וחוזרים בתוך 72 שעות בדרך שבחרתם.",
   },
   "el-CY": {
     heroCta: "Παρουσιάστε το spa σας", trust: "Δωρεάν προβολή. Χωρίς κόστος εγγραφής ή μηνιαία συνδρομή.",
@@ -1380,6 +1554,7 @@ const marketPreviewUi = {
 marketPreviewUi["de-CH"] = marketPreviewUi["de-DE"];
 
 const marketAuxUi = {
+  he: { legal: "מידע משפטי", privacy: "פרטיות", terms: "תנאים", accessibility: "נגישות", share: "שיתוף" },
   "el-CY": { legal: "Νομικές πληροφορίες", privacy: "Απόρρητο", terms: "Όροι", accessibility: "Προσβασιμότητα", share: "Κοινοποίηση" },
   "el-GR": { legal: "Νομικές πληροφορίες", privacy: "Απόρρητο", terms: "Όροι", accessibility: "Προσβασιμότητα", share: "Κοινοποίηση" },
   "hu-HU": { legal: "Jogi információk", privacy: "Adatvédelem", terms: "Feltételek", accessibility: "Akadálymentesség", share: "Megosztás" },
@@ -1392,6 +1567,7 @@ const marketAuxUi = {
   "nb-NO": { legal: "Juridisk informasjon", privacy: "Personvern", terms: "Vilkår", accessibility: "Tilgjengelighet", share: "Del" },
 };
 const sampleDayByLanguage = {
+  he: "שבת",
   "el-CY": "Σάββατο",
   "el-GR": "Σάββατο",
   "hu-HU": "Szombat",
@@ -1523,9 +1699,11 @@ function renderSpaExperienceSections(market, spaCopy) {
 
 function renderFunnelPage(market, type) {
   const baseCopy =
-    market.slug === "italy" && market.lang === "it-IT"
-      ? italyFunnelCopy[type]
-      : funnelCopy[type];
+    market.lang === "he"
+      ? hebrewFunnelCopy[type]
+      : market.slug === "italy" && market.lang === "it-IT"
+        ? italyFunnelCopy[type]
+        : funnelCopy[type];
   const localized = campaignLocalizations[market.lang];
   const localizedUi = funnelLanguageUi[market.lang]?.[type];
   const commonUi = funnelCommonUi[market.lang] || {
@@ -1572,6 +1750,17 @@ function renderFunnelPage(market, type) {
           message: localized.labels.message,
           consent: localized.consent,
         }
+      : market.lang === "he"
+      ? {
+          name: "שם מלא",
+          email: "אימייל",
+          phone: "טלפון",
+          company: isSpa ? "שם בית הספא או העסק" : "חברה או ניסיון מקצועי",
+          website: isSpa ? "אתר או פרופיל חברתי" : "LinkedIn או אתר",
+          message: "ספרו לנו יותר",
+          consent:
+            "אני מסכים ש-SpaPlus תשתמש בפרטים כדי לבדוק את הפנייה ולחזור אליי.",
+        }
       : market.slug === "italy" && market.lang === "it-IT"
       ? {
           name: "Nome e cognome",
@@ -1616,7 +1805,7 @@ function renderFunnelPage(market, type) {
     ],
   };
   return `<!doctype html>
-<html lang="${market.lang}" dir="ltr">
+<html lang="${market.lang}" dir="${market.lang === "he" ? "rtl" : "ltr"}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1652,9 +1841,9 @@ function renderFunnelPage(market, type) {
       )}</a>
       <a href="/spaplus-global${marketPath(market)}">SpaPlus ${escapeHtml(market.display)}</a>
     </nav>
-${renderLanguageSwitcher(
+    ${renderLanguageSwitcher(
       market,
-      ui[market.ui] || ui.en,
+      (ui[market.ui] || ui.en).languageLabel,
       isSpa ? spaJoinPath : entrepreneurPath,
     )}
   </header>
@@ -1779,8 +1968,8 @@ ${isSpa ? renderSpaExperienceSections(market, spaCopy) : ""}
       : ""
   }
   <footer class="market-footer">
-    <div><p>${escapeHtml(ui.en.legal)}</p></div>
-    <nav><a href="/spaplus-global${marketPath(market)}">${escapeHtml(commonUi.market)}</a><a href="/spaplus-global/en/#privacy">${escapeHtml(commonUi.privacy)}</a></nav>
+    <div><p>${escapeHtml((ui[market.ui] || ui.en).legal)}</p></div>
+    <nav><a href="/spaplus-global${marketPath(market)}">${escapeHtml(commonUi.market)}</a><a href="/spaplus-global/${market.lang === "he" ? "he" : "en"}/#privacy">${escapeHtml(commonUi.privacy)}</a></nav>
     ${renderFooterMarkets(market)}
   </footer>
   <script src="/spaplus-global/markets/market.js?v=20260725-4"></script>
@@ -1789,6 +1978,7 @@ ${isSpa ? renderSpaExperienceSections(market, spaCopy) : ""}
 }
 
 function renderMarketPage(market) {
+  const siteLocale = market.lang === "he" ? "he" : "en";
   const baseCopy = ui[market.ui] || ui.en;
   const localized = campaignLocalizations[market.lang];
   const previewCopy = marketPreviewUi[market.lang];
@@ -1877,7 +2067,7 @@ function renderMarketPage(market) {
   };
 
   return `<!doctype html>
-<html lang="${market.lang}" dir="ltr">
+<html lang="${market.lang}" dir="${market.lang === "he" ? "rtl" : "ltr"}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -1904,16 +2094,16 @@ function renderMarketPage(market) {
 <body>
   <a class="skip-link" href="#main">${escapeHtml(commonUi.skip)}</a>
   <header class="market-header">
-    <a class="market-brand" href="/spaplus-global/en/" aria-label="${escapeHtml(copy.home)}">
+    <a class="market-brand" href="/spaplus-global/${siteLocale}/" aria-label="${escapeHtml(copy.home)}">
       <img src="/spaplus-global/spaplus-mark.png" alt="">
       <img src="/spaplus-global/spaplus-wordmark.png" alt="SpaPlus">
     </a>
     <nav aria-label="${escapeHtml(commonUi.routes)}">
-      <a href="/spaplus-global/en/markets/">${escapeHtml(copy.navMarkets)}</a>
+      <a href="/spaplus-global/${siteLocale}/markets/">${escapeHtml(copy.navMarkets)}</a>
       <a href="/spaplus-global${spaJoinPath(market)}">${escapeHtml(copy.navSpa)}</a>
       <a href="/spaplus-global${entrepreneurPath(market)}">${escapeHtml(copy.navPartners)}</a>
     </nav>
-    ${renderLanguageSwitcher(market, copy)}
+    ${renderLanguageSwitcher(market, copy.languageLabel)}
   </header>
 
   <main id="main">
@@ -1924,11 +2114,13 @@ function renderMarketPage(market) {
         <p class="eyebrow">SpaPlus ${escapeHtml(market.display)}</p>
         <h1>${escapeHtml(
           localized?.marketH1 ||
-          (market.ui === "elCy"
-            ? "Το SpaPlus έρχεται στην Κύπρο"
-            : market.ui === "it"
-              ? "SpaPlus sta arrivando in Italia"
-              : `SpaPlus is coming to ${market.display}`),
+          (market.ui === "he"
+            ? `SpaPlus מגיעה ל${market.display}`
+            : market.ui === "elCy"
+              ? "Το SpaPlus έρχεται στην Κύπρο"
+              : market.ui === "it"
+                ? "SpaPlus sta arrivando in Italia"
+                : `SpaPlus is coming to ${market.display}`),
         )}</h1>
         <p>${escapeHtml(description)}</p>
         <div class="hero-actions">
@@ -2014,16 +2206,16 @@ function renderMarketPage(market) {
 
   <footer class="market-footer">
     <div>
-      <a class="market-brand" href="/spaplus-global/en/">
+      <a class="market-brand" href="/spaplus-global/${siteLocale}/">
         <img src="/spaplus-global/spaplus-mark.png" alt="">
         <img src="/spaplus-global/spaplus-wordmark.png" alt="SpaPlus">
       </a>
       <p>${escapeHtml(copy.legal)}</p>
     </div>
     <nav aria-label="${escapeHtml(auxUi.legal)}">
-      <a href="/spaplus-global/en/#privacy">${escapeHtml(auxUi.privacy)}</a>
-      <a href="/spaplus-global/en/#privacy">${escapeHtml(auxUi.terms)}</a>
-      <a href="/spaplus-global/en/#accessibility">${escapeHtml(auxUi.accessibility)}</a>
+      <a href="/spaplus-global/${siteLocale}/#privacy">${escapeHtml(auxUi.privacy)}</a>
+      <a href="/spaplus-global/${siteLocale}/#privacy">${escapeHtml(auxUi.terms)}</a>
+      <a href="/spaplus-global/${siteLocale}/#accessibility">${escapeHtml(auxUi.accessibility)}</a>
     </nav>
     ${renderFooterMarkets(market)}
   </footer>
@@ -2118,10 +2310,15 @@ function renderMarketsHub(locale) {
 }
 
 const marketCss = `
+@import url("https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap");
 :root{--navy:#142b4b;--navy-deep:#0d1f37;--pink:#ed1764;--rose:#fff2f6;--cream:#fbf9f7;--ink:#172d4f;--muted:#667289;--line:#dce2e8;--white:#fff}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--cream);color:var(--ink);font-family:Inter,"Noto Sans","Noto Sans Hebrew",Arial,sans-serif;line-height:1.6}
+[dir="rtl"] body{font-family:Heebo,Arial,sans-serif}
+[dir="rtl"] .market-hero-shade{background:linear-gradient(270deg,rgba(10,29,52,.88),rgba(10,29,52,.5) 46%,rgba(10,29,52,.1)),linear-gradient(0deg,rgba(10,29,52,.55),transparent 55%)}
+[dir="rtl"] .funnel-hero{background-image:linear-gradient(270deg,rgba(9,26,48,.94),rgba(9,26,48,.55)),var(--market-image)}
+[dir="rtl"] .share-market,[dir="rtl"] .share-toast{right:auto;left:20px}
 a{color:inherit}
 img{max-width:100%}
 .skip-link{position:fixed;inset-block-start:8px;inset-inline-start:8px;z-index:50;transform:translateY(-140%);background:#fff;padding:10px 14px;border-radius:8px}.skip-link:focus{transform:none}
@@ -2460,7 +2657,10 @@ for (const market of markets) {
     "utf8",
   );
 
-  const spaDirectory = path.join(outputRoot, market.locale, "spas", "join");
+  const spaDirectory = path.join(
+    outputRoot,
+    ...spaJoinPath(market).split("/").filter(Boolean),
+  );
   await mkdir(spaDirectory, { recursive: true });
   await writeFile(
     path.join(spaDirectory, "index.html"),
