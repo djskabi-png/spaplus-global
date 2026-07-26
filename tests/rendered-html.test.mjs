@@ -267,3 +267,51 @@ test("cookie consent is localized, persistent and available on every page", asyn
   assert.match(homeScript, /"fr-CA": \{/);
   assert.match(partnerScript, /cookieBanner\.hidden = true/);
 });
+
+test("every target market has English pages and every page template has Coming Soon links", async () => {
+  const englishMarkets = [
+    ["en-us", "united-states"],
+    ["en", "cyprus"],
+    ["en-gr", "greece"],
+    ["en-hu", "hungary"],
+    ["en-it", "italy"],
+    ["en-gb", "united-kingdom"],
+    ["en-de", "germany"],
+    ["en-fr", "france"],
+    ["en-nl", "netherlands"],
+    ["en-se", "sweden"],
+    ["en-no", "norway"],
+    ["en-ch", "switzerland"],
+    ["en-ae", "united-arab-emirates"],
+  ];
+
+  for (const [locale, slug] of englishMarkets) {
+    const [market, partner, spa] = await Promise.all([
+      read(`codepen/${locale}/markets/${slug}/index.html`),
+      read(`codepen/${locale}/partners/${slug}/index.html`),
+      read(`codepen/${locale}/spas/join/index.html`),
+    ]);
+    for (const page of [market, partner, spa]) {
+      assert.match(page, /<html lang="en(?:-[A-Z]{2})?"/);
+      assert.match(page, /class="market-footer-markets"/);
+      assert.match(page, /<h2>Coming Soon<\/h2>/);
+    }
+    assert.match(spa, /name="preferredContact"/);
+    assert.match(spa, /name="operatingStatus"/);
+    assert.match(spa, /name="branches"/);
+    assert.match(spa, /name="facilities"/);
+    assert.match(spa, /name="preferredBookingMethod"/);
+    assert.match(spa, /within 72 hours/);
+    assert.match(spa, /Illustrative concept/);
+    assert.match(spa, /Monthly settlement/);
+  }
+
+  const [home, countryPartners] = await Promise.all([
+    read("codepen/index.html"),
+    read("codepen/country-partners/index.html"),
+  ]);
+  for (const page of [home, countryPartners]) {
+    assert.match(page, /class="footer-markets-block"/);
+    assert.match(page, />Coming Soon<\/h2>/);
+  }
+});

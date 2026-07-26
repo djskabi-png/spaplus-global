@@ -524,6 +524,7 @@ const applyLocale = (locale) => {
   document.querySelectorAll(".footer-markets a").forEach((link, index) => {
     if (localizedMarketLabels[index]) link.textContent = localizedMarketLabels[index];
   });
+  setText(".footer-markets-block h2", t.comingSoon);
   setText(".route-israel strong", t.israelName);
   setText(".route-israel small", t.israelLabel);
   setText(".route-canada strong", t.canadaName);

@@ -132,7 +132,9 @@ if (funnelForm) {
     event.preventDefault();
     const status = funnelForm.querySelector(".form-status");
     const submit = funnelForm.querySelector("button[type='submit']");
-    const formValues = Object.fromEntries(new FormData(funnelForm).entries());
+    const formData = new FormData(funnelForm);
+    const formValues = Object.fromEntries(formData.entries());
+    const selectedFacilities = formData.getAll("facilities");
     const emailLocaleMap = {
       "el-cy": "el",
       "el-gr": "el",
@@ -183,9 +185,14 @@ if (funnelForm) {
         "Website: " + (formValues.website || "Not provided"),
         formValues.city ? "City or region: " + formValues.city : "",
         formValues.role ? "Contact role: " + formValues.role : "",
+        formValues.preferredContact ? "Preferred contact: " + formValues.preferredContact : "",
         formValues.businessType ? "Business type: " + formValues.businessType : "",
+        formValues.operatingStatus ? "Operating status: " + formValues.operatingStatus : "",
+        formValues.branches ? "Locations: " + formValues.branches : "",
         formValues.treatmentRooms ? "Treatment rooms: " + formValues.treatmentRooms : "",
+        selectedFacilities.length ? "Facilities: " + selectedFacilities.join(", ") : "",
         formValues.onlineBooking ? "Online booking: " + formValues.onlineBooking : "",
+        formValues.preferredBookingMethod ? "Preferred booking method: " + formValues.preferredBookingMethod : "",
         formValues.authorityConfirmed ? "Authority confirmed: Yes" : "",
         campaignDetails ? "\nCampaign attribution:\n" + campaignDetails : "",
         "Referrer: " + (formValues.referrer || "Direct"),
@@ -217,9 +224,14 @@ if (funnelForm) {
             website: formValues.website || "Not provided",
             city_or_region: formValues.city || "Not provided",
             contact_role: formValues.role || "Not provided",
+            preferred_contact: formValues.preferredContact || "Not provided",
             business_type: formValues.businessType || "Not provided",
+            operating_status: formValues.operatingStatus || "Not provided",
+            locations: formValues.branches || "Not provided",
             treatment_rooms: formValues.treatmentRooms || "Not provided",
+            facilities: selectedFacilities.join(", ") || "Not provided",
             online_booking: formValues.onlineBooking || "Not provided",
+            preferred_booking_method: formValues.preferredBookingMethod || "Not provided",
             authority_confirmed: formValues.authorityConfirmed || "Not applicable",
             market: formValues.market,
             lead_type: formValues.leadType,

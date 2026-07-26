@@ -8,6 +8,7 @@ const copy = {
     proofAria: "SpaPlus foundations",
     pageNavigation: "Partnership page navigation",
     footerNavigation: "Footer navigation",
+    comingSoon: "Coming Soon",
     sharePage: "Share this page",
     shareText: "Explore a SpaPlus country partnership",
     linkCopied: "Link copied",
@@ -131,6 +132,7 @@ const copy = {
     proofAria: "הבסיס של SpaPlus",
     pageNavigation: "ניווט בעמוד השותפות",
     footerNavigation: "ניווט בפוטר",
+    comingSoon: "בקרוב",
     sharePage: "שיתוף העמוד",
     shareText: "הכירו את שותפות המדינות של SpaPlus",
     linkCopied: "הקישור הועתק",
@@ -266,6 +268,7 @@ let lastFocused = null;
 
 function applyLocale(nextLocale) {
   locale = nextLocale === "he" ? "he" : "en";
+  localStorage.setItem("spaplus_partner_locale", locale);
   const t = copy[locale];
   document.documentElement.lang = locale;
   document.documentElement.dir = locale === "he" ? "rtl" : "ltr";
@@ -334,10 +337,10 @@ cookieSettingsButton.addEventListener("click", () => {
 
 languageSelect.addEventListener("change", (event) => {
   const targetLocale = event.target.value;
-  const isHebrewPath = /\/country-partners\/he\/?$/.test(location.pathname);
-  location.href = targetLocale === "he"
-    ? (isHebrewPath ? "./" : "./he/")
-    : (isHebrewPath ? "../" : "./");
+  localStorage.setItem("spaplus_partner_locale", targetLocale);
+  const root = location.hostname.endsWith("github.io") ? "/spaplus-global" : "";
+  location.href =
+    root + (targetLocale === "he" ? "/he/country-partners/" : "/en/country-partners/");
 });
 
 let shareToastTimer;
@@ -482,5 +485,17 @@ document.addEventListener("keydown", (event) => {
 
 const queryLocale = new URLSearchParams(location.search).get("lang");
 const browserLocale = (navigator.language || "").toLowerCase().startsWith("he") ? "he" : "en";
-const pathLocale = /\/country-partners\/he\/?$/.test(location.pathname) ? "he" : null;
-applyLocale(pathLocale || queryLocale || browserLocale);
+const pathLocale =
+  /\/he\/country-partners\/?$/.test(location.pathname) ||
+  /\/country-partners\/he\/?$/.test(location.pathname)
+    ? "he"
+    : /\/en\/country-partners\/?$/.test(location.pathname)
+      ? "en"
+      : null;
+const storedLocale = localStorage.getItem("spaplus_partner_locale");
+const initialLocale =
+  pathLocale ||
+  (queryLocale && copy[queryLocale] ? queryLocale : null) ||
+  (storedLocale && copy[storedLocale] ? storedLocale : null) ||
+  browserLocale;
+applyLocale(initialLocale);

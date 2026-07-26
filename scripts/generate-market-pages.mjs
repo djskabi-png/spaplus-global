@@ -400,6 +400,71 @@ const markets = [
   },
 ];
 
+const englishMarketVariants = {
+  "el-cy": {
+    locale: "en-cy",
+    lang: "en-CY",
+    cities: ["Limassol", "Paphos", "Nicosia"],
+  },
+  "el-gr": {
+    locale: "en-gr",
+    lang: "en-GR",
+    cities: ["Athens", "Thessaloniki", "Crete"],
+  },
+  "hu-hu": {
+    locale: "en-hu",
+    lang: "en-HU",
+  },
+  "it-it": {
+    locale: "en-it",
+    lang: "en-IT",
+    cities: ["Milan", "Rome", "Tuscany"],
+  },
+  "de-de": {
+    locale: "en-de",
+    lang: "en-DE",
+    cities: ["Berlin", "Munich", "Baden-Baden"],
+  },
+  "fr-fr": {
+    locale: "en-fr",
+    lang: "en-FR",
+  },
+  "nl-nl": {
+    locale: "en-nl",
+    lang: "en-NL",
+  },
+  "sv-se": {
+    locale: "en-se",
+    lang: "en-SE",
+    cities: ["Stockholm", "Gothenburg", "Malmö"],
+  },
+  "nb-no": {
+    locale: "en-no",
+    lang: "en-NO",
+  },
+  "de-ch": {
+    locale: "en-ch",
+    lang: "en-CH",
+    cities: ["Zurich", "Geneva", "Lucerne"],
+  },
+};
+
+for (const market of [...markets]) {
+  const variant = englishMarketVariants[market.locale];
+  if (!variant) continue;
+  if (markets.some((candidate) => candidate.slug === market.slug && candidate.lang.startsWith("en"))) {
+    continue;
+  }
+  markets.push({
+    ...market,
+    ...variant,
+    display: market.name,
+    ui: "en",
+    cities: variant.cities || market.cities,
+    englishVariant: true,
+  });
+}
+
 const marketPath = (market) => `/${market.locale}/markets/${market.slug}/`;
 const entrepreneurPath = (market) => `/${market.locale}/partners/${market.slug}/`;
 const spaJoinPath = (market) => `/${market.locale}/spas/join/`;
@@ -411,11 +476,12 @@ function alternateLanguageLinks(market, routeForMarket) {
   const links = siblings
     .map(
       (candidate) =>
-        `<link rel="alternate" hreflang="${candidate.lang}" href="${productionOrigin}${routeForMarket(candidate)}">`,
+        `<link rel="alternate" hreflang="${candidate.lang}" href="${previewOrigin}${routeForMarket(candidate)}">`,
     )
     .join("\n  ");
-  const fallback = siblings.find((candidate) => candidate.lang === "en") || siblings[0];
-  return `${links}\n  <link rel="alternate" hreflang="x-default" href="${productionOrigin}${routeForMarket(fallback)}">`;
+  const fallback =
+    siblings.find((candidate) => candidate.lang.startsWith("en")) || siblings[0];
+  return `${links}\n  <link rel="alternate" hreflang="x-default" href="${previewOrigin}${routeForMarket(fallback)}">`;
 }
 const previewUrl = (market) => `${previewOrigin}${marketPath(market)}`;
 
@@ -442,32 +508,43 @@ const renderCards = (market, copy) =>
     )
     .join("");
 
-function renderAlternates(market) {
-  const siblings = markets.filter((candidate) => candidate.slug === market.slug);
-  const links = siblings
-    .map(
-      (candidate) =>
-        `<link rel="alternate" hreflang="${candidate.lang}" href="${previewUrl(candidate)}">`,
-    )
-    .join("\n  ");
-  return `${links}\n  <link rel="alternate" hreflang="x-default" href="${previewUrl(
-    siblings.find((candidate) => candidate.locale === "en") || market,
-  )}">`;
-}
+const languageNames = {
+  en: "English",
+  el: "Ελληνικά",
+  hu: "Magyar",
+  it: "Italiano",
+  de: "Deutsch",
+  fr: "Français",
+  nl: "Nederlands",
+  sv: "Svenska",
+  nb: "Norsk",
+};
 
-function renderLanguageSwitcher(market, copy) {
+const languageLabels = {
+  en: "Language",
+  el: "Γλώσσα",
+  hu: "Nyelv",
+  it: "Lingua",
+  de: "Sprache",
+  fr: "Langue",
+  nl: "Taal",
+  sv: "Språk",
+  nb: "Språk",
+};
+
+function renderLanguageSwitcher(market, copy, routeForMarket = marketPath) {
   const siblings = markets.filter((candidate) => candidate.slug === market.slug);
   if (siblings.length < 2) return "";
-  return `
-    <label class="market-language">
-      <span>${escapeHtml(copy.languageLabel)}</span>
+  const languageCode = market.lang.split("-")[0];
+  return `<label class="market-language">
+      <span>${escapeHtml(languageLabels[languageCode] || copy.languageLabel || "Language")}</span>
       <select data-market-language>
         ${siblings
           .map(
             (candidate) =>
-              `<option value="${marketPath(candidate)}"${
+              `<option value="${routeForMarket(candidate)}"${
                 candidate.locale === market.locale ? " selected" : ""
-              }>${candidate.locale === "el-cy" ? "Ελληνικά Κύπρου" : "English"}</option>`,
+              }>${escapeHtml(languageNames[candidate.lang.split("-")[0]] || candidate.lang)}</option>`,
           )
           .join("")}
       </select>
@@ -1049,6 +1126,177 @@ const spaQualificationUi = {
 spaQualificationUi["el-GR"] = spaQualificationUi["el-CY"];
 spaQualificationUi["de-CH"] = spaQualificationUi["de-DE"];
 
+const spaExperienceUi = {
+  en: {
+    heroCta: "Introduce your spa",
+    trust: "Free exposure. No joining fee. No monthly fee.",
+    valueEyebrow: "A practical growth channel",
+    valueTitle: "More visibility, more control, no fixed cost",
+    valueCards: [
+      ["Free exposure", "Your presence on SpaPlus costs nothing. If there is no completed booking, there is no booking fee."],
+      ["A premium profile", "We prepare your first profile from approved materials, at no cost. You review it before anything is published."],
+      ["New guests", "Reach couples, solo guests and groups who are actively looking for a spa and wellness experience."],
+      ["Flexible booking", "Approve requests by email, manage availability in SpaPlus, and prepare for future calendar integration."],
+    ],
+    previewEyebrow: "Illustrative concept",
+    previewTitle: "A clear, premium way to present your spa",
+    previewBody: "This preview shows the type of profile SpaPlus can prepare. It does not depict a real or active spa listing.",
+    bookingEyebrow: "Bookings that fit your operation",
+    bookingTitle: "Start simply. Connect more deeply when you are ready.",
+    bookingCards: [
+      ["Approve by email", "Receive a request by email and in the SpaPlus system, then approve it directly."],
+      ["Manage live availability", "Keep availability in SpaPlus and eligible bookings can be confirmed immediately."],
+      ["Connect your calendar later", "A future integration can check real availability and place bookings into your calendar."],
+    ],
+    paymentEyebrow: "Clear payment flow",
+    paymentTitle: "The guest chooses how to pay",
+    paymentCards: [
+      ["Pay on arrival", "Your spa charges the guest when they arrive."],
+      ["Pay now", "SpaPlus charges the guest securely at booking."],
+      ["Monthly settlement", "A clear report shows bookings, charges, commission and the balance due in either direction."],
+    ],
+    localTerms: "Local commercial terms, cancellation rules and the applicable fee are presented clearly for approval before activation.",
+    fitEyebrow: "Who we are looking for",
+    fitTitle: "Established spa and wellness businesses",
+    fitBody: "We are looking for active businesses with a permanent location, a professional team and a complete, consistent guest experience.",
+    fitPoints: ["A fixed physical location", "A professional team and the required local licences or insurance", "Structured opening hours and the ability to honour confirmed bookings", "An active website or social presence"],
+    processEyebrow: "What happens next",
+    processTitle: "A personal review, not an automatic listing",
+    processSteps: [
+      ["1", "Send the initial details", "The short form gives us enough information to understand the business."],
+      ["2", "We respond within 72 hours", "The local market team contacts you through your preferred channel."],
+      ["3", "A short conversation", "We discuss fit, the local agreement, bookings and the information needed for the profile."],
+      ["4", "You approve the profile", "SpaPlus prepares the initial profile from approved material and you review it before publication."],
+    ],
+    faqTitle: "Before you apply",
+    faqs: [
+      ["What does it cost to be visible?", "There is no joining fee, monthly fee or charge for exposure. A fee applies only to a completed booking under the local agreement."],
+      ["Can we leave later?", "Yes. You can stop with notice, while honouring bookings that were already confirmed. The profile is then removed in an orderly way."],
+      ["Who controls our content?", "SpaPlus may prepare and optimise content from materials you approve. You review the profile before it is published and can request updates."],
+      ["How are cancellations handled?", "Each spa has a clear policy shown before purchase. It must meet SpaPlus minimum standards and local law."],
+    ],
+    contactMethod: "How should we contact you?",
+    contactOptions: ["Email", "Phone", "WhatsApp"],
+    branches: "Number of locations",
+    branchOptions: ["1", "2 to 4", "5 or more"],
+    facilities: "Facilities available",
+    facilityOptions: ["Sauna", "Pool", "Hot tub", "Hammam", "Relaxation lounge"],
+    bookingMethod: "Preferred way to handle bookings",
+    bookingMethodOptions: ["Approve by email", "Manage availability in SpaPlus", "Interested in future calendar integration"],
+    status: "Current operating status",
+    statusOptions: ["Open and operating", "Opening soon", "Renovation or relaunch"],
+    responseNote: "We review every enquiry personally and respond within 72 hours through your preferred channel.",
+  },
+  "el-CY": {
+    heroCta: "Παρουσιάστε το spa σας", trust: "Δωρεάν προβολή. Χωρίς κόστος εγγραφής ή μηνιαία συνδρομή.",
+    valueEyebrow: "Ένα πρακτικό κανάλι ανάπτυξης", valueTitle: "Περισσότερη προβολή και έλεγχος, χωρίς πάγιο κόστος",
+    valueCards: [["Δωρεάν προβολή", "Η παρουσία σας στο SpaPlus δεν έχει κόστος. Χωρίς ολοκληρωμένη κράτηση, δεν υπάρχει χρέωση κράτησης."], ["Προσεγμένο προφίλ", "Ετοιμάζουμε δωρεάν το πρώτο προφίλ από εγκεκριμένο υλικό και το ελέγχετε πριν δημοσιευτεί."], ["Νέοι επισκέπτες", "Προσεγγίστε ζευγάρια, μεμονωμένους επισκέπτες και ομάδες που αναζητούν εμπειρία spa."], ["Ευέλικτες κρατήσεις", "Εγκρίνετε με email, διαχειριστείτε διαθεσιμότητα στο SpaPlus και προετοιμαστείτε για μελλοντική σύνδεση ημερολογίου."]],
+    previewEyebrow: "Ενδεικτική απεικόνιση", previewTitle: "Ένας καθαρός και premium τρόπος παρουσίασης", previewBody: "Η απεικόνιση δείχνει τον τύπο προφίλ που μπορεί να ετοιμάσει το SpaPlus. Δεν αποτελεί πραγματική ή ενεργή καταχώριση.",
+    bookingEyebrow: "Κρατήσεις που ταιριάζουν στη λειτουργία σας", bookingTitle: "Ξεκινήστε απλά και συνδεθείτε περισσότερο όταν είστε έτοιμοι",
+    bookingCards: [["Έγκριση με email", "Λαμβάνετε το αίτημα με email και στο σύστημα και το εγκρίνετε άμεσα."], ["Ζωντανή διαθεσιμότητα", "Διαχειρίζεστε τη διαθεσιμότητα στο SpaPlus και οι κατάλληλες κρατήσεις επιβεβαιώνονται άμεσα."], ["Μελλοντική σύνδεση ημερολογίου", "Η μελλοντική διασύνδεση θα μπορεί να ελέγχει διαθεσιμότητα και να περνά κρατήσεις στο ημερολόγιό σας."]],
+    paymentEyebrow: "Ξεκάθαρη ροή πληρωμών", paymentTitle: "Ο επισκέπτης επιλέγει πώς θα πληρώσει",
+    paymentCards: [["Πληρωμή στον χώρο", "Το spa χρεώνει τον επισκέπτη κατά την άφιξη."], ["Πληρωμή τώρα", "Το SpaPlus χρεώνει με ασφάλεια κατά την κράτηση."], ["Μηνιαία εκκαθάριση", "Αναλυτική αναφορά δείχνει κρατήσεις, χρεώσεις, προμήθεια και το τελικό υπόλοιπο."]],
+    localTerms: "Οι τοπικοί εμπορικοί όροι, η πολιτική ακύρωσης και η σχετική χρέωση παρουσιάζονται καθαρά για έγκριση πριν την ενεργοποίηση.",
+    fitEyebrow: "Ποιους αναζητούμε", fitTitle: "Οργανωμένες επιχειρήσεις spa και ευεξίας", fitBody: "Αναζητούμε ενεργές επιχειρήσεις με μόνιμο χώρο, επαγγελματική ομάδα και ολοκληρωμένη, σταθερή εμπειρία επισκέπτη.",
+    fitPoints: ["Μόνιμη φυσική τοποθεσία", "Επαγγελματική ομάδα και οι απαιτούμενες άδειες ή ασφαλίσεις", "Σταθερό ωράριο και δυνατότητα τήρησης επιβεβαιωμένων κρατήσεων", "Ενεργή ιστοσελίδα ή παρουσία στα κοινωνικά δίκτυα"],
+    processEyebrow: "Τι ακολουθεί", processTitle: "Προσωπική αξιολόγηση, όχι αυτόματη καταχώριση",
+    processSteps: [["1", "Στείλτε τα βασικά στοιχεία", "Η σύντομη φόρμα μάς βοηθά να κατανοήσουμε την επιχείρηση."], ["2", "Απαντάμε μέσα σε 72 ώρες", "Η τοπική ομάδα επικοινωνεί από το κανάλι που επιλέξατε."], ["3", "Σύντομη συζήτηση", "Συζητάμε την καταλληλότητα, τους τοπικούς όρους και τη λειτουργία των κρατήσεων."], ["4", "Εγκρίνετε το προφίλ", "Το SpaPlus ετοιμάζει το αρχικό προφίλ και το ελέγχετε πριν δημοσιευτεί."]],
+    faqTitle: "Πριν εκδηλώσετε ενδιαφέρον", faqs: [["Τι κοστίζει η προβολή;", "Δεν υπάρχει κόστος εγγραφής, μηνιαία συνδρομή ή χρέωση προβολής. Χρέωση εφαρμόζεται μόνο σε ολοκληρωμένη κράτηση βάσει της τοπικής συμφωνίας."], ["Μπορούμε να αποχωρήσουμε;", "Ναι, με προειδοποίηση και με τήρηση των κρατήσεων που έχουν ήδη επιβεβαιωθεί."], ["Ποιος ελέγχει το περιεχόμενο;", "Το SpaPlus ετοιμάζει περιεχόμενο από υλικό που εγκρίνετε. Ελέγχετε το προφίλ πριν τη δημοσίευση."], ["Πώς λειτουργούν οι ακυρώσεις;", "Κάθε spa έχει σαφή πολιτική πριν την αγορά, σύμφωνα με τα ελάχιστα πρότυπα SpaPlus και την τοπική νομοθεσία."]],
+    contactMethod: "Πώς προτιμάτε να επικοινωνήσουμε;", contactOptions: ["Email", "Τηλέφωνο", "WhatsApp"], branches: "Αριθμός τοποθεσιών", branchOptions: ["1", "2 έως 4", "5 ή περισσότερες"], facilities: "Διαθέσιμες εγκαταστάσεις", facilityOptions: ["Σάουνα", "Πισίνα", "Υδρομασάζ", "Χαμάμ", "Χώρος χαλάρωσης"], bookingMethod: "Προτιμώμενος τρόπος διαχείρισης κρατήσεων", bookingMethodOptions: ["Έγκριση με email", "Διαχείριση διαθεσιμότητας στο SpaPlus", "Ενδιαφέρον για μελλοντική σύνδεση ημερολογίου"], status: "Τρέχουσα κατάσταση λειτουργίας", statusOptions: ["Σε πλήρη λειτουργία", "Ανοίγει σύντομα", "Ανακαίνιση ή επαναλειτουργία"], responseNote: "Εξετάζουμε προσωπικά κάθε αίτημα και απαντάμε μέσα σε 72 ώρες από το κανάλι που επιλέξατε.",
+  },
+  "hu-HU": {
+    heroCta: "Mutassa be spa vállalkozását", trust: "Ingyenes megjelenés. Nincs csatlakozási vagy havi díj.",
+    valueEyebrow: "Gyakorlati növekedési csatorna", valueTitle: "Nagyobb láthatóság és több kontroll, fix költség nélkül",
+    valueCards: [["Ingyenes megjelenés", "A SpaPlus megjelenés díjmentes. Teljesített foglalás nélkül nincs foglalási díj."], ["Prémium profil", "Az első profilt jóváhagyott anyagokból díjmentesen elkészítjük, és közzététel előtt Ön ellenőrzi."], ["Új vendégek", "Érjen el párokat, egyéni vendégeket és csoportokat, akik spa élményt keresnek."], ["Rugalmas foglalás", "Jóváhagyás emailben, elérhetőség kezelése a SpaPlusban, később naptárkapcsolat."]],
+    previewEyebrow: "Szemléltető koncepció", previewTitle: "Átlátható és prémium megjelenés spa vállalkozásának", previewBody: "A minta a SpaPlus által elkészíthető profil jellegét mutatja. Nem valódi vagy aktív spa adatlap.",
+    bookingEyebrow: "A működéséhez illő foglalások", bookingTitle: "Kezdje egyszerűen, és kapcsolódjon szorosabban, amikor készen áll",
+    bookingCards: [["Jóváhagyás emailben", "A kérést emailben és a SpaPlus rendszerben kapja meg, majd közvetlenül jóváhagyhatja."], ["Valós elérhetőség", "A SpaPlusban kezelt elérhetőség alapján a megfelelő foglalások azonnal visszaigazolhatók."], ["Későbbi naptárkapcsolat", "A jövőbeli integráció ellenőrizheti az elérhetőséget és beírhatja a foglalást a naptárba."]],
+    paymentEyebrow: "Átlátható fizetési folyamat", paymentTitle: "A vendég választja ki a fizetés módját", paymentCards: [["Fizetés érkezéskor", "A vendéget a spa terheli meg érkezéskor."], ["Fizetés most", "A vendéget a SpaPlus terheli meg biztonságosan foglaláskor."], ["Havi elszámolás", "A részletes riport mutatja a foglalásokat, díjakat, jutalékot és az egyenleget."]], localTerms: "A helyi üzleti feltételeket, lemondási szabályokat és díjakat aktiválás előtt egyértelműen bemutatjuk jóváhagyásra.",
+    fitEyebrow: "Kit keresünk", fitTitle: "Stabil spa és wellness vállalkozásokat", fitBody: "Állandó helyszínnel, szakmai csapattal és következetes vendégélménnyel működő vállalkozásokat keresünk.", fitPoints: ["Állandó fizikai helyszín", "Szakmai csapat és a szükséges helyi engedélyek vagy biztosítás", "Rendezett nyitvatartás és a visszaigazolt foglalások teljesítése", "Aktív weboldal vagy közösségi jelenlét"],
+    processEyebrow: "Mi történik ezután", processTitle: "Személyes értékelés, nem automatikus adatlap", processSteps: [["1", "Küldje el az alapadatokat", "A rövid űrlap elég ahhoz, hogy megismerjük a vállalkozást."], ["2", "72 órán belül válaszolunk", "A helyi csapat a választott csatornán jelentkezik."], ["3", "Rövid egyeztetés", "Átbeszéljük az együttműködést, a helyi feltételeket és a foglalásokat."], ["4", "Ön jóváhagyja a profilt", "A SpaPlus elkészíti a kezdő profilt, amelyet közzététel előtt ellenőrizhet."]],
+    faqTitle: "Jelentkezés előtt", faqs: [["Mennyibe kerül a megjelenés?", "Nincs csatlakozási, havi vagy megjelenési díj. Díj csak teljesített foglalás után, a helyi megállapodás szerint van."], ["Később kiléphetünk?", "Igen, értesítéssel és a már visszaigazolt foglalások teljesítésével."], ["Ki kezeli a tartalmat?", "A SpaPlus jóváhagyott anyagokból készíti el a profilt, amelyet közzététel előtt Ön ellenőriz."], ["Hogyan működik a lemondás?", "Minden spa egyértelmű szabályzatot használ, amely megfelel a SpaPlus minimumainak és a helyi jognak."]],
+    contactMethod: "Hogyan keressük?", contactOptions: ["Email", "Telefon", "WhatsApp"], branches: "Helyszínek száma", branchOptions: ["1", "2–4", "5 vagy több"], facilities: "Elérhető szolgáltatások", facilityOptions: ["Szauna", "Medence", "Pezsgőfürdő", "Hammam", "Pihenőtér"], bookingMethod: "Foglalások kívánt kezelése", bookingMethodOptions: ["Jóváhagyás emailben", "Elérhetőség kezelése a SpaPlusban", "Érdekel a későbbi naptárkapcsolat"], status: "Jelenlegi működési állapot", statusOptions: ["Nyitva és működik", "Hamarosan nyit", "Felújítás vagy újranyitás"], responseNote: "Minden jelentkezést személyesen nézünk át, és 72 órán belül válaszolunk a választott csatornán.",
+  },
+  "it-IT": {
+    heroCta: "Presenta la tua spa", trust: "Visibilità gratuita. Nessun costo di ingresso o canone mensile.",
+    valueEyebrow: "Un canale concreto di crescita", valueTitle: "Più visibilità e controllo, senza costi fissi",
+    valueCards: [["Visibilità gratuita", "La presenza su SpaPlus è gratuita. Se non c’è una prenotazione completata, non c’è alcun costo di prenotazione."], ["Profilo premium", "Prepariamo gratuitamente il primo profilo con materiali approvati. Lo controlli prima della pubblicazione."], ["Nuovi ospiti", "Raggiungi coppie, persone e gruppi che stanno cercando un’esperienza spa."], ["Prenotazioni flessibili", "Approva via email, gestisci la disponibilità su SpaPlus e preparati a una futura integrazione del calendario."]],
+    previewEyebrow: "Anteprima illustrativa", previewTitle: "Un modo chiaro e curato per presentare la tua spa", previewBody: "L’anteprima mostra il tipo di profilo che SpaPlus può preparare. Non rappresenta una struttura reale o una scheda attiva.",
+    bookingEyebrow: "Prenotazioni adatte alla tua operatività", bookingTitle: "Inizia in modo semplice. Collegati di più quando sei pronto.",
+    bookingCards: [["Approvazione via email", "Ricevi la richiesta via email e nel sistema SpaPlus, poi la approvi direttamente."], ["Disponibilità in tempo reale", "Gestisci la disponibilità su SpaPlus e le prenotazioni idonee possono essere confermate subito."], ["Calendario in futuro", "Una futura integrazione potrà verificare la disponibilità e inserire le prenotazioni nel tuo calendario."]],
+    paymentEyebrow: "Pagamenti chiari", paymentTitle: "L’ospite sceglie come pagare", paymentCards: [["Pagamento in struttura", "La spa incassa dall’ospite all’arrivo."], ["Pagamento online", "SpaPlus incassa in modo sicuro al momento della prenotazione."], ["Riepilogo mensile", "Un report trasparente mostra prenotazioni, incassi, commissioni e saldo."]], localTerms: "Condizioni commerciali locali, regole di cancellazione e commissioni vengono presentate chiaramente per approvazione prima dell’attivazione.",
+    fitEyebrow: "Chi cerchiamo", fitTitle: "Strutture spa e wellness organizzate", fitBody: "Cerchiamo attività operative con una sede stabile, un team professionale e un’esperienza ospite completa e coerente.", fitPoints: ["Una sede fisica stabile", "Un team professionale e le autorizzazioni o assicurazioni locali richieste", "Orari strutturati e capacità di rispettare le prenotazioni confermate", "Un sito o una presenza social attiva"],
+    processEyebrow: "Cosa succede dopo", processTitle: "Valutazione personale, non inserimento automatico", processSteps: [["1", "Invia i dati iniziali", "Il modulo breve ci permette di capire la struttura."], ["2", "Rispondiamo entro 72 ore", "Il team locale ti contatta attraverso il canale scelto."], ["3", "Un breve confronto", "Parliamo di compatibilità, accordo locale, prenotazioni e profilo."], ["4", "Approvi il profilo", "SpaPlus prepara il profilo iniziale e tu lo controlli prima della pubblicazione."]],
+    faqTitle: "Prima di candidarti", faqs: [["Quanto costa essere visibili?", "Nessun costo di ingresso, canone mensile o costo di visibilità. La commissione si applica solo a una prenotazione completata secondo l’accordo locale."], ["Possiamo interrompere?", "Sì, con preavviso e rispettando le prenotazioni già confermate."], ["Chi controlla i contenuti?", "SpaPlus prepara il profilo con materiali approvati. Lo controlli prima della pubblicazione e puoi chiedere aggiornamenti."], ["Come funzionano le cancellazioni?", "Ogni spa ha una politica chiara mostrata prima dell’acquisto, nel rispetto degli standard SpaPlus e della legge locale."]],
+    contactMethod: "Come preferisci essere contattato?", contactOptions: ["Email", "Telefono", "WhatsApp"], branches: "Numero di sedi", branchOptions: ["1", "Da 2 a 4", "5 o più"], facilities: "Servizi disponibili", facilityOptions: ["Sauna", "Piscina", "Vasca idromassaggio", "Hammam", "Area relax"], bookingMethod: "Gestione preferita delle prenotazioni", bookingMethodOptions: ["Approvazione via email", "Gestione disponibilità su SpaPlus", "Interesse per una futura integrazione calendario"], status: "Stato attuale dell’attività", statusOptions: ["Aperta e operativa", "Prossima apertura", "Ristrutturazione o rilancio"], responseNote: "Esaminiamo ogni richiesta personalmente e rispondiamo entro 72 ore attraverso il canale scelto.",
+  },
+  "de-DE": {
+    heroCta: "Spa vorstellen", trust: "Kostenlose Sichtbarkeit. Keine Aufnahmegebühr. Keine Monatsgebühr.",
+    valueEyebrow: "Ein praktischer Wachstumskanal", valueTitle: "Mehr Sichtbarkeit und Kontrolle, ohne Fixkosten",
+    valueCards: [["Kostenlose Sichtbarkeit", "Die Präsenz auf SpaPlus kostet nichts. Ohne abgeschlossene Buchung fällt keine Buchungsgebühr an."], ["Hochwertiges Profil", "Wir erstellen das erste Profil kostenlos aus freigegebenem Material. Sie prüfen es vor der Veröffentlichung."], ["Neue Gäste", "Erreichen Sie Paare, Einzelgäste und Gruppen, die aktiv nach einem Spa-Erlebnis suchen."], ["Flexible Buchung", "Anfragen per E-Mail bestätigen, Verfügbarkeit in SpaPlus verwalten und später den Kalender anbinden."]],
+    previewEyebrow: "Illustratives Konzept", previewTitle: "Ihr Spa klar und hochwertig präsentiert", previewBody: "Die Vorschau zeigt die Art des Profils, das SpaPlus erstellen kann. Sie stellt keinen echten oder aktiven Spa-Eintrag dar.",
+    bookingEyebrow: "Buchungen passend zu Ihrem Betrieb", bookingTitle: "Einfach starten und später stärker anbinden",
+    bookingCards: [["Per E-Mail bestätigen", "Sie erhalten die Anfrage per E-Mail und im SpaPlus-System und können direkt bestätigen."], ["Verfügbarkeit verwalten", "Mit gepflegter Verfügbarkeit in SpaPlus können passende Buchungen sofort bestätigt werden."], ["Kalender später anbinden", "Eine künftige Integration kann Verfügbarkeit prüfen und Buchungen in Ihren Kalender eintragen."]],
+    paymentEyebrow: "Klarer Zahlungsablauf", paymentTitle: "Der Gast wählt die Zahlungsart", paymentCards: [["Zahlung vor Ort", "Ihr Spa rechnet bei Ankunft mit dem Gast ab."], ["Sofort bezahlen", "SpaPlus belastet den Gast sicher bei der Buchung."], ["Monatliche Abrechnung", "Ein klarer Bericht zeigt Buchungen, Zahlungen, Provision und den offenen Saldo."]], localTerms: "Lokale Konditionen, Stornoregeln und Gebühren werden vor der Aktivierung transparent zur Freigabe vorgelegt.",
+    fitEyebrow: "Wen wir suchen", fitTitle: "Etablierte Spa- und Wellnessbetriebe", fitBody: "Wir suchen aktive Betriebe mit festem Standort, professionellem Team und einem vollständigen, verlässlichen Gästeerlebnis.", fitPoints: ["Fester physischer Standort", "Professionelles Team sowie erforderliche lokale Genehmigungen oder Versicherungen", "Geregelte Öffnungszeiten und verlässliche Erfüllung bestätigter Buchungen", "Aktive Website oder Social-Media-Präsenz"],
+    processEyebrow: "So geht es weiter", processTitle: "Persönliche Prüfung statt automatischer Freischaltung", processSteps: [["1", "Grunddaten senden", "Das kurze Formular reicht für einen ersten Eindruck vom Betrieb."], ["2", "Antwort innerhalb von 72 Stunden", "Das lokale Team meldet sich über Ihren bevorzugten Kanal."], ["3", "Kurzes Gespräch", "Wir besprechen Eignung, lokale Vereinbarung, Buchungen und Profilinformationen."], ["4", "Sie geben das Profil frei", "SpaPlus erstellt das erste Profil und Sie prüfen es vor der Veröffentlichung."]],
+    faqTitle: "Vor Ihrer Anfrage", faqs: [["Was kostet die Sichtbarkeit?", "Keine Aufnahmegebühr, Monatsgebühr oder Gebühr für Sichtbarkeit. Eine Gebühr fällt nur bei abgeschlossener Buchung gemäß lokaler Vereinbarung an."], ["Können wir später aussteigen?", "Ja, mit Kündigungsfrist und unter Erfüllung bereits bestätigter Buchungen."], ["Wer kontrolliert die Inhalte?", "SpaPlus erstellt Inhalte aus freigegebenem Material. Sie prüfen das Profil vor der Veröffentlichung."], ["Wie funktionieren Stornierungen?", "Jeder Betrieb hat klare Regeln vor dem Kauf, im Einklang mit SpaPlus-Mindeststandards und lokalem Recht."]],
+    contactMethod: "Wie dürfen wir Sie kontaktieren?", contactOptions: ["E-Mail", "Telefon", "WhatsApp"], branches: "Anzahl der Standorte", branchOptions: ["1", "2 bis 4", "5 oder mehr"], facilities: "Vorhandene Einrichtungen", facilityOptions: ["Sauna", "Pool", "Whirlpool", "Hammam", "Ruhebereich"], bookingMethod: "Bevorzugte Buchungsbearbeitung", bookingMethodOptions: ["Bestätigung per E-Mail", "Verfügbarkeit in SpaPlus verwalten", "Interesse an künftiger Kalenderanbindung"], status: "Aktueller Betriebsstatus", statusOptions: ["Geöffnet und in Betrieb", "Eröffnung in Kürze", "Umbau oder Neustart"], responseNote: "Wir prüfen jede Anfrage persönlich und antworten innerhalb von 72 Stunden über Ihren bevorzugten Kanal.",
+  },
+  "fr-FR": {
+    heroCta: "Présenter votre spa", trust: "Visibilité gratuite. Aucun droit d’entrée ni abonnement mensuel.",
+    valueEyebrow: "Un canal de croissance concret", valueTitle: "Plus de visibilité et de contrôle, sans coût fixe",
+    valueCards: [["Visibilité gratuite", "Votre présence sur SpaPlus ne coûte rien. Sans réservation réalisée, aucun frais de réservation."], ["Profil premium", "Nous préparons gratuitement le premier profil à partir de contenus validés. Vous le relisez avant publication."], ["Nouveaux clients", "Touchez des couples, des personnes seules et des groupes qui recherchent activement une expérience spa."], ["Réservation souple", "Validez par email, gérez les disponibilités dans SpaPlus et préparez une future connexion au calendrier."]],
+    previewEyebrow: "Aperçu illustratif", previewTitle: "Une présentation claire et haut de gamme de votre spa", previewBody: "Cet aperçu montre le type de profil que SpaPlus peut préparer. Il ne représente pas un établissement réel ni une fiche active.",
+    bookingEyebrow: "Des réservations adaptées à votre organisation", bookingTitle: "Commencez simplement, puis connectez-vous davantage quand vous êtes prêt",
+    bookingCards: [["Validation par email", "Recevez la demande par email et dans SpaPlus, puis validez-la directement."], ["Disponibilités en direct", "Gérez les disponibilités dans SpaPlus pour permettre la confirmation immédiate des réservations éligibles."], ["Connexion calendrier à venir", "Une future intégration pourra vérifier les disponibilités et inscrire les réservations dans votre calendrier."]],
+    paymentEyebrow: "Paiements transparents", paymentTitle: "Le client choisit son mode de paiement", paymentCards: [["Paiement sur place", "Le spa encaisse le client à son arrivée."], ["Paiement en ligne", "SpaPlus encaisse le client de manière sécurisée lors de la réservation."], ["Règlement mensuel", "Un relevé clair détaille réservations, encaissements, commission et solde."]], localTerms: "Les conditions commerciales locales, les règles d’annulation et les frais applicables sont présentés clairement pour validation avant activation.",
+    fitEyebrow: "Les établissements recherchés", fitTitle: "Des spas et centres de bien-être établis", fitBody: "Nous recherchons des établissements en activité, avec une adresse permanente, une équipe professionnelle et une expérience client complète et régulière.", fitPoints: ["Une adresse physique permanente", "Une équipe professionnelle et les autorisations ou assurances locales requises", "Des horaires structurés et la capacité d’honorer les réservations confirmées", "Un site ou une présence sociale active"],
+    processEyebrow: "La suite", processTitle: "Une étude personnalisée, pas une mise en ligne automatique", processSteps: [["1", "Envoyez les informations initiales", "Le formulaire court nous permet de comprendre l’établissement."], ["2", "Réponse sous 72 heures", "L’équipe locale vous contacte par le canal choisi."], ["3", "Un échange rapide", "Nous parlons de l’adéquation, de l’accord local, des réservations et du profil."], ["4", "Vous validez le profil", "SpaPlus prépare le premier profil et vous le relisez avant publication."]],
+    faqTitle: "Avant de candidater", faqs: [["Combien coûte la visibilité ?", "Aucun droit d’entrée, abonnement mensuel ou frais de visibilité. Une commission s’applique uniquement à une réservation réalisée selon l’accord local."], ["Peut-on arrêter plus tard ?", "Oui, avec préavis et en honorant les réservations déjà confirmées."], ["Qui contrôle les contenus ?", "SpaPlus prépare le profil à partir de contenus validés. Vous le relisez avant publication et pouvez demander des mises à jour."], ["Comment fonctionnent les annulations ?", "Chaque spa applique une politique claire avant l’achat, conforme aux standards SpaPlus et au droit local."]],
+    contactMethod: "Comment souhaitez-vous être contacté ?", contactOptions: ["Email", "Téléphone", "WhatsApp"], branches: "Nombre d’établissements", branchOptions: ["1", "2 à 4", "5 ou plus"], facilities: "Équipements disponibles", facilityOptions: ["Sauna", "Piscine", "Jacuzzi", "Hammam", "Espace détente"], bookingMethod: "Gestion préférée des réservations", bookingMethodOptions: ["Validation par email", "Gestion des disponibilités dans SpaPlus", "Intérêt pour une future connexion calendrier"], status: "Situation actuelle", statusOptions: ["Ouvert et en activité", "Ouverture prochaine", "Rénovation ou relance"], responseNote: "Chaque demande est étudiée personnellement et nous répondons sous 72 heures par le canal choisi.",
+  },
+  "nl-NL": {
+    heroCta: "Stel je spa voor", trust: "Gratis zichtbaarheid. Geen instapkosten of maandelijkse bijdrage.",
+    valueEyebrow: "Een praktisch groeikanaal", valueTitle: "Meer zichtbaarheid en controle, zonder vaste kosten",
+    valueCards: [["Gratis zichtbaarheid", "Je aanwezigheid op SpaPlus kost niets. Zonder afgeronde boeking betaal je geen boekingsvergoeding."], ["Premium profiel", "We maken het eerste profiel gratis met goedgekeurd materiaal. Je controleert het vóór publicatie."], ["Nieuwe gasten", "Bereik stellen, individuele gasten en groepen die actief een spa-ervaring zoeken."], ["Flexibel boeken", "Keur per e-mail goed, beheer beschikbaarheid in SpaPlus en bereid een toekomstige kalenderkoppeling voor."]],
+    previewEyebrow: "Illustratief concept", previewTitle: "Een duidelijke, hoogwaardige presentatie van je spa", previewBody: "Deze preview laat zien welk type profiel SpaPlus kan maken. Het is geen echte of actieve spa-vermelding.",
+    bookingEyebrow: "Boekingen die bij je werkwijze passen", bookingTitle: "Begin eenvoudig en koppel verder wanneer je eraan toe bent",
+    bookingCards: [["Goedkeuren per e-mail", "Ontvang de aanvraag per e-mail en in SpaPlus en keur deze direct goed."], ["Live beschikbaarheid", "Beheer beschikbaarheid in SpaPlus zodat geschikte boekingen direct kunnen worden bevestigd."], ["Later je agenda koppelen", "Een toekomstige integratie kan beschikbaarheid controleren en boekingen in je agenda plaatsen."]],
+    paymentEyebrow: "Duidelijke betalingen", paymentTitle: "De gast kiest hoe te betalen", paymentCards: [["Betalen bij aankomst", "Je spa rekent bij aankomst af met de gast."], ["Nu betalen", "SpaPlus rekent veilig af tijdens de boeking."], ["Maandelijkse afrekening", "Een helder overzicht toont boekingen, betalingen, commissie en het saldo."]], localTerms: "Lokale commerciële voorwaarden, annuleringsregels en kosten worden vóór activering duidelijk ter goedkeuring aangeboden.",
+    fitEyebrow: "Wie we zoeken", fitTitle: "Gevestigde spa- en wellnessbedrijven", fitBody: "We zoeken actieve bedrijven met een vaste locatie, een professioneel team en een complete, consistente gastervaring.", fitPoints: ["Een vaste fysieke locatie", "Een professioneel team en vereiste lokale vergunningen of verzekeringen", "Vaste openingstijden en het nakomen van bevestigde boekingen", "Een actieve website of sociale aanwezigheid"],
+    processEyebrow: "Wat gebeurt er daarna", processTitle: "Persoonlijke beoordeling, geen automatische plaatsing", processSteps: [["1", "Stuur de basisgegevens", "Het korte formulier geeft ons genoeg informatie over je bedrijf."], ["2", "Binnen 72 uur reactie", "Het lokale team neemt contact op via je voorkeurskanaal."], ["3", "Kort gesprek", "We bespreken de match, lokale afspraken, boekingen en het profiel."], ["4", "Jij keurt het profiel goed", "SpaPlus maakt het eerste profiel en jij controleert het vóór publicatie."]],
+    faqTitle: "Voordat je je aanmeldt", faqs: [["Wat kost zichtbaarheid?", "Geen instapkosten, maandelijkse bijdrage of kosten voor zichtbaarheid. Alleen bij een afgeronde boeking geldt een vergoeding volgens de lokale overeenkomst."], ["Kunnen we later stoppen?", "Ja, met opzegtermijn en met nakoming van al bevestigde boekingen."], ["Wie beheert de inhoud?", "SpaPlus maakt het profiel met goedgekeurd materiaal. Jij controleert het vóór publicatie en kunt updates aanvragen."], ["Hoe werken annuleringen?", "Elke spa heeft een duidelijk beleid vóór aankoop, passend bij SpaPlus-minimumregels en lokale wetgeving."]],
+    contactMethod: "Hoe mogen we contact opnemen?", contactOptions: ["E-mail", "Telefoon", "WhatsApp"], branches: "Aantal locaties", branchOptions: ["1", "2 tot 4", "5 of meer"], facilities: "Aanwezige faciliteiten", facilityOptions: ["Sauna", "Zwembad", "Jacuzzi", "Hammam", "Relaxruimte"], bookingMethod: "Gewenste boekingsafhandeling", bookingMethodOptions: ["Goedkeuren per e-mail", "Beschikbaarheid beheren in SpaPlus", "Interesse in toekomstige kalenderkoppeling"], status: "Huidige status", statusOptions: ["Open en actief", "Opent binnenkort", "Verbouwing of herstart"], responseNote: "We beoordelen elke aanvraag persoonlijk en reageren binnen 72 uur via je voorkeurskanaal.",
+  },
+  "sv-SE": {
+    heroCta: "Presentera ert spa", trust: "Kostnadsfri synlighet. Ingen startavgift eller månadsavgift.",
+    valueEyebrow: "En praktisk tillväxtkanal", valueTitle: "Mer synlighet och kontroll, utan fasta kostnader",
+    valueCards: [["Kostnadsfri synlighet", "Närvaro på SpaPlus kostar inget. Utan genomförd bokning finns ingen bokningsavgift."], ["Premiumprofil", "Vi tar fram den första profilen kostnadsfritt från godkänt material. Ni granskar den före publicering."], ["Nya gäster", "Nå par, enskilda gäster och grupper som aktivt söker en spa-upplevelse."], ["Flexibel bokning", "Godkänn via e-post, hantera tillgänglighet i SpaPlus och förbered framtida kalenderkoppling."]],
+    previewEyebrow: "Illustrativt koncept", previewTitle: "En tydlig och premium presentation av ert spa", previewBody: "Förhandsvisningen visar vilken typ av profil SpaPlus kan skapa. Den visar inte en verklig eller aktiv spa-listning.",
+    bookingEyebrow: "Bokningar som passar er drift", bookingTitle: "Börja enkelt och koppla på mer när ni är redo", bookingCards: [["Godkänn via e-post", "Ta emot förfrågan via e-post och i SpaPlus och godkänn direkt."], ["Hantera tillgänglighet", "Med uppdaterad tillgänglighet i SpaPlus kan relevanta bokningar bekräftas direkt."], ["Kalenderkoppling senare", "En framtida integration kan kontrollera tillgänglighet och lägga in bokningen i kalendern."]],
+    paymentEyebrow: "Tydligt betalningsflöde", paymentTitle: "Gästen väljer hur betalningen sker", paymentCards: [["Betala på plats", "Ert spa tar betalt av gästen vid ankomst."], ["Betala nu", "SpaPlus tar säkert betalt vid bokningen."], ["Månadsvis avräkning", "En tydlig rapport visar bokningar, betalningar, provision och saldo."]], localTerms: "Lokala affärsvillkor, avbokningsregler och avgifter presenteras tydligt för godkännande före aktivering.",
+    fitEyebrow: "Vilka vi söker", fitTitle: "Etablerade spa- och wellnessverksamheter", fitBody: "Vi söker aktiva verksamheter med fast plats, professionellt team och en komplett, konsekvent gästupplevelse.", fitPoints: ["En fast fysisk plats", "Professionellt team och nödvändiga lokala tillstånd eller försäkringar", "Tydliga öppettider och förmåga att uppfylla bekräftade bokningar", "Aktiv webbplats eller närvaro i sociala medier"],
+    processEyebrow: "Vad händer sedan", processTitle: "Personlig granskning, inte automatisk publicering", processSteps: [["1", "Skicka grunduppgifterna", "Det korta formuläret ger oss tillräcklig bild av verksamheten."], ["2", "Svar inom 72 timmar", "Det lokala teamet kontaktar er via vald kanal."], ["3", "Ett kort samtal", "Vi går igenom matchning, lokala villkor, bokningar och profilen."], ["4", "Ni godkänner profilen", "SpaPlus skapar den första profilen och ni granskar den före publicering."]],
+    faqTitle: "Innan ni ansöker", faqs: [["Vad kostar synligheten?", "Ingen startavgift, månadsavgift eller kostnad för synlighet. Avgift gäller bara vid genomförd bokning enligt lokalt avtal."], ["Kan vi avsluta senare?", "Ja, med uppsägningstid och med ansvar för redan bekräftade bokningar."], ["Vem styr innehållet?", "SpaPlus skapar profilen från godkänt material. Ni granskar före publicering och kan begära uppdateringar."], ["Hur fungerar avbokningar?", "Varje spa har tydliga regler före köp, i linje med SpaPlus minimikrav och lokal lag."]],
+    contactMethod: "Hur vill ni bli kontaktade?", contactOptions: ["E-post", "Telefon", "WhatsApp"], branches: "Antal anläggningar", branchOptions: ["1", "2 till 4", "5 eller fler"], facilities: "Tillgängliga faciliteter", facilityOptions: ["Bastu", "Pool", "Bubbelpool", "Hammam", "Relaxavdelning"], bookingMethod: "Önskad bokningshantering", bookingMethodOptions: ["Godkänn via e-post", "Hantera tillgänglighet i SpaPlus", "Intresse för framtida kalenderkoppling"], status: "Nuvarande driftstatus", statusOptions: ["Öppet och i drift", "Öppnar snart", "Renovering eller nylansering"], responseNote: "Vi granskar varje förfrågan personligen och svarar inom 72 timmar via vald kanal.",
+  },
+  "nb-NO": {
+    heroCta: "Presenter spaet deres", trust: "Gratis synlighet. Ingen oppstartsavgift eller månedsavgift.",
+    valueEyebrow: "En praktisk vekstkanal", valueTitle: "Mer synlighet og kontroll, uten faste kostnader",
+    valueCards: [["Gratis synlighet", "Det koster ingenting å være synlig på SpaPlus. Uten fullført bestilling er det ingen bestillingsavgift."], ["Premiumprofil", "Vi lager den første profilen kostnadsfritt fra godkjent materiale. Dere gjennomgår den før publisering."], ["Nye gjester", "Nå par, enkeltgjester og grupper som aktivt ser etter en spa-opplevelse."], ["Fleksibel bestilling", "Godkjenn via e-post, administrer tilgjengelighet i SpaPlus og forbered fremtidig kalendertilkobling."]],
+    previewEyebrow: "Illustrerende konsept", previewTitle: "En tydelig og profesjonell presentasjon av spaet", previewBody: "Forhåndsvisningen viser typen profil SpaPlus kan lage. Den viser ikke et ekte eller aktivt spa-tilbud.",
+    bookingEyebrow: "Bestillinger som passer driften", bookingTitle: "Start enkelt og koble tettere på når dere er klare", bookingCards: [["Godkjenn via e-post", "Motta forespørselen via e-post og i SpaPlus og godkjenn direkte."], ["Administrer tilgjengelighet", "Med oppdatert tilgjengelighet i SpaPlus kan aktuelle bestillinger bekreftes umiddelbart."], ["Kalenderkobling senere", "En fremtidig integrasjon kan sjekke tilgjengelighet og legge bestillinger inn i kalenderen."]],
+    paymentEyebrow: "Tydelig betalingsflyt", paymentTitle: "Gjesten velger betalingsmåte", paymentCards: [["Betal ved ankomst", "Spaet tar betalt av gjesten ved ankomst."], ["Betal nå", "SpaPlus tar sikkert betalt ved bestilling."], ["Månedlig oppgjør", "En tydelig rapport viser bestillinger, betalinger, provisjon og saldo."]], localTerms: "Lokale kommersielle vilkår, avbestillingsregler og gebyrer legges tydelig frem for godkjenning før aktivering.",
+    fitEyebrow: "Hvem vi ser etter", fitTitle: "Etablerte spa- og velværebedrifter", fitBody: "Vi ser etter aktive bedrifter med fast sted, profesjonelt team og en komplett, stabil gjesteopplevelse.", fitPoints: ["Et fast fysisk sted", "Profesjonelt team og nødvendige lokale tillatelser eller forsikringer", "Faste åpningstider og evne til å oppfylle bekreftede bestillinger", "Aktiv nettside eller tilstedeværelse i sosiale medier"],
+    processEyebrow: "Hva skjer videre", processTitle: "Personlig vurdering, ikke automatisk publisering", processSteps: [["1", "Send grunnopplysningene", "Det korte skjemaet gir oss nok informasjon om virksomheten."], ["2", "Svar innen 72 timer", "Det lokale teamet kontakter dere via valgt kanal."], ["3", "En kort samtale", "Vi går gjennom egnethet, lokale vilkår, bestillinger og profilen."], ["4", "Dere godkjenner profilen", "SpaPlus lager den første profilen og dere gjennomgår den før publisering."]],
+    faqTitle: "Før dere søker", faqs: [["Hva koster synligheten?", "Ingen oppstartsavgift, månedsavgift eller kostnad for synlighet. Gebyr gjelder bare ved fullført bestilling etter lokal avtale."], ["Kan vi avslutte senere?", "Ja, med varsel og med ansvar for allerede bekreftede bestillinger."], ["Hvem styrer innholdet?", "SpaPlus lager profilen fra godkjent materiale. Dere gjennomgår den før publisering og kan be om oppdateringer."], ["Hvordan fungerer avbestilling?", "Hvert spa har tydelige regler før kjøp, i tråd med SpaPlus minstekrav og lokal lov."]],
+    contactMethod: "Hvordan vil dere bli kontaktet?", contactOptions: ["E-post", "Telefon", "WhatsApp"], branches: "Antall steder", branchOptions: ["1", "2 til 4", "5 eller flere"], facilities: "Tilgjengelige fasiliteter", facilityOptions: ["Badstue", "Basseng", "Boblebad", "Hammam", "Avslapningsområde"], bookingMethod: "Foretrukket bestillingshåndtering", bookingMethodOptions: ["Godkjenn via e-post", "Administrer tilgjengelighet i SpaPlus", "Interesse for fremtidig kalenderkobling"], status: "Nåværende driftsstatus", statusOptions: ["Åpent og i drift", "Åpner snart", "Oppussing eller relansering"], responseNote: "Vi vurderer hver henvendelse personlig og svarer innen 72 timer via valgt kanal.",
+  },
+};
+spaExperienceUi["el-GR"] = spaExperienceUi["el-CY"];
+spaExperienceUi["de-CH"] = spaExperienceUi["de-DE"];
+
 const marketPreviewUi = {
   "el-GR": {
     status: "ΣΥΝΤΟΜΑ", guestCta: "Δείτε πώς θα μπορούσε να είναι", previewLabel: "ΠΡΟΕΠΙΣΚΟΠΗΣΗ",
@@ -1156,9 +1404,128 @@ const sampleDayByLanguage = {
   "nb-NO": "Lørdag",
 };
 
+const footerComingSoonLabels = {
+  en: "Coming Soon",
+  he: "בקרוב",
+  el: "Σύντομα",
+  hu: "Hamarosan",
+  it: "Prossimamente",
+  de: "Demnächst",
+  fr: "Bientôt",
+  nl: "Binnenkort",
+  sv: "Kommer snart",
+  nb: "Kommer snart",
+};
+
+const footerMarketNames = {
+  "united-arab-emirates": "Dubai and the UAE",
+};
+
+function renderFooterMarkets(context = { lang: "en" }) {
+  const languageCode = String(context.lang || "en").split("-")[0];
+  const uniqueSlugs = [...new Set(markets.map((market) => market.slug))];
+  const links = uniqueSlugs
+    .map((slug) => {
+      const siblings = markets.filter((market) => market.slug === slug);
+      const target =
+        siblings.find((market) => market.lang.startsWith("en")) || siblings[0];
+      const label = footerMarketNames[slug] || target.name;
+      return `<a href="/spaplus-global${marketPath(target)}">${escapeHtml(label)}</a>`;
+    })
+    .join("");
+  return `<div class="market-footer-markets">
+    <h2>${escapeHtml(footerComingSoonLabels[languageCode] || footerComingSoonLabels.en)}</h2>
+    <nav aria-label="${escapeHtml(footerComingSoonLabels[languageCode] || footerComingSoonLabels.en)}">${links}</nav>
+  </div>`;
+}
+
+function renderSpaExperienceSections(market, spaCopy) {
+  const cards = (items, className = "spa-info-card") =>
+    items
+      .map(
+        ([title, body]) =>
+          `<article class="${className}"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(body)}</p></article>`,
+      )
+      .join("");
+  return `<section class="spa-value section">
+      <div class="section-heading">
+        <p class="eyebrow">${escapeHtml(spaCopy.valueEyebrow)}</p>
+        <h2>${escapeHtml(spaCopy.valueTitle)}</h2>
+      </div>
+      <div class="spa-card-grid">${cards(spaCopy.valueCards)}</div>
+    </section>
+    <section class="spa-profile-preview section" aria-labelledby="spa-preview-title">
+      <div class="spa-profile-copy">
+        <p class="eyebrow">${escapeHtml(spaCopy.previewEyebrow)}</p>
+        <h2 id="spa-preview-title">${escapeHtml(spaCopy.previewTitle)}</h2>
+        <p>${escapeHtml(spaCopy.previewBody)}</p>
+      </div>
+      <div class="spa-profile-mockup" role="img" aria-label="${escapeHtml(spaCopy.previewBody)}">
+        <div class="mockup-cover" style="--market-image:url('/spaplus-global/${market.image}')">
+          <span>${escapeHtml(spaCopy.previewEyebrow)}</span>
+        </div>
+        <div class="mockup-body">
+          <div class="mockup-brand"><span>${market.flag}</span><strong>SpaPlus ${escapeHtml(market.display)}</strong></div>
+          <div class="mockup-lines"><i></i><i></i><i></i></div>
+          <div class="mockup-actions"><span></span><b></b></div>
+        </div>
+      </div>
+    </section>
+    <section class="spa-operating section">
+      <div class="section-heading">
+        <p class="eyebrow">${escapeHtml(spaCopy.bookingEyebrow)}</p>
+        <h2>${escapeHtml(spaCopy.bookingTitle)}</h2>
+      </div>
+      <div class="spa-card-grid spa-card-grid-three">${cards(spaCopy.bookingCards, "spa-flow-card")}</div>
+    </section>
+    <section class="spa-payments section">
+      <div class="section-heading">
+        <p class="eyebrow">${escapeHtml(spaCopy.paymentEyebrow)}</p>
+        <h2>${escapeHtml(spaCopy.paymentTitle)}</h2>
+      </div>
+      <div class="spa-card-grid spa-card-grid-three">${cards(spaCopy.paymentCards, "spa-payment-card")}</div>
+      <p class="local-terms-note">${escapeHtml(spaCopy.localTerms)}</p>
+    </section>
+    <section class="spa-fit section">
+      <div>
+        <p class="eyebrow">${escapeHtml(spaCopy.fitEyebrow)}</p>
+        <h2>${escapeHtml(spaCopy.fitTitle)}</h2>
+        <p>${escapeHtml(spaCopy.fitBody)}</p>
+      </div>
+      <ul>${spaCopy.fitPoints.map((point) => `<li>${escapeHtml(point)}</li>`).join("")}</ul>
+    </section>
+    <section class="spa-process section">
+      <div class="section-heading">
+        <p class="eyebrow">${escapeHtml(spaCopy.processEyebrow)}</p>
+        <h2>${escapeHtml(spaCopy.processTitle)}</h2>
+      </div>
+      <div class="spa-process-grid">
+        ${spaCopy.processSteps
+          .map(
+            ([number, title, body]) =>
+              `<article><span>${escapeHtml(number)}</span><h3>${escapeHtml(title)}</h3><p>${escapeHtml(body)}</p></article>`,
+          )
+          .join("")}
+      </div>
+    </section>
+    <section class="spa-faq section">
+      <div class="section-heading"><h2>${escapeHtml(spaCopy.faqTitle)}</h2></div>
+      <div class="spa-faq-list">
+        ${spaCopy.faqs
+          .map(
+            ([question, answer]) =>
+              `<details><summary>${escapeHtml(question)}</summary><p>${escapeHtml(answer)}</p></details>`,
+          )
+          .join("")}
+      </div>
+    </section>`;
+}
+
 function renderFunnelPage(market, type) {
   const baseCopy =
-    market.slug === "italy" ? italyFunnelCopy[type] : funnelCopy[type];
+    market.slug === "italy" && market.lang === "it-IT"
+      ? italyFunnelCopy[type]
+      : funnelCopy[type];
   const localized = campaignLocalizations[market.lang];
   const localizedUi = funnelLanguageUi[market.lang]?.[type];
   const commonUi = funnelCommonUi[market.lang] || {
@@ -1180,6 +1547,7 @@ function renderFunnelPage(market, type) {
     : baseCopy;
   const isSpa = type === "spa";
   const spaUi = spaQualificationUi[market.lang] || spaQualificationUi.en;
+  const spaCopy = spaExperienceUi[market.lang] || spaExperienceUi.en;
   const currentPath = isSpa ? spaJoinPath(market) : entrepreneurPath(market);
   const otherPath = isSpa ? entrepreneurPath(market) : spaJoinPath(market);
   const canonical = `${previewOrigin}${currentPath}`;
@@ -1204,7 +1572,7 @@ function renderFunnelPage(market, type) {
           message: localized.labels.message,
           consent: localized.consent,
         }
-      : market.slug === "italy"
+      : market.slug === "italy" && market.lang === "it-IT"
       ? {
           name: "Nome e cognome",
           email: "Email",
@@ -1284,6 +1652,11 @@ function renderFunnelPage(market, type) {
       )}</a>
       <a href="/spaplus-global${marketPath(market)}">SpaPlus ${escapeHtml(market.display)}</a>
     </nav>
+${renderLanguageSwitcher(
+      market,
+      ui[market.ui] || ui.en,
+      isSpa ? spaJoinPath : entrepreneurPath,
+    )}
   </header>
   <main id="main">
     <section class="funnel-hero" style="--market-image:url('/spaplus-global/${market.image}')">
@@ -1292,6 +1665,9 @@ function renderFunnelPage(market, type) {
         <p class="eyebrow">${escapeHtml(copy.eyebrow)}</p>
         <h1>${escapeHtml(title)}</h1>
         <p>${escapeHtml(copy.lead)}</p>
+${isSpa
+  ? `<p class="funnel-trust">${escapeHtml(spaCopy.trust)}</p><a class="button button-primary funnel-hero-cta" href="#apply">${escapeHtml(spaCopy.heroCta)}</a>`
+  : ""}
         <div class="funnel-tabs" aria-label="${escapeHtml(commonUi.choose)}">
           <a class="${isSpa ? "is-active" : ""}" href="/spaplus-global${spaJoinPath(market)}">${escapeHtml(
             isSpa ? copy.tabPrimary : copy.tabSecondary,
@@ -1302,7 +1678,8 @@ function renderFunnelPage(market, type) {
         </div>
       </div>
     </section>
-    <section class="funnel-content section">
+${isSpa ? renderSpaExperienceSections(market, spaCopy) : ""}
+    <section class="funnel-content section" id="apply">
       <div class="funnel-explainer">
         <p class="eyebrow">SpaPlus ${escapeHtml(market.display)}</p>
         <h2>${escapeHtml(copy.whatTitle)}</h2>
@@ -1350,7 +1727,8 @@ function renderFunnelPage(market, type) {
             <label>${escapeHtml(labels.name)}<input name="name" autocomplete="name" required></label>
             <label>${escapeHtml(spaUi.role)}<input name="role" autocomplete="organization-title" required></label>
             <label>${escapeHtml(labels.email)}<input name="email" type="email" autocomplete="email" required></label>
-            <label class="field-wide">${escapeHtml(labels.phone)}<input name="phone" type="tel" autocomplete="tel" required></label>
+            <label>${escapeHtml(labels.phone)}<input name="phone" type="tel" autocomplete="tel" required></label>
+            <label>${escapeHtml(spaCopy.contactMethod)}<select name="preferredContact" required><option value="">${escapeHtml(spaUi.choose)}</option>${spaCopy.contactOptions.map((item) => `<option>${escapeHtml(item)}</option>`).join("")}</select></label>
           </div>
           <button class="button button-primary step-next" type="button" data-step-next>${escapeHtml(spaUi.next)}</button>
         </fieldset>
@@ -1358,8 +1736,12 @@ function renderFunnelPage(market, type) {
           <legend>${escapeHtml(spaUi.stepTwo)}</legend>
           <div class="step-grid">
             <label>${escapeHtml(spaUi.businessType)}<select name="businessType" required><option value="">${escapeHtml(spaUi.choose)}</option>${spaUi.types.map((item) => `<option>${escapeHtml(item)}</option>`).join("")}</select></label>
+            <label>${escapeHtml(spaCopy.status)}<select name="operatingStatus" required><option value="">${escapeHtml(spaUi.choose)}</option>${spaCopy.statusOptions.map((item) => `<option>${escapeHtml(item)}</option>`).join("")}</select></label>
+            <label>${escapeHtml(spaCopy.branches)}<select name="branches" required><option value="">${escapeHtml(spaUi.choose)}</option>${spaCopy.branchOptions.map((item) => `<option>${escapeHtml(item)}</option>`).join("")}</select></label>
             <label>${escapeHtml(spaUi.rooms)}<select name="treatmentRooms" required><option value="">${escapeHtml(spaUi.choose)}</option>${spaUi.roomOptions.map((item) => `<option>${escapeHtml(item)}</option>`).join("")}</select></label>
-            <label class="field-wide">${escapeHtml(spaUi.booking)}<select name="onlineBooking" required><option value="">${escapeHtml(spaUi.choose)}</option>${spaUi.bookingOptions.map((item) => `<option>${escapeHtml(item)}</option>`).join("")}</select></label>
+            <label>${escapeHtml(spaUi.booking)}<select name="onlineBooking" required><option value="">${escapeHtml(spaUi.choose)}</option>${spaUi.bookingOptions.map((item) => `<option>${escapeHtml(item)}</option>`).join("")}</select></label>
+            <fieldset class="choice-group field-wide"><legend>${escapeHtml(spaCopy.facilities)}</legend>${spaCopy.facilityOptions.map((item) => `<label><input type="checkbox" name="facilities" value="${escapeHtml(item)}"><span>${escapeHtml(item)}</span></label>`).join("")}</fieldset>
+            <label class="field-wide">${escapeHtml(spaCopy.bookingMethod)}<select name="preferredBookingMethod" required><option value="">${escapeHtml(spaUi.choose)}</option>${spaCopy.bookingMethodOptions.map((item) => `<option>${escapeHtml(item)}</option>`).join("")}</select></label>
             <label class="field-wide">${escapeHtml(labels.message)}<textarea name="message" rows="4"></textarea></label>
             <label class="consent field-wide"><input name="authorityConfirmed" type="checkbox" required value="confirmed"><span>${escapeHtml(spaUi.authority)}</span></label>
             <label class="consent field-wide"><input name="privacyConsent" type="checkbox" required value="accepted"><span>${escapeHtml(labels.consent)}</span></label>
@@ -1368,6 +1750,7 @@ function renderFunnelPage(market, type) {
             <button class="button button-secondary" type="button" data-step-back>${escapeHtml(spaUi.back)}</button>
             <button class="button button-primary" type="submit">${escapeHtml(copy.submit)}</button>
           </div>
+          <p class="response-note">${escapeHtml(spaCopy.responseNote)}</p>
         </fieldset>`
             : `<label>${escapeHtml(labels.name)}<input name="name" autocomplete="name" required></label>
         <label>${escapeHtml(labels.email)}<input name="email" type="email" autocomplete="email" required></label>
@@ -1389,7 +1772,7 @@ function renderFunnelPage(market, type) {
       <button class="modal-close" type="button" data-modal-close aria-label="${escapeHtml(spaUi.close)}">×</button>
       <span class="success-mark" aria-hidden="true">✓</span>
       <h2 id="success-title">${escapeHtml(spaUi.successTitle)}</h2>
-      <p>${escapeHtml(spaUi.successBody)}</p>
+      <p>${escapeHtml(spaCopy.responseNote)}</p>
       <button class="button button-primary" type="button" data-modal-close>${escapeHtml(spaUi.close)}</button>
     </div>
   </div>`
@@ -1398,6 +1781,7 @@ function renderFunnelPage(market, type) {
   <footer class="market-footer">
     <div><p>${escapeHtml(ui.en.legal)}</p></div>
     <nav><a href="/spaplus-global${marketPath(market)}">${escapeHtml(commonUi.market)}</a><a href="/spaplus-global/en/#privacy">${escapeHtml(commonUi.privacy)}</a></nav>
+    ${renderFooterMarkets(market)}
   </footer>
   <script src="/spaplus-global/markets/market.js?v=20260725-4"></script>
 </body>
@@ -1502,7 +1886,6 @@ function renderMarketPage(market) {
   <meta name="robots" content="noindex,follow">
   <link rel="canonical" href="${previewUrl(market)}">
   ${alternateLinks}
-  ${renderAlternates(market)}
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="SpaPlus Global">
   <meta property="og:title" content="${escapeHtml(pageTitle)}">
@@ -1642,6 +2025,7 @@ function renderMarketPage(market) {
       <a href="/spaplus-global/en/#privacy">${escapeHtml(auxUi.terms)}</a>
       <a href="/spaplus-global/en/#accessibility">${escapeHtml(auxUi.accessibility)}</a>
     </nav>
+    ${renderFooterMarkets(market)}
   </footer>
 
   <button class="share-market" type="button" aria-label="${escapeHtml(auxUi.share)}">${escapeHtml(auxUi.share)}</button>
@@ -1726,7 +2110,9 @@ function renderMarketsHub(locale) {
       }/country-partners/">${escapeHtml(copy.apply)}</a>
     </section>
   </main>
-  <footer class="market-footer"><p>${escapeHtml(copy.legal)}</p></footer>
+  <footer class="market-footer"><p>${escapeHtml(copy.legal)}</p>${renderFooterMarkets({
+    lang: locale,
+  })}</footer>
 </body>
 </html>`;
 }
@@ -1764,13 +2150,14 @@ h1,h2,h3,p{margin-top:0}
 .sample-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding:24px}.sample-card{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 12px 28px rgba(20,43,75,.09)}.sample-card-image{height:190px;background-size:cover;background-position:center}.sample-1{background-image:linear-gradient(0deg,rgba(11,30,54,.2),transparent),url('/spaplus-global/vision-resort.webp')}.sample-2{background-image:linear-gradient(0deg,rgba(11,30,54,.2),transparent),url('/spaplus-global/vision-ritual.webp')}.sample-3{background-image:linear-gradient(0deg,rgba(11,30,54,.2),transparent),url('/spaplus-global/vision-people.webp')}.sample-card-copy{padding:18px}.sample-card-copy span{color:var(--pink);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.1em}.sample-card-copy h3{margin:7px 0 0;font-size:21px}.sample-card-copy p{color:var(--muted);margin-bottom:12px}.concept-notice{margin:0;padding:0 24px 24px;color:var(--muted);font-size:12px;text-align:center}
 .marketplace-story{background:linear-gradient(135deg,#fff5f8,#f2f6fb)}.benefit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:1180px;margin:auto}.benefit-grid article{background:#fff;border:1px solid rgba(20,43,75,.1);border-radius:22px;padding:30px}.benefit-grid article>span{font-size:12px;color:var(--pink);font-weight:900}.benefit-grid h3{font-size:24px;margin:30px 0 10px}.benefit-grid p{color:var(--muted)}
 .entrepreneur-section{padding:clamp(70px,9vw,125px) clamp(20px,7vw,110px);background:var(--navy);color:#fff;display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(38px,8vw,120px);align-items:center}.entrepreneur-section>div>p:last-child{color:rgba(255,255,255,.76);font-size:18px}.entrepreneur-panel{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:26px;padding:32px}.entrepreneur-panel ul{padding-inline-start:20px;margin:0 0 28px}.entrepreneur-panel li{margin:12px 0}.spa-section{display:flex;align-items:center;justify-content:space-between;gap:40px;background:#fff}.spa-section>div{max-width:760px}.spa-section>div>p:last-child{color:var(--muted);font-size:18px}
-.market-footer{padding:38px clamp(20px,6vw,92px);background:#091a30;color:#fff;display:flex;justify-content:space-between;gap:30px;align-items:center}.market-footer>div{max-width:680px}.market-footer .market-brand{filter:brightness(0) invert(1);margin-bottom:16px}.market-footer p{margin:0;color:rgba(255,255,255,.68);font-size:13px}.market-footer nav{display:flex;gap:18px;flex-wrap:wrap}.market-footer nav a{color:#fff}
+.market-footer{padding:38px clamp(20px,6vw,92px);background:#091a30;color:#fff;display:flex;justify-content:space-between;gap:30px;align-items:center;flex-wrap:wrap}.market-footer>div{max-width:680px}.market-footer .market-brand{filter:brightness(0) invert(1);margin-bottom:16px}.market-footer p{margin:0;color:rgba(255,255,255,.68);font-size:13px}.market-footer nav{display:flex;gap:18px;flex-wrap:wrap}.market-footer nav a{color:#fff}.market-footer .market-footer-markets{flex:0 0 100%;max-width:none;margin-top:8px;padding-top:26px;border-top:1px solid rgba(255,255,255,.14);text-align:center}.market-footer-markets h2{margin:0 0 16px;color:#fff;font-size:13px;line-height:1.2;letter-spacing:.18em;text-transform:uppercase}.market-footer-markets nav{justify-content:center;gap:9px 20px}.market-footer-markets nav a{color:rgba(255,255,255,.76);font-size:12px;text-decoration:none}.market-footer-markets nav a:hover,.market-footer-markets nav a:focus-visible{color:#fff;text-decoration:underline;text-underline-offset:4px}
 .share-market{position:fixed;right:20px;bottom:20px;z-index:15;border:0;border-radius:999px;background:var(--pink);color:#fff;padding:13px 18px;font-weight:900;box-shadow:0 12px 30px rgba(237,23,100,.32)}.share-toast{position:fixed;right:20px;bottom:78px;z-index:16;background:var(--navy);color:#fff;border-radius:10px;padding:10px 14px;opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s}.share-toast.is-visible{opacity:1;transform:none}
 .hub-page{background:linear-gradient(180deg,#fff5f8,#f4f7fb 55%,#fff)}.hub-hero{padding:clamp(80px,12vw,160px) clamp(20px,7vw,110px) 60px;max-width:1200px}.hub-hero>p:last-of-type{max-width:780px;color:var(--muted);font-size:20px}.live-markets{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.live-markets span{background:#fff;border:1px solid var(--line);padding:10px 15px;border-radius:999px;font-weight:800}.live-markets strong{color:#168263;font-size:12px;letter-spacing:.12em}.hub-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding-top:20px}.hub-card{text-decoration:none;background:#fff;border:1px solid var(--line);border-radius:24px;padding:26px;min-height:250px;position:relative;transition:.2s;box-shadow:0 12px 30px rgba(20,43,75,.06)}.hub-card:hover{transform:translateY(-5px);box-shadow:0 20px 45px rgba(20,43,75,.13)}.hub-flag{font-size:42px}.hub-status{position:absolute;top:26px;right:26px;color:var(--pink);font-size:10px;font-weight:900;letter-spacing:.12em}.hub-card h2{font-size:30px;margin:32px 0 4px}.hub-card p{color:var(--muted)}.hub-card strong{display:block;margin-top:30px;color:var(--pink)}
 .funnel-page{background:#f6f7fa}.funnel-hero{min-height:590px;display:grid;align-items:end;background-image:linear-gradient(90deg,rgba(9,26,48,.94),rgba(9,26,48,.55)),var(--market-image);background-size:cover;background-position:center}.funnel-hero-copy{color:#fff;max-width:920px;padding:clamp(70px,10vw,135px) clamp(20px,7vw,110px)}.funnel-hero h1{font-size:clamp(48px,7vw,92px);line-height:.98;letter-spacing:-.055em;margin:24px 0}.funnel-hero-copy>p{font-size:clamp(18px,2vw,24px);color:rgba(255,255,255,.82);max-width:760px}.funnel-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:34px}.funnel-tabs a{padding:12px 17px;border:1px solid rgba(255,255,255,.38);border-radius:999px;color:#fff;text-decoration:none;font-weight:850}.funnel-tabs a.is-active{background:#fff;color:var(--navy)}.funnel-content{display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(36px,7vw,100px);align-items:start}.funnel-explainer{position:sticky;top:120px}.funnel-explainer h2,.funnel-form h2{font-size:clamp(34px,4vw,56px);line-height:1.03;letter-spacing:-.04em}.funnel-explainer>p,.funnel-form>div>p{color:var(--muted);font-size:17px}.funnel-explainer ul{padding-inline-start:22px;margin:28px 0}.funnel-explainer li{margin:14px 0}.text-link{color:var(--pink);font-weight:850}.funnel-form{display:grid;grid-template-columns:1fr 1fr;gap:18px;background:#fff;border:1px solid var(--line);border-radius:28px;padding:clamp(24px,4vw,48px);box-shadow:0 24px 70px rgba(20,43,75,.1);scroll-margin-top:92px}.funnel-form>div,.field-wide{grid-column:1/-1}.funnel-form label{font-weight:800;font-size:13px}.funnel-form input,.funnel-form textarea,.funnel-form select{display:block;width:100%;margin-top:7px;border:1px solid #cfd6df;border-radius:13px;background:#fff;color:var(--ink);padding:13px 14px;font:inherit}.funnel-form input:focus,.funnel-form textarea:focus,.funnel-form select:focus{outline:3px solid rgba(237,23,100,.17);border-color:var(--pink)}.funnel-form .consent{display:flex;gap:10px;align-items:flex-start;font-weight:500;color:var(--muted)}.funnel-form .consent input{width:18px;height:18px;margin:3px 0 0;flex:0 0 auto}.form-status{min-height:24px;margin:0;color:#11684f;font-weight:800}.funnel-form.is-sending{opacity:.72;pointer-events:none}.form-progress{display:grid;gap:8px;color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}.form-progress i{display:block;height:7px;border-radius:999px;background:#e7ebf0;overflow:hidden}.form-progress b{display:block;width:50%;height:100%;border-radius:inherit;background:var(--pink);transition:width .25s ease}.form-step{border:0;padding:0;margin:8px 0 0;min-width:0}.form-step legend{font-size:22px;font-weight:900;margin-bottom:22px;color:var(--navy)}.step-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.step-grid .field-wide{grid-column:1/-1}.step-next{margin-top:24px;width:100%}.step-actions{display:flex;justify-content:space-between;gap:12px;margin-top:24px}.step-actions .button{flex:1}.success-modal{position:fixed;inset:0;z-index:100;background:rgba(4,17,34,.72);display:grid;place-items:center;padding:20px}.success-modal[hidden]{display:none}.success-modal-card{position:relative;width:min(520px,100%);background:#fff;border-radius:28px;padding:clamp(30px,6vw,52px);text-align:center;box-shadow:0 30px 100px rgba(0,0,0,.3)}.success-modal-card h2{font-size:clamp(30px,5vw,46px);line-height:1.05;margin:18px 0 12px}.success-modal-card p{color:var(--muted);font-size:17px;margin:0 0 28px}.success-mark{display:grid;place-items:center;width:64px;height:64px;margin:auto;border-radius:50%;background:#e9fbf4;color:#11805e;font-size:34px;font-weight:900}.modal-close{position:absolute;top:14px;right:16px;border:0;background:transparent;color:var(--muted);font-size:28px;line-height:1;padding:8px}
+.funnel-trust{font-size:15px!important;font-weight:850;color:#fff!important;margin:22px 0 0}.funnel-hero-cta{margin-top:18px}.spa-card-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;max-width:1240px;margin:auto}.spa-card-grid-three{grid-template-columns:repeat(3,1fr)}.spa-info-card,.spa-flow-card,.spa-payment-card{background:#fff;border:1px solid var(--line);border-radius:24px;padding:30px;box-shadow:0 14px 36px rgba(20,43,75,.06)}.spa-info-card h3,.spa-flow-card h3,.spa-payment-card h3{font-size:22px;line-height:1.15;margin-bottom:12px}.spa-info-card p,.spa-flow-card p,.spa-payment-card p{color:var(--muted);margin:0}.spa-profile-preview{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(36px,7vw,96px);align-items:center;background:linear-gradient(135deg,#fff2f6,#eef4fb)}.spa-profile-copy h2,.spa-fit h2{font-size:clamp(38px,5vw,68px);line-height:1.02;letter-spacing:-.045em}.spa-profile-copy>p:last-child,.spa-fit>div>p:last-child{color:var(--muted);font-size:18px}.spa-profile-mockup{background:#fff;border:10px solid #fff;border-radius:28px;overflow:hidden;box-shadow:0 30px 80px rgba(20,43,75,.18)}.mockup-cover{height:260px;background-image:linear-gradient(0deg,rgba(9,26,48,.64),rgba(9,26,48,.08)),var(--market-image);background-size:cover;background-position:center;display:flex;align-items:flex-end;padding:20px}.mockup-cover span{background:#fff;color:var(--navy);border-radius:999px;padding:7px 11px;font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}.mockup-body{padding:24px}.mockup-brand{display:flex;align-items:center;gap:12px;font-size:18px}.mockup-brand span{font-size:30px}.mockup-lines{display:grid;gap:9px;margin:24px 0}.mockup-lines i{display:block;height:10px;background:#e7ebf0;border-radius:999px}.mockup-lines i:nth-child(2){width:85%}.mockup-lines i:nth-child(3){width:62%}.mockup-actions{display:flex;gap:12px}.mockup-actions span,.mockup-actions b{display:block;height:42px;border-radius:999px}.mockup-actions span{flex:1;background:#edf1f6}.mockup-actions b{width:35%;background:var(--pink)}.spa-operating{background:#fff}.spa-payments{background:var(--navy);color:#fff}.spa-payments .eyebrow{color:#ff75a7}.spa-payment-card{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16);box-shadow:none}.spa-payment-card p{color:rgba(255,255,255,.72)}.local-terms-note{max-width:900px;margin:32px auto 0;text-align:center;color:rgba(255,255,255,.76)}.spa-fit{display:grid;grid-template-columns:1fr 1fr;gap:clamp(36px,7vw,100px);align-items:center}.spa-fit ul{margin:0;padding:30px 30px 30px 52px;background:#fff;border:1px solid var(--line);border-radius:24px;box-shadow:0 14px 36px rgba(20,43,75,.06)}.spa-fit li{margin:12px 0}.spa-process{background:#fff}.spa-process-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;max-width:1240px;margin:auto}.spa-process-grid article{padding:26px;border-top:3px solid var(--pink);background:#f7f8fb;border-radius:0 0 20px 20px}.spa-process-grid article>span{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:var(--navy);color:#fff;font-weight:900}.spa-process-grid h3{font-size:20px;margin:22px 0 8px}.spa-process-grid p{color:var(--muted);margin:0}.spa-faq{background:#f2f5f9}.spa-faq-list{max-width:920px;margin:auto;display:grid;gap:12px}.spa-faq details{background:#fff;border:1px solid var(--line);border-radius:16px;padding:0 22px}.spa-faq summary{cursor:pointer;font-weight:850;padding:20px 0}.spa-faq details p{color:var(--muted);padding:0 0 20px;margin:0}.choice-group{border:1px solid var(--line);border-radius:16px;padding:16px}.choice-group legend{font-size:13px;margin:0;padding:0 7px}.choice-group label{display:inline-flex;align-items:center;gap:8px;margin:5px 12px 5px 0;padding:8px 12px;border-radius:999px;background:#f3f5f8}.choice-group input{display:inline-block;width:18px;height:18px;margin:0}.response-note{grid-column:1/-1;margin:12px 0 0;color:var(--muted);font-size:13px;text-align:center}
 @media(max-width:900px){.market-header nav{display:none}.market-hero{min-height:650px}.market-hero-shade{background:linear-gradient(0deg,rgba(10,29,52,.9),rgba(10,29,52,.22))}.search-mockup{grid-template-columns:1fr 1fr}.search-mockup button{grid-column:1/-1}.sample-grid,.benefit-grid,.hub-grid{grid-template-columns:1fr 1fr}.entrepreneur-section{grid-template-columns:1fr}.spa-section,.market-footer{align-items:flex-start;flex-direction:column}}
-@media(max-width:900px){.funnel-content{grid-template-columns:1fr}.funnel-explainer{position:static}}
-@media(max-width:620px){.market-header{min-height:70px;padding:10px 16px}.market-brand img:first-child{width:38px;height:38px}.market-brand img:last-child{width:90px}.market-language>span{display:none}.market-hero{min-height:630px}.market-hero-copy{padding:70px 20px 42px}.market-hero h1{font-size:48px}.section{padding:70px 16px}.search-mockup,.sample-grid,.benefit-grid,.hub-grid{grid-template-columns:1fr}.sample-grid{padding:16px}.sample-card-image{height:170px}.entrepreneur-section{padding:70px 20px}.spa-section{padding:70px 20px}.market-footer{padding:34px 20px}.share-market{right:14px;bottom:14px}.hub-status{right:20px}.funnel-hero{min-height:540px}.funnel-hero-copy{padding:76px 18px 42px}.funnel-hero h1{font-size:47px}.funnel-form{grid-template-columns:1fr}.funnel-form label{grid-column:1/-1}.step-grid{grid-template-columns:1fr}.step-grid .field-wide{grid-column:1}.step-actions{flex-direction:column-reverse}}
+@media(max-width:900px){.funnel-content,.spa-profile-preview,.spa-fit{grid-template-columns:1fr}.funnel-explainer{position:static}.spa-card-grid{grid-template-columns:1fr 1fr}.spa-process-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.market-header{min-height:70px;padding:10px 16px}.market-brand img:first-child{width:38px;height:38px}.market-brand img:last-child{width:90px}.market-language>span{display:none}.market-hero{min-height:630px}.market-hero-copy{padding:70px 20px 42px}.market-hero h1{font-size:48px}.section{padding:70px 16px}.search-mockup,.sample-grid,.benefit-grid,.hub-grid,.spa-card-grid,.spa-process-grid{grid-template-columns:1fr}.sample-grid{padding:16px}.sample-card-image{height:170px}.entrepreneur-section{padding:70px 20px}.spa-section{padding:70px 20px}.market-footer{padding:34px 20px}.share-market{right:14px;bottom:14px}.hub-status{right:20px}.funnel-hero{min-height:540px}.funnel-hero-copy{padding:76px 18px 42px}.funnel-hero h1{font-size:47px}.funnel-form{grid-template-columns:1fr}.funnel-form label{grid-column:1/-1}.step-grid{grid-template-columns:1fr}.step-grid .field-wide{grid-column:1}.step-actions{flex-direction:column-reverse}.mockup-cover{height:190px}.spa-info-card,.spa-flow-card,.spa-payment-card{padding:24px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.button,.hub-card{transition:none}}
 `;
 
@@ -1908,7 +2295,9 @@ if (funnelForm) {
     event.preventDefault();
     const status = funnelForm.querySelector(".form-status");
     const submit = funnelForm.querySelector("button[type='submit']");
-    const formValues = Object.fromEntries(new FormData(funnelForm).entries());
+    const formData = new FormData(funnelForm);
+    const formValues = Object.fromEntries(formData.entries());
+    const selectedFacilities = formData.getAll("facilities");
     const emailLocaleMap = {
       "el-cy": "el",
       "el-gr": "el",
@@ -1959,9 +2348,14 @@ if (funnelForm) {
         "Website: " + (formValues.website || "Not provided"),
         formValues.city ? "City or region: " + formValues.city : "",
         formValues.role ? "Contact role: " + formValues.role : "",
+        formValues.preferredContact ? "Preferred contact: " + formValues.preferredContact : "",
         formValues.businessType ? "Business type: " + formValues.businessType : "",
+        formValues.operatingStatus ? "Operating status: " + formValues.operatingStatus : "",
+        formValues.branches ? "Locations: " + formValues.branches : "",
         formValues.treatmentRooms ? "Treatment rooms: " + formValues.treatmentRooms : "",
+        selectedFacilities.length ? "Facilities: " + selectedFacilities.join(", ") : "",
         formValues.onlineBooking ? "Online booking: " + formValues.onlineBooking : "",
+        formValues.preferredBookingMethod ? "Preferred booking method: " + formValues.preferredBookingMethod : "",
         formValues.authorityConfirmed ? "Authority confirmed: Yes" : "",
         campaignDetails ? "\\nCampaign attribution:\\n" + campaignDetails : "",
         "Referrer: " + (formValues.referrer || "Direct"),
@@ -1993,9 +2387,14 @@ if (funnelForm) {
             website: formValues.website || "Not provided",
             city_or_region: formValues.city || "Not provided",
             contact_role: formValues.role || "Not provided",
+            preferred_contact: formValues.preferredContact || "Not provided",
             business_type: formValues.businessType || "Not provided",
+            operating_status: formValues.operatingStatus || "Not provided",
+            locations: formValues.branches || "Not provided",
             treatment_rooms: formValues.treatmentRooms || "Not provided",
+            facilities: selectedFacilities.join(", ") || "Not provided",
             online_booking: formValues.onlineBooking || "Not provided",
+            preferred_booking_method: formValues.preferredBookingMethod || "Not provided",
             authority_confirmed: formValues.authorityConfirmed || "Not applicable",
             market: formValues.market,
             lead_type: formValues.leadType,

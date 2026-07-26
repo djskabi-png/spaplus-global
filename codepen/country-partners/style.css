@@ -414,6 +414,11 @@ footer p { margin: 0; }
 .footer-nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px 22px; }
 .footer-nav a { color: rgba(255,255,255,.78); font-size: 13px; text-decoration: none; }
 .footer-nav a:hover { color: white; text-decoration: underline; text-underline-offset: 4px; }
+.footer-markets-block { grid-column: 1 / -1; width: 100%; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.14); text-align: center; }
+.footer-markets-block h2 { margin: 0 0 16px; color: white; font-size: 13px; line-height: 1.2; letter-spacing: .18em; text-transform: uppercase; }
+.footer-markets { display: flex; justify-content: center; flex-wrap: wrap; gap: 9px 20px; }
+.footer-markets a { color: rgba(255,255,255,.76); font-size: 12px; text-decoration: none; }
+.footer-markets a:hover, .footer-markets a:focus-visible { color: white; text-decoration: underline; text-underline-offset: 4px; }
 
 [dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3 { letter-spacing: -1px; }
 
