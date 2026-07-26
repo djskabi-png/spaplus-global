@@ -359,12 +359,16 @@ test("every target market has English pages and every page template has Coming S
     assert.match(spa, /Monthly settlement/);
   }
 
-  const [home, countryPartners] = await Promise.all([
+  const [home, countryPartners, hebrewSpa] = await Promise.all([
     read("codepen/index.html"),
     read("codepen/country-partners/index.html"),
+    read("codepen/he/spas/join/italy/index.html"),
   ]);
   for (const page of [home, countryPartners]) {
     assert.match(page, /class="footer-markets-block"/);
     assert.match(page, />Coming Soon<\/h2>/);
   }
+  assert.match(hebrewSpa, /<h2>בקרוב<\/h2>/);
+  assert.match(hebrewSpa, /href="\/spaplus-global\/he\/markets\/italy\/">איטליה<\/a>/);
+  assert.doesNotMatch(hebrewSpa, /href="\/spaplus-global\/en\/markets\/italy\/">Italy<\/a>/);
 });

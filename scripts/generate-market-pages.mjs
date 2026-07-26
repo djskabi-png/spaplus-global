@@ -1604,8 +1604,15 @@ function renderFooterMarkets(context = { lang: "en" }) {
     .map((slug) => {
       const siblings = markets.filter((market) => market.slug === slug);
       const target =
-        siblings.find((market) => market.lang.startsWith("en")) || siblings[0];
-      const label = footerMarketNames[slug] || target.name;
+        siblings.find((market) => market.lang === context.lang) ||
+        siblings.find((market) => market.lang === languageCode) ||
+        siblings.find((market) => market.lang.startsWith(`${languageCode}-`)) ||
+        siblings.find((market) => market.lang.startsWith("en")) ||
+        siblings[0];
+      const label =
+        languageCode === "en" && footerMarketNames[slug]
+          ? footerMarketNames[slug]
+          : target.display;
       return `<a href="/spaplus-global${marketPath(target)}">${escapeHtml(label)}</a>`;
     })
     .join("");
