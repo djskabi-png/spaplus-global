@@ -304,10 +304,19 @@ export default function Home() {
   >("idle");
   const [shareToastVisible, setShareToastVisible] = useState(false);
   const [cookieBannerVisible, setCookieBannerVisible] = useState(false);
+  const [cmsOverrides, setCmsOverrides] = useState<
+    Record<string, Record<string, string>>
+  >({});
   const shareToastTimerRef = useRef<number | null>(null);
   const successCloseRef = useRef<HTMLButtonElement>(null);
-  const t = translations[locale];
-  const company = companyData.copy[locale];
+  const t = {
+    ...translations[locale],
+    ...(cmsOverrides.translation || {}),
+  } as (typeof translations)[Locale];
+  const company = {
+    ...companyData.copy[locale],
+    ...(cmsOverrides.company || {}),
+  } as (typeof companyData.copy)[Locale];
 
   useEffect(() => {
     const consent = window.localStorage.getItem(cookieConsentStorageKey);
@@ -331,6 +340,21 @@ export default function Home() {
         : localeFromBrowser(navigator.languages);
     queueMicrotask(() => setLocale(initialLocale));
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    fetch(`/api/cms/public?locale=${encodeURIComponent(locale)}`)
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (active && data?.content) setCmsOverrides(data.content);
+      })
+      .catch(() => {
+        if (active) setCmsOverrides({});
+      });
+    return () => {
+      active = false;
+    };
+  }, [locale]);
 
   useEffect(
     () => () => {

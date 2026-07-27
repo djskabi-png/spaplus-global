@@ -37,6 +37,7 @@ yarn-error.log*
 
 # typescript
 next-env.d.ts
+*.tsbuildinfo
 /dist/
 /build/
 /.wrangler/
@@ -44,3 +45,35 @@ next-env.d.ts
 /work/
 *.log
 /visual-check-*.png
+
+# Generated production copies of the GitHub Pages routes.
+/public/country-partners/
+/public/de-ch/
+/public/de-de/
+/public/el/
+/public/el-cy/
+/public/el-gr/
+/public/en/
+/public/en-ae/
+/public/en-gb/
+/public/en-us/
+/public/es/
+/public/fr-ca/
+/public/fr-fr/
+/public/he/
+/public/hu/
+/public/hu-hu/
+/public/it/
+/public/it-it/
+/public/markets/
+/public/nb-no/
+/public/nl-nl/
+/public/pl/
+/public/ru/
+/public/sv-se/
+/public/accessibility.css
+/public/accessibility.js
+/public/robots.txt
+/public/script.js
+/public/sitemap.xml
+/public/style.css

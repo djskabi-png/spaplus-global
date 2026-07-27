@@ -28,6 +28,22 @@ interface ExecutionContext {
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+    const hostname = url.hostname.toLowerCase();
+
+    if (hostname === "www.spaplus.co") {
+      url.hostname = "spaplus.co";
+      return Response.redirect(url.toString(), 308);
+    }
+
+    if (hostname === "admin.spaplus.co" && url.pathname === "/") {
+      url.pathname = "/admin";
+      return Response.redirect(url.toString(), 307);
+    }
+
+    if (hostname === "tools.spaplus.co" && url.pathname === "/") {
+      url.pathname = "/tools";
+      return Response.redirect(url.toString(), 307);
+    }
 
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];

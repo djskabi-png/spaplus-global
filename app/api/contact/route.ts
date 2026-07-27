@@ -3,6 +3,8 @@ import {
   buildVisitorEmail,
   type ContactEmailData,
 } from "../../email-templates";
+import { getDb } from "../../../db";
+import { formSubmissions } from "../../../db/schema";
 
 const supportedLocales = [
   "en",
@@ -225,6 +227,27 @@ export async function POST(request: Request) {
         { success: false, error: "Email delivery failed" },
         { status: 502, headers },
       );
+    }
+
+    try {
+      await getDb()
+        .insert(formSubmissions)
+        .values({
+          submissionId,
+          formType: "contact",
+          name: data.name,
+          email: data.email,
+          organization: data.organization,
+          topic: data.publicTopic || data.topic,
+          message: data.message,
+          locale: data.locale,
+          source: data.source,
+          status: "new",
+          createdAt: new Date().toISOString(),
+        })
+        .onConflictDoNothing({ target: formSubmissions.submissionId });
+    } catch (error) {
+      console.error("Submission archive failed", error);
     }
 
     return Response.json(
