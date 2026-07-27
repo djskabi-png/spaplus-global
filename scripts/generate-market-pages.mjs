@@ -2283,6 +2283,7 @@ function renderMarketsHub(locale) {
   <link rel="stylesheet" href="/spaplus-global/markets/market.css?v=20260725-2">
 </head>
 <body class="hub-page">
+  <a class="skip-link" href="#main">${locale === "he" ? "דלגו לתוכן הראשי" : "Skip to main content"}</a>
   <header class="market-header">
     <a class="market-brand" href="/spaplus-global/${locale}/">
       <img src="/spaplus-global/spaplus-mark.png" alt="">
@@ -2323,6 +2324,7 @@ const marketCss = `
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--cream);color:var(--ink);font-family:Inter,"Noto Sans","Noto Sans Hebrew",Arial,sans-serif;line-height:1.6}
 [dir="rtl"] body{font-family:Heebo,Arial,sans-serif}
+[dir="rtl"] h1,[dir="rtl"] h2,[dir="rtl"] h3{letter-spacing:0!important;word-spacing:.08em}
 [dir="rtl"] .market-hero-shade{background:linear-gradient(270deg,rgba(10,29,52,.88),rgba(10,29,52,.5) 46%,rgba(10,29,52,.1)),linear-gradient(0deg,rgba(10,29,52,.55),transparent 55%)}
 [dir="rtl"] .funnel-hero{background-image:linear-gradient(270deg,rgba(9,26,48,.94),rgba(9,26,48,.55)),var(--market-image)}
 [dir="rtl"] .share-market,[dir="rtl"] .share-toast{right:auto;left:20px}

@@ -1,0 +1,207 @@
+:root {
+  --a11y-panel-bg: #ffffff;
+  --a11y-panel-text: #142947;
+  --a11y-panel-border: #c8d2df;
+  --a11y-accent: #ee1760;
+}
+
+.a11y-launcher {
+  position: fixed;
+  inset-inline-start: 18px;
+  bottom: 18px;
+  z-index: 9998;
+  min-width: 48px;
+  min-height: 48px;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  background: #142947;
+  color: #ffffff;
+  box-shadow: 0 10px 30px rgb(11 31 58 / 28%);
+  padding: 10px 15px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.a11y-launcher:hover,
+.a11y-launcher:focus-visible {
+  background: var(--a11y-accent);
+}
+
+.a11y-panel {
+  position: fixed;
+  inset-inline-start: 18px;
+  bottom: 82px;
+  z-index: 9999;
+  width: min(330px, calc(100vw - 36px));
+  max-height: min(620px, calc(100vh - 110px));
+  overflow: auto;
+  border: 1px solid var(--a11y-panel-border);
+  border-radius: 20px;
+  background: var(--a11y-panel-bg);
+  color: var(--a11y-panel-text);
+  box-shadow: 0 24px 70px rgb(11 31 58 / 28%);
+  padding: 20px;
+}
+
+.a11y-panel[hidden] {
+  display: none;
+}
+
+.a11y-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.a11y-panel-title {
+  margin: 0;
+  color: inherit;
+  font-size: 1.2rem;
+  line-height: 1.3;
+}
+
+.a11y-panel-close {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border: 1px solid var(--a11y-panel-border);
+  border-radius: 50%;
+  background: #ffffff;
+  color: #142947;
+  font: inherit;
+  font-size: 1.45rem;
+  cursor: pointer;
+}
+
+.a11y-controls {
+  display: grid;
+  gap: 9px;
+}
+
+.a11y-control,
+.a11y-statement-link {
+  display: flex;
+  width: 100%;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--a11y-panel-border);
+  border-radius: 12px;
+  background: #f6f8fb;
+  color: #142947;
+  padding: 10px 12px;
+  font: inherit;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.a11y-control:hover,
+.a11y-control:focus-visible,
+.a11y-statement-link:hover,
+.a11y-statement-link:focus-visible {
+  border-color: var(--a11y-accent);
+  outline: 3px solid rgb(238 23 96 / 22%);
+  outline-offset: 2px;
+}
+
+.a11y-control[aria-pressed="true"] {
+  border-color: #142947;
+  background: #142947;
+  color: #ffffff;
+}
+
+html.a11y-text-lg {
+  font-size: 112.5%;
+}
+
+html.a11y-text-xl {
+  font-size: 125%;
+}
+
+html.a11y-underline-links a:not(.button) {
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px !important;
+  text-underline-offset: 0.18em !important;
+}
+
+html.a11y-reduce-motion *,
+html.a11y-reduce-motion *::before,
+html.a11y-reduce-motion *::after {
+  scroll-behavior: auto !important;
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+html.a11y-contrast {
+  filter: none !important;
+}
+
+html.a11y-contrast body,
+html.a11y-contrast main,
+html.a11y-contrast section,
+html.a11y-contrast header,
+html.a11y-contrast footer,
+html.a11y-contrast article,
+html.a11y-contrast nav,
+html.a11y-contrast .a11y-panel {
+  background-color: #000000 !important;
+  background-image: none !important;
+  color: #ffffff !important;
+}
+
+html.a11y-contrast h1,
+html.a11y-contrast h2,
+html.a11y-contrast h3,
+html.a11y-contrast p,
+html.a11y-contrast li,
+html.a11y-contrast label,
+html.a11y-contrast summary,
+html.a11y-contrast span:not([aria-hidden="true"]),
+html.a11y-contrast strong {
+  color: #ffffff !important;
+}
+
+html.a11y-contrast a,
+html.a11y-contrast button {
+  color: #ffff00 !important;
+}
+
+html.a11y-contrast input,
+html.a11y-contrast select,
+html.a11y-contrast textarea {
+  border: 2px solid #ffffff !important;
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+html.a11y-contrast :focus-visible {
+  outline: 4px solid #00ffff !important;
+  outline-offset: 3px !important;
+}
+
+@media (max-width: 560px) {
+  .a11y-launcher {
+    inset-inline-start: 12px;
+    bottom: 12px;
+  }
+
+  .a11y-panel {
+    inset-inline-start: 12px;
+    inset-inline-end: 12px;
+    bottom: 72px;
+    width: auto;
+  }
+}
+
+@media print {
+  .a11y-launcher,
+  .a11y-panel {
+    display: none !important;
+  }
+}

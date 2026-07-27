@@ -560,7 +560,10 @@ export default function Home() {
 
           <label className="language-switcher">
             <span className="sr-only">{t.languageLabel}</span>
-            <span aria-hidden="true">A</span>
+            <svg className="language-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18" />
+            </svg>
             <select
               value={locale}
               aria-label={t.languageLabel}

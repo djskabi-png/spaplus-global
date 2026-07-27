@@ -307,8 +307,13 @@ a {
   box-shadow: 0 0 0 3px rgba(233, 23, 106, 0.11);
 }
 
-.language-switcher > span[aria-hidden="true"] {
-  font-size: 15px;
+.language-switcher .language-icon {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  flex: 0 0 18px;
 }
 
 .language-switcher select {
@@ -3096,7 +3101,7 @@ body.modal-open {
     padding-inline: 8px;
   }
 
-  .language-switcher > span[aria-hidden="true"] {
+  .language-switcher .language-icon {
     display: none;
   }
 
@@ -3560,7 +3565,8 @@ body.modal-open {
 
 [lang="he"] :is(h1, h2, h3, h4) {
   font-weight: 700;
-  letter-spacing: -0.035em;
+  letter-spacing: 0;
+  word-spacing: 0.08em;
   line-height: 1.08;
 }
 

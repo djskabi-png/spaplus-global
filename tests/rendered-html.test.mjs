@@ -4,6 +4,11 @@ import test from "node:test";
 
 const root = new URL("../", import.meta.url);
 const localeCodes = ["en", "he", "fr-CA", "ru", "el", "it", "hu", "pl", "es"];
+const accessibilityRoutes = [
+  "en", "he", "fr-ca", "ru", "el", "it", "hu", "pl", "es", "en-us", "el-cy",
+  "el-gr", "hu-hu", "it-it", "en-gb", "de-de", "fr-fr", "nl-nl", "sv-se",
+  "nb-no", "de-ch", "en-ae",
+];
 
 async function read(path) {
   return readFile(new URL(path, root), "utf8");
@@ -371,6 +376,49 @@ test("every target market has English pages and every page template has Coming S
   assert.match(hebrewSpa, /<h2>בקרוב<\/h2>/);
   assert.match(hebrewSpa, /href="\/spaplus-global\/he\/markets\/italy\/">איטליה<\/a>/);
   assert.doesNotMatch(hebrewSpa, /href="\/spaplus-global\/en\/markets\/italy\/">Italy<\/a>/);
+});
+
+test("accessibility controls and statements are available in every published language", async () => {
+  const [widget, styles, home] = await Promise.all([
+    read("codepen/accessibility.js"),
+    read("codepen/accessibility.css"),
+    read("codepen/index.html"),
+  ]);
+  const [englishMarketHub, hebrewMarketHub, siteStyles] = await Promise.all([
+    read("codepen/en/markets/index.html"),
+    read("codepen/he/markets/index.html"),
+    read("codepen/style.css"),
+  ]);
+
+  assert.match(home, /global-accessibility-link/);
+  assert.match(home, /accessibility\.css/);
+  assert.match(home, /accessibility\.js/);
+  assert.doesNotMatch(home, /<span aria-hidden="true">A<\/span>/);
+  assert.match(widget, /aria-expanded/);
+  assert.match(widget, /event\.key === "Escape"/);
+  assert.match(widget, /localStorage/);
+  assert.match(widget, /a11y-contrast/);
+  assert.match(widget, /a11y-underline-links/);
+  assert.match(widget, /a11y-reduce-motion/);
+  assert.match(styles, /:focus-visible/);
+  assert.match(styles, /a11y-text-xl/);
+  assert.match(englishMarketHub, /class="skip-link" href="#main"/);
+  assert.match(hebrewMarketHub, /class="skip-link" href="#main"/);
+  assert.match(
+    siteStyles,
+    /\[lang="he"\] :is\(h1, h2, h3, h4\) \{\s*font-weight:\s*700;\s*letter-spacing:\s*0;\s*word-spacing:\s*0\.08em;/,
+  );
+
+  for (const locale of accessibilityRoutes) {
+    const html = await read(`codepen/${locale}/accessibility/index.html`);
+    assert.match(html, /<h1>[^<]+<\/h1>/);
+    assert.match(html, /GLOBAL SPA MANAGEMENT LTD/);
+    assert.match(html, /2\.2/);
+    assert.match(html, /27/);
+    assert.match(html, /accessibility\.css/);
+    assert.match(html, /accessibility\.js/);
+    assert.doesNotMatch(html, /formally certified|fully compliant/i);
+  }
 });
 
 test("every Coming Soon country link points to an existing English market page", async () => {
