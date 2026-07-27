@@ -19,10 +19,15 @@ type Submission = {
 export default function SubmissionsClient() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   useEffect(() => {
     fetch("/api/cms/submissions")
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) throw new Error("Unable to load submissions");
+        return response.json();
+      })
       .then((data) => setSubmissions(data.submissions || []))
+      .catch(() => setError("לא ניתן לטעון את הפניות כרגע. נסו לרענן את העמוד."))
       .finally(() => setLoading(false));
   }, []);
   return (
@@ -35,7 +40,8 @@ export default function SubmissionsClient() {
       </div>
       <div className="cms-card">
         {loading ? <p>טוען פניות...</p> : null}
-        {!loading && submissions.length === 0 ? <p>עדיין אין פניות שמורות.</p> : null}
+        {error ? <p role="alert">{error}</p> : null}
+        {!loading && !error && submissions.length === 0 ? <p>עדיין אין פניות שמורות.</p> : null}
         <div className="cms-user-list">
           {submissions.map((item) => (
             <article key={item.id} style={{gridTemplateColumns:"1fr"}}>
