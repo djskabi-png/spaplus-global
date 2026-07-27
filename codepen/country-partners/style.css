@@ -366,7 +366,7 @@ h1 {
 .success-check::after { width: 22px; height: 11px; margin: 18px auto; display: block; border-bottom: 3px solid white; border-left: 3px solid white; content: ""; transform: rotate(-45deg); }
 .share-page {
   position: fixed;
-  inset-inline-start: 24px;
+  inset-inline-end: 24px;
   bottom: 24px;
   z-index: 70;
   min-height: 48px;
@@ -390,7 +390,7 @@ h1 {
 .share-page svg { width: 19px; height: 19px; fill: currentColor; }
 .share-toast {
   position: fixed;
-  inset-inline-start: 24px;
+  inset-inline-end: 24px;
   bottom: 82px;
   z-index: 75;
   margin: 0;
@@ -447,9 +447,9 @@ footer p { margin: 0; }
   .page-nav::-webkit-scrollbar { display: none; }
   .page-nav a { min-height: 44px; display: inline-flex; align-items: center; }
   .page-nav .page-nav-cta { display: none; }
-  .share-page { inset-inline-start: 16px; bottom: 16px; min-width: 48px; padding: 0 14px; }
+  .share-page { inset-inline-end: 16px; bottom: 16px; min-width: 48px; padding: 0 14px; }
   .share-page span { display: none; }
-  .share-toast { inset-inline-start: 16px; bottom: 72px; }
+  .share-toast { inset-inline-end: 16px; bottom: 72px; }
   #model, #fit, #process, #questions, #apply { scroll-margin-top: 132px; }
   .brand img:first-child { width: 48px; height: 48px; }
   .brand img:last-child { width: 84px; }

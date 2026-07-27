@@ -2487,7 +2487,7 @@ body.modal-open {
 
 .share-page {
   position: fixed;
-  inset-inline-start: 24px;
+  inset-inline-end: 24px;
   bottom: 24px;
   z-index: 70;
   min-height: 48px;
@@ -2526,7 +2526,7 @@ body.modal-open {
 
 .share-toast {
   position: fixed;
-  inset-inline-start: 24px;
+  inset-inline-end: 24px;
   bottom: 82px;
   z-index: 75;
   margin: 0;
@@ -2549,7 +2549,7 @@ body.modal-open {
 
 @media (max-width: 700px) {
   .share-page {
-    inset-inline-start: 16px;
+    inset-inline-end: 16px;
     bottom: 16px;
     min-width: 48px;
     padding: 0 14px;
@@ -2560,7 +2560,7 @@ body.modal-open {
   }
 
   .share-toast {
-    inset-inline-start: 16px;
+    inset-inline-end: 16px;
     bottom: 72px;
   }
 }

@@ -384,10 +384,12 @@ test("accessibility controls and statements are available in every published lan
     read("codepen/accessibility.css"),
     read("codepen/index.html"),
   ]);
-  const [englishMarketHub, hebrewMarketHub, siteStyles] = await Promise.all([
+  const [englishMarketHub, hebrewMarketHub, siteStyles, partnerStyles] =
+    await Promise.all([
     read("codepen/en/markets/index.html"),
     read("codepen/he/markets/index.html"),
     read("codepen/style.css"),
+    read("codepen/country-partners/style.css"),
   ]);
 
   assert.match(home, /global-accessibility-link/);
@@ -408,6 +410,16 @@ test("accessibility controls and statements are available in every published lan
     siteStyles,
     /\[lang="he"\] :is\(h1, h2, h3, h4\) \{\s*font-weight:\s*700;\s*letter-spacing:\s*0;\s*word-spacing:\s*0\.08em;/,
   );
+  for (const pageStyles of [siteStyles, partnerStyles]) {
+    assert.match(
+      pageStyles,
+      /\.share-page\s*\{[\s\S]*?inset-inline-end:\s*24px;/,
+    );
+    assert.match(
+      pageStyles,
+      /@media \(max-width:\s*700px\)[\s\S]*?\.share-page\s*\{[\s\S]*?inset-inline-end:\s*16px;/,
+    );
+  }
 
   for (const locale of accessibilityRoutes) {
     const html = await read(`codepen/${locale}/accessibility/index.html`);
