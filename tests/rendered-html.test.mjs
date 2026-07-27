@@ -372,3 +372,65 @@ test("every target market has English pages and every page template has Coming S
   assert.match(hebrewSpa, /href="\/spaplus-global\/he\/markets\/italy\/">איטליה<\/a>/);
   assert.doesNotMatch(hebrewSpa, /href="\/spaplus-global\/en\/markets\/italy\/">Italy<\/a>/);
 });
+
+test("every Coming Soon country link points to an existing English market page", async () => {
+  const markets = [
+    ["en-us", "united-states"],
+    ["en", "cyprus"],
+    ["en", "greece"],
+    ["en", "hungary"],
+    ["en", "italy"],
+    ["en-gb", "united-kingdom"],
+    ["en", "germany"],
+    ["en", "france"],
+    ["en", "netherlands"],
+    ["en", "sweden"],
+    ["en", "norway"],
+    ["en", "switzerland"],
+    ["en-ae", "united-arab-emirates"],
+  ];
+  const footerPages = await Promise.all(
+    [
+      "index.html",
+      "country-partners/index.html",
+      "country-partners/he/index.html",
+      "en/index.html",
+      "he/index.html",
+      "fr-ca/index.html",
+      "ru/index.html",
+      "el/index.html",
+      "it/index.html",
+      "hu/index.html",
+      "pl/index.html",
+      "es/index.html",
+      "en/country-partners/index.html",
+      "he/country-partners/index.html",
+    ].map((page) => read(`codepen/${page}`)),
+  );
+
+  for (const [locale, slug] of markets) {
+    const href = `/spaplus-global/${locale}/markets/${slug}/`;
+    await read(`codepen/${locale}/markets/${slug}/index.html`);
+    for (const page of footerPages) {
+      assert.ok(page.includes(`href="${href}"`), `Missing footer link ${href}`);
+    }
+  }
+
+  const combined = footerPages.join("\n");
+  for (const invalidLocale of [
+    "en-gr",
+    "en-hu",
+    "en-it",
+    "en-de",
+    "en-fr",
+    "en-nl",
+    "en-se",
+    "en-no",
+    "en-ch",
+  ]) {
+    assert.doesNotMatch(
+      combined,
+      new RegExp(`/spaplus-global/${invalidLocale}/markets/`),
+    );
+  }
+});
