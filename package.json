@@ -2,6 +2,14 @@
   "name": "spaplus-global",
   "version": "0.1.0",
   "private": true,
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp",
+      "unrs-resolver",
+      "workerd"
+    ]
+  },
   "engines": {
     "node": ">=22.13.0"
   },
