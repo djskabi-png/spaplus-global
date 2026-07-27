@@ -149,11 +149,11 @@
         <input type="hidden" name="fbclid">
         <input type="hidden" name="msclkid">
         <input type="hidden" name="referrer">
-        <div class="form-progress field-wide" aria-label="Stap 1 van 2">
-          <span data-progress-label>Stap 1 van 2</span><i><b data-progress-bar></b></i>
+        <div class="form-progress field-wide" role="progressbar" aria-valuemin="1" aria-valuemax="2" aria-valuenow="1" aria-valuetext="Stap 1 van 2">
+          <span data-progress-label>Stap 1 van 2</span><i aria-hidden="true"><b data-progress-bar></b></i>
         </div>
         <fieldset class="form-step field-wide is-active" data-form-step="1">
-          <legend>Je spa en contactgegevens</legend>
+          <legend tabindex="-1">Je spa en contactgegevens</legend>
           <div class="step-grid">
             <label>Naam van de spa of onderneming<input name="company" autocomplete="organization" required></label>
             <label>Website of socialmediaprofiel<input name="website" type="url" inputmode="url" placeholder="https://"></label>
@@ -167,7 +167,7 @@
           <button class="button button-primary step-next" type="button" data-step-next>Verder</button>
         </fieldset>
         <fieldset class="form-step field-wide" data-form-step="2" hidden>
-          <legend>Een paar gegevens over je onderneming</legend>
+          <legend tabindex="-1">Een paar gegevens over je onderneming</legend>
           <div class="step-grid">
             <label>Type onderneming<select name="businessType" required><option value="">Maak een keuze</option><option>Hotelspa</option><option>Day spa</option><option>Wellnesscentrum</option><option>Medische of esthetische spa</option><option>Anders</option></select></label>
             <label>Huidige status<select name="operatingStatus" required><option value="">Maak een keuze</option><option>Open en actief</option><option>Opent binnenkort</option><option>Verbouwing of herstart</option></select></label>

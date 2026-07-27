@@ -149,11 +149,11 @@
         <input type="hidden" name="fbclid">
         <input type="hidden" name="msclkid">
         <input type="hidden" name="referrer">
-        <div class="form-progress field-wide" aria-label="Steg 1 av 2">
-          <span data-progress-label>Steg 1 av 2</span><i><b data-progress-bar></b></i>
+        <div class="form-progress field-wide" role="progressbar" aria-valuemin="1" aria-valuemax="2" aria-valuenow="1" aria-valuetext="Steg 1 av 2">
+          <span data-progress-label>Steg 1 av 2</span><i aria-hidden="true"><b data-progress-bar></b></i>
         </div>
         <fieldset class="form-step field-wide is-active" data-form-step="1">
-          <legend>Ditt spa och kontaktuppgifter</legend>
+          <legend tabindex="-1">Ditt spa och kontaktuppgifter</legend>
           <div class="step-grid">
             <label>Namn på spa eller företag<input name="company" autocomplete="organization" required></label>
             <label>Webbplats eller sociala medier<input name="website" type="url" inputmode="url" placeholder="https://"></label>
@@ -167,7 +167,7 @@
           <button class="button button-primary step-next" type="button" data-step-next>Fortsätt</button>
         </fieldset>
         <fieldset class="form-step field-wide" data-form-step="2" hidden>
-          <legend>Lite om verksamheten</legend>
+          <legend tabindex="-1">Lite om verksamheten</legend>
           <div class="step-grid">
             <label>Typ av verksamhet<select name="businessType" required><option value="">Välj ett alternativ</option><option>Hotellspa</option><option>Day spa</option><option>Wellnesscenter</option><option>Medicinskt eller estetiskt spa</option><option>Annat</option></select></label>
             <label>Nuvarande driftstatus<select name="operatingStatus" required><option value="">Välj ett alternativ</option><option>Öppet och i drift</option><option>Öppnar snart</option><option>Renovering eller nylansering</option></select></label>

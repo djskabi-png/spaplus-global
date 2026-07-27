@@ -3316,12 +3316,29 @@ const closeMenu = () => {
   mobileMenu.inert = true;
 };
 
+let successModalLastFocused = null;
+let successModalInertState = [];
+
 const closeSuccessModal = () => {
+  if (successModal.hidden) return;
   successModal.hidden = true;
   document.body.classList.remove("modal-open");
+  successModalInertState.forEach(({ element, inert }) => {
+    element.inert = inert;
+  });
+  successModalInertState = [];
+  if (successModalLastFocused instanceof HTMLElement) successModalLastFocused.focus();
+  successModalLastFocused = null;
 };
 
 const openSuccessModal = () => {
+  successModalLastFocused = document.activeElement;
+  successModalInertState = [...document.body.children]
+    .filter((element) => element !== successModal)
+    .map((element) => ({ element, inert: element.inert }));
+  successModalInertState.forEach(({ element }) => {
+    element.inert = true;
+  });
   successModal.hidden = false;
   document.body.classList.add("modal-open");
   successModalClose.focus();
@@ -3343,8 +3360,12 @@ window.addEventListener(
   { passive: true },
 );
 
+const prefersReducedMotion = () =>
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+  document.documentElement.classList.contains("a11y-reduce-motion");
+
 backToTopButton.addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" });
 });
 
 let shareToastTimer;
@@ -3524,10 +3545,29 @@ document.addEventListener("keydown", (event) => {
     closeMenu();
     closeSuccessModal();
   }
+  if (event.key === "Tab" && !successModal.hidden) {
+    const focusable = [...successModalCard.querySelectorAll(
+      'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    )].filter((element) => !element.hidden && element.offsetParent !== null);
+    if (!focusable.length) {
+      event.preventDefault();
+      successModalClose.focus();
+      return;
+    }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
 });
 
 const revealElements = document.querySelectorAll("[data-reveal]");
-if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+if (prefersReducedMotion()) {
   revealElements.forEach((element) => element.classList.add("is-visible"));
 } else {
   const observer = new IntersectionObserver(

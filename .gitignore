@@ -76,3 +76,4 @@ next-env.d.ts
 /public/script.js
 /public/sitemap.xml
 /public/style.css
+.pages-dist/

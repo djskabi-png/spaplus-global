@@ -35,7 +35,10 @@ const worker = {
       return Response.redirect(url.toString(), 308);
     }
 
-    if (hostname === "admin.spaplus.co" && url.pathname === "/") {
+    if (
+      (hostname === "admin.spaplus.co" || hostname === "app.spaplus.co") &&
+      url.pathname === "/"
+    ) {
       url.pathname = "/admin";
       return Response.redirect(url.toString(), 307);
     }

@@ -149,11 +149,11 @@
         <input type="hidden" name="fbclid">
         <input type="hidden" name="msclkid">
         <input type="hidden" name="referrer">
-        <div class="form-progress field-wide" aria-label="Βήμα 1 από 2">
-          <span data-progress-label>Βήμα 1 από 2</span><i><b data-progress-bar></b></i>
+        <div class="form-progress field-wide" role="progressbar" aria-valuemin="1" aria-valuemax="2" aria-valuenow="1" aria-valuetext="Βήμα 1 από 2">
+          <span data-progress-label>Βήμα 1 από 2</span><i aria-hidden="true"><b data-progress-bar></b></i>
         </div>
         <fieldset class="form-step field-wide is-active" data-form-step="1">
-          <legend>Το spa και τα στοιχεία επικοινωνίας</legend>
+          <legend tabindex="-1">Το spa και τα στοιχεία επικοινωνίας</legend>
           <div class="step-grid">
             <label>Όνομα spa ή επιχείρησης<input name="company" autocomplete="organization" required></label>
             <label>Ιστοσελίδα ή προφίλ στα social media<input name="website" type="url" inputmode="url" placeholder="https://"></label>
@@ -167,7 +167,7 @@
           <button class="button button-primary step-next" type="button" data-step-next>Συνέχεια</button>
         </fieldset>
         <fieldset class="form-step field-wide" data-form-step="2" hidden>
-          <legend>Λίγα στοιχεία για την επιχείρησή σας</legend>
+          <legend tabindex="-1">Λίγα στοιχεία για την επιχείρησή σας</legend>
           <div class="step-grid">
             <label>Τύπος επιχείρησης<select name="businessType" required><option value="">Επιλέξτε</option><option>Spa ξενοδοχείου</option><option>Day spa</option><option>Κέντρο ευεξίας</option><option>Ιατρικό ή αισθητικό spa</option><option>Άλλο</option></select></label>
             <label>Τρέχουσα κατάσταση λειτουργίας<select name="operatingStatus" required><option value="">Επιλέξτε</option><option>Σε πλήρη λειτουργία</option><option>Ανοίγει σύντομα</option><option>Ανακαίνιση ή επαναλειτουργία</option></select></label>

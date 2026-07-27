@@ -148,11 +148,11 @@
         <input type="hidden" name="fbclid">
         <input type="hidden" name="msclkid">
         <input type="hidden" name="referrer">
-        <div class="form-progress field-wide" aria-label="שלב 1 מתוך 2">
-          <span data-progress-label>שלב 1 מתוך 2</span><i><b data-progress-bar></b></i>
+        <div class="form-progress field-wide" role="progressbar" aria-valuemin="1" aria-valuemax="2" aria-valuenow="1" aria-valuetext="שלב 1 מתוך 2">
+          <span data-progress-label>שלב 1 מתוך 2</span><i aria-hidden="true"><b data-progress-bar></b></i>
         </div>
         <fieldset class="form-step field-wide is-active" data-form-step="1">
-          <legend>בית הספא ופרטי הקשר</legend>
+          <legend tabindex="-1">בית הספא ופרטי הקשר</legend>
           <div class="step-grid">
             <label>שם בית הספא או העסק<input name="company" autocomplete="organization" required></label>
             <label>אתר או פרופיל חברתי<input name="website" type="url" inputmode="url" placeholder="https://"></label>
@@ -166,7 +166,7 @@
           <button class="button button-primary step-next" type="button" data-step-next>המשך</button>
         </fieldset>
         <fieldset class="form-step field-wide" data-form-step="2" hidden>
-          <legend>כמה פרטים על העסק</legend>
+          <legend tabindex="-1">כמה פרטים על העסק</legend>
           <div class="step-grid">
             <label>סוג העסק<select name="businessType" required><option value="">בחירת אפשרות</option><option>ספא במלון</option><option>ספא יומי</option><option>מרכז וולנס</option><option>ספא רפואי או אסתטי</option><option>אחר</option></select></label>
             <label>מצב הפעילות כיום<select name="operatingStatus" required><option value="">בחירת אפשרות</option><option>פתוח ופעיל</option><option>נפתח בקרוב</option><option>בשיפוץ או בהשקה מחדש</option></select></label>

@@ -3,7 +3,7 @@
 :root {
   --navy: #14243d;
   --navy-soft: #213756;
-  --pink: #e9176a;
+  --pink: #cf0e5a;
   --pink-soft: #fff0f6;
   --text: #637087;
   --line: rgba(20, 36, 61, 0.12);
@@ -73,6 +73,10 @@ body {
 }
 [lang="he"] body { font-family: Heebo, Arial, sans-serif; }
 a, button, input, textarea, select { font: inherit; }
+:focus-visible {
+  outline: 3px solid var(--pink);
+  outline-offset: 3px;
+}
 .sr-only, .skip-link {
   position: absolute;
   width: 1px;
@@ -208,7 +212,7 @@ h1 {
 }
 .button-primary { background: var(--pink); color: white; box-shadow: 0 15px 32px rgba(233, 23, 106, 0.24); }
 .text-link { color: var(--navy); font-weight: 800; text-underline-offset: 5px; }
-.hero-note { margin: 24px 0 0; color: #8a94a5; font-size: 13px; }
+.hero-note { margin: 24px 0 0; color: var(--text); font-size: 13px; }
 .hero-visual {
   position: relative;
   min-height: 640px;
@@ -266,6 +270,7 @@ h1 {
 .responsibility-card { min-height: 520px; padding: 42px; border-radius: 24px; }
 .spaplus-card { background: white; border: 1px solid var(--line); }
 .partner-card { background: var(--navy); color: white; }
+.partner-card .card-number { color: #ff91bb; }
 .card-number { color: var(--pink); font-size: 12px; font-weight: 900; }
 .responsibility-card h3 { margin: 76px 0 28px; font-size: clamp(30px, 3vw, 45px); letter-spacing: -1.6px; }
 .responsibility-card ul { margin: 0; padding: 0; display: grid; gap: 17px; list-style: none; }
@@ -351,7 +356,12 @@ h1 {
   outline: none;
 }
 .partner-form textarea { resize: vertical; }
-.partner-form input:focus, .partner-form textarea:focus { border-color: var(--pink); box-shadow: 0 0 0 3px rgba(233,23,106,.1); }
+.partner-form input:focus, .partner-form textarea:focus {
+  border-color: var(--pink);
+  outline: 3px solid var(--pink);
+  outline-offset: 2px;
+  box-shadow: none;
+}
 .form-wide { grid-column: 1 / -1; }
 .consent { grid-template-columns: 20px 1fr; align-items: start; }
 .consent input { width: 18px; min-height: 18px; margin-top: 2px; }

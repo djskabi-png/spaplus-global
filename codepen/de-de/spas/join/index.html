@@ -149,11 +149,11 @@
         <input type="hidden" name="fbclid">
         <input type="hidden" name="msclkid">
         <input type="hidden" name="referrer">
-        <div class="form-progress field-wide" aria-label="Schritt 1 von 2">
-          <span data-progress-label>Schritt 1 von 2</span><i><b data-progress-bar></b></i>
+        <div class="form-progress field-wide" role="progressbar" aria-valuemin="1" aria-valuemax="2" aria-valuenow="1" aria-valuetext="Schritt 1 von 2">
+          <span data-progress-label>Schritt 1 von 2</span><i aria-hidden="true"><b data-progress-bar></b></i>
         </div>
         <fieldset class="form-step field-wide is-active" data-form-step="1">
-          <legend>Ihr Spa und Ihre Kontaktdaten</legend>
+          <legend tabindex="-1">Ihr Spa und Ihre Kontaktdaten</legend>
           <div class="step-grid">
             <label>Name des Spa-Betriebs<input name="company" autocomplete="organization" required></label>
             <label>Website oder Social-Media-Profil<input name="website" type="url" inputmode="url" placeholder="https://"></label>
@@ -167,7 +167,7 @@
           <button class="button button-primary step-next" type="button" data-step-next>Weiter</button>
         </fieldset>
         <fieldset class="form-step field-wide" data-form-step="2" hidden>
-          <legend>Ein paar Angaben zu Ihrem Betrieb</legend>
+          <legend tabindex="-1">Ein paar Angaben zu Ihrem Betrieb</legend>
           <div class="step-grid">
             <label>Art des Betriebs<select name="businessType" required><option value="">Bitte auswählen</option><option>Hotel-Spa</option><option>Day Spa</option><option>Wellnesszentrum</option><option>Medical oder Aesthetic Spa</option><option>Sonstiges</option></select></label>
             <label>Aktueller Betriebsstatus<select name="operatingStatus" required><option value="">Bitte auswählen</option><option>Geöffnet und in Betrieb</option><option>Eröffnung in Kürze</option><option>Umbau oder Neustart</option></select></label>

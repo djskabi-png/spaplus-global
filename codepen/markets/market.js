@@ -39,20 +39,38 @@ if (shareButton) {
 const funnelForm = document.querySelector("[data-country-funnel]");
 if (funnelForm) {
   const formSteps = [...funnelForm.querySelectorAll("[data-form-step]")];
+  const progress = funnelForm.querySelector(".form-progress");
   const progressLabel = funnelForm.querySelector("[data-progress-label]");
   const progressBar = funnelForm.querySelector("[data-progress-bar]");
-  const showStep = (stepNumber) => {
+  const prefersReducedMotion = () =>
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+    document.documentElement.classList.contains("a11y-reduce-motion");
+  const showStep = (stepNumber, moveFocus = false) => {
+    let activeStep = null;
     formSteps.forEach((step) => {
       const active = Number(step.dataset.formStep) === stepNumber;
       step.hidden = !active;
       step.classList.toggle("is-active", active);
+      if (active) activeStep = step;
     });
     if (progressLabel) {
       progressLabel.textContent = stepNumber === 1
         ? funnelForm.dataset.stepOneLabel
         : funnelForm.dataset.stepTwoLabel;
     }
+    if (progress) {
+      progress.setAttribute("aria-valuenow", String(stepNumber));
+      progress.setAttribute(
+        "aria-valuetext",
+        stepNumber === 1 ? funnelForm.dataset.stepOneLabel : funnelForm.dataset.stepTwoLabel,
+      );
+    }
     if (progressBar) progressBar.style.width = stepNumber === 1 ? "50%" : "100%";
+    if (moveFocus && activeStep) {
+      window.requestAnimationFrame(() => {
+        activeStep.querySelector("legend")?.focus();
+      });
+    }
   };
   funnelForm.querySelector("[data-step-next]")?.addEventListener("click", () => {
     const firstStep = funnelForm.querySelector("[data-form-step='1']");
@@ -70,24 +88,66 @@ if (funnelForm) {
       lead_type: funnelForm.elements.namedItem("leadType").value,
       market: funnelForm.elements.namedItem("market").value,
     });
-    showStep(2);
-    funnelForm.scrollIntoView({ behavior: "smooth", block: "start" });
+    showStep(2, true);
+    funnelForm.scrollIntoView({
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+      block: "start",
+    });
   });
   funnelForm.querySelector("[data-step-back]")?.addEventListener("click", () => {
-    showStep(1);
-    funnelForm.scrollIntoView({ behavior: "smooth", block: "start" });
+    showStep(1, true);
+    funnelForm.scrollIntoView({
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+      block: "start",
+    });
   });
   const successModal = document.querySelector("[data-success-modal]");
+  const successModalCard = successModal?.querySelector(".success-modal-card");
+  let successModalLastFocused = null;
+  let successModalInertState = [];
   const closeSuccessModal = () => {
-    if (!successModal) return;
+    if (!successModal || successModal.hidden) return;
     successModal.hidden = true;
     document.body.style.overflow = "";
+    successModalInertState.forEach(({ element, inert }) => {
+      element.inert = inert;
+    });
+    successModalInertState = [];
+    if (successModalLastFocused instanceof HTMLElement) successModalLastFocused.focus();
+    successModalLastFocused = null;
   };
   successModal?.querySelectorAll("[data-modal-close]").forEach((button) => {
     button.addEventListener("click", closeSuccessModal);
   });
   successModal?.addEventListener("click", (event) => {
     if (event.target === successModal) closeSuccessModal();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (!successModal || successModal.hidden) return;
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeSuccessModal();
+      return;
+    }
+    if (event.key !== "Tab" || !successModalCard) return;
+    const focusable = [...successModalCard.querySelectorAll(
+      'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    )].filter((element) => !element.hidden && element.offsetParent !== null);
+    if (!focusable.length) {
+      event.preventDefault();
+      successModalCard.setAttribute("tabindex", "-1");
+      successModalCard.focus();
+      return;
+    }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   });
   const attributionKeys = [
     "utm_source",
@@ -258,6 +318,13 @@ if (funnelForm) {
       status.textContent = funnelForm.dataset.success;
       if (formSteps.length) showStep(1);
       if (successModal) {
+        successModalLastFocused = document.activeElement;
+        successModalInertState = [...document.body.children]
+          .filter((element) => element !== successModal)
+          .map((element) => ({ element, inert: element.inert }));
+        successModalInertState.forEach(({ element }) => {
+          element.inert = true;
+        });
         successModal.hidden = false;
         document.body.style.overflow = "hidden";
         successModal.querySelector("[data-modal-close]")?.focus();

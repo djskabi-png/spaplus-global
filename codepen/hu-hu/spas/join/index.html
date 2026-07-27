@@ -149,11 +149,11 @@
         <input type="hidden" name="fbclid">
         <input type="hidden" name="msclkid">
         <input type="hidden" name="referrer">
-        <div class="form-progress field-wide" aria-label="1. lépés a 2-ből">
-          <span data-progress-label>1. lépés a 2-ből</span><i><b data-progress-bar></b></i>
+        <div class="form-progress field-wide" role="progressbar" aria-valuemin="1" aria-valuemax="2" aria-valuenow="1" aria-valuetext="1. lépés a 2-ből">
+          <span data-progress-label>1. lépés a 2-ből</span><i aria-hidden="true"><b data-progress-bar></b></i>
         </div>
         <fieldset class="form-step field-wide is-active" data-form-step="1">
-          <legend>A spa és kapcsolattartó adatai</legend>
+          <legend tabindex="-1">A spa és kapcsolattartó adatai</legend>
           <div class="step-grid">
             <label>A spa vagy vállalkozás neve<input name="company" autocomplete="organization" required></label>
             <label>Weboldal vagy közösségi oldal<input name="website" type="url" inputmode="url" placeholder="https://"></label>
@@ -167,7 +167,7 @@
           <button class="button button-primary step-next" type="button" data-step-next>Tovább</button>
         </fieldset>
         <fieldset class="form-step field-wide" data-form-step="2" hidden>
-          <legend>Néhány adat a vállalkozásról</legend>
+          <legend tabindex="-1">Néhány adat a vállalkozásról</legend>
           <div class="step-grid">
             <label>Vállalkozás típusa<select name="businessType" required><option value="">Válasszon</option><option>Szállodai spa</option><option>Day spa</option><option>Wellnessközpont</option><option>Orvosi vagy esztétikai spa</option><option>Egyéb</option></select></label>
             <label>Jelenlegi működési állapot<select name="operatingStatus" required><option value="">Válasszon</option><option>Nyitva és működik</option><option>Hamarosan nyit</option><option>Felújítás vagy újranyitás</option></select></label>

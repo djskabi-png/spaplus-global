@@ -30,10 +30,13 @@ jobs:
         with:
           enablement: true
 
+      - name: Prepare production paths
+        run: node scripts/prepare-github-pages.mjs
+
       - name: Package preview
         uses: actions/upload-pages-artifact@v3
         with:
-          path: codepen
+          path: .pages-dist
 
       - name: Publish preview
         id: deployment

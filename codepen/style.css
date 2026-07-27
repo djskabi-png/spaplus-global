@@ -1,8 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Heebo:wght@100..900&family=Noto+Sans:wdth,wght@75..100,100..900&display=swap");
 
 :root {
-  --pink: #e9176a;
-  --pink-deep: #cf0e5a;
+  --pink: #cf0e5a;
+  --pink-deep: #ad0848;
   --pink-soft: #fff0f6;
   --navy: #192d4c;
   --ink: #20242b;
@@ -304,7 +304,7 @@ a {
 
 .language-switcher:focus-within {
   border-color: var(--pink);
-  box-shadow: 0 0 0 3px rgba(233, 23, 106, 0.11);
+  box-shadow: 0 0 0 3px rgba(207, 14, 90, 0.28);
 }
 
 .language-switcher .language-icon {
@@ -2223,7 +2223,7 @@ h1 span {
 .legal-section small {
   margin-top: 18px;
   display: block;
-  color: #7b8492;
+  color: var(--muted);
 }
 
 .contact-form input,
@@ -2242,7 +2242,9 @@ h1 span {
 .contact-form select:focus,
 .contact-form textarea:focus {
   border-color: var(--pink);
-  box-shadow: 0 0 0 3px rgba(233, 23, 106, 0.1);
+  outline: 3px solid var(--pink);
+  outline-offset: 2px;
+  box-shadow: none;
 }
 
 .form-wide {
