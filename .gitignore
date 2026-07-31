@@ -44,6 +44,7 @@ next-env.d.ts
 /work/
 *.log
 /visual-check-*.png
+/.codex/
 
 # Generated production copies of the GitHub Pages routes.
 /public/country-partners/
