@@ -583,6 +583,8 @@ test("Ontario early-access funnel is complete, bilingual, regional and launch-ga
   assert.match(client, /priorityAreas\.map/);
   assert.match(client, /selectedArea\.focus\.map/);
   assert.match(client, /SpaPlus Global/);
+  assert.match(client, /className=\{styles\.brand\}[\s\S]*?href=""/);
+  assert.match(client, /className=\{styles\.footerBrand\}[\s\S]*?href=""/);
   assert.match(client, /https:\/\/spaplus\.ca\/en\//);
   assert.match(client, /https:\/\/spaplus\.ca\/fr\//);
   assert.match(client, /target="_blank"/);

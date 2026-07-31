@@ -390,10 +390,10 @@ export default function MarketLaunchPage({
       >
         <a
           className={styles.brand}
-          href={homeHref}
+          href=""
           aria-label={tr(
-            "SpaPlus Global home",
-            "Accueil de SpaPlus Global",
+            "Refresh this SpaPlus page",
+            "Actualiser cette page SpaPlus",
           )}
         >
           <img src="/spaplus-mark.png" alt="" width="48" height="48" />
@@ -1443,7 +1443,14 @@ export default function MarketLaunchPage({
 
       <footer className={styles.footer} id="site-footer">
         <div className={styles.footerIntro}>
-          <a className={styles.footerBrand} href={homeHref}>
+          <a
+            className={styles.footerBrand}
+            href=""
+            aria-label={tr(
+              "Refresh this SpaPlus page",
+              "Actualiser cette page SpaPlus",
+            )}
+          >
             <img src="/spaplus-mark.png" alt="" width="46" height="46" />
             <span>SpaPlus</span>
           </a>
