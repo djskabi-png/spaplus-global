@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { localeOptions, translations, type Locale } from "../i18n";
 import companyData from "../company-data.json";
 import marketCopyManifest from "../market-launch/generated-market-copy.json";
@@ -172,6 +172,8 @@ export default function AdminClient({
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [status, setStatus] = useState("");
   const [contentSearch, setContentSearch] = useState("");
+  const [contentLoading, setContentLoading] = useState(false);
+  const contentRequestId = useRef(0);
   const emptyPermissions = resources.map((resource) => ({
     resourceKey: resource.key,
     canViewContent: false,
@@ -196,11 +198,18 @@ export default function AdminClient({
 
   const loadContent = useCallback(async () => {
     if (tab === "users") return;
-    const response = await fetch(`/api/cms/content?locale=${encodeURIComponent(locale)}&resource=${encodeURIComponent(resourceKey)}`);
-    if (!response.ok) return;
-    const data = (await response.json()) as { rows: CmsRow[] };
-    setRows(data.rows);
+    const requestId = ++contentRequestId.current;
+    setContentLoading(true);
+    setRows([]);
     setDrafts({});
+    try {
+      const response = await fetch(`/api/cms/content?locale=${encodeURIComponent(locale)}&resource=${encodeURIComponent(resourceKey)}`);
+      if (!response.ok || requestId !== contentRequestId.current) return;
+      const data = (await response.json()) as { rows: CmsRow[] };
+      if (requestId === contentRequestId.current) setRows(data.rows);
+    } finally {
+      if (requestId === contentRequestId.current) setContentLoading(false);
+    }
   }, [locale, resourceKey, tab]);
 
   const loadUsers = useCallback(async () => {
@@ -227,6 +236,7 @@ export default function AdminClient({
   }
 
   async function save(section: string, field: string) {
+    if (contentLoading) return;
     const key = `${section}.${field}`;
     const value = drafts[key] ?? existing[key] ?? defaultValue(section, field);
     setStatus(t.saving);
@@ -239,6 +249,7 @@ export default function AdminClient({
   }
 
   async function saveAllMarketChanges() {
+    if (contentLoading) return;
     const changes = Object.entries(drafts).filter(([key]) => key.startsWith("market.ca-on."));
     if (!changes.length) return;
     setStatus(t.saving);
@@ -341,7 +352,7 @@ export default function AdminClient({
           {tab === "market" ? <div className="cms-market-tools">
             <input type="search" value={contentSearch} onChange={(event) => setContentSearch(event.target.value)} placeholder={t.searchContent} aria-label={t.searchContent} />
             <strong>{visibleMarketEntries.length} {t.fields}</strong>
-            {can(resourceKey, "canEditContent") ? <button type="button" disabled={!marketDraftCount} onClick={() => void saveAllMarketChanges()}>{t.saveAll}{marketDraftCount ? ` (${marketDraftCount})` : ""}</button> : null}
+            {can(resourceKey, "canEditContent") ? <button type="button" disabled={contentLoading || !marketDraftCount} onClick={() => void saveAllMarketChanges()}>{t.saveAll}{marketDraftCount ? ` (${marketDraftCount})` : ""}</button> : null}
           </div> : null}
           {sectionGroups.map((group, index) => {
             const fields = <div className="cms-fields">
@@ -349,8 +360,8 @@ export default function AdminClient({
                 const key = `${group.section}.${field}`;
                 const value = drafts[key] ?? existing[key] ?? defaultValue(group.section, field);
                 const showDescription = Boolean(description && description !== label);
-                return <label key={key}><span>{showDescription ? description : label}</span>{showDescription ? <small>{label}</small> : null}<textarea value={value} rows={value.length > 130 ? 5 : 2} disabled={!can(resourceKey, "canEditContent")} onChange={(event) => setDrafts((current) => ({ ...current, [key]: event.target.value }))} />
-                  {can(resourceKey, "canEditContent") ? <button type="button" onClick={() => void save(group.section, field)}>{t.save}</button> : null}
+                return <label key={key}><span>{showDescription ? description : label}</span>{showDescription ? <small>{label}</small> : null}<textarea value={value} rows={value.length > 130 ? 5 : 2} disabled={contentLoading || !can(resourceKey, "canEditContent")} onChange={(event) => setDrafts((current) => ({ ...current, [key]: event.target.value }))} />
+                  {can(resourceKey, "canEditContent") ? <button type="button" disabled={contentLoading} onClick={() => void save(group.section, field)}>{t.save}</button> : null}
                 </label>;
               })}
             </div>;

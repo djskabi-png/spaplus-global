@@ -713,6 +713,9 @@ test("Ontario management exposes the complete bilingual page copy", async () => 
   assert.match(admin, /marketCopyManifest/);
   assert.match(admin, /saveAllMarketChanges/);
   assert.match(admin, /type="search"/);
+  assert.match(admin, /contentRequestId/);
+  assert.match(admin, /requestId !== contentRequestId\.current/);
+  assert.match(admin, /disabled=\{contentLoading \|\| !marketDraftCount\}/);
   assert.match(client, /marketCopyFieldKey/);
   assert.match(client, /dynamicCopy/);
   assert.match(client, /managed\("seoTitle"/);
