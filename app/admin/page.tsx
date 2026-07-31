@@ -1,4 +1,3 @@
-import { chatGPTSignOutPath } from "../chatgpt-auth";
 import { requireAuthorizedAdmin } from "../admin-auth";
 import AdminClient from "./AdminClient";
 import "./admin.css";
@@ -16,7 +15,7 @@ export default async function AdminPage() {
         </a>
         <div className="cms-user">
           <span>{admin.displayName}</span>
-          <a href={chatGPTSignOutPath("/admin")}>יציאה</a>
+          <a href="/auth/logout?return_to=/">יציאה</a>
         </div>
       </header>
       <AdminClient role={admin.role} />

@@ -3,14 +3,13 @@ import { redirect } from "next/navigation";
 import { getDb } from "../db";
 import { cmsUsers } from "../db/schema";
 import {
-  chatGPTSignInPath,
-  getChatGPTUser,
-  type ChatGPTUser,
-} from "./chatgpt-auth";
+  getAuthenticatedUser,
+  type AuthenticatedUser,
+} from "./platform-auth";
 
 export type AdminRole = "owner" | "editor" | "viewer";
 
-export type AuthorizedAdmin = ChatGPTUser & {
+export type AuthorizedAdmin = AuthenticatedUser & {
   role: AdminRole;
 };
 
@@ -22,7 +21,7 @@ function configuredOwners() {
 }
 
 export async function getAuthorizedAdmin(): Promise<AuthorizedAdmin | null> {
-  const identity = await getChatGPTUser();
+  const identity = await getAuthenticatedUser();
   if (!identity) return null;
 
   const email = identity.email.trim().toLowerCase();
@@ -49,15 +48,17 @@ export async function getAuthorizedAdmin(): Promise<AuthorizedAdmin | null> {
 }
 
 export async function requireAuthorizedAdmin(returnTo: string) {
-  const identity = await getChatGPTUser();
-  if (!identity) redirect(chatGPTSignInPath(returnTo));
+  const identity = await getAuthenticatedUser();
+  if (!identity) {
+    redirect(`/auth/google/start?return_to=${encodeURIComponent(returnTo)}`);
+  }
 
   const admin = await getAuthorizedAdmin();
   if (!admin) redirect("/access-denied");
   return admin;
 }
 
-async function ensureOwner(identity: ChatGPTUser) {
+async function ensureOwner(identity: AuthenticatedUser) {
   const db = getDb();
   const email = identity.email.trim().toLowerCase();
   const now = new Date().toISOString();

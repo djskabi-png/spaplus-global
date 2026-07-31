@@ -29,7 +29,6 @@ const allowedOrigins = new Set([
   "https://spaplus.co",
   "https://www.spaplus.co",
   "https://djskabi-png.github.io",
-  "https://spaplus-global-brand.adir-naor-7510.chatgpt.site",
 ]);
 
 const corsHeaders = (origin: string | null) => ({

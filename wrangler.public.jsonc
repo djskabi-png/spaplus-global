@@ -19,7 +19,7 @@
     "binding": "IMAGES"
   },
   "vars": {
-    "SITES_API_ORIGIN": "https://spaplus-global-brand.adir-naor-7510.chatgpt.site"
+    "GOOGLE_CLIENT_ID": "550515562646-kt2h4ajkajqhphptjq1uf8u84p4vmfmk.apps.googleusercontent.com"
   },
   "observability": {
     "enabled": true
