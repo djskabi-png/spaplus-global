@@ -35,7 +35,7 @@ export async function PATCH(request: Request) {
   const body = (await request.json()) as { id?: number; status?: string };
   const id = Number(body.id);
   const status = String(body.status || "");
-  if (!Number.isInteger(id) || !["new", "in_progress", "closed"].includes(status)) {
+  if (!Number.isInteger(id) || !["new", "won", "irrelevant", "deleted"].includes(status)) {
     return Response.json({ error: "Invalid submission" }, { status: 400 });
   }
   const db = getDb();
@@ -50,7 +50,7 @@ export async function PATCH(request: Request) {
   }
   await db
     .update(formSubmissions)
-    .set({ status: status as "new" | "in_progress" | "closed" })
+    .set({ status: status as "new" | "won" | "irrelevant" | "deleted" })
     .where(and(eq(formSubmissions.id, id), eq(formSubmissions.resourceKey, submission.resourceKey)));
   await db.insert(cmsAuditLog).values({
     actorEmail: admin.email,

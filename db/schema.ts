@@ -95,7 +95,7 @@ export const formSubmissions = sqliteTable("form_submissions", {
   locale: text("locale").notNull().default("en"),
   source: text("source").notNull().default(""),
   resourceKey: text("resource_key").notNull().default("site:global"),
-  status: text("status", { enum: ["new", "in_progress", "closed"] })
+  status: text("status", { enum: ["new", "in_progress", "closed", "won", "irrelevant", "deleted"] })
     .notNull()
     .default("new"),
   createdAt: text("created_at").notNull(),

@@ -416,6 +416,29 @@ test("management permissions fail closed and leads are scoped by market", async 
   assert.match(worker, /assetResponse\.status !== 404/);
 });
 
+test("lead management provides a four-state operational dashboard", async () => {
+  const [dashboard, route, schema, styles] = await Promise.all([
+    read("app/tools/SubmissionsClient.tsx"),
+    read("app/api/cms/submissions/route.ts"),
+    read("db/schema.ts"),
+    read("app/tools/leads.css"),
+  ]);
+  for (const status of ["new", "won", "irrelevant", "deleted"]) {
+    assert.match(dashboard, new RegExp(`"${status}"`));
+    assert.match(route, new RegExp(`"${status}"`));
+    assert.match(schema, new RegExp(`"${status}"`));
+  }
+  assert.match(dashboard, /lead-status-grid/);
+  assert.match(dashboard, /normalizeStatus/);
+  assert.match(dashboard, /setStatusFilter\("all"\)/);
+  assert.match(dashboard, /type="search"/);
+  assert.match(dashboard, /Deleted leads remain available here and can be restored/);
+  assert.match(route, /manageLeads/);
+  assert.doesNotMatch(route, /export async function DELETE/);
+  assert.match(styles, /grid-template-columns:repeat\(4/);
+  assert.match(styles, /@media\(max-width:560px\)/);
+});
+
 test("accessibility controls and statements are available in every published language", async () => {
   const [widget, styles, home] = await Promise.all([
     read("codepen/accessibility.js"),
