@@ -12,6 +12,7 @@ export const cmsUsers = sqliteTable(
     status: text("status", { enum: ["active", "inactive"] })
       .notNull()
       .default("active"),
+    defaultLocale: text("default_locale").notNull().default("en"),
     lastLoginAt: text("last_login_at"),
     createdAt: text("created_at").notNull(),
     updatedAt: text("updated_at").notNull(),

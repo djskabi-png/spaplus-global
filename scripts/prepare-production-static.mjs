@@ -4,8 +4,6 @@ import path from "node:path";
 const source = path.resolve("codepen");
 const target = path.resolve("public");
 const productionOrigin = "https://spaplus.co";
-const previewOrigin =
-  "https://spaplus-global-brand.adir-naor-7510.chatgpt.site";
 const githubOrigin = "https://djskabi-png.github.io/spaplus-global";
 const generatedDirectories = [
   "country-partners",
@@ -79,7 +77,6 @@ async function rewriteTree(directory) {
     const original = await readFile(fullPath, "utf8");
     const rewritten = original
       .replaceAll(githubOrigin, productionOrigin)
-      .replaceAll(`${previewOrigin}/api/contact`, "/api/contact")
       .replaceAll("/spaplus-global/", "/");
     if (rewritten !== original) await writeFile(fullPath, rewritten, "utf8");
   }

@@ -19,6 +19,7 @@ type CmsUser = {
   displayName: string;
   role: AdminRole;
   status: "active" | "inactive";
+  defaultLocale: Locale;
   lastLoginAt: string | null;
 };
 
@@ -53,14 +54,21 @@ const fields = {
   ],
 } as const;
 
-export default function AdminClient({ role }: { role: AdminRole }) {
+export default function AdminClient({ role, defaultLocale }: { role: AdminRole; defaultLocale: string }) {
   const [tab, setTab] = useState<"content" | "users">("content");
-  const [locale, setLocale] = useState<Locale>("he");
+  const [locale, setLocale] = useState<Locale>(
+    localeOptions.some((option) => option.code === defaultLocale) ? defaultLocale as Locale : "en",
+  );
   const [rows, setRows] = useState<CmsRow[]>([]);
   const [users, setUsers] = useState<CmsUser[]>([]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [status, setStatus] = useState("");
-  const [newUser, setNewUser] = useState({ email: "", displayName: "", role: "editor" });
+  const [newUser, setNewUser] = useState({
+    email: "",
+    displayName: "",
+    role: "editor",
+    defaultLocale: "en" as Locale,
+  });
 
   const loadContent = useCallback(async () => {
     const response = await fetch(`/api/cms/content?locale=${encodeURIComponent(locale)}`);
@@ -121,7 +129,7 @@ export default function AdminClient({ role }: { role: AdminRole }) {
     });
     setStatus(response.ok ? "המשתמש נשמר" : "לא ניתן לשמור את המשתמש");
     if (response.ok) {
-      setNewUser({ email: "", displayName: "", role: "editor" });
+      setNewUser({ email: "", displayName: "", role: "editor", defaultLocale: "en" });
       await loadUsers();
     }
   }
@@ -136,6 +144,17 @@ export default function AdminClient({ role }: { role: AdminRole }) {
       }),
     });
     await loadUsers();
+  }
+
+  async function updateUser(user: CmsUser, changes: Partial<Pick<CmsUser, "role" | "defaultLocale">>) {
+    setStatus("שומר הגדרות משתמש...");
+    const response = await fetch("/api/cms/users", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: user.id, ...changes }),
+    });
+    setStatus(response.ok ? "הגדרות המשתמש נשמרו" : "לא ניתן לשמור את הגדרות המשתמש");
+    if (response.ok) await loadUsers();
   }
 
   return (
@@ -233,6 +252,15 @@ export default function AdminClient({ role }: { role: AdminRole }) {
                 <option value="viewer">צפייה בלבד</option>
                 <option value="owner">בעלים</option>
               </select>
+              <select
+                aria-label="שפת ברירת מחדל"
+                value={newUser.defaultLocale}
+                onChange={(event) => setNewUser({ ...newUser, defaultLocale: event.target.value as Locale })}
+              >
+                {localeOptions.map((option) => (
+                  <option key={option.code} value={option.code}>{option.label}</option>
+                ))}
+              </select>
               <button onClick={() => void addUser()}>הוספת משתמש</button>
             </div>
           ) : null}
@@ -243,7 +271,28 @@ export default function AdminClient({ role }: { role: AdminRole }) {
                   <strong>{user.displayName || user.email}</strong>
                   <span dir="ltr">{user.email}</span>
                 </div>
-                <span>{user.role}</span>
+                {role === "owner" ? (
+                  <select
+                    aria-label={`הרשאה עבור ${user.displayName || user.email}`}
+                    value={user.role}
+                    onChange={(event) => void updateUser(user, { role: event.target.value as AdminRole })}
+                  >
+                    <option value="owner">בעלים</option>
+                    <option value="editor">עורך</option>
+                    <option value="viewer">צפייה בלבד</option>
+                  </select>
+                ) : <span>{user.role}</span>}
+                {role === "owner" ? (
+                  <select
+                    aria-label={`שפת ברירת מחדל עבור ${user.displayName || user.email}`}
+                    value={user.defaultLocale}
+                    onChange={(event) => void updateUser(user, { defaultLocale: event.target.value as Locale })}
+                  >
+                    {localeOptions.map((option) => (
+                      <option key={option.code} value={option.code}>{option.label}</option>
+                    ))}
+                  </select>
+                ) : <span>{user.defaultLocale}</span>}
                 <span>{user.status === "active" ? "פעיל" : "לא פעיל"}</span>
                 {role === "owner" ? (
                   <button onClick={() => void toggleUser(user)}>

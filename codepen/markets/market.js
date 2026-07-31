@@ -264,7 +264,7 @@ if (funnelForm) {
     try {
       let response = null;
       try {
-        response = await fetch("https://spaplus-global-brand.adir-naor-7510.chatgpt.site/api/contact", {
+        response = await fetch("https://app.spaplus.co/api/contact", {
           method: "POST",
           headers: { "Content-Type": "application/json", Accept: "application/json" },
           body: JSON.stringify(payload),

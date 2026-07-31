@@ -49,6 +49,17 @@ const statementLabels = {
   "de-ch": "Erklärung zur Barrierefreiheit", "en-ae": "Accessibility statement",
 };
 
+const managementLabels = {
+  en: "Management login", he: "כניסה לניהול", "fr-ca": "Accès à la gestion",
+  ru: "Вход в систему управления", el: "Είσοδος στη διαχείριση", it: "Accesso alla gestione",
+  hu: "Belépés a kezelőfelületre", pl: "Logowanie do panelu", es: "Acceso a la gestión",
+  "en-us": "Management login", "el-cy": "Είσοδος στη διαχείριση", "el-gr": "Είσοδος στη διαχείριση",
+  "hu-hu": "Belépés a kezelőfelületre", "it-it": "Accesso alla gestione", "en-gb": "Management login",
+  "de-de": "Anmeldung zur Verwaltung", "fr-fr": "Accès à la gestion", "nl-nl": "Inloggen bij beheer",
+  "sv-se": "Logga in i administrationen", "nb-no": "Logg inn i administrasjonen",
+  "de-ch": "Anmeldung zur Verwaltung", "en-ae": "Management login",
+};
+
 function page(locale, lang, dir) {
   const t = copy[lang] || copy.en;
   const homeLocale = ({ "en-us": "en", "en-gb": "en", "en-ae": "en", "el-cy": "el", "el-gr": "el", "hu-hu": "hu", "it-it": "it", "fr-fr": "fr-ca", "de-de": "en", "de-ch": "en", "nl-nl": "en", "sv-se": "en", "nb-no": "en" })[locale] || locale;
@@ -66,7 +77,7 @@ ${alternateLinks}
   <link rel="alternate" hreflang="x-default" href="https://global.spaplus.co/en/accessibility/">
   <link rel="stylesheet" href="/spaplus-global/accessibility.css?v=20260727-1">
   <style>
-    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f8f5f7;color:#172d4d;font-family:Arial,"Noto Sans",sans-serif;line-height:1.75}.skip{position:absolute;inset-inline-start:1rem;top:-5rem;background:#fff;color:#172d4d;padding:.8rem 1rem;z-index:10}.skip:focus{top:1rem}header,main,footer{width:min(980px,calc(100% - 32px));margin:auto}header{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:24px 0;border-bottom:1px solid #d9dee7}.brand{font-size:1.35rem;font-weight:800;color:#172d4d;text-decoration:none}.home{color:#d81459;font-weight:700}main{padding:64px 0}article{background:#fff;border:1px solid #d9dee7;border-radius:28px;padding:clamp(24px,5vw,64px);box-shadow:0 18px 55px rgb(23 45 77 / 8%)}.eyebrow{color:#d81459;font-weight:800;letter-spacing:.12em;text-transform:uppercase}h1{font-size:clamp(2.25rem,7vw,4.8rem);line-height:1.02;margin:.15em 0 .45em}h2{font-size:clamp(1.35rem,3vw,2rem);line-height:1.25;margin-top:2rem}.contact{display:inline-flex;margin-top:1rem;border-radius:999px;background:#ed1760;color:#fff;padding:.8rem 1.3rem;text-decoration:none;font-weight:800}.reviewed{margin-top:2rem;padding-top:1.25rem;border-top:1px solid #d9dee7;font-weight:700}.languages{padding:28px 0}.languages h2{font-size:1.1rem;margin-top:0}.languages nav{display:flex;flex-wrap:wrap;gap:.55rem 1rem}.languages a{color:#172d4d}.languages a[aria-current="page"]{font-weight:800;text-decoration-thickness:3px}footer{padding:20px 0 44px;border-top:1px solid #d9dee7}a:focus-visible,button:focus-visible{outline:4px solid #ed1760;outline-offset:4px}@media(max-width:600px){header{align-items:flex-start;flex-direction:column}main{padding:32px 0}}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f8f5f7;color:#172d4d;font-family:Arial,"Noto Sans",sans-serif;line-height:1.75}.skip{position:absolute;inset-inline-start:1rem;top:-5rem;background:#fff;color:#172d4d;padding:.8rem 1rem;z-index:10}.skip:focus{top:1rem}header,main,footer{width:min(980px,calc(100% - 32px));margin:auto}header{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:24px 0;border-bottom:1px solid #d9dee7}.brand{font-size:1.35rem;font-weight:800;color:#172d4d;text-decoration:none}.home{color:#d81459;font-weight:700}main{padding:64px 0}article{background:#fff;border:1px solid #d9dee7;border-radius:28px;padding:clamp(24px,5vw,64px);box-shadow:0 18px 55px rgb(23 45 77 / 8%)}.eyebrow{color:#d81459;font-weight:800;letter-spacing:.12em;text-transform:uppercase}h1{font-size:clamp(2.25rem,7vw,4.8rem);line-height:1.02;margin:.15em 0 .45em}h2{font-size:clamp(1.35rem,3vw,2rem);line-height:1.25;margin-top:2rem}.contact{display:inline-flex;margin-top:1rem;border-radius:999px;background:#ed1760;color:#fff;padding:.8rem 1.3rem;text-decoration:none;font-weight:800}.reviewed{margin-top:2rem;padding-top:1.25rem;border-top:1px solid #d9dee7;font-weight:700}.languages{padding:28px 0}.languages h2{font-size:1.1rem;margin-top:0}.languages nav{display:flex;flex-wrap:wrap;gap:.55rem 1rem}.languages a{color:#172d4d}.languages a[aria-current="page"]{font-weight:800;text-decoration-thickness:3px}footer{padding:20px 0 44px;border-top:1px solid #d9dee7}.management-login-link{display:inline-block;margin-top:10px;color:#d81459;font-weight:700}a:focus-visible,button:focus-visible{outline:4px solid #ed1760;outline-offset:4px}@media(max-width:600px){header{align-items:flex-start;flex-direction:column}main{padding:32px 0}}
   </style>
 </head>
 <body>
@@ -86,7 +97,7 @@ ${alternateLinks}
     </article>
     <section class="languages" aria-labelledby="statement-languages"><h2 id="statement-languages">${t.language}</h2><nav>${languageLinks}</nav></section>
   </main>
-  <footer><strong>GLOBAL SPA MANAGEMENT LTD</strong><br>© 2026 SpaPlus Global</footer>
+  <footer><strong>GLOBAL SPA MANAGEMENT LTD</strong><br>© 2026 SpaPlus Global<br><a class="management-login-link" href="https://app.spaplus.co/admin">${managementLabels[locale] || managementLabels.en}</a></footer>
   <script src="/spaplus-global/accessibility.js?v=20260727-1" defer></script>
 </body>
 </html>`;
@@ -140,6 +151,13 @@ for (const file of await walk(output)) {
     html = html.replace(/<\/footer>/, `<a class="global-accessibility-link" href="${href}">${label}</a>\n  </footer>`);
   } else {
     html = html.replace(new RegExp(`(<a\\s+)([^>]*href="${href.replaceAll("/", "\\/")}")`, "g"), "$1class=\"global-accessibility-link\" $2");
+  }
+  if (!html.includes('class="management-login-link"')) {
+    const managementLabel = managementLabels[routeLocale] || managementLabels.en;
+    html = html.replace(/<\/footer>/, `<a class="management-login-link" href="https://app.spaplus.co/admin">${managementLabel}</a>\n  </footer>`);
+  } else {
+    const managementLabel = managementLabels[routeLocale] || managementLabels.en;
+    html = html.replace(/(<a class="management-login-link" href="https:\/\/app\.spaplus\.co\/admin">)[^<]*(<\/a>)/g, `$1${managementLabel}$2`);
   }
   html = html.replace("</body>", `  <script src="/spaplus-global/accessibility.js?v=20260727-1" defer></script>\n</body>`);
   await fs.writeFile(file, html, "utf8");

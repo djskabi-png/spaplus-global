@@ -11,6 +11,7 @@ export type AdminRole = "owner" | "editor" | "viewer";
 
 export type AuthorizedAdmin = AuthenticatedUser & {
   role: AdminRole;
+  defaultLocale: string;
 };
 
 function configuredOwners() {
@@ -26,8 +27,8 @@ export async function getAuthorizedAdmin(): Promise<AuthorizedAdmin | null> {
 
   const email = identity.email.trim().toLowerCase();
   if (configuredOwners().includes(email)) {
-    await ensureOwner(identity);
-    return { ...identity, email, role: "owner" };
+    const owner = await ensureOwner(identity);
+    return { ...identity, email, role: "owner", defaultLocale: owner.defaultLocale };
   }
 
   const db = getDb();
@@ -44,7 +45,7 @@ export async function getAuthorizedAdmin(): Promise<AuthorizedAdmin | null> {
     .set({ lastLoginAt: new Date().toISOString(), updatedAt: new Date().toISOString() })
     .where(eq(cmsUsers.id, record.id));
 
-  return { ...identity, email, role: record.role };
+  return { ...identity, email, role: record.role, defaultLocale: record.defaultLocale };
 }
 
 export async function requireAuthorizedAdmin(returnTo: string) {
@@ -69,6 +70,7 @@ async function ensureOwner(identity: AuthenticatedUser) {
       displayName: identity.fullName || identity.displayName || "",
       role: "owner",
       status: "active",
+      defaultLocale: "he",
       lastLoginAt: now,
       createdAt: now,
       updatedAt: now,
@@ -83,4 +85,10 @@ async function ensureOwner(identity: AuthenticatedUser) {
         updatedAt: now,
       },
     });
+  const [owner] = await db
+    .select()
+    .from(cmsUsers)
+    .where(eq(cmsUsers.email, email))
+    .limit(1);
+  return owner;
 }

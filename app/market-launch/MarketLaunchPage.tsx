@@ -1552,6 +1552,9 @@ export default function MarketLaunchPage({
           >
             {tr("Accessibility", "Accessibilité")}
           </a>
+          <a href="/admin">
+            {tr("Management login", "Accès à la gestion")}
+          </a>
           <button
             className={styles.cookieSettingsButton}
             type="button"

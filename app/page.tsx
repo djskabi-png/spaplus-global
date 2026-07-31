@@ -1265,6 +1265,9 @@ export default function Home() {
             >
               {t.accessibilityTitle}
             </a>
+            <a href="https://app.spaplus.co/admin">
+              {locale === "he" ? "כניסה לניהול" : locale === "fr-CA" ? "Accès à la gestion" : "Management login"}
+            </a>
             <button
               className="cookie-settings-link"
               type="button"

@@ -261,7 +261,7 @@ const cookieSettingsButton = document.querySelector(".cookie-settings-link");
 const cookieEssentialButton = document.querySelector('[data-cookie-choice="essential"]');
 const cookieAllButton = document.querySelector('[data-cookie-choice="all"]');
 const cookieConsentStorageKey = "spaplus-cookie-consent-v1";
-const endpoint = "https://spaplus-global-brand.adir-naor-7510.chatgpt.site/api/contact";
+const endpoint = "https://app.spaplus.co/api/contact";
 const fallbackEndpoint = "https://formsubmit.co/ajax/93567c940af3bbace0ca1b462708c256";
 let locale = "en";
 let lastFocused = null;

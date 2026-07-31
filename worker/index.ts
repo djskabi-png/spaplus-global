@@ -10,7 +10,6 @@ interface Env {
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
   ADMIN_SESSION_SECRET?: string;
-  ADMIN_ALLOWED_EMAILS?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -143,10 +142,6 @@ function isProtectedPath(pathname: string): boolean {
     pathname.startsWith("/api/cms/");
 }
 
-function allowedEmails(env: Env): Set<string> {
-  return new Set((env.ADMIN_ALLOWED_EMAILS || "").split(",").map((email) => email.trim().toLowerCase()).filter(Boolean));
-}
-
 async function startGoogleLogin(request: Request, env: Env): Promise<Response> {
   if (!env.GOOGLE_CLIENT_ID || !env.ADMIN_SESSION_SECRET) return textResponse("מערכת ההתחברות עדיין אינה זמינה.", 503);
   const url = new URL(request.url);
@@ -202,7 +197,7 @@ async function finishGoogleLogin(request: Request, env: Env): Promise<Response> 
   if (!identityResponse.ok) return textResponse("לא ניתן היה לאמת את חשבון גוגל.", 401);
   const identity = await identityResponse.json() as Record<string, string>;
   const email = (identity.email || "").trim().toLowerCase();
-  if (identity.aud !== env.GOOGLE_CLIENT_ID || identity.email_verified !== "true" || !allowedEmails(env).has(email)) {
+  if (identity.aud !== env.GOOGLE_CLIENT_ID || identity.email_verified !== "true" || !email) {
     return textResponse("חשבון הגוגל הזה אינו מורשה להיכנס למערכת.", 403);
   }
 
@@ -326,7 +321,7 @@ const worker = {
 
     if (
       hostname === "app.spaplus.co" &&
-      url.pathname === "/api/market-spa-leads" &&
+      (url.pathname === "/api/market-spa-leads" || url.pathname === "/api/contact") &&
       env.PRIVATE_BACKEND_ORIGIN &&
       env.SITES_BYPASS_TOKEN
     ) {

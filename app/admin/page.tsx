@@ -18,7 +18,7 @@ export default async function AdminPage() {
           <a href="/auth/logout?return_to=/">יציאה</a>
         </div>
       </header>
-      <AdminClient role={admin.role} />
+      <AdminClient role={admin.role} defaultLocale={admin.defaultLocale} />
     </main>
   );
 }
