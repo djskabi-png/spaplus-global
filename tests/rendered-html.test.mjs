@@ -684,3 +684,13 @@ test("Ontario early-access funnel is complete, bilingual, regional and launch-ga
   assert.match(llms, /The launch date has not been announced/);
   assert.match(llms, /does not depict an Ontario spa or partner/);
 });
+
+test("Ontario management shows the published copy before the first edit", async () => {
+  const admin = await read("app/admin/AdminClient.tsx");
+  assert.match(admin, /const marketDefaults/);
+  assert.match(admin, /SpaPlus is coming to Ontario\./);
+  assert.match(admin, /SpaPlus arrive en Ontario\./);
+  assert.match(admin, /Tell us about your spa\./);
+  assert.match(admin, /Parlez-nous de votre spa\./);
+  assert.match(admin, /marketDefaults\[locale\]\?\.\[field\]/);
+});

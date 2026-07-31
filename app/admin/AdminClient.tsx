@@ -65,6 +65,25 @@ const marketFields = [
   ["finalTitle", "Final call to action"],
 ] as const;
 
+const marketDefaults: Record<string, Record<string, string>> = {
+  "en-CA": {
+    heroEyebrow: "ONTARIO, YOU’RE NEXT",
+    heroTitle: "SpaPlus is coming to Ontario.",
+    heroLead: "We are preparing a better way for people across Toronto and Ontario to discover, compare and book memorable spa experiences.",
+    formTitle: "Tell us about your spa.",
+    formIntro: "Complete the form once. We will review it personally and contact you within 72 hours.",
+    finalTitle: "Your spa could help shape the first SpaPlus experience in Ontario.",
+  },
+  "fr-CA": {
+    heroEyebrow: "ONTARIO, À VOUS DE JOUER",
+    heroTitle: "SpaPlus arrive en Ontario.",
+    heroLead: "Nous préparons une meilleure façon de découvrir, comparer et réserver des expériences spa mémorables à Toronto et partout en Ontario.",
+    formTitle: "Parlez-nous de votre spa.",
+    formIntro: "Remplissez le formulaire une seule fois. Nous l’examinerons personnellement et communiquerons avec vous dans un délai de 72 heures.",
+    finalTitle: "Votre spa pourrait contribuer à façonner la première expérience SpaPlus en Ontario.",
+  },
+};
+
 const uiCopy = {
   en: {
     title: "Clear content. Precise access.", eyebrow: "SpaPlus management",
@@ -195,7 +214,7 @@ export default function AdminClient({
   const existing = useMemo(() => Object.fromEntries(rows.map((row) => [`${row.section}.${row.field}`, row.value])), [rows]);
 
   function defaultValue(section: string, field: string) {
-    if (section === "market.ca-on") return "";
+    if (section === "market.ca-on") return marketDefaults[locale]?.[field] || "";
     const source = section === "translation"
       ? (translations[locale as Locale] as unknown as Record<string, string>)
       : (companyData.copy[locale as Locale] as unknown as Record<string, string>);
