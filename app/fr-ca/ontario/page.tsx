@@ -3,16 +3,25 @@ import MarketLaunchPage from "../../market-launch/MarketLaunchPage";
 import { ontarioFrenchMarket } from "../../market-launch/markets";
 
 const canonicalUrl = "https://spaplus.co/fr-ca/ontario/";
+const isPublicLaunch = process.env.ONTARIO_PUBLIC_LAUNCH === "true";
 
 export const metadata: Metadata = {
   title: "SpaPlus arrive en Ontario | Spas partenaires fondateurs",
   description:
     "SpaPlus prépare son lancement en Ontario. Les spas établis peuvent s’inscrire à la liste des partenaires fondateurs, gratuitement, sans engagement et sans carte de crédit.",
+  keywords: [
+    "SpaPlus Ontario",
+    "partenaires spa Ontario",
+    "plateforme de réservation spa Ontario",
+    "spas Toronto",
+    "marketing spa Ontario",
+  ],
   alternates: {
     canonical: canonicalUrl,
     languages: {
       "en-CA": "https://spaplus.co/en-ca/ontario/",
       "fr-CA": canonicalUrl,
+      "x-default": "https://spaplus.co/en-ca/ontario/",
     },
   },
   openGraph: {
@@ -39,9 +48,13 @@ export const metadata: Metadata = {
       "Les spas ontariens peuvent s’inscrire à la liste prioritaire avant le lancement.",
     images: ["/ontario/og-ontario.png"],
   },
+  other: {
+    "geo.region": "CA-ON",
+    "geo.placename": "Ontario",
+  },
   robots: {
-    index: false,
-    follow: false,
+    index: isPublicLaunch,
+    follow: isPublicLaunch,
   },
 };
 
@@ -52,8 +65,19 @@ const structuredData = {
       "@type": "Organization",
       "@id": "https://spaplus.co/#organization",
       name: "SpaPlus",
+      legalName: "Global Spa Management Ltd.",
       url: "https://spaplus.co/",
       logo: "https://spaplus.co/spaplus-logo.png",
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://spaplus.co/#website",
+      name: "SpaPlus Global",
+      url: "https://spaplus.co/",
+      inLanguage: ["en", "fr-CA"],
+      publisher: {
+        "@id": "https://spaplus.co/#organization",
+      },
     },
     {
       "@type": "WebPage",
@@ -69,6 +93,45 @@ const structuredData = {
       about: {
         "@id": "https://spaplus.co/#organization",
       },
+    },
+    {
+      "@type": "ItemList",
+      name: "Zones de lancement prioritaires de SpaPlus en Ontario",
+      itemListElement: ontarioFrenchMarket.priorityAreas.map((area, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: area.label,
+        url: `https://spaplus.co${area.href}`,
+      })),
+    },
+    {
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "L’inscription d’un spa ontarien est-elle gratuite?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Oui. L’inscription est gratuite, ne demande aucune carte de crédit et ne crée aucun engagement.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Quels établissements peuvent s’inscrire?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "La liste s’adresse aux spas urbains, spas d’hôtel et de villégiature, spas nordiques ou thermaux, établissements mieux-être et groupes de spas multisites.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Quand SpaPlus sera-t-il lancé en Ontario?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "La date de lancement n’a pas encore été annoncée. Les inscriptions prioritaires nous aident à former le bon groupe de partenaires fondateurs.",
+          },
+        },
+      ],
     },
   ],
 };

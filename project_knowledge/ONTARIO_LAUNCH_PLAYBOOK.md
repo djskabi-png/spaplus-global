@@ -248,6 +248,25 @@ Learn more
 
 The page is deliberately set to `noindex` until approval.
 
+The production launch gate is controlled by the environment variable
+`ONTARIO_PUBLIC_LAUNCH`. It must remain unset during review. Set it to `true`
+only after Adir approves the public release, then redeploy and verify the live
+robots directive, canonical URLs, language alternates and sitemap entries.
+
+### Search and answer-engine readiness
+
+- Unique English and Canadian French titles and descriptions for Ontario and
+  every regional campaign page.
+- Canonical URLs, reciprocal language alternates and an English default.
+- Geographic metadata for Ontario and the selected campaign area.
+- Organization, website, webpage, breadcrumb, area-list and FAQ structured
+  data without claiming a live Ontario branch.
+- Ontario routes in the XML sitemap.
+- A factual `llms.txt` summary for answer engines, including launch and media
+  accuracy notes.
+- Campaign attribution for standard UTM parameters, Google click IDs and Meta
+  click IDs.
+
 After approval:
 
 1. Change the page to index and follow.

@@ -508,6 +508,8 @@ test("Ontario early-access funnel is complete, bilingual, regional and launch-ga
     templates,
     sources,
     playbook,
+    sitemap,
+    llms,
   ] = await Promise.all([
     read("app/en-ca/ontario/page.tsx"),
     read("app/fr-ca/ontario/page.tsx"),
@@ -520,19 +522,26 @@ test("Ontario early-access funnel is complete, bilingual, regional and launch-ga
     read("app/market-email-templates.ts"),
     read("project_knowledge/ONTARIO_MEDIA_SOURCES.md"),
     read("project_knowledge/ONTARIO_LAUNCH_PLAYBOOK.md"),
+    read("public/sitemap.xml"),
+    read("public/llms.txt"),
   ]);
   const marketPage = `${client}\n${marketConfig}`;
 
   assert.match(page, /https:\/\/spaplus\.co\/en-ca\/ontario\//);
-  assert.match(page, /index:\s*false/);
+  assert.match(page, /ONTARIO_PUBLIC_LAUNCH/);
+  assert.match(page, /index:\s*isPublicLaunch/);
   assert.match(page, /"@type": "Organization"/);
   assert.match(page, /"@type": "WebPage"/);
   assert.match(page, /"@type": "BreadcrumbList"/);
+  assert.match(page, /"@type": "FAQPage"/);
+  assert.match(page, /"@type": "ItemList"/);
+  assert.match(page, /"geo.region": "CA-ON"/);
+  assert.match(page, /"x-default": canonicalUrl/);
   assert.doesNotMatch(page, /LocalBusiness/);
   assert.match(page, /"fr-CA": "https:\/\/spaplus\.co\/fr-ca\/ontario\//);
   assert.match(frenchPage, /SpaPlus arrive en Ontario/);
   assert.match(frenchPage, /inLanguage: "fr-CA"/);
-  assert.match(frenchPage, /index: false/);
+  assert.match(frenchPage, /index: isPublicLaunch/);
   assert.match(englishAreaPage, /generateStaticParams/);
   assert.match(englishAreaPage, /buildOntarioAreaConfig\(area, "en"\)/);
   assert.match(frenchAreaPage, /buildOntarioAreaConfig\(area, "fr"\)/);
@@ -561,6 +570,8 @@ test("Ontario early-access funnel is complete, bilingual, regional and launch-ga
   assert.match(client, /name="acknowledgement"/);
   assert.match(client, /name="website_confirm"/);
   assert.match(marketConfig, /\/api\/market-spa-leads/);
+  assert.match(marketConfig, /homeHref: "https:\/\/spaplus\.co\/en\/"/);
+  assert.match(marketConfig, /homeHref: "https:\/\/spaplus\.co\/fr-ca\/"/);
   assert.match(client, /role="dialog"/);
   assert.match(client, /submit_\$\{eventPrefix\}_spa_form/);
   assert.match(client, /utm_campaign/);
@@ -571,6 +582,13 @@ test("Ontario early-access funnel is complete, bilingual, regional and launch-ga
   assert.match(client, /languageLinks\.map/);
   assert.match(client, /priorityAreas\.map/);
   assert.match(client, /selectedArea\.focus\.map/);
+  assert.match(client, /SpaPlus Global/);
+  assert.match(client, /https:\/\/spaplus\.ca\/en\//);
+  assert.match(client, /https:\/\/spaplus\.ca\/fr\//);
+  assert.match(client, /aria-label=\{tr\("Back to top"/);
+  assert.match(client, /aria-controls="market-navigation"/);
+  assert.match(client, /IntersectionObserver/);
+  assert.match(client, /scrollProgress/);
   assert.match(marketConfig, /slug: "toronto"/);
   assert.match(marketConfig, /slug: "greater-toronto-area"/);
   assert.match(marketConfig, /slug: "niagara"/);
@@ -584,6 +602,10 @@ test("Ontario early-access funnel is complete, bilingual, regional and launch-ga
   assert.match(styles, /:focus-visible/);
   assert.match(styles, /\.foundingOffer/);
   assert.match(styles, /\.localFocus/);
+  assert.match(styles, /\.backToTop/);
+  assert.match(styles, /\.scrollProgress/);
+  assert.match(styles, /\.menuOpen/);
+  assert.match(styles, /\.footerColumn/);
 
   assert.match(route, /formType: `\$\{marketSlug\}_spa_early_access`/);
   assert.match(route, /Market not supported/);
@@ -608,4 +630,8 @@ test("Ontario early-access funnel is complete, bilingual, regional and launch-ga
   assert.match(playbook, /Status: Prepared for approval\. Not published\./);
   assert.match(playbook, /Qualified Ontario spa leads/);
   assert.match(playbook, /The page is deliberately set to `noindex` until approval/);
+  assert.match(sitemap, /https:\/\/spaplus\.co\/en-ca\/ontario\/toronto\//);
+  assert.match(sitemap, /https:\/\/spaplus\.co\/fr-ca\/ontario\/hamilton\//);
+  assert.match(llms, /The launch date has not been announced/);
+  assert.match(llms, /does not depict an Ontario spa or partner/);
 });

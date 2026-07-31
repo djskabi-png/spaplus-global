@@ -126,7 +126,7 @@ export const ontarioMarket: MarketLaunchConfig = {
   languageTag: "en-CA",
   timeZone: "America/Toronto",
   pageUrl: "https://spaplus.co/en-ca/ontario/",
-  homeHref: "/en/",
+  homeHref: "https://spaplus.co/en/",
   heroDisclosure:
     "Illustrative launch concept. It does not depict an Ontario spa or partner.",
   languageLinks: [
@@ -141,7 +141,7 @@ export const ontarioFrenchMarket: MarketLaunchConfig = {
   languageTag: "fr-CA",
   timeZone: "America/Toronto",
   pageUrl: "https://spaplus.co/fr-ca/ontario/",
-  homeHref: "/fr-ca/",
+  homeHref: "https://spaplus.co/fr-ca/",
   heroDisclosure:
     "Concept visuel de lancement. Il ne représente pas un spa ou un partenaire de l’Ontario.",
   priorityAreas: ontarioAreas.map((area) => ({

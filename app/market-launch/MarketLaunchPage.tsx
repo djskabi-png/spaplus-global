@@ -157,6 +157,11 @@ export default function MarketLaunchPage({
   const [errorMessage, setErrorMessage] = useState("");
   const [formStarted, setFormStarted] = useState(false);
   const [showCookieConsent, setShowCookieConsent] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [headerCompact, setHeaderCompact] = useState(false);
+  const [headerHidden, setHeaderHidden] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const campaignData = useMemo(() => {
     if (typeof window === "undefined") return {};
     const params = new URLSearchParams(window.location.search);
@@ -174,6 +179,81 @@ export default function MarketLaunchPage({
       language: locale,
     });
   }, [eventPrefix, locale, marketSlug]);
+
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    const updateScrollState = () => {
+      const currentScrollY = window.scrollY;
+      const scrollableHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+      setHeaderCompact(currentScrollY > 48);
+      setHeaderHidden(
+        !menuOpen && currentScrollY > 240 && currentScrollY > lastScrollY,
+      );
+      setShowBackToTop(currentScrollY > 650);
+      setScrollProgress(
+        scrollableHeight > 0
+          ? Math.min(100, (currentScrollY / scrollableHeight) * 100)
+          : 0,
+      );
+      lastScrollY = currentScrollY;
+      ticking = false;
+    };
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(updateScrollState);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    updateScrollState();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [menuOpen]);
+
+  useEffect(() => {
+    const revealTargets = Array.from(
+      document.querySelectorAll<HTMLElement>(
+        '[data-market-page] section:not([data-no-reveal]), [data-market-page] footer',
+      ),
+    );
+    revealTargets.forEach((element) => element.setAttribute("data-reveal", ""));
+
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      !("IntersectionObserver" in window)
+    ) {
+      revealTargets.forEach((element) =>
+        element.setAttribute("data-reveal-visible", ""),
+      );
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          (entry.target as HTMLElement).setAttribute(
+            "data-reveal-visible",
+            "",
+          );
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.08, rootMargin: "0px 0px -7% 0px" },
+    );
+    revealTargets.forEach((element) => observer.observe(element));
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
 
   function setConsent(value: "essential" | "analytics") {
     window.localStorage.setItem("spaplus-consent", value);
@@ -280,6 +360,7 @@ export default function MarketLaunchPage({
   return (
     <main
       className={styles.page}
+      data-market-page
       lang={languageTag}
       dir="ltr"
       style={
@@ -292,7 +373,21 @@ export default function MarketLaunchPage({
         {tr("Skip to main content", "Aller au contenu principal")}
       </a>
 
-      <header className={styles.header}>
+      <div
+        className={styles.scrollProgress}
+        aria-hidden="true"
+        style={{ transform: `scaleX(${scrollProgress / 100})` }}
+      />
+
+      <header
+        className={[
+          styles.header,
+          headerCompact ? styles.headerCompact : "",
+          headerHidden ? styles.headerHidden : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
         <a
           className={styles.brand}
           href={homeHref}
@@ -309,22 +404,46 @@ export default function MarketLaunchPage({
             height="40"
           />
         </a>
+        <button
+          className={styles.menuButton}
+          type="button"
+          aria-expanded={menuOpen}
+          aria-controls="market-navigation"
+          aria-label={
+            menuOpen
+              ? tr("Close navigation", "Fermer la navigation")
+              : tr("Open navigation", "Ouvrir la navigation")
+          }
+          onClick={() => setMenuOpen((current) => !current)}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
         <nav
-          className={styles.headerNav}
+          id="market-navigation"
+          className={`${styles.headerNav} ${menuOpen ? styles.menuOpen : ""}`}
           aria-label={tr(
             `${marketName} launch navigation`,
             `Navigation du lancement de SpaPlus en ${marketName}`,
           )}
         >
-          <a href="#platform">{tr("The platform", "La plateforme")}</a>
-          <a href="#process">{tr("How it works", "Fonctionnement")}</a>
-          <a href="#faq">{tr("Questions", "Questions")}</a>
+          <a href="#platform" onClick={() => setMenuOpen(false)}>
+            {tr("The platform", "La plateforme")}
+          </a>
+          <a href="#process" onClick={() => setMenuOpen(false)}>
+            {tr("How it works", "Fonctionnement")}
+          </a>
+          <a href="#faq" onClick={() => setMenuOpen(false)}>
+            {tr("Questions", "Questions")}
+          </a>
           <a
             className={styles.navCta}
             href="#join"
-            onClick={() =>
+            onClick={() => {
+              setMenuOpen(false);
               track("click_join_early_access", { placement: "header" })
-            }
+            }}
           >
             {tr("Join early access", "Accès prioritaire")}
           </a>
@@ -337,6 +456,7 @@ export default function MarketLaunchPage({
                 key={link.label}
                 href={link.href}
                 aria-current={link.active ? "page" : undefined}
+                onClick={() => setMenuOpen(false)}
               >
                 {link.label}
               </a>
@@ -345,7 +465,11 @@ export default function MarketLaunchPage({
         </nav>
       </header>
 
-      <section className={styles.hero} id="main-content">
+      <section
+        className={styles.hero}
+        id="main-content"
+        data-no-reveal
+      >
         <div className={styles.heroPhoto} aria-hidden="true" />
         <div className={styles.heroShade} aria-hidden="true" />
         <div className={styles.heroContent}>
@@ -1313,21 +1437,88 @@ export default function MarketLaunchPage({
         </a>
       </section>
 
-      <footer className={styles.footer}>
-        <a className={styles.footerBrand} href={homeHref}>
-          <img src="/spaplus-mark.png" alt="" width="42" height="42" />
-          <span>SpaPlus</span>
-        </a>
-        <p>
-          {tr(
-            `SpaPlus is preparing the ${marketName} market in ${countryName}. No ${marketName} spa listings or booking inventory are currently represented on this page.`,
-            `SpaPlus prépare le marché de l’${marketName}, au ${countryName}. Cette page ne présente actuellement aucune fiche ni disponibilité de réservation de spa en ${marketName}.`,
-          )}
-        </p>
-        <div>
-          <a href={`${homeHref}#about`}>{tr("About SpaPlus", "À propos de SpaPlus")}</a>
-          <a href={`${homeHref}#privacy`}>{tr("Privacy", "Confidentialité")}</a>
-          <a href={`${homeHref}#accessibility`}>{tr("Accessibility", "Accessibilité")}</a>
+      <footer className={styles.footer} id="site-footer">
+        <div className={styles.footerIntro}>
+          <a className={styles.footerBrand} href={homeHref}>
+            <img src="/spaplus-mark.png" alt="" width="46" height="46" />
+            <span>SpaPlus</span>
+          </a>
+          <p>
+            {tr(
+              `SpaPlus is preparing the ${marketName} market in ${countryName}. No ${marketName} spa listings or booking inventory are currently represented on this page.`,
+              `SpaPlus prépare le marché de l’${marketName}, au ${countryName}. Cette page ne présente actuellement aucune fiche ni disponibilité de réservation de spa en ${marketName}.`,
+            )}
+          </p>
+          <p className={styles.footerTagline}>
+            {tr(
+              "Discover. Book. Relax.",
+              "Découvrir. Réserver. Décrocher.",
+            )}
+          </p>
+        </div>
+
+        <nav
+          className={styles.footerColumn}
+          aria-label={tr("Ontario page links", "Liens de la page Ontario")}
+        >
+          <strong>{tr("Explore", "Explorer")}</strong>
+          <a href="#platform">{tr("The platform", "La plateforme")}</a>
+          <a href="#process">{tr("How it works", "Fonctionnement")}</a>
+          <a href="#faq">{tr("Questions", "Questions")}</a>
+          <a href="#join">{tr("Introduce your spa", "Présenter votre spa")}</a>
+        </nav>
+
+        <nav
+          className={styles.footerColumn}
+          aria-label={tr("SpaPlus network links", "Liens du réseau SpaPlus")}
+        >
+          <strong>{tr("SpaPlus network", "Réseau SpaPlus")}</strong>
+          <a href={homeHref}>
+            {tr("SpaPlus Global", "SpaPlus mondial")}
+          </a>
+          <a
+            href={isFrench ? "https://spaplus.ca/fr/" : "https://spaplus.ca/en/"}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {tr("SpaPlus Canada", "SpaPlus Canada")}
+          </a>
+          <a href={isFrench ? "/fr-ca/ontario/" : "/en-ca/ontario/"}>
+            {tr("Ontario launch", "Lancement en Ontario")}
+          </a>
+        </nav>
+
+        <nav
+          className={`${styles.footerColumn} ${styles.footerAreas}`}
+          aria-label={tr("Ontario launch areas", "Zones de lancement en Ontario")}
+        >
+          <strong>{tr("Ontario launch areas", "Zones de lancement")}</strong>
+          {priorityAreas.map((area) => (
+            <a
+              key={area.href}
+              href={area.href}
+              aria-current={
+                selectedArea && area.href.includes(`/${selectedArea.slug}/`)
+                  ? "page"
+                  : undefined
+              }
+            >
+              {area.label}
+            </a>
+          ))}
+        </nav>
+
+        <nav
+          className={styles.footerColumn}
+          aria-label={tr("Legal and privacy links", "Liens légaux")}
+        >
+          <strong>{tr("Trust and access", "Confiance et accès")}</strong>
+          <a href={`${homeHref}#privacy`}>
+            {tr("Privacy Policy", "Politique de confidentialité")}
+          </a>
+          <a href={`${homeHref}#accessibility`}>
+            {tr("Accessibility", "Accessibilité")}
+          </a>
           <button
             className={styles.cookieSettingsButton}
             type="button"
@@ -1335,7 +1526,8 @@ export default function MarketLaunchPage({
           >
             {tr("Cookie settings", "Préférences de témoins")}
           </button>
-        </div>
+        </nav>
+
         <small>
           {tr(
             "© 2026 Global Spa Management Ltd. All rights reserved.",
@@ -1343,6 +1535,26 @@ export default function MarketLaunchPage({
           )}
         </small>
       </footer>
+
+      <button
+        className={`${styles.backToTop} ${
+          showBackToTop ? styles.backToTopVisible : ""
+        }`}
+        type="button"
+        aria-label={tr("Back to top", "Retour en haut")}
+        onClick={() =>
+          window.scrollTo({
+            top: 0,
+            behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
+              .matches
+              ? "auto"
+              : "smooth",
+          })
+        }
+      >
+        <span aria-hidden="true">↑</span>
+        <span>{tr("Top", "Haut")}</span>
+      </button>
 
       {submitState === "success" ? (
         <div
