@@ -1308,7 +1308,11 @@ export default function MarketLaunchPage({
                 "I agree that SpaPlus may use these details to assess and respond to this enquiry, as described in the ",
                 "J’accepte que SpaPlus utilise ces renseignements pour évaluer cette demande et y répondre, comme décrit dans la ",
               )}
-              <a href={`${homeHref}#privacy`} target="_blank" rel="noreferrer">
+              <a
+                href={`${homeHref}#privacy`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {tr("Privacy Policy", "Politique de confidentialité")}
               </a>
               .
@@ -1473,13 +1477,13 @@ export default function MarketLaunchPage({
           aria-label={tr("SpaPlus network links", "Liens du réseau SpaPlus")}
         >
           <strong>{tr("SpaPlus network", "Réseau SpaPlus")}</strong>
-          <a href={homeHref}>
+          <a href={homeHref} target="_blank" rel="noopener noreferrer">
             {tr("SpaPlus Global", "SpaPlus mondial")}
           </a>
           <a
             href={isFrench ? "https://spaplus.ca/fr/" : "https://spaplus.ca/en/"}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
           >
             {tr("SpaPlus Canada", "SpaPlus Canada")}
           </a>
@@ -1513,10 +1517,18 @@ export default function MarketLaunchPage({
           aria-label={tr("Legal and privacy links", "Liens légaux")}
         >
           <strong>{tr("Trust and access", "Confiance et accès")}</strong>
-          <a href={`${homeHref}#privacy`}>
+          <a
+            href={`${homeHref}#privacy`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {tr("Privacy Policy", "Politique de confidentialité")}
           </a>
-          <a href={`${homeHref}#accessibility`}>
+          <a
+            href={`${homeHref}#accessibility`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {tr("Accessibility", "Accessibilité")}
           </a>
           <button
@@ -1619,7 +1631,11 @@ export default function MarketLaunchPage({
                 "Essential storage runs the site. Analytics runs only with your permission. Read our ",
                 "Le stockage essentiel fait fonctionner le site. Les outils d’analyse ne sont activés qu’avec votre permission. Consultez notre ",
               )}
-              <a href={`${homeHref}#privacy`}>
+              <a
+                href={`${homeHref}#privacy`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {tr("Privacy Policy", "Politique de confidentialité")}
               </a>
               .
