@@ -137,6 +137,7 @@ function randomToken(): string {
 }
 
 function isProtectedPath(pathname: string): boolean {
+  if (pathname === "/api/cms/public") return false;
   return pathname === "/admin" || pathname.startsWith("/admin/") ||
     pathname === "/tools" || pathname.startsWith("/tools/") ||
     pathname.startsWith("/api/cms/");
@@ -321,7 +322,11 @@ const worker = {
 
     if (
       hostname === "app.spaplus.co" &&
-      (url.pathname === "/api/market-spa-leads" || url.pathname === "/api/contact") &&
+      (
+        url.pathname === "/api/market-spa-leads" ||
+        url.pathname === "/api/contact" ||
+        url.pathname === "/api/cms/public"
+      ) &&
       env.PRIVATE_BACKEND_ORIGIN &&
       env.SITES_BYPASS_TOKEN
     ) {
