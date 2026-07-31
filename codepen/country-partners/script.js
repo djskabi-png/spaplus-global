@@ -262,7 +262,6 @@ const cookieEssentialButton = document.querySelector('[data-cookie-choice="essen
 const cookieAllButton = document.querySelector('[data-cookie-choice="all"]');
 const cookieConsentStorageKey = "spaplus-cookie-consent-v1";
 const endpoint = "https://app.spaplus.co/api/contact";
-const fallbackEndpoint = "https://formsubmit.co/ajax/93567c940af3bbace0ca1b462708c256";
 let locale = "en";
 let lastFocused = null;
 
@@ -416,27 +415,7 @@ form.addEventListener("submit", async (event) => {
     });
     const result = await response.json().catch(() => ({}));
     if (!response.ok || String(result.success) !== "true") {
-      const fallbackResponse = await fetch(fallbackEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          name: values.get("name"),
-          email: values.get("email"),
-          phone: values.get("phone"),
-          country: values.get("country"),
-          company: values.get("company"),
-          profile: values.get("profile"),
-          privacy: values.get("privacy"),
-          language: locale,
-          source: location.href,
-          _subject: "SpaPlus Global country partnership enquiry",
-          _captcha: "false"
-        })
-      });
-      const fallbackResult = await fallbackResponse.json().catch(() => ({}));
-      if (!fallbackResponse.ok || String(fallbackResult.success) !== "true") {
-        throw new Error("Submission failed");
-      }
+      throw new Error("Submission failed");
     }
     form.reset();
     lastFocused = document.activeElement;

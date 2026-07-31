@@ -268,8 +268,6 @@ const successModalCard = document.querySelector(".success-modal-card");
 const successModalClose = document.querySelector(".success-modal-close");
 const contactFormEndpoint =
   "https://app.spaplus.co/api/contact";
-const contactFormFallbackEndpoint =
-  "https://formsubmit.co/ajax/93567c940af3bbace0ca1b462708c256";
 const founderPhotoDataUri = ${JSON.stringify(founderPhotoDataUri)};
 document.querySelector(".founder-photo").src = founderPhotoDataUri;
 
@@ -880,33 +878,7 @@ contactForm.addEventListener("submit", async (event) => {
       response = null;
     }
     if (!response?.ok || String(result.success) !== "true") {
-      const fallbackResponse = await fetch(contactFormFallbackEndpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          organization,
-          topic,
-          message,
-          privacy: privacyAccepted ? "accepted" : "not accepted",
-          language: activeLocale,
-          source: location.href,
-          _subject: "SpaPlus Global website enquiry",
-          _captcha: "false",
-          _template: "box",
-          _cc: "palombo.r@gmail.com,s0509350015@gmail.com",
-          _autoresponse:
-            "Thank you for contacting SpaPlus Global. We have received your enquiry and our team will review it shortly.",
-        }),
-      });
-      const fallbackResult = await fallbackResponse.json().catch(() => ({}));
-      if (!fallbackResponse.ok || String(fallbackResult.success) !== "true") {
-        throw new Error("Submission failed");
-      }
+      throw new Error("Submission failed");
     }
     contactForm.reset();
     renderTopics(company);

@@ -69,7 +69,7 @@ const marketDefaults: Record<string, Record<string, string>> = {
   "en-CA": {
     heroEyebrow: "ONTARIO, YOU’RE NEXT",
     heroTitle: "SpaPlus is coming to Ontario.",
-    heroLead: "We are preparing a better way for people across Toronto and Ontario to discover, compare and book memorable spa experiences.",
+    heroLead: "We are preparing a better way for people in Toronto and across Ontario to discover, compare and book memorable spa experiences.",
     formTitle: "Tell us about your spa.",
     formIntro: "Complete the form once. We will review it personally and contact you within 72 hours.",
     finalTitle: "Your spa could help shape the first SpaPlus experience in Ontario.",

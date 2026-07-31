@@ -230,8 +230,16 @@ export default function MarketLaunchPage({
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("hashchange", updateScrollState);
     updateScrollState();
-    return () => window.removeEventListener("scroll", onScroll);
+    const initialFrame = window.requestAnimationFrame(updateScrollState);
+    const initialTimer = window.setTimeout(updateScrollState, 120);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("hashchange", updateScrollState);
+      window.cancelAnimationFrame(initialFrame);
+      window.clearTimeout(initialTimer);
+    };
   }, [menuOpen]);
 
   useEffect(() => {
@@ -528,7 +536,7 @@ export default function MarketLaunchPage({
             {managed("heroLead", selectedArea
               ? selectedArea.lead
               : tr(
-                  `We are preparing a better way for people across ${primaryCity} and ${marketName} to discover, compare and book memorable spa experiences.`,
+                  `We are preparing a better way for people in ${primaryCity} and across ${marketName} to discover, compare and book memorable spa experiences.`,
                   `Nous préparons une meilleure façon de découvrir, comparer et réserver des expériences spa mémorables à ${primaryCity} et partout en ${marketName}.`,
                 ))}
           </p>
@@ -549,8 +557,8 @@ export default function MarketLaunchPage({
               }
             >
               {tr(
-                "Put your spa on the early list",
-                "Inscrire votre spa en priorité",
+                "Join the Founding Spa List",
+                "Rejoindre la liste des spas fondateurs",
               )}
             </a>
             <a className={styles.textButton} href="#proof">
@@ -587,14 +595,27 @@ export default function MarketLaunchPage({
       </section>
 
       <section className={styles.intro} id="why">
-        <div className={styles.sectionLabel}>
-          {tr("A STRONGER WAY TO GROW", "UNE MEILLEURE FAÇON DE GRANDIR")}
+        <div className={styles.introAside}>
+          <div className={styles.sectionLabel}>
+            {tr("A STRONGER WAY TO GROW", "UNE MEILLEURE FAÇON DE GRANDIR")}
+          </div>
+          <ol
+            className={styles.introPath}
+            aria-label={tr(
+              "The SpaPlus guest journey",
+              "Le parcours client SpaPlus",
+            )}
+          >
+            <li><span>01</span><strong>{tr("Discover", "Découvrir")}</strong></li>
+            <li><span>02</span><strong>{tr("Compare", "Comparer")}</strong></li>
+            <li><span>03</span><strong>{tr("Book", "Réserver")}</strong></li>
+          </ol>
         </div>
         <div>
           <h2>
             {tr(
-              "More people looking for a great spa day. More opportunities for the right spas.",
-              "Plus de gens à la recherche d’une belle journée au spa. Plus d’occasions pour les bons établissements.",
+              "Better spa experiences for guests. New opportunities for Ontario spas.",
+              "De meilleures expériences spa pour les clients. De nouvelles possibilités pour les spas de l’Ontario.",
             )}
           </h2>
           <p>
@@ -1369,8 +1390,8 @@ export default function MarketLaunchPage({
             {submitState === "submitting"
               ? tr("Sending your details...", "Envoi de vos renseignements...")
               : tr(
-                  `Join the ${selectedArea?.name || marketName} early list`,
-                  `Rejoindre la liste prioritaire de ${selectedArea?.name || marketName}`,
+                  `Join the ${selectedArea?.name || marketName} Founding Spa List`,
+                  `Rejoindre la liste des spas fondateurs de ${selectedArea?.name || marketName}`,
                 )}
           </button>
           {submitState === "error" ? (

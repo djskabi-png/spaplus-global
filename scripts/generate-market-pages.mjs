@@ -2577,18 +2577,6 @@ if (funnelForm) {
       "sv-se": "sv",
       "nb-no": "nb",
     };
-    const fallbackAutoResponses = {
-      "el-cy": "Ευχαριστούμε. Λάβαμε τα στοιχεία σας και η ομάδα SpaPlus θα επικοινωνήσει μαζί σας σύντομα.",
-      "el-gr": "Ευχαριστούμε. Λάβαμε τα στοιχεία σας και η ομάδα SpaPlus θα επικοινωνήσει μαζί σας σύντομα.",
-      "hu-hu": "Köszönjük. Megkaptuk az adatokat, és a SpaPlus csapata hamarosan jelentkezik.",
-      "it-it": "Grazie. Abbiamo ricevuto i tuoi dati e il team SpaPlus ti contatterà presto.",
-      "de-de": "Vielen Dank. Wir haben Ihre Angaben erhalten. Das SpaPlus-Team meldet sich in Kürze.",
-      "de-ch": "Vielen Dank. Wir haben Ihre Angaben erhalten. Das SpaPlus-Team meldet sich in Kürze.",
-      "fr-fr": "Merci. Nous avons bien reçu vos informations. L’équipe SpaPlus reviendra vers vous prochainement.",
-      "nl-nl": "Bedankt. We hebben je gegevens ontvangen. Het SpaPlus-team neemt binnenkort contact op.",
-      "sv-se": "Tack. Vi har tagit emot dina uppgifter. SpaPlus-teamet återkommer snart.",
-      "nb-no": "Takk. Vi har mottatt opplysningene dine. SpaPlus-teamet tar snart kontakt.",
-    };
     const topic = formValues.leadType === "spa_business"
       ? "Spa business lead | " + formValues.market
       : "Country entrepreneur lead | " + formValues.market;
@@ -2642,42 +2630,7 @@ if (funnelForm) {
       } catch {
         response = null;
       }
-      if (!response?.ok) {
-        response = await fetch("https://formsubmit.co/ajax/93567c940af3bbace0ca1b462708c256", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({
-            name: formValues.name,
-            email: formValues.email,
-            phone: formValues.phone,
-            company: formValues.company,
-            website: formValues.website || "Not provided",
-            city_or_region: formValues.city || "Not provided",
-            contact_role: formValues.role || "Not provided",
-            preferred_contact: formValues.preferredContact || "Not provided",
-            business_type: formValues.businessType || "Not provided",
-            operating_status: formValues.operatingStatus || "Not provided",
-            locations: formValues.branches || "Not provided",
-            treatment_rooms: formValues.treatmentRooms || "Not provided",
-            facilities: selectedFacilities.join(", ") || "Not provided",
-            online_booking: formValues.onlineBooking || "Not provided",
-            preferred_booking_method: formValues.preferredBookingMethod || "Not provided",
-            authority_confirmed: formValues.authorityConfirmed || "Not applicable",
-            market: formValues.market,
-            lead_type: formValues.leadType,
-            message: formValues.message,
-            campaign_attribution: campaignDetails || "Direct",
-            page: location.href,
-            _subject: "[SpaPlus Global] " + topic,
-            _template: "box",
-            _cc: "palombo.r@gmail.com,s0509350015@gmail.com",
-            _autoresponse:
-              fallbackAutoResponses[formValues.locale] ||
-              "Thank you for contacting SpaPlus Global. We have received your enquiry and our team will review it shortly.",
-          }),
-        });
-      }
-      if (!response.ok) throw new Error("Delivery endpoints failed");
+      if (!response?.ok) throw new Error("Delivery failed");
       window.dataLayer.push({
         event: "generate_lead",
         lead_type: formValues.leadType,

@@ -473,8 +473,49 @@
   padding: 160px 0 90px;
 }
 
+.introAside {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
 .sectionLabel {
   padding-top: 12px;
+}
+
+.introPath {
+  display: grid;
+  gap: 0;
+  width: min(280px, 100%);
+  margin: 44px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.introPath li {
+  display: grid;
+  min-height: 68px;
+  grid-template-columns: 44px 1fr;
+  align-items: center;
+  border-top: 1px solid var(--line);
+}
+
+.introPath li:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.introPath span {
+  color: var(--pink);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.introPath strong {
+  color: var(--navy);
+  font-size: 20px;
+  font-weight: 740;
+  letter-spacing: -0.025em;
 }
 
 .intro h2,
@@ -2231,6 +2272,29 @@
   .intro {
     gap: 25px;
     padding: 115px 0 70px;
+  }
+
+  .introPath {
+    width: 100%;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 20px;
+  }
+
+  .introPath li {
+    min-height: 62px;
+    grid-template-columns: 1fr;
+    gap: 4px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .introPath li + li {
+    padding-left: 14px;
+    border-left: 1px solid var(--line);
+  }
+
+  .introPath strong {
+    font-size: 17px;
   }
 
   .intro h2,
