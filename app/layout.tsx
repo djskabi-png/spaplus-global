@@ -22,8 +22,9 @@ export const metadata: Metadata = {
   description:
     "SpaPlus is building the global home for spa and wellness, backed by 20+ years of experience in Israel and now growing in Canada.",
   icons: {
-    icon: "/spaplus-logo.png",
-    shortcut: "/spaplus-logo.png",
+    icon: [{ url: "/spaplus-mark.png?v=2", type: "image/png" }],
+    shortcut: "/spaplus-mark.png?v=2",
+    apple: "/spaplus-mark.png?v=2",
   },
   openGraph: {
     title: "SpaPlus Global | Discover. Book. Relax.",

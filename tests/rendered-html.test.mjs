@@ -14,6 +14,13 @@ async function read(path) {
   return readFile(new URL(path, root), "utf8");
 }
 
+test("the browser icon uses the official SpaPlus mark", async () => {
+  const layout = await read("app/layout.tsx");
+
+  assert.match(layout, /spaplus-mark\.png\?v=2/);
+  assert.doesNotMatch(layout, /icon:\s*"\/spaplus-logo\.png"/);
+});
+
 test("static preview is a complete standalone website", async () => {
   const html = await read("codepen/index.html");
 
