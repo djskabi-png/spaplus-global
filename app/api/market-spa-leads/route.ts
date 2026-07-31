@@ -5,13 +5,14 @@ import {
   buildMarketVisitorEmail,
   type MarketLeadEmailData,
 } from "../../market-email-templates";
-import { markets } from "../../market-launch/markets";
+import { markets, ontarioAreas } from "../../market-launch/markets";
 
 type MarketSlug = keyof typeof markets;
 
 const allowedOrigins = new Set([
   "https://spaplus.co",
   "https://www.spaplus.co",
+  "https://app.spaplus.co",
   "https://djskabi-png.github.io",
   "https://spaplus-global-brand.adir-naor-7510.chatgpt.site",
 ]);
@@ -85,6 +86,8 @@ export async function GET(request: Request) {
     bookingSystem: "Book4Time",
     preferredContact: "Email",
     message: "We are interested in learning more about the Ontario launch.",
+    area: url.searchParams.get("area") || "",
+    locale: url.searchParams.get("locale") || "en-CA",
     source: "https://spaplus.co/en-ca/ontario/?utm_source=meta",
     campaign: {
       utm_source: "meta",
@@ -95,8 +98,11 @@ export async function GET(request: Request) {
   };
   const emailContext = {
     marketName: market.marketName,
-    pageUrl: market.pageUrl,
+    pageUrl: sample.locale.toLowerCase().startsWith("fr")
+      ? `https://spaplus.co/fr-ca/ontario/${sample.area ? `${sample.area}/` : ""}`
+      : `https://spaplus.co/en-ca/ontario/${sample.area ? `${sample.area}/` : ""}`,
     reviewWindowHours: market.reviewWindowHours,
+    languageTag: sample.locale,
   };
   const email =
     url.searchParams.get("type") === "owner"
@@ -160,6 +166,16 @@ export async function POST(request: Request) {
         .map(([key, value]) => [key, clean(value, 180)])
         .filter(([, value]) => value),
     );
+    const requestedLocale = clean(body.locale, 20).toLowerCase();
+    const acceptedLocale = requestedLocale.startsWith("fr")
+      ? "fr-CA"
+      : "en-CA";
+    const requestedArea = clean(body.area, 100);
+    const acceptedArea = ontarioAreas.some(
+      (area) => area.slug === requestedArea,
+    )
+      ? requestedArea
+      : "";
 
     const data: MarketLeadEmailData = {
       name: clean(body.name, 100),
@@ -176,9 +192,11 @@ export async function POST(request: Request) {
       bookingSystem: clean(body.bookingSystem, 120),
       preferredContact: clean(body.preferredContact, 30),
       message: cleanMultiline(body.message, 1500),
+      area: acceptedArea,
+      locale: acceptedLocale,
       source: clean(body.source, 700),
       campaign,
-      submittedAt: new Intl.DateTimeFormat(market.locale, {
+      submittedAt: new Intl.DateTimeFormat(acceptedLocale, {
         dateStyle: "medium",
         timeStyle: "short",
         timeZone: market.timeZone,
@@ -213,6 +231,7 @@ export async function POST(request: Request) {
       `Phone: ${data.phone}`,
       `Website: ${data.website}`,
       `Location: ${data.city}, ${market.marketName} ${data.postalCode}`,
+      `Campaign area: ${data.area || "Ontario general"}`,
       `Spa type: ${data.spaType}`,
       `Locations: ${data.locations}`,
       `Services: ${data.services.join(", ")}`,
@@ -238,7 +257,7 @@ export async function POST(request: Request) {
           organization: data.organization,
           topic: `${market.marketName} founding spa partner`,
           message: messageSummary,
-          locale: market.locale,
+          locale: data.locale,
           source: data.source,
           status: "new",
           createdAt: new Date().toISOString(),
@@ -274,8 +293,12 @@ export async function POST(request: Request) {
 
     const emailContext = {
       marketName: market.marketName,
-      pageUrl: market.pageUrl,
+      pageUrl:
+        data.locale.toLowerCase().startsWith("fr")
+          ? `https://spaplus.co/fr-ca/ontario/${data.area ? `${data.area}/` : ""}`
+          : `https://spaplus.co/en-ca/ontario/${data.area ? `${data.area}/` : ""}`,
       reviewWindowHours: market.reviewWindowHours,
+      languageTag: data.locale,
     };
     const owner = buildMarketOwnerEmail(data, emailContext);
     const visitor = buildMarketVisitorEmail(data, emailContext);

@@ -7,6 +7,12 @@ partners.
 
 Verified on 31 July 2026.
 
+- Ontario launch hero
+  - Source type: AI-generated illustrative campaign image
+  - Local file: public/ontario/hero-ontario-campaign-v2.jpg
+  - Public disclosure: the image is an illustrative launch concept and does
+    not depict an Ontario spa or partner
+
 - Platform hero
   - Source page: https://spaplus.ca/en/
   - Original asset: https://spaplus.ca/_new_site/hero_bg_ltr.jpg

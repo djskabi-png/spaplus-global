@@ -13,6 +13,8 @@ export type MarketLeadEmailData = {
   bookingSystem: string;
   preferredContact: string;
   message: string;
+  area: string;
+  locale: string;
   source: string;
   campaign: Record<string, string>;
   submittedAt: string;
@@ -22,6 +24,7 @@ export type MarketEmailContext = {
   marketName: string;
   pageUrl: string;
   reviewWindowHours: number;
+  languageTag: string;
 };
 
 const logoUrl = "https://spaplus.co/spaplus-wordmark.png";
@@ -46,6 +49,8 @@ function shell({
   intro,
   body,
   buttonLabel,
+  languageTag,
+  footerLine,
 }: {
   pageUrl: string;
   preheader: string;
@@ -54,9 +59,11 @@ function shell({
   intro: string;
   body: string;
   buttonLabel: string;
+  languageTag: string;
+  footerLine: string;
 }) {
   return `<!doctype html>
-<html lang="en">
+<html lang="${escapeHtml(languageTag)}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -106,7 +113,7 @@ function shell({
           <tr>
             <td style="padding:24px 34px;background:#192d4c;color:#b7c2d2;font-size:11px;line-height:1.7;">
               <strong style="color:#ffffff;">SpaPlus</strong><br>
-              A better way to discover, book and enjoy spa experiences.<br>
+              ${escapeHtml(footerLine)}<br>
               Global Spa Management Ltd.
             </td>
           </tr>
@@ -147,6 +154,8 @@ export function buildMarketOwnerEmail(
       ${detailRow("Preferred contact", data.preferredContact)}
       ${detailRow("Website or social", data.website)}
       ${detailRow("Location", `${data.city}, ${marketName} ${data.postalCode}`)}
+      ${detailRow("Campaign area", data.area || "Ontario general")}
+      ${detailRow("Page language", data.locale)}
       ${detailRow("Spa type", data.spaType)}
       ${detailRow("Locations", data.locations)}
       ${detailRow("Services", data.services.join(", "))}
@@ -167,6 +176,8 @@ export function buildMarketOwnerEmail(
     `Preferred contact: ${data.preferredContact}`,
     `Website or social: ${data.website}`,
     `Location: ${data.city}, ${marketName} ${data.postalCode}`,
+    `Campaign area: ${data.area || "Ontario general"}`,
+    `Page language: ${data.locale}`,
     `Spa type: ${data.spaType}`,
     `Locations: ${data.locations}`,
     `Services: ${data.services.join(", ")}`,
@@ -189,6 +200,8 @@ export function buildMarketOwnerEmail(
         `A spa has joined the ${marketName} founding partner list. The full enquiry is ready for review.`,
       body,
       buttonLabel: `Open the ${marketName} page`,
+      languageTag: "en",
+      footerLine: "A better way to discover, book and enjoy spa experiences.",
     }),
   };
 }
@@ -197,7 +210,54 @@ export function buildMarketVisitorEmail(
   data: MarketLeadEmailData,
   context: MarketEmailContext,
 ) {
-  const { marketName, pageUrl, reviewWindowHours } = context;
+  const { marketName, pageUrl, reviewWindowHours, languageTag } = context;
+  const isFrench = languageTag.toLowerCase().startsWith("fr");
+  if (isFrench) {
+    const preferredContact =
+      data.preferredContact === "Email"
+        ? "Courriel"
+        : data.preferredContact === "Phone"
+          ? "Téléphone"
+          : data.preferredContact;
+    const body = `
+      <div style="margin:4px 0 22px;padding:19px;border:1px solid #f4c8d9;border-radius:16px;background:#fff0f6;">
+        <strong style="display:block;margin-bottom:7px;color:#192d4c;font-size:14px;">La suite</strong>
+        <p style="margin:0;color:#5d6a7d;font-size:13px;line-height:1.7;">Nous examinerons votre spa, son emplacement et ses services. Un membre de l’équipe SpaPlus communiquera avec vous dans un délai de ${reviewWindowHours} heures selon votre méthode de contact préférée.</p>
+      </div>
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border:1px solid #e1e6ed;border-radius:16px;border-collapse:separate;overflow:hidden;">
+        ${detailRow("Spa", data.organization)}
+        ${detailRow("Personne-ressource", data.name)}
+        ${detailRow("Emplacement", `${data.city}, ${marketName}`)}
+        ${detailRow("Contact préféré", preferredContact)}
+      </table>
+      <p style="margin:22px 0 0;color:#5d6a7d;font-size:12px;line-height:1.7;">Cette inscription exprime seulement votre intérêt. Elle ne crée aucun engagement, ne demande aucun paiement et ne recueille aucun renseignement de carte de crédit. Toute offre de lancement vous sera expliquée séparément avant que vous décidiez d’aller de l’avant.</p>`;
+    const subject = `Votre spa est sur la liste prioritaire de l’${marketName} | SpaPlus`;
+    const text = [
+      `Merci, ${data.name}.`,
+      "",
+      `${data.organization} est maintenant sur la liste prioritaire SpaPlus pour l’${marketName}.`,
+      `Nous examinerons les renseignements et communiquerons avec vous dans un délai de ${reviewWindowHours} heures.`,
+      "",
+      "Cette inscription exprime seulement votre intérêt. Elle ne crée aucun engagement, ne demande aucun paiement et ne recueille aucun renseignement de carte de crédit.",
+      "",
+      pageUrl,
+    ].join("\n");
+    return {
+      subject,
+      text,
+      html: shell({
+        pageUrl,
+        preheader: `Votre spa est sur la liste prioritaire SpaPlus pour l’${marketName}. Nous communiquerons avec vous dans un délai de ${reviewWindowHours} heures.`,
+        eyebrow: `ACCÈS PRIORITAIRE ${marketName.toUpperCase()}`,
+        title: `Merci, ${data.name}.`,
+        intro: `${data.organization} est maintenant sur la liste prioritaire SpaPlus pour l’${marketName}.`,
+        body,
+        buttonLabel: `Retourner à SpaPlus ${marketName}`,
+        languageTag: "fr-CA",
+        footerLine: "Une meilleure façon de découvrir, réserver et vivre des expériences spa.",
+      }),
+    };
+  }
   const body = `
     <div style="margin:4px 0 22px;padding:19px;border:1px solid #f4c8d9;border-radius:16px;background:#fff0f6;">
       <strong style="display:block;margin-bottom:7px;color:#192d4c;font-size:14px;">What happens next</strong>
@@ -233,6 +293,8 @@ export function buildMarketVisitorEmail(
       intro: `${data.organization} is now on the SpaPlus ${marketName} early-access list.`,
       body,
       buttonLabel: `Return to SpaPlus ${marketName}`,
+      languageTag: "en-CA",
+      footerLine: "A better way to discover, book and enjoy spa experiences.",
     }),
   };
 }

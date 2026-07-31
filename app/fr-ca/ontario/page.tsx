@@ -1,42 +1,42 @@
 import type { Metadata } from "next";
 import MarketLaunchPage from "../../market-launch/MarketLaunchPage";
-import { ontarioMarket } from "../../market-launch/markets";
+import { ontarioFrenchMarket } from "../../market-launch/markets";
 
-const canonicalUrl = "https://spaplus.co/en-ca/ontario/";
+const canonicalUrl = "https://spaplus.co/fr-ca/ontario/";
 
 export const metadata: Metadata = {
-  title: "SpaPlus is coming to Ontario | Founding spa partners",
+  title: "SpaPlus arrive en Ontario | Spas partenaires fondateurs",
   description:
-    "SpaPlus is preparing to launch in Ontario. Established spas can join the founding partner list with no fee, no commitment and no credit card.",
+    "SpaPlus prépare son lancement en Ontario. Les spas établis peuvent s’inscrire à la liste des partenaires fondateurs, gratuitement, sans engagement et sans carte de crédit.",
   alternates: {
     canonical: canonicalUrl,
     languages: {
-      "en-CA": canonicalUrl,
-      "fr-CA": "https://spaplus.co/fr-ca/ontario/",
+      "en-CA": "https://spaplus.co/en-ca/ontario/",
+      "fr-CA": canonicalUrl,
     },
   },
   openGraph: {
-    title: "SpaPlus is coming to Ontario",
+    title: "SpaPlus arrive en Ontario",
     description:
-      "Join the founding spa partner list. No fee to register, no commitment and no credit card.",
+      "Inscrivez votre spa à la liste des partenaires fondateurs avant le lancement.",
     url: canonicalUrl,
     siteName: "SpaPlus",
-    locale: "en_CA",
+    locale: "fr_CA",
     type: "website",
     images: [
       {
         url: "/ontario/og-ontario.png",
         width: 1536,
         height: 1024,
-        alt: "Illustrative SpaPlus Ontario launch artwork. It does not depict an Ontario partner.",
+        alt: "Concept visuel illustratif du lancement de SpaPlus en Ontario. Il ne représente pas un partenaire ontarien.",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "SpaPlus is coming to Ontario",
+    title: "SpaPlus arrive en Ontario",
     description:
-      "Ontario spas can join the founding partner list before launch.",
+      "Les spas ontariens peuvent s’inscrire à la liste prioritaire avant le lancement.",
     images: ["/ontario/og-ontario.png"],
   },
   robots: {
@@ -59,33 +59,16 @@ const structuredData = {
       "@type": "WebPage",
       "@id": `${canonicalUrl}#webpage`,
       url: canonicalUrl,
-      name: "SpaPlus is coming to Ontario",
+      name: "SpaPlus arrive en Ontario",
       description:
-        "An early-access page for established Ontario spas interested in joining SpaPlus.",
-      inLanguage: "en-CA",
+        "Une page d’accès prioritaire destinée aux spas établis de l’Ontario qui souhaitent découvrir SpaPlus.",
+      inLanguage: "fr-CA",
       isPartOf: {
         "@id": "https://spaplus.co/#website",
       },
       about: {
         "@id": "https://spaplus.co/#organization",
       },
-    },
-    {
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "SpaPlus Global",
-          item: "https://spaplus.co/en/",
-        },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: "Ontario",
-          item: canonicalUrl,
-        },
-      ],
     },
   ],
 };
@@ -97,7 +80,7 @@ export default function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <MarketLaunchPage config={ontarioMarket} />
+      <MarketLaunchPage config={ontarioFrenchMarket} />
     </>
   );
 }

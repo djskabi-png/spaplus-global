@@ -495,9 +495,24 @@ test("every Coming Soon country link points to an existing English market page",
   }
 });
 
-test("Ontario early-access funnel is complete, reusable and launch-gated", async () => {
-  const [page, client, marketConfig, styles, route, templates, sources, playbook] = await Promise.all([
+test("Ontario early-access funnel is complete, bilingual, regional and launch-gated", async () => {
+  const [
+    page,
+    frenchPage,
+    englishAreaPage,
+    frenchAreaPage,
+    client,
+    marketConfig,
+    styles,
+    route,
+    templates,
+    sources,
+    playbook,
+  ] = await Promise.all([
     read("app/en-ca/ontario/page.tsx"),
+    read("app/fr-ca/ontario/page.tsx"),
+    read("app/en-ca/ontario/[area]/page.tsx"),
+    read("app/fr-ca/ontario/[area]/page.tsx"),
     read("app/market-launch/MarketLaunchPage.tsx"),
     read("app/market-launch/markets.ts"),
     read("app/market-launch/market-launch.module.css"),
@@ -514,10 +529,19 @@ test("Ontario early-access funnel is complete, reusable and launch-gated", async
   assert.match(page, /"@type": "WebPage"/);
   assert.match(page, /"@type": "BreadcrumbList"/);
   assert.doesNotMatch(page, /LocalBusiness/);
+  assert.match(page, /"fr-CA": "https:\/\/spaplus\.co\/fr-ca\/ontario\//);
+  assert.match(frenchPage, /SpaPlus arrive en Ontario/);
+  assert.match(frenchPage, /inLanguage: "fr-CA"/);
+  assert.match(frenchPage, /index: false/);
+  assert.match(englishAreaPage, /generateStaticParams/);
+  assert.match(englishAreaPage, /buildOntarioAreaConfig\(area, "en"\)/);
+  assert.match(frenchAreaPage, /buildOntarioAreaConfig\(area, "fr"\)/);
 
   assert.match(marketPage, /marketName: "Ontario"/);
-  assert.match(client, /SpaPlus is coming to \{marketName\}/);
+  assert.match(client, /`SpaPlus is coming to \$\{marketName\}\.`/);
+  assert.match(client, /`SpaPlus arrive en \$\{marketName\}\.`/);
   assert.match(client, /No fee to register/);
+  assert.match(client, /Inscription gratuite/);
   assert.match(client, /No commitment/);
   assert.match(client, /No credit card/);
   assert.match(client, /reviewWindowHours/);
@@ -544,11 +568,22 @@ test("Ontario early-access funnel is complete, reusable and launch-gated", async
   assert.match(client, /Essential only/);
   assert.match(client, /Allow analytics/);
   assert.match(client, /spaplus:consent/);
+  assert.match(client, /languageLinks\.map/);
+  assert.match(client, /priorityAreas\.map/);
+  assert.match(client, /selectedArea\.focus\.map/);
+  assert.match(marketConfig, /slug: "toronto"/);
+  assert.match(marketConfig, /slug: "greater-toronto-area"/);
+  assert.match(marketConfig, /slug: "niagara"/);
+  assert.match(marketConfig, /slug: "ottawa"/);
+  assert.match(marketConfig, /slug: "muskoka"/);
+  assert.match(marketConfig, /slug: "hamilton"/);
   assert.doesNotMatch(client, /[–—]/);
 
   assert.match(styles, /@media \(max-width: 640px\)/);
   assert.match(styles, /prefers-reduced-motion/);
   assert.match(styles, /:focus-visible/);
+  assert.match(styles, /\.foundingOffer/);
+  assert.match(styles, /\.localFocus/);
 
   assert.match(route, /formType: `\$\{marketSlug\}_spa_early_access`/);
   assert.match(route, /Market not supported/);
@@ -560,9 +595,12 @@ test("Ontario early-access funnel is complete, reusable and launch-gated", async
   assert.match(route, /to: \[data\.email\]/);
   assert.match(route, /Idempotency-Key/);
   assert.match(route, /SpaPlus-Market-Leads\/1\.0/);
+  assert.match(route, /"https:\/\/app\.spaplus\.co"/);
+  assert.match(route, /languageTag: data\.locale/);
 
   assert.match(templates, /\$\{marketName\} spa lead:/);
   assert.match(templates, /Your spa is on the \$\{marketName\} early list/);
+  assert.match(templates, /Votre spa est sur la liste prioritaire/);
   assert.match(templates, /Global Spa Management Ltd\./);
   assert.match(templates, /does not request credit card information/);
   assert.match(sources, /official\s+SpaPlus Canada website/);

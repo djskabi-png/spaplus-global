@@ -2,6 +2,33 @@
 
 Status: Prepared for approval. Not published. No advertising spend authorized.
 
+## Language and regional campaign architecture
+
+The launch funnel is available in Canadian English and Canadian French.
+
+- Ontario, English: `/en-ca/ontario/`
+- Ontario, French: `/fr-ca/ontario/`
+- Regional English pages: `/en-ca/ontario/{area}/`
+- Regional French pages: `/fr-ca/ontario/{area}/`
+
+Prepared campaign areas:
+
+- Toronto
+- Greater Toronto Area
+- Niagara
+- Ottawa
+- Muskoka
+- Hamilton
+
+Each regional page has a dedicated URL, local positioning, regional focus
+points, language alternate links and a form payload that records the selected
+area and language. Regional pages remain `noindex` until the content, media and
+campaign are approved for public release.
+
+Do not create thin city pages only to increase page count. A new regional page
+must have a verified campaign purpose, local positioning, a distinct audience
+or offer and a working lead path.
+
 ## Objective
 
 Build a qualified founding group of established Ontario spa businesses before
