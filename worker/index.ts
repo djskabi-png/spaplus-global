@@ -344,6 +344,17 @@ const worker = {
       });
     }
 
+    if (hostname === "app.spaplus.co" && url.pathname === "/robots.txt") {
+      return new Response(
+        "User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /tools\nDisallow: /api/cms/\n\nSitemap: https://app.spaplus.co/sitemap.xml\n",
+        { headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } },
+      );
+    }
+
+    if (hostname === "app.spaplus.co" && url.pathname === "/sitemap.xml") {
+      return env.ASSETS.fetch(new Request(new URL("/app-sitemap.xml", request.url)));
+    }
+
     if (hostname === "www.spaplus.co") {
       url.hostname = "spaplus.co";
       return Response.redirect(url.toString(), 308);

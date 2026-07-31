@@ -87,7 +87,7 @@ export async function GET(request: Request) {
     message: "We are interested in learning more about the Ontario launch.",
     area: url.searchParams.get("area") || "",
     locale: url.searchParams.get("locale") || "en-CA",
-    source: "https://spaplus.co/en-ca/ontario/?utm_source=meta",
+    source: "https://app.spaplus.co/en-ca/ontario/?utm_source=meta",
     campaign: {
       utm_source: "meta",
       utm_medium: "paid-social",
@@ -98,8 +98,8 @@ export async function GET(request: Request) {
   const emailContext = {
     marketName: market.marketName,
     pageUrl: sample.locale.toLowerCase().startsWith("fr")
-      ? `https://spaplus.co/fr-ca/ontario/${sample.area ? `${sample.area}/` : ""}`
-      : `https://spaplus.co/en-ca/ontario/${sample.area ? `${sample.area}/` : ""}`,
+      ? `https://app.spaplus.co/fr-ca/ontario/${sample.area ? `${sample.area}/` : ""}`
+      : `https://app.spaplus.co/en-ca/ontario/${sample.area ? `${sample.area}/` : ""}`,
     reviewWindowHours: market.reviewWindowHours,
     languageTag: sample.locale,
   };
@@ -258,6 +258,7 @@ export async function POST(request: Request) {
           message: messageSummary,
           locale: data.locale,
           source: data.source,
+          resourceKey: "market:ca:on",
           status: "new",
           createdAt: new Date().toISOString(),
         })
@@ -296,8 +297,8 @@ export async function POST(request: Request) {
       marketName: market.marketName,
       pageUrl:
         data.locale.toLowerCase().startsWith("fr")
-          ? `https://spaplus.co/fr-ca/ontario/${data.area ? `${data.area}/` : ""}`
-          : `https://spaplus.co/en-ca/ontario/${data.area ? `${data.area}/` : ""}`,
+          ? `https://app.spaplus.co/fr-ca/ontario/${data.area ? `${data.area}/` : ""}`
+          : `https://app.spaplus.co/en-ca/ontario/${data.area ? `${data.area}/` : ""}`,
       reviewWindowHours: market.reviewWindowHours,
       languageTag: data.locale,
     };

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import MarketLaunchPage from "../../market-launch/MarketLaunchPage";
 import { ontarioFrenchMarket } from "../../market-launch/markets";
 
-const canonicalUrl = "https://spaplus.co/fr-ca/ontario/";
-const isPublicLaunch = process.env.ONTARIO_PUBLIC_LAUNCH === "true";
+const canonicalUrl = "https://app.spaplus.co/fr-ca/ontario/";
+const isPublicLaunch = true;
 
 export const metadata: Metadata = {
   title: "SpaPlus arrive en Ontario | Spas partenaires fondateurs",
@@ -19,9 +19,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: canonicalUrl,
     languages: {
-      "en-CA": "https://spaplus.co/en-ca/ontario/",
+      "en-CA": "https://app.spaplus.co/en-ca/ontario/",
       "fr-CA": canonicalUrl,
-      "x-default": "https://spaplus.co/en-ca/ontario/",
+      "x-default": "https://app.spaplus.co/en-ca/ontario/",
     },
   },
   openGraph: {
@@ -119,7 +119,7 @@ const structuredData = {
         "@type": "ListItem",
         position: index + 1,
         name: area.label,
-        url: `https://spaplus.co${area.href}`,
+        url: `https://app.spaplus.co${area.href}`,
       })),
     },
     {

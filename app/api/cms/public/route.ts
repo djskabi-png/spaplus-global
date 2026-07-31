@@ -17,6 +17,7 @@ const supportedLocales = new Set([
   "hu",
   "pl",
   "es",
+  "en-CA",
 ]);
 
 export async function GET(request: Request) {

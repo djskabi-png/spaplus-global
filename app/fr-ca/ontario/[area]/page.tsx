@@ -11,7 +11,7 @@ type PageProps = {
   params: Promise<{ area: string }>;
 };
 
-const isPublicLaunch = process.env.ONTARIO_PUBLIC_LAUNCH === "true";
+const isPublicLaunch = true;
 
 export function generateStaticParams() {
   return ontarioAreas.map((area) => ({ area: area.slug }));
@@ -23,7 +23,7 @@ export async function generateMetadata({
   const { area: slug } = await params;
   const area = getOntarioArea(slug);
   if (!area) return {};
-  const canonical = `https://spaplus.co/fr-ca/ontario/${area.slug}/`;
+  const canonical = `https://app.spaplus.co/fr-ca/ontario/${area.slug}/`;
   return {
     title: `SpaPlus arrive à ${area.frenchName} | Devenez un spa fondateur`,
     description: `${area.frenchLead} Les spas établis peuvent s’inscrire gratuitement, sans engagement et sans carte de crédit.`,
@@ -37,9 +37,9 @@ export async function generateMetadata({
     alternates: {
       canonical,
       languages: {
-        "en-CA": `https://spaplus.co/en-ca/ontario/${area.slug}/`,
+        "en-CA": `https://app.spaplus.co/en-ca/ontario/${area.slug}/`,
         "fr-CA": canonical,
-        "x-default": `https://spaplus.co/en-ca/ontario/${area.slug}/`,
+        "x-default": `https://app.spaplus.co/en-ca/ontario/${area.slug}/`,
       },
     },
     openGraph: {
@@ -104,7 +104,7 @@ export default async function Page({ params }: PageProps) {
             "@type": "ListItem",
             position: 2,
             name: "Ontario",
-            item: "https://spaplus.co/fr-ca/ontario/",
+            item: "https://app.spaplus.co/fr-ca/ontario/",
           },
           {
             "@type": "ListItem",

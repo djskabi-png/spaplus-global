@@ -1,6 +1,6 @@
 # SpaPlus Ontario launch playbook
 
-Status: Prepared for approval. Not published. No advertising spend authorized.
+Status: Published for organic discovery and campaign landing traffic. No advertising spend is authorized by publication alone.
 
 ## Language and regional campaign architecture
 
@@ -22,8 +22,8 @@ Prepared campaign areas:
 
 Each regional page has a dedicated URL, local positioning, regional focus
 points, language alternate links and a form payload that records the selected
-area and language. Regional pages remain `noindex` until the content, media and
-campaign are approved for public release.
+area and language. Regional pages are public and indexable after the production
+release approved by Adir.
 
 Do not create thin city pages only to increase page count. A new regional page
 must have a verified campaign purpose, local positioning, a distinct audience
@@ -246,12 +246,8 @@ Learn more
 
 ## Organic launch
 
-The page is deliberately set to `noindex` until approval.
-
-The production launch gate is controlled by the environment variable
-`ONTARIO_PUBLIC_LAUNCH`. It must remain unset during review. Set it to `true`
-only after Adir approves the public release, then redeploy and verify the live
-robots directive, canonical URLs, language alternates and sitemap entries.
+The Ontario page and its regional variants are public and indexable. Any future
+market should remain private until its content, media and release gate pass.
 
 ### Search and answer-engine readiness
 

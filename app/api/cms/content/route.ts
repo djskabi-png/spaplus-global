@@ -2,8 +2,9 @@ import { and, eq } from "drizzle-orm";
 import { getDb } from "../../../../db";
 import { cmsAuditLog, cmsContent } from "../../../../db/schema";
 import { getAuthorizedAdmin } from "../../../admin-auth";
+import { hasPermission, sectionResource } from "../../../cms-access";
 
-const allowedSections = new Set(["translation", "company"]);
+const allowedSections = new Set(["translation", "company", "market.ca-on"]);
 const allowedLocales = new Set([
   "en",
   "he",
@@ -19,6 +20,8 @@ const allowedLocales = new Set([
   "hu",
   "pl",
   "es",
+  "en-CA",
+  "fr-CA",
 ]);
 
 export async function GET(request: Request) {
@@ -27,21 +30,24 @@ export async function GET(request: Request) {
 
   const localeValue = new URL(request.url).searchParams.get("locale") || "en";
   const locale = allowedLocales.has(localeValue) ? localeValue : "en";
+  const requestedResource = new URL(request.url).searchParams.get("resource") || "site:global";
+  if (!hasPermission(admin.role, admin.permissions, requestedResource, "viewContent")) {
+    return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
   const rows = await getDb()
     .select()
     .from(cmsContent)
     .where(eq(cmsContent.locale, locale));
 
-  return Response.json({ locale, rows });
+  return Response.json({
+    locale,
+    rows: rows.filter((row) => sectionResource(row.section) === requestedResource),
+  });
 }
 
 export async function PUT(request: Request) {
   const admin = await getAuthorizedAdmin();
   if (!admin) return Response.json({ error: "Unauthorized" }, { status: 401 });
-  if (admin.role === "viewer") {
-    return Response.json({ error: "Read only" }, { status: 403 });
-  }
-
   const body = (await request.json()) as {
     locale?: string;
     section?: string;
@@ -52,6 +58,10 @@ export async function PUT(request: Request) {
   const section = String(body.section || "");
   const field = String(body.field || "").trim();
   const value = String(body.value || "").trim();
+  const resourceKey = sectionResource(section);
+  if (!hasPermission(admin.role, admin.permissions, resourceKey, "editContent")) {
+    return Response.json({ error: "Read only" }, { status: 403 });
+  }
 
   if (
     !allowedLocales.has(locale) ||
@@ -93,7 +103,7 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   const admin = await getAuthorizedAdmin();
-  if (!admin || admin.role === "viewer") {
+  if (!admin) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -105,6 +115,10 @@ export async function DELETE(request: Request) {
   const locale = String(body.locale || "");
   const section = String(body.section || "");
   const field = String(body.field || "");
+  const resourceKey = sectionResource(section);
+  if (!hasPermission(admin.role, admin.permissions, resourceKey, "editContent")) {
+    return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
   if (!allowedLocales.has(locale) || !allowedSections.has(section) || !field) {
     return Response.json({ error: "Invalid content" }, { status: 400 });
   }

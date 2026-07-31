@@ -13,8 +13,8 @@ SpaPlus is preparing for a future launch in Ontario, Canada. The launch date has
 
 Established spa businesses may join the early-access list. Registration is free, requires no credit card and does not create a commitment.
 
-- English: https://spaplus.co/en-ca/ontario/
-- Canadian French: https://spaplus.co/fr-ca/ontario/
+- English: https://app.spaplus.co/en-ca/ontario/
+- Canadian French: https://app.spaplus.co/fr-ca/ontario/
 
 ## Priority Ontario areas
 

@@ -164,6 +164,8 @@ export default function MarketLaunchPage({
   const [headerHidden, setHeaderHidden] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [cmsCopy, setCmsCopy] = useState<Record<string, string>>({});
+  const managed = (field: string, fallback: string) => cmsCopy[field] || fallback;
   const campaignData = useMemo(() => {
     if (typeof window === "undefined") return {};
     const params = new URLSearchParams(window.location.search);
@@ -177,6 +179,18 @@ export default function MarketLaunchPage({
   useEffect(() => {
     document.documentElement.lang = languageTag;
     document.documentElement.dir = "ltr";
+  }, [languageTag]);
+
+  useEffect(() => {
+    let active = true;
+    fetch(`/api/cms/public?locale=${encodeURIComponent(languageTag)}`)
+      .then((response) => response.ok ? response.json() : null)
+      .then((data) => {
+        if (!active || !data) return;
+        setCmsCopy(data.content?.["market.ca-on"] || {});
+      })
+      .catch(() => undefined);
+    return () => { active = false; };
   }, [languageTag]);
 
   useEffect(() => {
@@ -488,7 +502,7 @@ export default function MarketLaunchPage({
         <div className={styles.heroShade} aria-hidden="true" />
         <div className={styles.heroContent}>
           <p className={styles.eyebrow}>
-            {selectedArea
+            {managed("heroEyebrow", selectedArea
               ? tr(
                   `${selectedArea.name.toUpperCase()}, YOU’RE INVITED`,
                   `${selectedArea.name.toUpperCase()}, À VOUS DE JOUER`,
@@ -496,10 +510,10 @@ export default function MarketLaunchPage({
               : tr(
                   `${marketName.toUpperCase()}, YOU’RE NEXT`,
                   `${marketName.toUpperCase()}, À VOUS DE JOUER`,
-                )}
+                ))}
           </p>
           <h1>
-            {selectedArea
+            {managed("heroTitle", selectedArea
               ? tr(
                   `SpaPlus is coming to ${selectedArea.name}.`,
                   `SpaPlus arrive à ${selectedArea.name}.`,
@@ -507,15 +521,15 @@ export default function MarketLaunchPage({
               : tr(
                   `SpaPlus is coming to ${marketName}.`,
                   `SpaPlus arrive en ${marketName}.`,
-                )}
+                ))}
           </h1>
           <p className={styles.heroLead}>
-            {selectedArea
+            {managed("heroLead", selectedArea
               ? selectedArea.lead
               : tr(
                   `We are preparing a better way for people across ${primaryCity} and ${marketName} to discover, compare and book memorable spa experiences.`,
                   `Nous préparons une meilleure façon de découvrir, comparer et réserver des expériences spa mémorables à ${primaryCity} et partout en ${marketName}.`,
-                )}
+                ))}
           </p>
           <div
             className={styles.promiseRow}
@@ -1143,12 +1157,12 @@ export default function MarketLaunchPage({
               `LISTE PRIORITAIRE DES SPAS DE ${(selectedArea?.name || marketName).toUpperCase()}`,
             )}
           </p>
-          <h2>{tr("Tell us about your spa.", "Parlez-nous de votre spa.")}</h2>
+          <h2>{managed("formTitle", tr("Tell us about your spa.", "Parlez-nous de votre spa."))}</h2>
           <p>
-            {tr(
+            {managed("formIntro", tr(
               `Complete the form once. We will review it personally and contact you within ${reviewWindowHours} hours.`,
               `Remplissez le formulaire une seule fois. Nous l’examinerons personnellement et communiquerons avec vous dans un délai de ${reviewWindowHours} heures.`,
-            )}
+            ))}
           </p>
           <div className={styles.assuranceCard}>
             <strong>{tr("What happens after you send it?", "Que se passe-t-il après l’envoi?")}</strong>
@@ -1439,10 +1453,10 @@ export default function MarketLaunchPage({
           )}
         </p>
         <h2>
-          {tr(
+          {managed("finalTitle", tr(
             `Your spa could help shape the first SpaPlus experience in ${selectedArea?.name || marketName}.`,
             `Votre spa pourrait contribuer à façonner la première expérience SpaPlus à ${selectedArea?.name || `l’${marketName}`}.`,
-          )}
+          ))}
         </h2>
         <a
           className={styles.primaryButton}

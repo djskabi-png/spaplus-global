@@ -13,11 +13,43 @@ export const cmsUsers = sqliteTable(
       .notNull()
       .default("active"),
     defaultLocale: text("default_locale").notNull().default("en"),
+    systemLocale: text("system_locale").notNull().default("en"),
     lastLoginAt: text("last_login_at"),
     createdAt: text("created_at").notNull(),
     updatedAt: text("updated_at").notNull(),
   },
   (table) => [uniqueIndex("cms_users_email_unique").on(table.email)],
+);
+
+export const cmsPermissions = sqliteTable(
+  "cms_permissions",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => cmsUsers.id, { onDelete: "cascade" }),
+    resourceKey: text("resource_key").notNull(),
+    canViewContent: integer("can_view_content", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    canEditContent: integer("can_edit_content", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    canViewLeads: integer("can_view_leads", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    canManageLeads: integer("can_manage_leads", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [
+    uniqueIndex("cms_permissions_user_resource_unique").on(
+      table.userId,
+      table.resourceKey,
+    ),
+  ],
 );
 
 export const cmsContent = sqliteTable(
@@ -62,6 +94,7 @@ export const formSubmissions = sqliteTable("form_submissions", {
   message: text("message").notNull().default(""),
   locale: text("locale").notNull().default("en"),
   source: text("source").notNull().default(""),
+  resourceKey: text("resource_key").notNull().default("site:global"),
   status: text("status", { enum: ["new", "in_progress", "closed"] })
     .notNull()
     .default("new"),

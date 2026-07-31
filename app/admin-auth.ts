@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { getDb } from "../db";
 import { cmsUsers } from "../db/schema";
+import { getUserPermissions, type CmsPermissionRecord } from "./cms-access";
 import {
   getAuthenticatedUser,
   type AuthenticatedUser,
@@ -10,8 +11,11 @@ import {
 export type AdminRole = "owner" | "editor" | "viewer";
 
 export type AuthorizedAdmin = AuthenticatedUser & {
+  id: number;
   role: AdminRole;
   defaultLocale: string;
+  systemLocale: string;
+  permissions: CmsPermissionRecord[];
 };
 
 function configuredOwners() {
@@ -28,7 +32,15 @@ export async function getAuthorizedAdmin(): Promise<AuthorizedAdmin | null> {
   const email = identity.email.trim().toLowerCase();
   if (configuredOwners().includes(email)) {
     const owner = await ensureOwner(identity);
-    return { ...identity, email, role: "owner", defaultLocale: owner.defaultLocale };
+    return {
+      ...identity,
+      email,
+      id: owner.id,
+      role: "owner",
+      defaultLocale: owner.defaultLocale,
+      systemLocale: owner.systemLocale,
+      permissions: [],
+    };
   }
 
   const db = getDb();
@@ -45,7 +57,16 @@ export async function getAuthorizedAdmin(): Promise<AuthorizedAdmin | null> {
     .set({ lastLoginAt: new Date().toISOString(), updatedAt: new Date().toISOString() })
     .where(eq(cmsUsers.id, record.id));
 
-  return { ...identity, email, role: record.role, defaultLocale: record.defaultLocale };
+  const permissions = await getUserPermissions(record.id);
+  return {
+    ...identity,
+    email,
+    id: record.id,
+    role: record.role,
+    defaultLocale: record.defaultLocale,
+    systemLocale: record.systemLocale,
+    permissions,
+  };
 }
 
 export async function requireAuthorizedAdmin(returnTo: string) {
@@ -71,6 +92,7 @@ async function ensureOwner(identity: AuthenticatedUser) {
       role: "owner",
       status: "active",
       defaultLocale: "he",
+      systemLocale: "he",
       lastLoginAt: now,
       createdAt: now,
       updatedAt: now,
