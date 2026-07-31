@@ -348,6 +348,7 @@ export async function POST(request: Request) {
       console.error(
         `${market.marketName} email delivery request failed`,
         response.status,
+        result.message || "No provider message",
       );
       return Response.json(
         { success: false, error: "Email delivery failed" },

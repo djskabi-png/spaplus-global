@@ -246,7 +246,11 @@ export async function POST(request: Request) {
       message?: string;
     };
     if (!response.ok || !Array.isArray(result.data) || result.data.length !== 2) {
-      console.error("Email delivery request failed", response.status);
+      console.error(
+        "Email delivery request failed",
+        response.status,
+        result.message || "No provider message",
+      );
       return Response.json(
         { success: false, error: "Email delivery failed" },
         { status: 502, headers },
