@@ -5,6 +5,8 @@ import handler from "vinext/server/app-router-entry";
 interface Env {
   ASSETS: Fetcher;
   DB: D1Database;
+  SITES_API_ORIGIN?: string;
+  SITES_BYPASS_TOKEN?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -30,15 +32,55 @@ const worker = {
     const url = new URL(request.url);
     const hostname = url.hostname.toLowerCase();
 
+    if (hostname === "app.spaplus.co" && url.pathname === "/") {
+      url.pathname = "/en-ca/ontario/";
+      return Response.redirect(url.toString(), 307);
+    }
+
+    if (
+      hostname === "app.spaplus.co" &&
+      (url.pathname === "/admin" ||
+        url.pathname.startsWith("/admin/") ||
+        url.pathname === "/tools" ||
+        url.pathname.startsWith("/tools/") ||
+        url.pathname.startsWith("/api/cms/")) &&
+      env.SITES_API_ORIGIN
+    ) {
+      const adminUrl = new URL(url.pathname + url.search, env.SITES_API_ORIGIN);
+      return Response.redirect(adminUrl.toString(), 307);
+    }
+
+    if (
+      hostname === "app.spaplus.co" &&
+      url.pathname === "/api/market-spa-leads" &&
+      env.SITES_API_ORIGIN &&
+      env.SITES_BYPASS_TOKEN
+    ) {
+      const upstreamUrl = new URL(url.pathname + url.search, env.SITES_API_ORIGIN);
+      const upstreamHeaders = new Headers(request.headers);
+      upstreamHeaders.set(
+        "OAI-Sites-Authorization",
+        `Bearer ${env.SITES_BYPASS_TOKEN}`,
+      );
+      upstreamHeaders.delete("host");
+      upstreamHeaders.delete("content-length");
+      return fetch(upstreamUrl, {
+        method: request.method,
+        headers: upstreamHeaders,
+        body:
+          request.method === "GET" || request.method === "HEAD"
+            ? undefined
+            : request.body,
+        redirect: "manual",
+      });
+    }
+
     if (hostname === "www.spaplus.co") {
       url.hostname = "spaplus.co";
       return Response.redirect(url.toString(), 308);
     }
 
-    if (
-      (hostname === "admin.spaplus.co" || hostname === "app.spaplus.co") &&
-      url.pathname === "/"
-    ) {
+    if (hostname === "admin.spaplus.co" && url.pathname === "/") {
       url.pathname = "/admin";
       return Response.redirect(url.toString(), 307);
     }
