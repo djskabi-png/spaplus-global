@@ -273,7 +273,7 @@ export default function AdminClient({
       ];
 
   return (
-    <section className="cms-content" dir={direction} lang={uiLocale}>
+    <section className="cms-content" dir={direction} lang={uiLocale} data-release="2026-08-01-b">
       <div className="cms-intro">
         <div><p>{t.eyebrow}</p><h1>{t.title}</h1></div>
         <a className="cms-preview" href="/" target="_blank" rel="noreferrer">{t.preview}</a>

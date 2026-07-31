@@ -382,6 +382,7 @@ export default function MarketLaunchPage({
     <main
       className={styles.page}
       data-market-page
+      data-release="2026-08-01-b"
       lang={languageTag}
       dir="ltr"
       style={
