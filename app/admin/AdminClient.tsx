@@ -297,7 +297,9 @@ export default function AdminClient({
     entry.en.toLocaleLowerCase().includes(normalizedSearch) ||
     entry.fr.toLocaleLowerCase().includes(normalizedSearch)
   );
-  const marketGroups = [...new Set(visibleMarketEntries.map((entry) => entry.group))];
+  const marketGroups = Object.keys(marketGroupLabels).filter((group) =>
+    visibleMarketEntries.some((entry) => entry.group === group)
+  );
   const marketDraftCount = Object.keys(drafts).filter((key) => key.startsWith("market.ca-on.")).length;
   const sectionGroups = tab === "market"
     ? marketGroups.map((group) => ({
@@ -341,18 +343,22 @@ export default function AdminClient({
             <strong>{visibleMarketEntries.length} {t.fields}</strong>
             {can(resourceKey, "canEditContent") ? <button type="button" disabled={!marketDraftCount} onClick={() => void saveAllMarketChanges()}>{t.saveAll}{marketDraftCount ? ` (${marketDraftCount})` : ""}</button> : null}
           </div> : null}
-          {sectionGroups.map((group) => <div className="cms-card" key={`${group.section}-${group.label}`}>
-            <h2>{group.label} <small>{group.fields.length}</small></h2>
-            <div className="cms-fields">
+          {sectionGroups.map((group, index) => {
+            const fields = <div className="cms-fields">
               {group.fields.map(([field, label, description]) => {
                 const key = `${group.section}.${field}`;
                 const value = drafts[key] ?? existing[key] ?? defaultValue(group.section, field);
-                return <label key={key}><span>{description || label}</span>{description ? <small>{label}</small> : null}<textarea value={value} rows={value.length > 130 ? 5 : 2} disabled={!can(resourceKey, "canEditContent")} onChange={(event) => setDrafts((current) => ({ ...current, [key]: event.target.value }))} />
+                const showDescription = Boolean(description && description !== label);
+                return <label key={key}><span>{showDescription ? description : label}</span>{showDescription ? <small>{label}</small> : null}<textarea value={value} rows={value.length > 130 ? 5 : 2} disabled={!can(resourceKey, "canEditContent")} onChange={(event) => setDrafts((current) => ({ ...current, [key]: event.target.value }))} />
                   {can(resourceKey, "canEditContent") ? <button type="button" onClick={() => void save(group.section, field)}>{t.save}</button> : null}
                 </label>;
               })}
-            </div>
-          </div>)}
+            </div>;
+            const heading = <h2>{group.label} <small>{group.fields.length}</small></h2>;
+            return tab === "market"
+              ? <details className="cms-card cms-copy-group" key={`${group.section}-${group.label}`} open={Boolean(normalizedSearch) || index === 0}><summary>{heading}</summary>{fields}</details>
+              : <div className="cms-card" key={`${group.section}-${group.label}`}>{heading}{fields}</div>;
+          })}
         </>
       ) : (
         <div className="cms-card">
