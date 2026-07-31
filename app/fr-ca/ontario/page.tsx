@@ -51,6 +51,7 @@ export const metadata: Metadata = {
   other: {
     "geo.region": "CA-ON",
     "geo.placename": "Ontario",
+    "content-language": "fr-CA",
   },
   robots: {
     index: isPublicLaunch,
@@ -93,6 +94,23 @@ const structuredData = {
       about: {
         "@id": "https://spaplus.co/#organization",
       },
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "SpaPlus mondial",
+          item: "https://spaplus.co/fr-ca/",
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Ontario",
+          item: canonicalUrl,
+        },
+      ],
     },
     {
       "@type": "ItemList",

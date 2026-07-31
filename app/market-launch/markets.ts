@@ -103,6 +103,29 @@ const referenceSpas = [
   },
 ];
 
+const frenchReferenceSpas = referenceSpas.map((spa) => {
+  if (spa.name === "BALNEA Spa") {
+    return {
+      ...spa,
+      imageAlt:
+        "Le BALNEA Spa à Bromont, actuellement présenté sur SpaPlus Canada",
+    };
+  }
+  if (spa.name === "Infinima Spa") {
+    return {
+      ...spa,
+      location: "Québec, Québec",
+      imageAlt:
+        "Infinima Spa à Québec, actuellement présenté sur SpaPlus Canada",
+    };
+  }
+  return {
+    ...spa,
+    imageAlt:
+      "Le Deauville Salon & Spa à Montréal, actuellement présenté sur SpaPlus Canada",
+  };
+});
+
 const baseOntarioConfig = {
   marketName: "Ontario",
   marketSlug: "ontario",
@@ -130,8 +153,20 @@ export const ontarioMarket: MarketLaunchConfig = {
   heroDisclosure:
     "Illustrative launch concept. It does not depict an Ontario spa or partner.",
   languageLinks: [
-    { label: "EN", href: "/en-ca/ontario/", active: true },
-    { label: "FR", href: "/fr-ca/ontario/", active: false },
+    {
+      label: "EN CA",
+      ariaLabel: "English, Canada",
+      languageTag: "en-CA",
+      href: "/en-ca/ontario/",
+      active: true,
+    },
+    {
+      label: "FR CA",
+      ariaLabel: "Français canadien",
+      languageTag: "fr-CA",
+      href: "/fr-ca/ontario/",
+      active: false,
+    },
   ],
 };
 
@@ -144,13 +179,26 @@ export const ontarioFrenchMarket: MarketLaunchConfig = {
   homeHref: "https://spaplus.co/fr-ca/",
   heroDisclosure:
     "Concept visuel de lancement. Il ne représente pas un spa ou un partenaire de l’Ontario.",
+  referenceSpas: frenchReferenceSpas,
   priorityAreas: ontarioAreas.map((area) => ({
     label: area.frenchName,
     href: `/fr-ca/ontario/${area.slug}/`,
   })),
   languageLinks: [
-    { label: "EN", href: "/en-ca/ontario/", active: false },
-    { label: "FR", href: "/fr-ca/ontario/", active: true },
+    {
+      label: "EN CA",
+      ariaLabel: "English, Canada",
+      languageTag: "en-CA",
+      href: "/en-ca/ontario/",
+      active: false,
+    },
+    {
+      label: "FR CA",
+      ariaLabel: "Français canadien",
+      languageTag: "fr-CA",
+      href: "/fr-ca/ontario/",
+      active: true,
+    },
   ],
 };
 
@@ -176,12 +224,16 @@ export function buildOntarioAreaConfig(
     pageUrl: `https://spaplus.co/${isFrench ? "fr-ca" : "en-ca"}/ontario/${area.slug}/`,
     languageLinks: [
       {
-        label: "EN",
+        label: "EN CA",
+        ariaLabel: "English, Canada",
+        languageTag: "en-CA",
         href: `/en-ca/ontario/${area.slug}/`,
         active: !isFrench,
       },
       {
-        label: "FR",
+        label: "FR CA",
+        ariaLabel: "Français canadien",
+        languageTag: "fr-CA",
         href: `/fr-ca/ontario/${area.slug}/`,
         active: isFrench,
       },

@@ -548,6 +548,8 @@ test("Ontario early-access funnel is complete, bilingual, regional and launch-ga
   assert.match(page, /"fr-CA": "https:\/\/spaplus\.co\/fr-ca\/ontario\//);
   assert.match(frenchPage, /SpaPlus arrive en Ontario/);
   assert.match(frenchPage, /inLanguage: "fr-CA"/);
+  assert.match(frenchPage, /"content-language": "fr-CA"/);
+  assert.match(frenchPage, /"@type": "BreadcrumbList"/);
   assert.match(frenchPage, /index: isPublicLaunch/);
   assert.match(englishAreaPage, /generateStaticParams/);
   assert.match(englishAreaPage, /buildOntarioAreaConfig\(area, "en"\)/);
@@ -587,6 +589,12 @@ test("Ontario early-access funnel is complete, bilingual, regional and launch-ga
   assert.match(client, /Allow analytics/);
   assert.match(client, /spaplus:consent/);
   assert.match(client, /languageLinks\.map/);
+  assert.match(client, /window\.location\.assign\(link\.href\)/);
+  assert.match(client, /document\.documentElement\.lang = languageTag/);
+  assert.match(client, /hrefLang=\{link\.languageTag\}/);
+  assert.match(marketConfig, /label: "FR CA"/);
+  assert.match(marketConfig, /ariaLabel: "Français canadien"/);
+  assert.match(marketConfig, /referenceSpas: frenchReferenceSpas/);
   assert.match(client, /priorityAreas\.map/);
   assert.match(client, /selectedArea\.focus\.map/);
   assert.match(client, /SpaPlus Global/);

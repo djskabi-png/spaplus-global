@@ -39,6 +39,8 @@ export type MarketLaunchConfig = {
   }>;
   languageLinks: Array<{
     label: string;
+    ariaLabel: string;
+    languageTag: string;
     href: string;
     active: boolean;
   }>;
@@ -171,6 +173,11 @@ export default function MarketLaunchPage({
         .filter(([, value]) => value),
     );
   }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = languageTag;
+    document.documentElement.dir = "ltr";
+  }, [languageTag]);
 
   useEffect(() => {
     setShowCookieConsent(!window.localStorage.getItem("spaplus-consent"));
@@ -455,8 +462,15 @@ export default function MarketLaunchPage({
               <a
                 key={link.label}
                 href={link.href}
+                lang={link.languageTag}
+                hrefLang={link.languageTag}
+                aria-label={link.ariaLabel}
                 aria-current={link.active ? "page" : undefined}
-                onClick={() => setMenuOpen(false)}
+                onClick={(event) => {
+                  event.preventDefault();
+                  setMenuOpen(false);
+                  window.location.assign(link.href);
+                }}
               >
                 {link.label}
               </a>
