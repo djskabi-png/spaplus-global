@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import styles from "./market-launch.module.css";
+import { marketCopyFieldKey } from "./market-copy";
 
 type SubmitState = "idle" | "submitting" | "success" | "error";
 
@@ -53,28 +54,33 @@ export type MarketLaunchConfig = {
 };
 
 const spaTypes = [
-  { value: "Day spa", en: "Day spa", fr: "Spa urbain ou spa de jour" },
+  { field: "spaTypeDaySpa", value: "Day spa", en: "Day spa", fr: "Spa urbain ou spa de jour" },
   {
+    field: "spaTypeHotelResort",
     value: "Hotel or resort spa",
     en: "Hotel or resort spa",
     fr: "Spa d’hôtel ou de centre de villégiature",
   },
   {
+    field: "spaTypeNordicThermal",
     value: "Nordic or thermal spa",
     en: "Nordic or thermal spa",
     fr: "Spa nordique ou thermal",
   },
   {
+    field: "spaTypeMedicalWellness",
     value: "Medical or wellness spa",
     en: "Medical or wellness spa",
     fr: "Médico-spa ou centre mieux-être",
   },
   {
+    field: "spaTypeMultiLocation",
     value: "Multi-location spa group",
     en: "Multi-location spa group",
     fr: "Groupe de spas multisites",
   },
   {
+    field: "spaTypeOtherEstablished",
     value: "Other established spa venue",
     en: "Other established spa venue",
     fr: "Autre établissement de spa reconnu",
@@ -82,34 +88,39 @@ const spaTypes = [
 ];
 
 const serviceOptions = [
-  { value: "Massage", en: "Massage", fr: "Massothérapie" },
+  { field: "serviceMassage", value: "Massage", en: "Massage", fr: "Massothérapie" },
   {
+    field: "serviceFacials",
     value: "Facials and skincare",
     en: "Facials and skincare",
     fr: "Soins du visage et de la peau",
   },
   {
+    field: "serviceBodyTreatments",
     value: "Body treatments",
     en: "Body treatments",
     fr: "Soins du corps",
   },
   {
+    field: "serviceThermalNordic",
     value: "Thermal or Nordic experience",
     en: "Thermal or Nordic experience",
     fr: "Expérience thermale ou nordique",
   },
   {
+    field: "serviceCouples",
     value: "Couples experiences",
     en: "Couples experiences",
     fr: "Expériences en couple",
   },
   {
+    field: "serviceGroups",
     value: "Group experiences",
     en: "Group experiences",
     fr: "Expériences de groupe",
   },
-  { value: "Day passes", en: "Day passes", fr: "Accès à la journée" },
-  { value: "Spa stays", en: "Spa stays", fr: "Séjours spa" },
+  { field: "serviceDayPasses", value: "Day passes", en: "Day passes", fr: "Accès à la journée" },
+  { field: "serviceSpaStays", value: "Spa stays", en: "Spa stays", fr: "Séjours spa" },
 ];
 
 function track(event: string, data: Record<string, string> = {}) {
@@ -152,8 +163,6 @@ export default function MarketLaunchPage({
     selectedArea,
   } = config;
   const isFrench = languageTag.toLowerCase().startsWith("fr");
-  const tr = (english: string, french: string) =>
-    isFrench ? french : english;
   const eventPrefix = marketSlug.replace(/[^a-z0-9_]+/g, "_");
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -165,7 +174,12 @@ export default function MarketLaunchPage({
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [cmsCopy, setCmsCopy] = useState<Record<string, string>>({});
-  const managed = (field: string, fallback: string) => cmsCopy[field] || fallback;
+  const managed = (field: string, fallback: string) =>
+    selectedArea ? fallback : cmsCopy[field] || fallback;
+  const tr = (english: string, french: string) =>
+    managed(marketCopyFieldKey(english), isFrench ? french : english);
+  const dynamicCopy = (field: string, english: string, french: string) =>
+    managed(field, isFrench ? french : english);
   const campaignData = useMemo(() => {
     if (typeof window === "undefined") return {};
     const params = new URLSearchParams(window.location.search);
@@ -180,6 +194,36 @@ export default function MarketLaunchPage({
     document.documentElement.lang = languageTag;
     document.documentElement.dir = "ltr";
   }, [languageTag]);
+
+  useEffect(() => {
+    if (selectedArea) return;
+    const fallbackTitle = isFrench
+      ? "SpaPlus arrive en Ontario | Spas partenaires fondateurs"
+      : "SpaPlus is coming to Ontario | Founding spa partners";
+    const fallbackDescription = isFrench
+      ? "SpaPlus prépare son lancement en Ontario. Les spas établis peuvent s’inscrire à la liste des partenaires fondateurs, gratuitement, sans engagement et sans carte de crédit."
+      : "SpaPlus is preparing to launch in Ontario. Established spas can join the founding partner list with no fee, no commitment and no credit card.";
+    const title = managed("seoTitle", fallbackTitle);
+    const description = managed("seoDescription", fallbackDescription);
+    const imageAlt = managed(
+      "seoImageAlt",
+      isFrench
+        ? "Concept visuel illustratif du lancement de SpaPlus en Ontario. Il ne représente pas un partenaire ontarien."
+        : "Illustrative SpaPlus Ontario launch artwork. It does not depict an Ontario partner.",
+    );
+    document.title = title;
+    for (const [selector, value] of [
+      ['meta[name="description"]', description],
+      ['meta[property="og:title"]', title],
+      ['meta[property="og:description"]', description],
+      ['meta[name="twitter:title"]', title],
+      ['meta[name="twitter:description"]', description],
+      ['meta[property="og:image:alt"]', imageAlt],
+      ['meta[name="twitter:image:alt"]', imageAlt],
+    ] as const) {
+      document.querySelector<HTMLMetaElement>(selector)?.setAttribute("content", value);
+    }
+  }, [cmsCopy, isFrench, selectedArea]);
 
   useEffect(() => {
     let active = true;
@@ -453,7 +497,8 @@ export default function MarketLaunchPage({
         <nav
           id="market-navigation"
           className={`${styles.headerNav} ${menuOpen ? styles.menuOpen : ""}`}
-          aria-label={tr(
+          aria-label={dynamicCopy(
+            "navAria",
             `${marketName} launch navigation`,
             `Navigation du lancement de SpaPlus en ${marketName}`,
           )}
@@ -481,13 +526,13 @@ export default function MarketLaunchPage({
             className={styles.languageSwitch}
             aria-label={tr("Language", "Langue")}
           >
-            {languageLinks.map((link) => (
+            {languageLinks.map((link, index) => (
               <a
                 key={link.label}
                 href={link.href}
                 lang={link.languageTag}
                 hrefLang={link.languageTag}
-                aria-label={link.ariaLabel}
+                aria-label={managed(`languageLink${index + 1}Aria`, link.ariaLabel)}
                 aria-current={link.active ? "page" : undefined}
                 onClick={(event) => {
                   event.preventDefault();
@@ -495,7 +540,7 @@ export default function MarketLaunchPage({
                   window.location.assign(link.href);
                 }}
               >
-                {link.label}
+                {managed(`languageLink${index + 1}Label`, link.label)}
               </a>
             ))}
           </div>
@@ -572,7 +617,9 @@ export default function MarketLaunchPage({
             )}
           </p>
           {heroDisclosure ? (
-            <p className={styles.heroMediaNote}>{heroDisclosure}</p>
+            <p className={styles.heroMediaNote}>
+              {managed("heroDisclosure", heroDisclosure)}
+            </p>
           ) : null}
         </div>
       </section>
@@ -583,14 +630,16 @@ export default function MarketLaunchPage({
       >
         <div>
           <small>{tr("LIVE TODAY", "DÉJÀ EN LIGNE")}</small>
-          <strong>{referenceMarketName}</strong>
+          <strong>{managed("referenceMarketName", referenceMarketName)}</strong>
         </div>
         <span className={styles.routeLine} aria-hidden="true">
           <i />
         </span>
         <div>
           <small>{tr("COMING NEXT", "PROCHAINE ÉTAPE")}</small>
-          <strong>{selectedArea?.name || marketName}</strong>
+          <strong>
+            {selectedArea?.name || managed("marketDisplayName", marketName)}
+          </strong>
         </div>
       </section>
 
@@ -632,7 +681,8 @@ export default function MarketLaunchPage({
           <span>01</span>
           <h3>{tr("Join before the launch", "Inscrivez-vous avant le lancement")}</h3>
           <p>
-            {tr(
+            {dynamicCopy(
+              "growthCardOneBody",
               `Tell us about your business now and be among the first ${marketName} spas considered for onboarding.`,
               `Présentez-nous votre établissement et faites partie des premiers spas de l’${marketName} considérés pour l’intégration.`,
             )}
@@ -738,7 +788,8 @@ export default function MarketLaunchPage({
                 )}
               </p>
               <h3>
-                {tr(
+                {dynamicCopy(
+                  "platformPreviewTitle",
                   `Spa experiences across ${marketName}`,
                   `Des expériences spa partout en ${marketName}`,
                 )}
@@ -755,7 +806,7 @@ export default function MarketLaunchPage({
                 <strong>{tr("A day made for two", "Une journée à deux")}</strong>
               </article>
               <article>
-                <span>DAY PASS</span>
+                <span>{dynamicCopy("previewDayPassLabel", "DAY PASS", "ACCÈS JOURNÉE")}</span>
                 <strong>{tr("More than a treatment", "Bien plus qu’un soin")}</strong>
               </article>
               <article>
@@ -803,7 +854,8 @@ export default function MarketLaunchPage({
           </div>
         </div>
         <p className={styles.interfaceDisclosure}>
-          {tr(
+          {dynamicCopy(
+            "platformDisclosure",
             `Interface previews are illustrative. ${marketName} inventory is not live and the final partner tools may evolve before launch.`,
             `Les aperçus d’interface sont illustratifs. L’inventaire de l’${marketName} n’est pas encore en ligne et les outils partenaires peuvent évoluer avant le lancement.`,
           )}
@@ -863,37 +915,40 @@ export default function MarketLaunchPage({
               )}
             </p>
             <h2>
-              {tr(
+              {dynamicCopy(
+                "proofTitle",
                 `Already helping guests discover spas in ${referenceMarketName}.`,
                 `Déjà au service de la découverte des spas au ${referenceMarketName}.`,
               )}
             </h2>
           </div>
           <p>
-            {tr(
-              `These are current experiences presented on the live SpaPlus Canada platform. ${marketName} listings are not live yet.`,
+              {dynamicCopy(
+                "proofIntro",
+                `These are current experiences presented on the live SpaPlus Canada platform. ${marketName} listings are not live yet.`,
               `Ces expériences sont actuellement présentées sur la plateforme SpaPlus Canada. Les établissements de l’${marketName} ne sont pas encore en ligne.`,
             )}
           </p>
         </div>
         <div className={styles.gallery}>
-          {referenceSpas.map((spa) => (
+          {referenceSpas.map((spa, index) => (
             <figure key={spa.name}>
               <img
                 src={spa.image}
-                alt={spa.imageAlt}
+                alt={managed(`referenceSpa${index + 1}Alt`, spa.imageAlt)}
                 width="400"
                 height="320"
               />
               <figcaption>
-                <strong>{spa.name}</strong>
-                <span>{spa.location}</span>
+                <strong>{managed(`referenceSpa${index + 1}Name`, spa.name)}</strong>
+                <span>{managed(`referenceSpa${index + 1}Location`, spa.location)}</span>
               </figcaption>
             </figure>
           ))}
         </div>
         <p className={styles.mediaDisclosure}>
-          {tr(
+          {dynamicCopy(
+            "proofDisclosure",
             `Images are sourced from current spa listings on the official SpaPlus Canada website. They illustrate the existing ${referenceMarketName} platform in ${referenceCountryName} and do not depict future ${marketName} partners.`,
             `Les images proviennent de fiches actuelles du site officiel SpaPlus Canada. Elles illustrent la plateforme existante au ${referenceMarketName}, au ${referenceCountryName}, et ne représentent pas de futurs partenaires en ${marketName}.`,
           )}
@@ -971,7 +1026,8 @@ export default function MarketLaunchPage({
             {tr("WHO WE WANT TO MEET", "LES PARTENAIRES QUE NOUS RECHERCHONS")}
           </p>
           <h2>
-            {tr(
+            {dynamicCopy(
+              "partnerFitTitle",
               `Established ${marketName} spas that care about the guest experience.`,
               `Des spas établis en ${marketName} qui accordent une vraie importance à l’expérience client.`,
             )}
@@ -992,7 +1048,7 @@ export default function MarketLaunchPage({
         <div className={styles.priorityAreas}>
           <span>{tr("Priority launch areas", "Zones de lancement prioritaires")}</span>
           <div>
-            {priorityAreas.map((area) => (
+            {priorityAreas.map((area, index) => (
               <a
                 key={area.href}
                 href={area.href}
@@ -1002,7 +1058,7 @@ export default function MarketLaunchPage({
                     : undefined
                 }
               >
-                {area.label}
+                {managed(`priorityArea${index + 1}Label`, area.label)}
               </a>
             ))}
           </div>
@@ -1142,7 +1198,8 @@ export default function MarketLaunchPage({
             <div>
               <h3>{tr("We review the fit", "Nous évaluons le partenariat")}</h3>
               <p>
-                {tr(
+                {dynamicCopy(
+                  "reviewStepBody",
                   `Our team reviews every complete enquiry within ${reviewWindowHours} hours.`,
                   `Notre équipe examine chaque demande complète dans un délai de ${reviewWindowHours} heures.`,
                 )}
@@ -1174,7 +1231,8 @@ export default function MarketLaunchPage({
       <section className={styles.formSection} id="join">
         <div className={styles.formIntro}>
           <p className={styles.eyebrowDark}>
-            {tr(
+            {dynamicCopy(
+              "formEyebrow",
               `${(selectedArea?.name || marketName).toUpperCase()} FOUNDING SPA LIST`,
               `LISTE PRIORITAIRE DES SPAS DE ${(selectedArea?.name || marketName).toUpperCase()}`,
             )}
@@ -1212,7 +1270,7 @@ export default function MarketLaunchPage({
               id="website"
               name="website"
               type="url"
-              placeholder="https://"
+              placeholder={managed("websitePlaceholder", "https://")}
               required
               maxLength={300}
             />
@@ -1221,7 +1279,7 @@ export default function MarketLaunchPage({
             <label htmlFor="city">
               {selectedArea
                 ? tr("City or community", "Ville ou collectivité")
-                : tr(`${marketName} city`, `Ville en ${marketName}`)}
+                : dynamicCopy("formCityLabel", `${marketName} city`, `Ville en ${marketName}`)}
             </label>
             <input id="city" name="city" required maxLength={100} />
           </div>
@@ -1243,7 +1301,7 @@ export default function MarketLaunchPage({
               </option>
               {spaTypes.map((item) => (
                 <option key={item.value} value={item.value}>
-                  {isFrench ? item.fr : item.en}
+                  {dynamicCopy(item.field, item.en, item.fr)}
                 </option>
               ))}
             </select>
@@ -1266,7 +1324,7 @@ export default function MarketLaunchPage({
               {serviceOptions.map((service) => (
                 <label key={service.value}>
                   <input type="checkbox" name="services" value={service.value} />
-                  <span>{isFrench ? service.fr : service.en}</span>
+                  <span>{dynamicCopy(service.field, service.en, service.fr)}</span>
                 </label>
               ))}
             </div>
@@ -1389,7 +1447,8 @@ export default function MarketLaunchPage({
           >
             {submitState === "submitting"
               ? tr("Sending your details...", "Envoi de vos renseignements...")
-              : tr(
+              : dynamicCopy(
+                  "formSubmitButton",
                   `Join the ${selectedArea?.name || marketName} Founding Spa List`,
                   `Rejoindre la liste des spas fondateurs de ${selectedArea?.name || marketName}`,
                 )}
@@ -1417,7 +1476,8 @@ export default function MarketLaunchPage({
           <details>
             <summary>{tr("Does it cost anything to register?", "L’inscription est-elle payante?")}</summary>
             <p>
-              {tr(
+              {dynamicCopy(
+                "faqCostAnswer",
                 `No. Joining the ${marketName} early-access list is free. We do not ask for payment or credit card details.`,
                 `Non. L’inscription à la liste prioritaire de l’${marketName} est gratuite. Nous ne demandons aucun paiement ni renseignement de carte de crédit.`,
               )}
@@ -1434,7 +1494,8 @@ export default function MarketLaunchPage({
           </details>
           <details>
             <summary>
-              {tr(
+              {dynamicCopy(
+                "faqLaunchQuestion",
                 `When will SpaPlus launch in ${marketName}?`,
                 `Quand SpaPlus sera-t-il lancé en ${marketName}?`,
               )}
@@ -1469,7 +1530,8 @@ export default function MarketLaunchPage({
 
       <section className={styles.finalCta}>
         <p className={styles.eyebrow}>
-          {tr(
+          {dynamicCopy(
+            "finalEyebrow",
             `${primaryCity.toUpperCase()}. ${marketName.toUpperCase()}. LET’S BUILD THIS WELL.`,
             `${primaryCity.toUpperCase()}. ${marketName.toUpperCase()}. BÂTISSONS CELA COMME IL FAUT.`,
           )}
@@ -1505,7 +1567,8 @@ export default function MarketLaunchPage({
             <span>SpaPlus</span>
           </a>
           <p>
-            {tr(
+            {dynamicCopy(
+              "footerIntro",
               `SpaPlus is preparing the ${marketName} market in ${countryName}. No ${marketName} spa listings or booking inventory are currently represented on this page.`,
               `SpaPlus prépare le marché de l’${marketName}, au ${countryName}. Cette page ne présente actuellement aucune fiche ni disponibilité de réservation de spa en ${marketName}.`,
             )}
@@ -1554,7 +1617,7 @@ export default function MarketLaunchPage({
           aria-label={tr("Ontario launch areas", "Zones de lancement en Ontario")}
         >
           <strong>{tr("Ontario launch areas", "Zones de lancement")}</strong>
-          {priorityAreas.map((area) => (
+          {priorityAreas.map((area, index) => (
             <a
               key={area.href}
               href={area.href}
@@ -1564,7 +1627,7 @@ export default function MarketLaunchPage({
                   : undefined
               }
             >
-              {area.label}
+              {managed(`priorityArea${index + 1}Label`, area.label)}
             </a>
           ))}
         </nav>
@@ -1662,7 +1725,8 @@ export default function MarketLaunchPage({
               )}
             </h2>
             <p>
-              {tr(
+              {dynamicCopy(
+                "successBody",
                 `A confirmation is on its way to your email. Our team will review the information and contact you within ${reviewWindowHours} hours.`,
                 `Un courriel de confirmation est en route. Notre équipe examinera les renseignements et communiquera avec vous dans un délai de ${reviewWindowHours} heures.`,
               )}

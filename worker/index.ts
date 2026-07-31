@@ -273,6 +273,64 @@ async function proxyProtectedRequest(request: Request, env: Env, session: Signed
   return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers });
 }
 
+async function applyManagedOntarioMetadata(
+  request: Request,
+  response: Response,
+  env: Env,
+): Promise<Response> {
+  if (
+    request.method !== "GET" ||
+    !env.PRIVATE_BACKEND_ORIGIN ||
+    !env.SITES_BYPASS_TOKEN ||
+    !(response.headers.get("content-type") || "").includes("text/html")
+  ) {
+    return response;
+  }
+  const pathname = new URL(request.url).pathname.replace(/\/+$/, "");
+  const locale = pathname === "/fr-ca/ontario" ? "fr-CA" :
+    pathname === "/en-ca/ontario" ? "en-CA" : "";
+  if (!locale) return response;
+
+  try {
+    const contentUrl = new URL(
+      `/api/cms/public?locale=${encodeURIComponent(locale)}`,
+      env.PRIVATE_BACKEND_ORIGIN,
+    );
+    const contentResponse = await fetch(contentUrl, {
+      headers: {
+        [PRIVATE_AUTHORIZATION_HEADER]: `Bearer ${env.SITES_BYPASS_TOKEN}`,
+      },
+    });
+    if (!contentResponse.ok) return response;
+    const payload = await contentResponse.json() as {
+      content?: Record<string, Record<string, string>>;
+    };
+    const copy = payload.content?.["market.ca-on"] || {};
+    const english = locale === "en-CA";
+    const fallbackTitle = english
+      ? "SpaPlus is coming to Ontario | Founding spa partners"
+      : "SpaPlus arrive en Ontario | Spas partenaires fondateurs";
+    const fallbackDescription = english
+      ? "SpaPlus is preparing to launch in Ontario. Established spas can join the founding partner list with no fee, no commitment and no credit card."
+      : "SpaPlus prépare son lancement en Ontario. Les spas établis peuvent s’inscrire à la liste des partenaires fondateurs, gratuitement, sans engagement et sans carte de crédit.";
+    const title = copy.seoTitle || fallbackTitle;
+    const description = copy.seoDescription || fallbackDescription;
+    let html = await response.text();
+    html = html
+      .replaceAll(fallbackTitle, escapeHtml(title))
+      .replaceAll(fallbackDescription, escapeHtml(description));
+    const headers = new Headers(response.headers);
+    headers.delete("content-length");
+    return new Response(html, {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
+    });
+  } catch {
+    return response;
+  }
+}
+
 // Image security config. SVG sources with .svg extension auto-skip the
 // optimization endpoint on the client side (served directly, no proxy).
 // To route SVGs through the optimizer (with security headers), set
@@ -365,7 +423,9 @@ const worker = {
       (request.method === "GET" || request.method === "HEAD")
     ) {
       const assetResponse = await env.ASSETS.fetch(request);
-      if (assetResponse.status !== 404) return assetResponse;
+      if (assetResponse.status !== 404) {
+        return applyManagedOntarioMetadata(request, assetResponse, env);
+      }
     }
 
     if (hostname === "www.spaplus.co") {

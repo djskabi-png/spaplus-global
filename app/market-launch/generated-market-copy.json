@@ -1,0 +1,1801 @@
+[
+  {
+    "field": "copy1v0snfw",
+    "label": "Please choose at least one main service.",
+    "group": "Navigation and accessibility",
+    "en": "Please choose at least one main service.",
+    "fr": "Veuillez choisir au moins un service principal."
+  },
+  {
+    "field": "copysnrlox",
+    "label": "We could not send your details right now. Please try again in a moment.",
+    "group": "Navigation and accessibility",
+    "en": "We could not send your details right now. Please try again in a moment.",
+    "fr": "Nous n’avons pas pu transmettre vos renseignements. Veuillez réessayer dans un instant."
+  },
+  {
+    "field": "copytqxptl",
+    "label": "Skip to main content",
+    "group": "Navigation and accessibility",
+    "en": "Skip to main content",
+    "fr": "Aller au contenu principal"
+  },
+  {
+    "field": "copypvlrcl",
+    "label": "Refresh this SpaPlus page",
+    "group": "Final call to action and footer",
+    "en": "Refresh this SpaPlus page",
+    "fr": "Actualiser cette page SpaPlus"
+  },
+  {
+    "field": "copy1ynuomf",
+    "label": "Close navigation",
+    "group": "Navigation and accessibility",
+    "en": "Close navigation",
+    "fr": "Fermer la navigation"
+  },
+  {
+    "field": "copy1f2882l",
+    "label": "Open navigation",
+    "group": "Navigation and accessibility",
+    "en": "Open navigation",
+    "fr": "Ouvrir la navigation"
+  },
+  {
+    "field": "copytsuatj",
+    "label": "The platform",
+    "group": "Final call to action and footer",
+    "en": "The platform",
+    "fr": "La plateforme"
+  },
+  {
+    "field": "copy1lrzbkg",
+    "label": "How it works",
+    "group": "Final call to action and footer",
+    "en": "How it works",
+    "fr": "Fonctionnement"
+  },
+  {
+    "field": "copy80mhlu",
+    "label": "Questions",
+    "group": "Final call to action and footer",
+    "en": "Questions",
+    "fr": "Questions"
+  },
+  {
+    "field": "copy170qmfk",
+    "label": "Join early access",
+    "group": "Hero and launch status",
+    "en": "Join early access",
+    "fr": "Accès prioritaire"
+  },
+  {
+    "field": "copy16us7mj",
+    "label": "Language",
+    "group": "Hero and launch status",
+    "en": "Language",
+    "fr": "Langue"
+  },
+  {
+    "field": "copy9by5jv",
+    "label": "Registration terms",
+    "group": "Hero and launch status",
+    "en": "Registration terms",
+    "fr": "Conditions d’inscription"
+  },
+  {
+    "field": "copylelnb4",
+    "label": "No fee to register",
+    "group": "Hero and launch status",
+    "en": "No fee to register",
+    "fr": "Inscription gratuite"
+  },
+  {
+    "field": "copyb1zb33",
+    "label": "No commitment",
+    "group": "Hero and launch status",
+    "en": "No commitment",
+    "fr": "Sans engagement"
+  },
+  {
+    "field": "copyq34vnv",
+    "label": "No credit card",
+    "group": "Hero and launch status",
+    "en": "No credit card",
+    "fr": "Sans carte de crédit"
+  },
+  {
+    "field": "copyjq13ss",
+    "label": "Join the Founding Spa List",
+    "group": "Growth and founding partner offer",
+    "en": "Join the Founding Spa List",
+    "fr": "Rejoindre la liste des spas fondateurs"
+  },
+  {
+    "field": "copy1efny2h",
+    "label": "See SpaPlus in action",
+    "group": "Growth and founding partner offer",
+    "en": "See SpaPlus in action",
+    "fr": "Voir SpaPlus en action"
+  },
+  {
+    "field": "copyylb03q",
+    "label": "Registration is an expression of interest. It is not a contract or a purchase.",
+    "group": "Growth and founding partner offer",
+    "en": "Registration is an expression of interest. It is not a contract or a purchase.",
+    "fr": "L’inscription exprime votre intérêt. Elle ne constitue ni un contrat ni un achat."
+  },
+  {
+    "field": "copy1gw538c",
+    "label": "Launch status",
+    "group": "Growth and founding partner offer",
+    "en": "Launch status",
+    "fr": "État du lancement"
+  },
+  {
+    "field": "copyxkqupy",
+    "label": "LIVE TODAY",
+    "group": "Growth and founding partner offer",
+    "en": "LIVE TODAY",
+    "fr": "DÉJÀ EN LIGNE"
+  },
+  {
+    "field": "copy1jtvlu3",
+    "label": "COMING NEXT",
+    "group": "Growth and founding partner offer",
+    "en": "COMING NEXT",
+    "fr": "PROCHAINE ÉTAPE"
+  },
+  {
+    "field": "copy1ks76yn",
+    "label": "A STRONGER WAY TO GROW",
+    "group": "Growth and founding partner offer",
+    "en": "A STRONGER WAY TO GROW",
+    "fr": "UNE MEILLEURE FAÇON DE GRANDIR"
+  },
+  {
+    "field": "copygua7gy",
+    "label": "The SpaPlus guest journey",
+    "group": "Growth and founding partner offer",
+    "en": "The SpaPlus guest journey",
+    "fr": "Le parcours client SpaPlus"
+  },
+  {
+    "field": "copy1xe59f2",
+    "label": "Discover",
+    "group": "Growth and founding partner offer",
+    "en": "Discover",
+    "fr": "Découvrir"
+  },
+  {
+    "field": "copy1n8cxuc",
+    "label": "Compare",
+    "group": "Growth and founding partner offer",
+    "en": "Compare",
+    "fr": "Comparer"
+  },
+  {
+    "field": "copyb82vrs",
+    "label": "Book",
+    "group": "Growth and founding partner offer",
+    "en": "Book",
+    "fr": "Réserver"
+  },
+  {
+    "field": "copyajpmsl",
+    "label": "Better spa experiences for guests. New opportunities for Ontario spas.",
+    "group": "Growth and founding partner offer",
+    "en": "Better spa experiences for guests. New opportunities for Ontario spas.",
+    "fr": "De meilleures expériences spa pour les clients. De nouvelles possibilités pour les spas de l’Ontario."
+  },
+  {
+    "field": "copy1yaryd7",
+    "label": "SpaPlus brings discovery, offers and booking into one focused spa platform. Guests get a simpler way to find an experience worth making time for. Spa partners get a new channel designed around the way spa businesses actually work.",
+    "group": "Growth and founding partner offer",
+    "en": "SpaPlus brings discovery, offers and booking into one focused spa platform. Guests get a simpler way to find an experience worth making time for. Spa partners get a new channel designed around the way spa businesses actually work.",
+    "fr": "SpaPlus réunit la découverte, les offres et la réservation dans une plateforme entièrement consacrée au spa. Les clients trouvent plus facilement une expérience qui vaut le détour. Les partenaires obtiennent un nouveau canal pensé selon la réalité des entreprises de spa."
+  },
+  {
+    "field": "copyek3su",
+    "label": "Join before the launch",
+    "group": "Growth and founding partner offer",
+    "en": "Join before the launch",
+    "fr": "Inscrivez-vous avant le lancement"
+  },
+  {
+    "field": "copyfu2kb7",
+    "label": "Get discovered by new guests",
+    "group": "Growth and founding partner offer",
+    "en": "Get discovered by new guests",
+    "fr": "Faites-vous découvrir par de nouveaux clients"
+  },
+  {
+    "field": "copyzu6jdo",
+    "label": "Present the experiences, packages and occasions that make your spa worth choosing.",
+    "group": "Growth and founding partner offer",
+    "en": "Present the experiences, packages and occasions that make your spa worth choosing.",
+    "fr": "Présentez les expériences, forfaits et occasions qui donnent envie de choisir votre spa."
+  },
+  {
+    "field": "copyxct3g2",
+    "label": "Review the offer before deciding",
+    "group": "Growth and founding partner offer",
+    "en": "Review the offer before deciding",
+    "fr": "Voyez l’offre avant de décider"
+  },
+  {
+    "field": "copyvzkil4",
+    "label": "If the fit is right, we will explain the launch offer and next steps. You decide whether to continue.",
+    "group": "Growth and founding partner offer",
+    "en": "If the fit is right, we will explain the launch offer and next steps. You decide whether to continue.",
+    "fr": "Si le partenariat semble prometteur, nous vous présenterons l’offre de lancement et la suite. La décision vous appartient."
+  },
+  {
+    "field": "copy3heum3",
+    "label": "THE FOUNDING PARTNER ADVANTAGE",
+    "group": "Platform preview",
+    "en": "THE FOUNDING PARTNER ADVANTAGE",
+    "fr": "L’AVANTAGE PARTENAIRE FONDATEUR"
+  },
+  {
+    "field": "copyeu2vbu",
+    "label": "A clear path from first conversation to new bookings.",
+    "group": "Platform preview",
+    "en": "A clear path from first conversation to new bookings.",
+    "fr": "Un parcours clair, du premier échange aux nouvelles réservations."
+  },
+  {
+    "field": "copy1o7hqz8",
+    "label": "There is no fee to join the early list. We prepare the opportunity together, explain the written launch terms and move forward only if the fit makes sense.",
+    "group": "Platform preview",
+    "en": "There is no fee to join the early list. We prepare the opportunity together, explain the written launch terms and move forward only if the fit makes sense.",
+    "fr": "L’inscription prioritaire est gratuite. Nous préparons l’occasion avec vous, expliquons les conditions de lancement par écrit et avançons seulement si le partenariat est logique."
+  },
+  {
+    "field": "copy1u96rta",
+    "label": "Register free",
+    "group": "Platform preview",
+    "en": "Register free",
+    "fr": "Inscription gratuite"
+  },
+  {
+    "field": "copy97warh",
+    "label": "No payment or card",
+    "group": "Platform preview",
+    "en": "No payment or card",
+    "fr": "Aucun paiement ni carte"
+  },
+  {
+    "field": "copyitndd4",
+    "label": "Build the right offer",
+    "group": "Platform preview",
+    "en": "Build the right offer",
+    "fr": "Création de la bonne offre"
+  },
+  {
+    "field": "copykp36zp",
+    "label": "Profile, packages and fit",
+    "group": "Platform preview",
+    "en": "Profile, packages and fit",
+    "fr": "Profil, forfaits et positionnement"
+  },
+  {
+    "field": "copy14g1a33",
+    "label": "Review before launch",
+    "group": "Platform preview",
+    "en": "Review before launch",
+    "fr": "Révision avant le lancement"
+  },
+  {
+    "field": "copy18o71hj",
+    "label": "Written terms, no pressure",
+    "group": "Platform preview",
+    "en": "Written terms, no pressure",
+    "fr": "Conditions écrites, sans pression"
+  },
+  {
+    "field": "copyq5kemp",
+    "label": "Grow through bookings",
+    "group": "Platform preview",
+    "en": "Grow through bookings",
+    "fr": "Croissance par les réservations"
+  },
+  {
+    "field": "copy1wt6lmm",
+    "label": "No booking, no booking commission",
+    "group": "Platform preview",
+    "en": "No booking, no booking commission",
+    "fr": "Aucune réservation, aucune commission"
+  },
+  {
+    "field": "copyt9d74o",
+    "label": "ONE SPA PLATFORM",
+    "group": "Platform preview",
+    "en": "ONE SPA PLATFORM",
+    "fr": "UNE PLATEFORME POUR LE SPA"
+  },
+  {
+    "field": "copy66v6pf",
+    "label": "From first discovery to a confirmed booking.",
+    "group": "Platform preview",
+    "en": "From first discovery to a confirmed booking.",
+    "fr": "De la découverte jusqu’à la réservation confirmée."
+  },
+  {
+    "field": "copy1bw0b65",
+    "label": "SpaPlus is being built as a focused home for spa and wellness, not another general marketplace. It gives guests a clear way to choose and gives spa teams a practical way to receive and manage demand.",
+    "group": "Platform preview",
+    "en": "SpaPlus is being built as a focused home for spa and wellness, not another general marketplace. It gives guests a clear way to choose and gives spa teams a practical way to receive and manage demand.",
+    "fr": "SpaPlus est conçu comme la destination du spa et du mieux-être, et non comme une autre place de marché généraliste. Les clients choisissent plus facilement et les équipes de spa disposent d’un moyen pratique de recevoir et de gérer la demande."
+  },
+  {
+    "field": "copy14kqmut",
+    "label": "Guest experience",
+    "group": "Platform preview",
+    "en": "Guest experience",
+    "fr": "Expérience client"
+  },
+  {
+    "field": "copy16zr5sj",
+    "label": "ILLUSTRATIVE PREVIEW",
+    "group": "Platform preview",
+    "en": "ILLUSTRATIVE PREVIEW",
+    "fr": "APERÇU ILLUSTRATIF"
+  },
+  {
+    "field": "copydvuzrl",
+    "label": "Find your next good day.",
+    "group": "Platform preview",
+    "en": "Find your next good day.",
+    "fr": "Trouvez votre prochaine belle journée."
+  },
+  {
+    "field": "copyx2wmib",
+    "label": "Any date",
+    "group": "Platform preview",
+    "en": "Any date",
+    "fr": "Toutes les dates"
+  },
+  {
+    "field": "copyljbnj0",
+    "label": "Explore",
+    "group": "Final call to action and footer",
+    "en": "Explore",
+    "fr": "Explorer"
+  },
+  {
+    "field": "copy17q1bne",
+    "label": "COUPLES",
+    "group": "Platform preview",
+    "en": "COUPLES",
+    "fr": "EN COUPLE"
+  },
+  {
+    "field": "copy19x2x96",
+    "label": "A day made for two",
+    "group": "Platform preview",
+    "en": "A day made for two",
+    "fr": "Une journée à deux"
+  },
+  {
+    "field": "copy1cz9wro",
+    "label": "More than a treatment",
+    "group": "Platform preview",
+    "en": "More than a treatment",
+    "fr": "Bien plus qu’un soin"
+  },
+  {
+    "field": "copyvdumy9",
+    "label": "SOLO RESET",
+    "group": "Platform preview",
+    "en": "SOLO RESET",
+    "fr": "PAUSE EN SOLO"
+  },
+  {
+    "field": "copyboo9cb",
+    "label": "Time that is entirely yours",
+    "group": "Platform preview",
+    "en": "Time that is entirely yours",
+    "fr": "Du temps rien que pour vous"
+  },
+  {
+    "field": "copy14u16ku",
+    "label": "PARTNER VIEW",
+    "group": "Platform preview",
+    "en": "PARTNER VIEW",
+    "fr": "ESPACE PARTENAIRE"
+  },
+  {
+    "field": "copyl83yo4",
+    "label": "Today at your spa",
+    "group": "Platform preview",
+    "en": "Today at your spa",
+    "fr": "Aujourd’hui dans votre spa"
+  },
+  {
+    "field": "copyj7t41b",
+    "label": "LIVE",
+    "group": "Platform preview",
+    "en": "LIVE",
+    "fr": "EN DIRECT"
+  },
+  {
+    "field": "copya56axp",
+    "label": "NEW REQUESTS",
+    "group": "Platform preview",
+    "en": "NEW REQUESTS",
+    "fr": "NOUVELLES DEMANDES"
+  },
+  {
+    "field": "copy1kocui6",
+    "label": "CONFIRMED",
+    "group": "Platform preview",
+    "en": "CONFIRMED",
+    "fr": "CONFIRMÉES"
+  },
+  {
+    "field": "copymltjrc",
+    "label": "Couples spa experience",
+    "group": "Platform preview",
+    "en": "Couples spa experience",
+    "fr": "Expérience spa en couple"
+  },
+  {
+    "field": "copy1ozyk5g",
+    "label": "2 guests · Confirmation requested",
+    "group": "Platform preview",
+    "en": "2 guests · Confirmation requested",
+    "fr": "2 personnes · Confirmation demandée"
+  },
+  {
+    "field": "copytnr3lt",
+    "label": "Review",
+    "group": "Platform preview",
+    "en": "Review",
+    "fr": "Voir"
+  },
+  {
+    "field": "copyvfo2eb",
+    "label": "Day spa package",
+    "group": "Platform preview",
+    "en": "Day spa package",
+    "fr": "Forfait spa de jour"
+  },
+  {
+    "field": "copyu8qumc",
+    "label": "1 guest · Confirmed",
+    "group": "Platform preview",
+    "en": "1 guest · Confirmed",
+    "fr": "1 personne · Confirmée"
+  },
+  {
+    "field": "copy39rjx0",
+    "label": "Ready",
+    "group": "Platform preview",
+    "en": "Ready",
+    "fr": "Prête"
+  },
+  {
+    "field": "copy1nx2tug",
+    "label": "A dedicated spa marketplace",
+    "group": "Proof and guest experiences",
+    "en": "A dedicated spa marketplace",
+    "fr": "Une place de marché consacrée au spa"
+  },
+  {
+    "field": "copyxkyuvx",
+    "label": "Present treatments, packages, day passes and spa stays in a place where guests arrive specifically looking for wellness.",
+    "group": "Proof and guest experiences",
+    "en": "Present treatments, packages, day passes and spa stays in a place where guests arrive specifically looking for wellness.",
+    "fr": "Présentez soins, forfaits, accès à la journée et séjours spa là où les clients viennent précisément chercher du mieux-être."
+  },
+  {
+    "field": "copy1yf3tid",
+    "label": "Booking requests that are easy to manage",
+    "group": "Proof and guest experiences",
+    "en": "Booking requests that are easy to manage",
+    "fr": "Des demandes faciles à gérer"
+  },
+  {
+    "field": "copy1cwrb3d",
+    "label": "Receive a request by email and in the partner system, then review and confirm it without a complicated process.",
+    "group": "Proof and guest experiences",
+    "en": "Receive a request by email and in the partner system, then review and confirm it without a complicated process.",
+    "fr": "Recevez la demande par courriel et dans l’espace partenaire, puis vérifiez-la et confirmez-la simplement."
+  },
+  {
+    "field": "copy1rik6ve",
+    "label": "Availability at the level that suits you",
+    "group": "Proof and guest experiences",
+    "en": "Availability at the level that suits you",
+    "fr": "La gestion des disponibilités qui vous convient"
+  },
+  {
+    "field": "copy1i47yui",
+    "label": "Start by confirming requests. Spas that maintain live availability can move toward immediate confirmation.",
+    "group": "Proof and guest experiences",
+    "en": "Start by confirming requests. Spas that maintain live availability can move toward immediate confirmation.",
+    "fr": "Commencez par confirmer les demandes. Les spas qui tiennent leurs disponibilités à jour peuvent passer à la confirmation immédiate."
+  },
+  {
+    "field": "copypuuh66",
+    "label": "Clear payments and monthly reconciliation",
+    "group": "Proof and guest experiences",
+    "en": "Clear payments and monthly reconciliation",
+    "fr": "Des paiements clairs et un rapprochement mensuel"
+  },
+  {
+    "field": "copy1mv9unz",
+    "label": "Guests may pay online or at the spa, according to the available offer. A monthly report keeps bookings, commission and settlement transparent.",
+    "group": "Proof and guest experiences",
+    "en": "Guests may pay online or at the spa, according to the available offer. A monthly report keeps bookings, commission and settlement transparent.",
+    "fr": "Selon l’offre, les clients paient en ligne ou au spa. Un rapport mensuel présente clairement les réservations, les commissions et le règlement."
+  },
+  {
+    "field": "copy1x8jet7",
+    "label": "BUILT FOR REAL SPA EXPERIENCES",
+    "group": "Proof and guest experiences",
+    "en": "BUILT FOR REAL SPA EXPERIENCES",
+    "fr": "PENSÉ POUR DE VRAIES EXPÉRIENCES SPA"
+  },
+  {
+    "field": "copy1vog3qb",
+    "label": "THE OCCASIONS PEOPLE MAKE TIME FOR",
+    "group": "Proof and guest experiences",
+    "en": "THE OCCASIONS PEOPLE MAKE TIME FOR",
+    "fr": "LES OCCASIONS QUI MÉRITENT DU TEMPS"
+  },
+  {
+    "field": "copyppfad7",
+    "label": "Not one kind of guest. Not one kind of spa day.",
+    "group": "Proof and guest experiences",
+    "en": "Not one kind of guest. Not one kind of spa day.",
+    "fr": "Chaque client est différent. Chaque journée spa aussi."
+  },
+  {
+    "field": "copy2qz0",
+    "label": "The platform is designed to help people start with the experience they want, then find a spa that fits.",
+    "group": "Partner fit and launch areas",
+    "en": "The platform is designed to help people start with the experience they want, then find a spa that fits.",
+    "fr": "La plateforme aide les gens à partir de l’expérience qu’ils souhaitent, puis à trouver le spa qui leur convient."
+  },
+  {
+    "field": "copyk80cp6",
+    "label": "For two",
+    "group": "Partner fit and launch areas",
+    "en": "For two",
+    "fr": "À deux"
+  },
+  {
+    "field": "copy2pyffm",
+    "label": "Couples experiences, celebrations and time away together.",
+    "group": "Partner fit and launch areas",
+    "en": "Couples experiences, celebrations and time away together.",
+    "fr": "Expériences en couple, célébrations et moments à partager."
+  },
+  {
+    "field": "copy1t726ic",
+    "label": "For one",
+    "group": "Partner fit and launch areas",
+    "en": "For one",
+    "fr": "En solo"
+  },
+  {
+    "field": "copy14cer9c",
+    "label": "A treatment, a quiet reset or a full day devoted to yourself.",
+    "group": "Partner fit and launch areas",
+    "en": "A treatment, a quiet reset or a full day devoted to yourself.",
+    "fr": "Un soin, une pause au calme ou une journée entièrement pour soi."
+  },
+  {
+    "field": "copy7d7468",
+    "label": "For groups",
+    "group": "Partner fit and launch areas",
+    "en": "For groups",
+    "fr": "En groupe"
+  },
+  {
+    "field": "copy1b4lpds",
+    "label": "Birthdays, friends, teams and occasions worth planning well.",
+    "group": "Partner fit and launch areas",
+    "en": "Birthdays, friends, teams and occasions worth planning well.",
+    "fr": "Anniversaires, amis, équipes et occasions à organiser avec soin."
+  },
+  {
+    "field": "copya6poqa",
+    "label": "For the whole day",
+    "group": "Partner fit and launch areas",
+    "en": "For the whole day",
+    "fr": "Pour toute la journée"
+  },
+  {
+    "field": "copy16x509p",
+    "label": "Day passes, thermal experiences, resort spas and spa stays.",
+    "group": "Partner fit and launch areas",
+    "en": "Day passes, thermal experiences, resort spas and spa stays.",
+    "fr": "Accès à la journée, expériences thermales, centres de villégiature et séjours spa."
+  },
+  {
+    "field": "copyfk0g19",
+    "label": "WHO WE WANT TO MEET",
+    "group": "Partner fit and launch areas",
+    "en": "WHO WE WANT TO MEET",
+    "fr": "LES PARTENAIRES QUE NOUS RECHERCHONS"
+  },
+  {
+    "field": "copy139ng65",
+    "label": "Day spas with a physical commercial location",
+    "group": "Partner fit and launch areas",
+    "en": "Day spas with a physical commercial location",
+    "fr": "Spas de jour ayant un établissement commercial"
+  },
+  {
+    "field": "copy1redwle",
+    "label": "Hotel, resort, Nordic and thermal spas",
+    "group": "Partner fit and launch areas",
+    "en": "Hotel, resort, Nordic and thermal spas",
+    "fr": "Spas d’hôtel, de villégiature, nordiques et thermaux"
+  },
+  {
+    "field": "copy13nx4gg",
+    "label": "Wellness venues with bookable spa experiences",
+    "group": "Partner fit and launch areas",
+    "en": "Wellness venues with bookable spa experiences",
+    "fr": "Établissements mieux-être proposant des expériences réservables"
+  },
+  {
+    "field": "copyial08i",
+    "label": "Multi-location groups preparing for their next growth channel",
+    "group": "Partner fit and launch areas",
+    "en": "Multi-location groups preparing for their next growth channel",
+    "fr": "Groupes multisites prêts à développer un nouveau canal de croissance"
+  },
+  {
+    "field": "copy1u6hg9c",
+    "label": "SpaPlus is not currently onboarding individual mobile therapists, home-based services or solo private treatment rooms through this program.",
+    "group": "Partner fit and launch areas",
+    "en": "SpaPlus is not currently onboarding individual mobile therapists, home-based services or solo private treatment rooms through this program.",
+    "fr": "Ce programme ne vise pas actuellement les thérapeutes mobiles indépendants, les services à domicile ni les salles de soins privées exploitées par une seule personne."
+  },
+  {
+    "field": "copy1gzgz1m",
+    "label": "Priority launch areas",
+    "group": "Commercial model and process",
+    "en": "Priority launch areas",
+    "fr": "Zones de lancement prioritaires"
+  },
+  {
+    "field": "copyoe6x04",
+    "label": "Choose an area to open its dedicated partner page. These are campaign targets, not a claim that SpaPlus is already operating there.",
+    "group": "Commercial model and process",
+    "en": "Choose an area to open its dedicated partner page. These are campaign targets, not a claim that SpaPlus is already operating there.",
+    "fr": "Choisissez une zone pour ouvrir sa page partenaire. Il s’agit de cibles de campagne, et non d’une affirmation que SpaPlus y exerce déjà ses activités."
+  },
+  {
+    "field": "copy130f0sr",
+    "label": "A LOCAL LAUNCH WITH A GLOBAL PLATFORM",
+    "group": "Commercial model and process",
+    "en": "A LOCAL LAUNCH WITH A GLOBAL PLATFORM",
+    "fr": "UN LANCEMENT LOCAL, UNE PLATEFORME MONDIALE"
+  },
+  {
+    "field": "copyd59sy6",
+    "label": "Local focus areas",
+    "group": "Commercial model and process",
+    "en": "Local focus areas",
+    "fr": "Secteurs ciblés"
+  },
+  {
+    "field": "copy1tv6wjf",
+    "label": "Campaign planning areas only. SpaPlus inventory is not live here yet.",
+    "group": "Commercial model and process",
+    "en": "Campaign planning areas only. SpaPlus inventory is not live here yet.",
+    "fr": "Secteurs prévus pour les campagnes. L’inventaire SpaPlus n’y est pas encore en ligne."
+  },
+  {
+    "field": "copygvfd5j",
+    "label": "A MODEL THAT STARTS SIMPLE",
+    "group": "Commercial model and process",
+    "en": "A MODEL THAT STARTS SIMPLE",
+    "fr": "UN MODÈLE SIMPLE DÈS LE DÉPART"
+  },
+  {
+    "field": "copy1kwkn1y",
+    "label": "Understand the journey before you decide.",
+    "group": "Commercial model and process",
+    "en": "Understand the journey before you decide.",
+    "fr": "Comprenez le parcours avant de décider."
+  },
+  {
+    "field": "copy1hvv1lj",
+    "label": "Early registration is free. If there is a strong fit, the full launch offer and commercial terms are reviewed with you in writing before any commitment.",
+    "group": "Commercial model and process",
+    "en": "Early registration is free. If there is a strong fit, the full launch offer and commercial terms are reviewed with you in writing before any commitment.",
+    "fr": "L’inscription prioritaire est gratuite. Si le partenariat semble prometteur, l’offre de lancement et les conditions commerciales vous sont présentées par écrit avant tout engagement."
+  },
+  {
+    "field": "copybv9fp1",
+    "label": "DISCOVERY",
+    "group": "Commercial model and process",
+    "en": "DISCOVERY",
+    "fr": "DÉCOUVERTE"
+  },
+  {
+    "field": "copygzpm68",
+    "label": "Your spa is presented to guests",
+    "group": "Commercial model and process",
+    "en": "Your spa is presented to guests",
+    "fr": "Votre spa est présenté aux clients"
+  },
+  {
+    "field": "copy1c158pj",
+    "label": "People can discover your venue, understand your experiences and choose an offer that fits the occasion.",
+    "group": "Commercial model and process",
+    "en": "People can discover your venue, understand your experiences and choose an offer that fits the occasion.",
+    "fr": "Les gens découvrent votre établissement, comprennent vos expériences et choisissent l’offre qui convient à leur occasion."
+  },
+  {
+    "field": "copy1cb7bjk",
+    "label": "BOOKING",
+    "group": "Commercial model and process",
+    "en": "BOOKING",
+    "fr": "RÉSERVATION"
+  },
+  {
+    "field": "copy1rpfwj",
+    "label": "You stay in control of confirmation",
+    "group": "Commercial model and process",
+    "en": "You stay in control of confirmation",
+    "fr": "Vous gardez le contrôle de la confirmation"
+  },
+  {
+    "field": "copyw3ykqt",
+    "label": "Confirm from the email or partner system. If you maintain live availability, eligible bookings can be confirmed immediately.",
+    "group": "Commercial model and process",
+    "en": "Confirm from the email or partner system. If you maintain live availability, eligible bookings can be confirmed immediately.",
+    "fr": "Confirmez depuis le courriel ou l’espace partenaire. Si vos disponibilités sont à jour, les réservations admissibles peuvent être confirmées immédiatement."
+  },
+  {
+    "field": "copy2pbs9d",
+    "label": "PAYMENT",
+    "group": "Commercial model and process",
+    "en": "PAYMENT",
+    "fr": "PAIEMENT"
+  },
+  {
+    "field": "copy1s0cqxt",
+    "label": "The guest chooses the available payment option",
+    "group": "Commercial model and process",
+    "en": "The guest chooses the available payment option",
+    "fr": "Le client choisit l’option de paiement offerte"
+  },
+  {
+    "field": "copyrn6p36",
+    "label": "For pay-at-spa bookings, the spa charges the guest. For prepaid bookings, SpaPlus processes the payment.",
+    "group": "Commercial model and process",
+    "en": "For pay-at-spa bookings, the spa charges the guest. For prepaid bookings, SpaPlus processes the payment.",
+    "fr": "Pour une réservation payable sur place, le spa facture le client. Pour une réservation prépayée, SpaPlus traite le paiement."
+  },
+  {
+    "field": "copy101xvbe",
+    "label": "SETTLEMENT",
+    "group": "Commercial model and process",
+    "en": "SETTLEMENT",
+    "fr": "RÈGLEMENT"
+  },
+  {
+    "field": "copy5qwc69",
+    "label": "One clear monthly picture",
+    "group": "Commercial model and process",
+    "en": "One clear monthly picture",
+    "fr": "Un portrait mensuel clair"
+  },
+  {
+    "field": "copy11mlosg",
+    "label": "A report shows what was charged, the applicable commission and the net balance to settle between the parties.",
+    "group": "Commercial model and process",
+    "en": "A report shows what was charged, the applicable commission and the net balance to settle between the parties.",
+    "fr": "Un rapport indique les montants facturés, la commission applicable et le solde net à régler entre les parties."
+  },
+  {
+    "field": "copy16p0wv8",
+    "label": "Built to become even easier",
+    "group": "Commercial model and process",
+    "en": "Built to become even easier",
+    "fr": "Pensé pour devenir encore plus simple"
+  },
+  {
+    "field": "copy1pq3ocg",
+    "label": "After the initial operating period, deeper calendar connections may allow full availability checks and more bookings to flow through automatically.",
+    "group": "Commercial model and process",
+    "en": "After the initial operating period, deeper calendar connections may allow full availability checks and more bookings to flow through automatically.",
+    "fr": "Après la période initiale, des connexions plus poussées aux calendriers pourront permettre la vérification complète des disponibilités et l’automatisation d’un plus grand nombre de réservations."
+  },
+  {
+    "field": "copyycegpy",
+    "label": "SIMPLE FROM THE START",
+    "group": "Registration form",
+    "en": "SIMPLE FROM THE START",
+    "fr": "SIMPLE DÈS LE DÉPART"
+  },
+  {
+    "field": "copy1myp6o0",
+    "label": "Four steps. No pressure.",
+    "group": "Registration form",
+    "en": "Four steps. No pressure.",
+    "fr": "Quatre étapes. Aucune pression."
+  },
+  {
+    "field": "copy1qmxdyk",
+    "label": "The form helps us understand your spa before we speak. It does not create a contract or commit you to joining.",
+    "group": "Registration form",
+    "en": "The form helps us understand your spa before we speak. It does not create a contract or commit you to joining.",
+    "fr": "Le formulaire nous aide à comprendre votre spa avant notre échange. Il ne crée aucun contrat et ne vous engage pas à vous joindre à SpaPlus."
+  },
+  {
+    "field": "copy139qwxb",
+    "label": "Introduce your spa",
+    "group": "Final call to action and footer",
+    "en": "Introduce your spa",
+    "fr": "Présenter votre spa"
+  },
+  {
+    "field": "copy1bgneaj",
+    "label": "Share the basics about your venue, services and location.",
+    "group": "Registration form",
+    "en": "Share the basics about your venue, services and location.",
+    "fr": "Parlez-nous de votre établissement, de vos services et de votre emplacement."
+  },
+  {
+    "field": "copy1uf0ls7",
+    "label": "We review the fit",
+    "group": "Registration form",
+    "en": "We review the fit",
+    "fr": "Nous évaluons le partenariat"
+  },
+  {
+    "field": "copy13qp337",
+    "label": "Have a real conversation",
+    "group": "Registration form",
+    "en": "Have a real conversation",
+    "fr": "Échangeons pour vrai"
+  },
+  {
+    "field": "copyly2c5y",
+    "label": "We explain the launch plan, answer questions and learn more.",
+    "group": "Registration form",
+    "en": "We explain the launch plan, answer questions and learn more.",
+    "fr": "Nous expliquons le plan de lancement, répondons à vos questions et apprenons à mieux vous connaître."
+  },
+  {
+    "field": "copy1bpovl",
+    "label": "Decide together",
+    "group": "Registration form",
+    "en": "Decide together",
+    "fr": "Décidons ensemble"
+  },
+  {
+    "field": "copy10rm4sc",
+    "label": "If there is a strong fit, you can review the written launch offer before choosing whether to move ahead.",
+    "group": "Registration form",
+    "en": "If there is a strong fit, you can review the written launch offer before choosing whether to move ahead.",
+    "fr": "Si le partenariat est solide, vous pourrez examiner l’offre de lancement écrite avant de décider d’aller de l’avant."
+  },
+  {
+    "field": "copy1xf5k9",
+    "label": "What happens after you send it?",
+    "group": "Registration form",
+    "en": "What happens after you send it?",
+    "fr": "Que se passe-t-il après l’envoi?"
+  },
+  {
+    "field": "copy1sn4pr0",
+    "label": "You receive an immediate email confirmation.",
+    "group": "Registration form",
+    "en": "You receive an immediate email confirmation.",
+    "fr": "Vous recevez immédiatement un courriel de confirmation."
+  },
+  {
+    "field": "copy57zol0",
+    "label": "Our team reviews the business and location.",
+    "group": "Registration form",
+    "en": "Our team reviews the business and location.",
+    "fr": "Notre équipe examine l’établissement et son emplacement."
+  },
+  {
+    "field": "copy1qhw48t",
+    "label": "We contact you to arrange a short conversation.",
+    "group": "Registration form",
+    "en": "We contact you to arrange a short conversation.",
+    "fr": "Nous vous contactons pour planifier un court échange."
+  },
+  {
+    "field": "copyywznot",
+    "label": "No payment or card details are requested.",
+    "group": "Registration form",
+    "en": "No payment or card details are requested.",
+    "fr": "Aucun paiement ni renseignement de carte n’est demandé."
+  },
+  {
+    "field": "copy15s4bmz",
+    "label": "Spa or business name",
+    "group": "Registration form",
+    "en": "Spa or business name",
+    "fr": "Nom du spa ou de l’entreprise"
+  },
+  {
+    "field": "copyfeop0f",
+    "label": "Website or social profile",
+    "group": "Registration form",
+    "en": "Website or social profile",
+    "fr": "Site Web ou profil social"
+  },
+  {
+    "field": "copy5snmoy",
+    "label": "City or community",
+    "group": "Registration form",
+    "en": "City or community",
+    "fr": "Ville ou collectivité"
+  },
+  {
+    "field": "copy116lrsj",
+    "label": "Postal code",
+    "group": "Registration form",
+    "en": "Postal code",
+    "fr": "Code postal"
+  },
+  {
+    "field": "copyxyz4mk",
+    "label": "Type of spa",
+    "group": "Registration form",
+    "en": "Type of spa",
+    "fr": "Type de spa"
+  },
+  {
+    "field": "copypsvqr9",
+    "label": "Select one",
+    "group": "Registration form",
+    "en": "Select one",
+    "fr": "Choisir une option"
+  },
+  {
+    "field": "copyjqdz05",
+    "label": "Number of locations",
+    "group": "Registration form",
+    "en": "Number of locations",
+    "fr": "Nombre d’établissements"
+  },
+  {
+    "field": "copy1p1ecub",
+    "label": "1 location",
+    "group": "Registration form",
+    "en": "1 location",
+    "fr": "1 établissement"
+  },
+  {
+    "field": "copy126akbj",
+    "label": "2 to 3 locations",
+    "group": "Registration form",
+    "en": "2 to 3 locations",
+    "fr": "2 à 3 établissements"
+  },
+  {
+    "field": "copy26589h",
+    "label": "4 to 10 locations",
+    "group": "Registration form",
+    "en": "4 to 10 locations",
+    "fr": "4 à 10 établissements"
+  },
+  {
+    "field": "copy1cbq5v5",
+    "label": "11 or more locations",
+    "group": "Registration form",
+    "en": "11 or more locations",
+    "fr": "11 établissements ou plus"
+  },
+  {
+    "field": "copyjb5kb3",
+    "label": "Main services offered",
+    "group": "Registration form",
+    "en": "Main services offered",
+    "fr": "Principaux services offerts"
+  },
+  {
+    "field": "copy15cxu2u",
+    "label": "Your full name",
+    "group": "Registration form",
+    "en": "Your full name",
+    "fr": "Votre nom complet"
+  },
+  {
+    "field": "copypparhi",
+    "label": "Your role",
+    "group": "Registration form",
+    "en": "Your role",
+    "fr": "Votre fonction"
+  },
+  {
+    "field": "copy1awu04j",
+    "label": "Business email",
+    "group": "Registration form",
+    "en": "Business email",
+    "fr": "Courriel professionnel"
+  },
+  {
+    "field": "copykb2lhr",
+    "label": "Phone",
+    "group": "Registration form",
+    "en": "Phone",
+    "fr": "Téléphone"
+  },
+  {
+    "field": "copy1yke1ci",
+    "label": "Preferred contact",
+    "group": "Registration form",
+    "en": "Preferred contact",
+    "fr": "Méthode de contact préférée"
+  },
+  {
+    "field": "copyinbfc7",
+    "label": "Email",
+    "group": "Registration form",
+    "en": "Email",
+    "fr": "Courriel"
+  },
+  {
+    "field": "copyby43vy",
+    "label": "Current booking system",
+    "group": "Registration form",
+    "en": "Current booking system",
+    "fr": "Système de réservation actuel"
+  },
+  {
+    "field": "copy1yfbac9",
+    "label": "Optional",
+    "group": "Registration form",
+    "en": "Optional",
+    "fr": "Facultatif"
+  },
+  {
+    "field": "copy1jxjgx8",
+    "label": "Anything we should know?",
+    "group": "Registration form",
+    "en": "Anything we should know?",
+    "fr": "Y a-t-il autre chose à savoir?"
+  },
+  {
+    "field": "copy17cdbu9",
+    "label": "Leave this field empty",
+    "group": "Registration form",
+    "en": "Leave this field empty",
+    "fr": "Laisser ce champ vide"
+  },
+  {
+    "field": "copyvk71mo",
+    "label": "I agree that SpaPlus may use these details to assess and respond to this enquiry, as described in the ",
+    "group": "Frequently asked questions",
+    "en": "I agree that SpaPlus may use these details to assess and respond to this enquiry, as described in the ",
+    "fr": "J’accepte que SpaPlus utilise ces renseignements pour évaluer cette demande et y répondre, comme décrit dans la "
+  },
+  {
+    "field": "copyab2tcv",
+    "label": "Privacy Policy",
+    "group": "Messages, cookies and page controls",
+    "en": "Privacy Policy",
+    "fr": "Politique de confidentialité"
+  },
+  {
+    "field": "copy13gv4s4",
+    "label": "I understand that this registration is an expression of interest only. It creates no commitment and requests no payment or credit card.",
+    "group": "Frequently asked questions",
+    "en": "I understand that this registration is an expression of interest only. It creates no commitment and requests no payment or credit card.",
+    "fr": "Je comprends que cette inscription exprime seulement mon intérêt. Elle ne crée aucun engagement et ne demande aucun paiement ni carte de crédit."
+  },
+  {
+    "field": "copyf8wwfw",
+    "label": "Sending your details...",
+    "group": "Frequently asked questions",
+    "en": "Sending your details...",
+    "fr": "Envoi de vos renseignements..."
+  },
+  {
+    "field": "copy14yjwa6",
+    "label": "Founding partner terms are not guaranteed. Any commercial offer will be shared separately in writing after a fit review.",
+    "group": "Frequently asked questions",
+    "en": "Founding partner terms are not guaranteed. Any commercial offer will be shared separately in writing after a fit review.",
+    "fr": "Les conditions de partenaire fondateur ne sont pas garanties. Toute offre commerciale sera transmise séparément par écrit après l’évaluation du partenariat."
+  },
+  {
+    "field": "copyhtr8sv",
+    "label": "THE IMPORTANT QUESTIONS",
+    "group": "Final call to action and footer",
+    "en": "THE IMPORTANT QUESTIONS",
+    "fr": "LES QUESTIONS IMPORTANTES"
+  },
+  {
+    "field": "copy12xoqx0",
+    "label": "Before you register.",
+    "group": "Final call to action and footer",
+    "en": "Before you register.",
+    "fr": "Avant de vous inscrire."
+  },
+  {
+    "field": "copyntq42z",
+    "label": "Does it cost anything to register?",
+    "group": "Final call to action and footer",
+    "en": "Does it cost anything to register?",
+    "fr": "L’inscription est-elle payante?"
+  },
+  {
+    "field": "copy1mlrw7t",
+    "label": "Am I committing my spa to join?",
+    "group": "Final call to action and footer",
+    "en": "Am I committing my spa to join?",
+    "fr": "Est-ce que j’engage mon spa à se joindre à SpaPlus?"
+  },
+  {
+    "field": "copy1i1fcyq",
+    "label": "No. The form only tells us you are interested in learning more. You can review the launch offer before making any decision.",
+    "group": "Final call to action and footer",
+    "en": "No. The form only tells us you are interested in learning more. You can review the launch offer before making any decision.",
+    "fr": "Non. Le formulaire indique seulement que vous souhaitez en savoir plus. Vous pourrez examiner l’offre de lancement avant de prendre une décision."
+  },
+  {
+    "field": "copyh4bp1x",
+    "label": "The launch date has not been announced. Early registrations help us build the right founding group before opening the market.",
+    "group": "Final call to action and footer",
+    "en": "The launch date has not been announced. Early registrations help us build the right founding group before opening the market.",
+    "fr": "La date de lancement n’a pas encore été annoncée. Les inscriptions prioritaires nous aident à former le bon groupe de partenaires fondateurs avant l’ouverture du marché."
+  },
+  {
+    "field": "copyrgk52p",
+    "label": "What happens with bookings later?",
+    "group": "Final call to action and footer",
+    "en": "What happens with bookings later?",
+    "fr": "Comment les réservations fonctionneront-elles?"
+  },
+  {
+    "field": "copy1xz0rhb",
+    "label": "The initial partner setup supports booking requests and confirmations. Spas can manage availability in the partner system for immediate confirmation, with deeper calendar connections planned as the market develops.",
+    "group": "Final call to action and footer",
+    "en": "The initial partner setup supports booking requests and confirmations. Spas can manage availability in the partner system for immediate confirmation, with deeper calendar connections planned as the market develops.",
+    "fr": "La configuration initiale prend en charge les demandes et les confirmations de réservation. Les spas peuvent gérer leurs disponibilités dans l’espace partenaire pour permettre la confirmation immédiate. Des connexions plus poussées aux calendriers sont prévues à mesure que le marché se développe."
+  },
+  {
+    "field": "copyc32309",
+    "label": "How are guest payments handled?",
+    "group": "Final call to action and footer",
+    "en": "How are guest payments handled?",
+    "fr": "Comment les paiements des clients sont-ils gérés?"
+  },
+  {
+    "field": "copy14xp51z",
+    "label": "Guests may be offered pay-now or pay-at-the-spa options, depending on the experience. Settlement and commission details are shown in a clear monthly report and explained before a spa goes live.",
+    "group": "Final call to action and footer",
+    "en": "Guests may be offered pay-now or pay-at-the-spa options, depending on the experience. Settlement and commission details are shown in a clear monthly report and explained before a spa goes live.",
+    "fr": "Selon l’expérience, les clients peuvent payer maintenant ou au spa. Les détails du règlement et des commissions figurent dans un rapport mensuel clair et sont expliqués avant la mise en ligne du spa."
+  },
+  {
+    "field": "copy3xyvvz",
+    "label": "Discover. Book. Relax.",
+    "group": "Final call to action and footer",
+    "en": "Discover. Book. Relax.",
+    "fr": "Découvrir. Réserver. Décrocher."
+  },
+  {
+    "field": "copyeorvln",
+    "label": "Ontario page links",
+    "group": "Final call to action and footer",
+    "en": "Ontario page links",
+    "fr": "Liens de la page Ontario"
+  },
+  {
+    "field": "copyn8hgke",
+    "label": "SpaPlus network links",
+    "group": "Final call to action and footer",
+    "en": "SpaPlus network links",
+    "fr": "Liens du réseau SpaPlus"
+  },
+  {
+    "field": "copy1ll48zb",
+    "label": "SpaPlus network",
+    "group": "Final call to action and footer",
+    "en": "SpaPlus network",
+    "fr": "Réseau SpaPlus"
+  },
+  {
+    "field": "copy673qkk",
+    "label": "SpaPlus Global",
+    "group": "Final call to action and footer",
+    "en": "SpaPlus Global",
+    "fr": "SpaPlus mondial"
+  },
+  {
+    "field": "copy10pysc5",
+    "label": "SpaPlus Canada",
+    "group": "Final call to action and footer",
+    "en": "SpaPlus Canada",
+    "fr": "SpaPlus Canada"
+  },
+  {
+    "field": "copy113ssae",
+    "label": "Ontario launch",
+    "group": "Messages, cookies and page controls",
+    "en": "Ontario launch",
+    "fr": "Lancement en Ontario"
+  },
+  {
+    "field": "copy163nd0c",
+    "label": "Ontario launch areas",
+    "group": "Messages, cookies and page controls",
+    "en": "Ontario launch areas",
+    "fr": "Zones de lancement"
+  },
+  {
+    "field": "copyp8o9gu",
+    "label": "Legal and privacy links",
+    "group": "Messages, cookies and page controls",
+    "en": "Legal and privacy links",
+    "fr": "Liens légaux"
+  },
+  {
+    "field": "copy6ur2yi",
+    "label": "Trust and access",
+    "group": "Messages, cookies and page controls",
+    "en": "Trust and access",
+    "fr": "Confiance et accès"
+  },
+  {
+    "field": "copy10tizdr",
+    "label": "Accessibility",
+    "group": "Messages, cookies and page controls",
+    "en": "Accessibility",
+    "fr": "Accessibilité"
+  },
+  {
+    "field": "copy2ch2f",
+    "label": "Management login",
+    "group": "Messages, cookies and page controls",
+    "en": "Management login",
+    "fr": "Accès à la gestion"
+  },
+  {
+    "field": "copylupfgw",
+    "label": "Cookie settings",
+    "group": "Messages, cookies and page controls",
+    "en": "Cookie settings",
+    "fr": "Préférences de témoins"
+  },
+  {
+    "field": "copyr899oc",
+    "label": "© 2026 Global Spa Management Ltd. All rights reserved.",
+    "group": "Messages, cookies and page controls",
+    "en": "© 2026 Global Spa Management Ltd. All rights reserved.",
+    "fr": "© 2026 Global Spa Management Ltd. Tous droits réservés."
+  },
+  {
+    "field": "copy38krqo",
+    "label": "Back to top",
+    "group": "Messages, cookies and page controls",
+    "en": "Back to top",
+    "fr": "Retour en haut"
+  },
+  {
+    "field": "copy2nypcs",
+    "label": "Top",
+    "group": "Messages, cookies and page controls",
+    "en": "Top",
+    "fr": "Haut"
+  },
+  {
+    "field": "copy131rxww",
+    "label": "Close confirmation",
+    "group": "Messages, cookies and page controls",
+    "en": "Close confirmation",
+    "fr": "Fermer la confirmation"
+  },
+  {
+    "field": "copywre6zt",
+    "label": "YOU’RE ON THE EARLY LIST",
+    "group": "Messages, cookies and page controls",
+    "en": "YOU’RE ON THE EARLY LIST",
+    "fr": "VOTRE SPA EST SUR LA LISTE PRIORITAIRE"
+  },
+  {
+    "field": "copy1mheeor",
+    "label": "Thank you. Your spa details are with us.",
+    "group": "Messages, cookies and page controls",
+    "en": "Thank you. Your spa details are with us.",
+    "fr": "Merci. Nous avons bien reçu les renseignements de votre spa."
+  },
+  {
+    "field": "copyyok38r",
+    "label": "Back to the page",
+    "group": "Messages, cookies and page controls",
+    "en": "Back to the page",
+    "fr": "Retour à la page"
+  },
+  {
+    "field": "copy1mep0ov",
+    "label": "Privacy choices",
+    "group": "Messages, cookies and page controls",
+    "en": "Privacy choices",
+    "fr": "Choix de confidentialité"
+  },
+  {
+    "field": "copy15uydgm",
+    "label": "Your privacy, your choice.",
+    "group": "Messages, cookies and page controls",
+    "en": "Your privacy, your choice.",
+    "fr": "Votre vie privée, votre choix."
+  },
+  {
+    "field": "copy81va7q",
+    "label": "Essential storage runs the site. Analytics runs only with your permission. Read our ",
+    "group": "Messages, cookies and page controls",
+    "en": "Essential storage runs the site. Analytics runs only with your permission. Read our ",
+    "fr": "Le stockage essentiel fait fonctionner le site. Les outils d’analyse ne sont activés qu’avec votre permission. Consultez notre "
+  },
+  {
+    "field": "copy1o14qsb",
+    "label": "Essential only",
+    "group": "Messages, cookies and page controls",
+    "en": "Essential only",
+    "fr": "Essentiels seulement"
+  },
+  {
+    "field": "copy1nf768u",
+    "label": "Allow analytics",
+    "group": "Messages, cookies and page controls",
+    "en": "Allow analytics",
+    "fr": "Autoriser l’analyse"
+  },
+  {
+    "field": "heroEyebrow",
+    "label": "Hero eyebrow",
+    "group": "Hero and launch status",
+    "en": "ONTARIO, YOU’RE NEXT",
+    "fr": "ONTARIO, À VOUS DE JOUER"
+  },
+  {
+    "field": "heroTitle",
+    "label": "Hero headline",
+    "group": "Hero and launch status",
+    "en": "SpaPlus is coming to Ontario.",
+    "fr": "SpaPlus arrive en Ontario."
+  },
+  {
+    "field": "heroLead",
+    "label": "Hero introduction",
+    "group": "Hero and launch status",
+    "en": "We are preparing a better way for people in Toronto and across Ontario to discover, compare and book memorable spa experiences.",
+    "fr": "Nous préparons une meilleure façon de découvrir, comparer et réserver des expériences spa mémorables à Toronto et partout en Ontario."
+  },
+  {
+    "field": "formTitle",
+    "label": "Registration form headline",
+    "group": "Registration form",
+    "en": "Tell us about your spa.",
+    "fr": "Parlez-nous de votre spa."
+  },
+  {
+    "field": "formIntro",
+    "label": "Registration form introduction",
+    "group": "Registration form",
+    "en": "Complete the form once. We will review it personally and contact you within 72 hours.",
+    "fr": "Remplissez le formulaire une seule fois. Nous l’examinerons personnellement et communiquerons avec vous dans un délai de 72 heures."
+  },
+  {
+    "field": "finalTitle",
+    "label": "Final call to action headline",
+    "group": "Final call to action and footer",
+    "en": "Your spa could help shape the first SpaPlus experience in Ontario.",
+    "fr": "Votre spa pourrait contribuer à façonner la première expérience SpaPlus en Ontario."
+  },
+  {
+    "field": "seoTitle",
+    "label": "Browser and search title",
+    "group": "Search and sharing",
+    "en": "SpaPlus is coming to Ontario | Founding spa partners",
+    "fr": "SpaPlus arrive en Ontario | Spas partenaires fondateurs"
+  },
+  {
+    "field": "seoDescription",
+    "label": "Search description",
+    "group": "Search and sharing",
+    "en": "SpaPlus is preparing to launch in Ontario. Established spas can join the founding partner list with no fee, no commitment and no credit card.",
+    "fr": "SpaPlus prépare son lancement en Ontario. Les spas établis peuvent s’inscrire à la liste des partenaires fondateurs, gratuitement, sans engagement et sans carte de crédit."
+  },
+  {
+    "field": "seoImageAlt",
+    "label": "Social sharing image description",
+    "group": "Search and sharing",
+    "en": "Illustrative SpaPlus Ontario launch artwork. It does not depict an Ontario partner.",
+    "fr": "Concept visuel illustratif du lancement de SpaPlus en Ontario. Il ne représente pas un partenaire ontarien."
+  },
+  {
+    "field": "heroDisclosure",
+    "label": "Hero image disclosure",
+    "group": "Hero and launch status",
+    "en": "Illustrative launch concept. It does not depict an Ontario spa or partner.",
+    "fr": "Concept visuel de lancement. Il ne représente pas un spa ou un partenaire de l’Ontario."
+  },
+  {
+    "field": "referenceMarketName",
+    "label": "Current live market name",
+    "group": "Hero and launch status",
+    "en": "Québec",
+    "fr": "Québec"
+  },
+  {
+    "field": "marketDisplayName",
+    "label": "Coming next market name",
+    "group": "Hero and launch status",
+    "en": "Ontario",
+    "fr": "Ontario"
+  },
+  {
+    "field": "navAria",
+    "label": "Navigation accessible title",
+    "group": "Navigation and accessibility",
+    "en": "Ontario launch navigation",
+    "fr": "Navigation du lancement en Ontario"
+  },
+  {
+    "field": "languageLink1Label",
+    "label": "English language button",
+    "group": "Navigation and accessibility",
+    "en": "EN CA",
+    "fr": "EN CA"
+  },
+  {
+    "field": "languageLink1Aria",
+    "label": "English language button description",
+    "group": "Navigation and accessibility",
+    "en": "English, Canada",
+    "fr": "Anglais, Canada"
+  },
+  {
+    "field": "languageLink2Label",
+    "label": "French language button",
+    "group": "Navigation and accessibility",
+    "en": "FR CA",
+    "fr": "FR CA"
+  },
+  {
+    "field": "languageLink2Aria",
+    "label": "French language button description",
+    "group": "Navigation and accessibility",
+    "en": "Canadian French",
+    "fr": "Français canadien"
+  },
+  {
+    "field": "growthCardOneBody",
+    "label": "First growth card description",
+    "group": "Growth and founding partner offer",
+    "en": "Tell us about your business now and be among the first Ontario spas considered for onboarding.",
+    "fr": "Parlez-nous de votre entreprise dès maintenant et faites partie des premiers spas ontariens considérés pour l’intégration."
+  },
+  {
+    "field": "platformPreviewTitle",
+    "label": "Platform preview title",
+    "group": "Platform preview",
+    "en": "Spa experiences across Ontario",
+    "fr": "Expériences spa partout en Ontario"
+  },
+  {
+    "field": "previewDayPassLabel",
+    "label": "Preview day pass label",
+    "group": "Platform preview",
+    "en": "DAY PASS",
+    "fr": "ACCÈS JOURNÉE"
+  },
+  {
+    "field": "platformDisclosure",
+    "label": "Platform preview disclosure",
+    "group": "Platform preview",
+    "en": "Interface previews are illustrative. Ontario inventory is not live and the final partner tools may evolve before launch.",
+    "fr": "Les aperçus d’interface sont illustratifs. L’offre ontarienne n’est pas encore en ligne et les outils partenaires peuvent évoluer avant le lancement."
+  },
+  {
+    "field": "proofTitle",
+    "label": "Current market proof title",
+    "group": "Proof and guest experiences",
+    "en": "Already helping guests discover spas in Québec.",
+    "fr": "Nous aidons déjà les clients à découvrir des spas au Québec."
+  },
+  {
+    "field": "proofIntro",
+    "label": "Current market proof introduction",
+    "group": "Proof and guest experiences",
+    "en": "These are current experiences presented on the live SpaPlus Canada platform. Ontario listings are not live yet.",
+    "fr": "Voici des expériences actuellement présentées sur la plateforme SpaPlus Canada. Les fiches de l’Ontario ne sont pas encore en ligne."
+  },
+  {
+    "field": "proofDisclosure",
+    "label": "Current market image disclosure",
+    "group": "Proof and guest experiences",
+    "en": "Images are sourced from current spa listings on the official SpaPlus Canada website. They illustrate the existing Québec platform in Canada and do not depict future Ontario partners.",
+    "fr": "Les images proviennent de fiches de spas actuellement publiées sur le site officiel de SpaPlus Canada. Elles illustrent la plateforme existante au Québec et ne représentent pas de futurs partenaires ontariens."
+  },
+  {
+    "field": "partnerFitTitle",
+    "label": "Partner fit headline",
+    "group": "Partner fit and launch areas",
+    "en": "Established Ontario spas that care about the guest experience.",
+    "fr": "Des spas ontariens établis qui accordent de l’importance à l’expérience client."
+  },
+  {
+    "field": "formEyebrow",
+    "label": "Registration form eyebrow",
+    "group": "Registration form",
+    "en": "ONTARIO FOUNDING SPA LIST",
+    "fr": "LISTE DES SPAS FONDATEURS DE L’ONTARIO"
+  },
+  {
+    "field": "formCityLabel",
+    "label": "Registration city field label",
+    "group": "Registration form",
+    "en": "Ontario city",
+    "fr": "Ville en Ontario"
+  },
+  {
+    "field": "websitePlaceholder",
+    "label": "Website field placeholder",
+    "group": "Registration form",
+    "en": "https://",
+    "fr": "https://"
+  },
+  {
+    "field": "formSubmitButton",
+    "label": "Registration submit button",
+    "group": "Registration form",
+    "en": "Join the Ontario Founding Spa List",
+    "fr": "Rejoindre la liste des spas fondateurs de l’Ontario"
+  },
+  {
+    "field": "spaTypeDaySpa",
+    "label": "Spa type option: day spa",
+    "group": "Registration form",
+    "en": "Day spa",
+    "fr": "Spa urbain ou spa de jour"
+  },
+  {
+    "field": "spaTypeHotelResort",
+    "label": "Spa type option: hotel or resort",
+    "group": "Registration form",
+    "en": "Hotel or resort spa",
+    "fr": "Spa d’hôtel ou de centre de villégiature"
+  },
+  {
+    "field": "spaTypeNordicThermal",
+    "label": "Spa type option: Nordic or thermal",
+    "group": "Registration form",
+    "en": "Nordic or thermal spa",
+    "fr": "Spa nordique ou thermal"
+  },
+  {
+    "field": "spaTypeMedicalWellness",
+    "label": "Spa type option: medical or wellness",
+    "group": "Registration form",
+    "en": "Medical or wellness spa",
+    "fr": "Médico-spa ou centre mieux-être"
+  },
+  {
+    "field": "spaTypeMultiLocation",
+    "label": "Spa type option: multi-location",
+    "group": "Registration form",
+    "en": "Multi-location spa group",
+    "fr": "Groupe de spas multisites"
+  },
+  {
+    "field": "spaTypeOtherEstablished",
+    "label": "Spa type option: other established venue",
+    "group": "Registration form",
+    "en": "Other established spa venue",
+    "fr": "Autre établissement de spa reconnu"
+  },
+  {
+    "field": "serviceMassage",
+    "label": "Service option: massage",
+    "group": "Registration form",
+    "en": "Massage",
+    "fr": "Massothérapie"
+  },
+  {
+    "field": "serviceFacials",
+    "label": "Service option: facials",
+    "group": "Registration form",
+    "en": "Facials and skincare",
+    "fr": "Soins du visage et de la peau"
+  },
+  {
+    "field": "serviceBodyTreatments",
+    "label": "Service option: body treatments",
+    "group": "Registration form",
+    "en": "Body treatments",
+    "fr": "Soins du corps"
+  },
+  {
+    "field": "serviceThermalNordic",
+    "label": "Service option: thermal or Nordic",
+    "group": "Registration form",
+    "en": "Thermal or Nordic experience",
+    "fr": "Expérience thermale ou nordique"
+  },
+  {
+    "field": "serviceCouples",
+    "label": "Service option: couples",
+    "group": "Registration form",
+    "en": "Couples experiences",
+    "fr": "Expériences en couple"
+  },
+  {
+    "field": "serviceGroups",
+    "label": "Service option: groups",
+    "group": "Registration form",
+    "en": "Group experiences",
+    "fr": "Expériences de groupe"
+  },
+  {
+    "field": "serviceDayPasses",
+    "label": "Service option: day passes",
+    "group": "Registration form",
+    "en": "Day passes",
+    "fr": "Accès à la journée"
+  },
+  {
+    "field": "serviceSpaStays",
+    "label": "Service option: spa stays",
+    "group": "Registration form",
+    "en": "Spa stays",
+    "fr": "Séjours spa"
+  },
+  {
+    "field": "reviewStepBody",
+    "label": "Review timing description",
+    "group": "Commercial model and process",
+    "en": "Our team reviews every complete enquiry within 72 hours.",
+    "fr": "Notre équipe examine chaque demande complète dans un délai de 72 heures."
+  },
+  {
+    "field": "faqCostAnswer",
+    "label": "Registration cost answer",
+    "group": "Frequently asked questions",
+    "en": "No. Joining the Ontario early-access list is free. We do not ask for payment or credit card details.",
+    "fr": "Non. L’inscription à la liste prioritaire de l’Ontario est gratuite. Nous ne demandons aucun paiement ni renseignement de carte de crédit."
+  },
+  {
+    "field": "faqLaunchQuestion",
+    "label": "Launch timing question",
+    "group": "Frequently asked questions",
+    "en": "When will SpaPlus launch in Ontario?",
+    "fr": "Quand SpaPlus sera-t-il lancé en Ontario?"
+  },
+  {
+    "field": "finalEyebrow",
+    "label": "Final call to action eyebrow",
+    "group": "Final call to action and footer",
+    "en": "TORONTO. ONTARIO. LET’S BUILD THIS WELL.",
+    "fr": "TORONTO. ONTARIO. BÂTISSONS CELA COMME IL FAUT."
+  },
+  {
+    "field": "footerIntro",
+    "label": "Footer market description",
+    "group": "Final call to action and footer",
+    "en": "SpaPlus is preparing the Ontario market in Canada. No Ontario spa listings or booking inventory are currently represented on this page.",
+    "fr": "SpaPlus prépare le marché de l’Ontario, au Canada. Cette page ne présente actuellement aucune fiche ni disponibilité de réservation de spa en Ontario."
+  },
+  {
+    "field": "priorityArea1Label",
+    "label": "Launch area: Toronto",
+    "group": "Partner fit and launch areas",
+    "en": "Toronto",
+    "fr": "Toronto"
+  },
+  {
+    "field": "priorityArea2Label",
+    "label": "Launch area: Greater Toronto Area",
+    "group": "Partner fit and launch areas",
+    "en": "Greater Toronto Area",
+    "fr": "Grand Toronto"
+  },
+  {
+    "field": "priorityArea3Label",
+    "label": "Launch area: Niagara",
+    "group": "Partner fit and launch areas",
+    "en": "Niagara",
+    "fr": "Niagara"
+  },
+  {
+    "field": "priorityArea4Label",
+    "label": "Launch area: Ottawa",
+    "group": "Partner fit and launch areas",
+    "en": "Ottawa",
+    "fr": "Ottawa"
+  },
+  {
+    "field": "priorityArea5Label",
+    "label": "Launch area: Muskoka",
+    "group": "Partner fit and launch areas",
+    "en": "Muskoka",
+    "fr": "Muskoka"
+  },
+  {
+    "field": "priorityArea6Label",
+    "label": "Launch area: Hamilton",
+    "group": "Partner fit and launch areas",
+    "en": "Hamilton",
+    "fr": "Hamilton"
+  },
+  {
+    "field": "referenceSpa1Name",
+    "label": "Reference spa 1 name",
+    "group": "Proof and guest experiences",
+    "en": "BALNEA Spa",
+    "fr": "BALNEA Spa"
+  },
+  {
+    "field": "referenceSpa1Location",
+    "label": "Reference spa 1 location",
+    "group": "Proof and guest experiences",
+    "en": "Bromont, Québec",
+    "fr": "Bromont, Québec"
+  },
+  {
+    "field": "referenceSpa1Alt",
+    "label": "Reference spa 1 image description",
+    "group": "Proof and guest experiences",
+    "en": "Balnea Spa in Bromont, currently presented on SpaPlus Canada",
+    "fr": "Le BALNEA Spa à Bromont, actuellement présenté sur SpaPlus Canada"
+  },
+  {
+    "field": "referenceSpa2Name",
+    "label": "Reference spa 2 name",
+    "group": "Proof and guest experiences",
+    "en": "Infinima Spa",
+    "fr": "Infinima Spa"
+  },
+  {
+    "field": "referenceSpa2Location",
+    "label": "Reference spa 2 location",
+    "group": "Proof and guest experiences",
+    "en": "Québec City, Québec",
+    "fr": "Québec, Québec"
+  },
+  {
+    "field": "referenceSpa2Alt",
+    "label": "Reference spa 2 image description",
+    "group": "Proof and guest experiences",
+    "en": "Infinima Spa in Québec City, currently presented on SpaPlus Canada",
+    "fr": "Infinima Spa à Québec, actuellement présenté sur SpaPlus Canada"
+  },
+  {
+    "field": "referenceSpa3Name",
+    "label": "Reference spa 3 name",
+    "group": "Proof and guest experiences",
+    "en": "Deauville Salon & Spa",
+    "fr": "Deauville Salon & Spa"
+  },
+  {
+    "field": "referenceSpa3Location",
+    "label": "Reference spa 3 location",
+    "group": "Proof and guest experiences",
+    "en": "Montréal, Québec",
+    "fr": "Montréal, Québec"
+  },
+  {
+    "field": "referenceSpa3Alt",
+    "label": "Reference spa 3 image description",
+    "group": "Proof and guest experiences",
+    "en": "Deauville Salon and Spa in Montréal, currently presented on SpaPlus Canada",
+    "fr": "Le Deauville Salon & Spa à Montréal, actuellement présenté sur SpaPlus Canada"
+  },
+  {
+    "field": "successBody",
+    "label": "Successful registration message",
+    "group": "Messages, cookies and page controls",
+    "en": "A confirmation is on its way to your email. Our team will review the information and contact you within 72 hours.",
+    "fr": "Un courriel de confirmation est en route. Notre équipe examinera les renseignements et communiquera avec vous dans un délai de 72 heures."
+  }
+]

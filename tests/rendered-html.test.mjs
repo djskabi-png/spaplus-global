@@ -686,12 +686,36 @@ test("Ontario early-access funnel is complete, bilingual, regional and launch-ga
   assert.match(llms, /does not depict an Ontario spa or partner/);
 });
 
-test("Ontario management shows the published copy before the first edit", async () => {
-  const admin = await read("app/admin/AdminClient.tsx");
-  assert.match(admin, /const marketDefaults/);
-  assert.match(admin, /SpaPlus is coming to Ontario\./);
-  assert.match(admin, /SpaPlus arrive en Ontario\./);
-  assert.match(admin, /Tell us about your spa\./);
-  assert.match(admin, /Parlez-nous de votre spa\./);
-  assert.match(admin, /marketDefaults\[locale\]\?\.\[field\]/);
+test("Ontario management exposes the complete bilingual page copy", async () => {
+  const [admin, client, manifestSource, worker] = await Promise.all([
+    read("app/admin/AdminClient.tsx"),
+    read("app/market-launch/MarketLaunchPage.tsx"),
+    read("app/market-launch/generated-market-copy.json"),
+    read("worker/index.ts"),
+  ]);
+  const manifest = JSON.parse(manifestSource);
+  const fields = new Set(manifest.map((entry) => entry.field));
+  assert.ok(manifest.length >= 250, `Expected at least 250 editable fields, received ${manifest.length}`);
+  assert.equal(fields.size, manifest.length, "Editable field keys must be unique");
+  for (const field of [
+    "heroTitle",
+    "heroLead",
+    "seoTitle",
+    "seoDescription",
+    "formSubmitButton",
+    "heroDisclosure",
+    "referenceSpa1Alt",
+    "priorityArea6Label",
+    "successBody",
+  ]) {
+    assert.ok(fields.has(field), `Missing editable Ontario field: ${field}`);
+  }
+  assert.match(admin, /marketCopyManifest/);
+  assert.match(admin, /saveAllMarketChanges/);
+  assert.match(admin, /type="search"/);
+  assert.match(client, /marketCopyFieldKey/);
+  assert.match(client, /dynamicCopy/);
+  assert.match(client, /managed\("seoTitle"/);
+  assert.match(worker, /applyManagedOntarioMetadata/);
+  assert.match(worker, /copy\.seoTitle/);
 });

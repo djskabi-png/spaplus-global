@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { localeOptions, translations, type Locale } from "../i18n";
 import companyData from "../company-data.json";
+import marketCopyManifest from "../market-launch/generated-market-copy.json";
 
 type AdminRole = "owner" | "editor" | "viewer";
 type Permission = {
@@ -56,33 +57,15 @@ const globalFields = {
   ],
 } as const;
 
-const marketFields = [
-  ["heroEyebrow", "Hero eyebrow"],
-  ["heroTitle", "Hero headline"],
-  ["heroLead", "Hero introduction"],
-  ["formTitle", "Registration form headline"],
-  ["formIntro", "Registration form introduction"],
-  ["finalTitle", "Final call to action"],
-] as const;
-
-const marketDefaults: Record<string, Record<string, string>> = {
-  "en-CA": {
-    heroEyebrow: "ONTARIO, YOU’RE NEXT",
-    heroTitle: "SpaPlus is coming to Ontario.",
-    heroLead: "We are preparing a better way for people in Toronto and across Ontario to discover, compare and book memorable spa experiences.",
-    formTitle: "Tell us about your spa.",
-    formIntro: "Complete the form once. We will review it personally and contact you within 72 hours.",
-    finalTitle: "Your spa could help shape the first SpaPlus experience in Ontario.",
-  },
-  "fr-CA": {
-    heroEyebrow: "ONTARIO, À VOUS DE JOUER",
-    heroTitle: "SpaPlus arrive en Ontario.",
-    heroLead: "Nous préparons une meilleure façon de découvrir, comparer et réserver des expériences spa mémorables à Toronto et partout en Ontario.",
-    formTitle: "Parlez-nous de votre spa.",
-    formIntro: "Remplissez le formulaire une seule fois. Nous l’examinerons personnellement et communiquerons avec vous dans un délai de 72 heures.",
-    finalTitle: "Votre spa pourrait contribuer à façonner la première expérience SpaPlus en Ontario.",
-  },
+type MarketCopyEntry = {
+  field: string;
+  label: string;
+  group: string;
+  en: string;
+  fr: string;
 };
+
+const marketCopyEntries = marketCopyManifest as MarketCopyEntry[];
 
 const uiCopy = {
   en: {
@@ -98,6 +81,7 @@ const uiCopy = {
     disable: "Disable", enable: "Enable", contentAccess: "Page access", leadAccess: "Lead access",
     none: "No access", view: "View", edit: "Edit", manage: "Manage", inherited: "Legacy access",
     homeSection: "Homepage", companySection: "About, team and contact", marketSection: "Ontario campaign page",
+    searchContent: "Search page text", saveAll: "Save all changes", fields: "editable fields",
   },
   he: {
     title: "תוכן ברור. הרשאות מדויקות.", eyebrow: "מערכת הניהול של ספא פלוס",
@@ -112,6 +96,7 @@ const uiCopy = {
     disable: "השבתה", enable: "הפעלה", contentAccess: "הרשאת עמוד", leadAccess: "הרשאת פניות",
     none: "ללא גישה", view: "צפייה", edit: "עריכה", manage: "ניהול", inherited: "גישה קיימת",
     homeSection: "עמוד הבית", companySection: "אודות, צוות ויצירת קשר", marketSection: "עמוד הקמפיין של אונטריו",
+    searchContent: "חיפוש טקסט בעמוד", saveAll: "שמירת כל השינויים", fields: "שדות לעריכה",
   },
   "fr-CA": {
     title: "Un contenu clair. Des accès précis.", eyebrow: "Gestion SpaPlus",
@@ -126,6 +111,7 @@ const uiCopy = {
     disable: "Désactiver", enable: "Activer", contentAccess: "Accès à la page", leadAccess: "Accès aux demandes",
     none: "Aucun accès", view: "Consulter", edit: "Modifier", manage: "Gérer", inherited: "Accès existant",
     homeSection: "Page d’accueil", companySection: "À propos, équipe et contact", marketSection: "Page de campagne Ontario",
+    searchContent: "Rechercher dans le contenu", saveAll: "Enregistrer toutes les modifications", fields: "champs modifiables",
   },
 } as const;
 
@@ -134,6 +120,21 @@ const systemLanguageOptions = [
   { code: "en", label: "English" },
   { code: "fr-CA", label: "Français canadien" },
 ] as const;
+
+const marketGroupLabels: Record<string, { en: string; he: string; "fr-CA": string }> = {
+  "Search and sharing": { en: "Search and sharing", he: "חיפוש ושיתוף", "fr-CA": "Recherche et partage" },
+  "Navigation and accessibility": { en: "Navigation and accessibility", he: "ניווט ונגישות", "fr-CA": "Navigation et accessibilité" },
+  "Hero and launch status": { en: "Hero and launch status", he: "פתיח וסטטוס השקה", "fr-CA": "En-tête et état du lancement" },
+  "Growth and founding partner offer": { en: "Growth and founding partner offer", he: "צמיחה והצעת שותף מייסד", "fr-CA": "Croissance et offre de partenaire fondateur" },
+  "Platform preview": { en: "Platform preview", he: "המחשת הפלטפורמה", "fr-CA": "Aperçu de la plateforme" },
+  "Proof and guest experiences": { en: "Proof and guest experiences", he: "המחשות וחוויות אורחים", "fr-CA": "Preuves et expériences clients" },
+  "Partner fit and launch areas": { en: "Partner fit and launch areas", he: "התאמת שותפים ואזורי השקה", "fr-CA": "Profil des partenaires et zones de lancement" },
+  "Commercial model and process": { en: "Commercial model and process", he: "מודל מסחרי ותהליך", "fr-CA": "Modèle commercial et processus" },
+  "Registration form": { en: "Registration form", he: "טופס הרשמה", "fr-CA": "Formulaire d’inscription" },
+  "Frequently asked questions": { en: "Frequently asked questions", he: "שאלות נפוצות", "fr-CA": "Questions fréquentes" },
+  "Final call to action and footer": { en: "Final call to action and footer", he: "קריאה אחרונה לפעולה ופוטר", "fr-CA": "Appel final et pied de page" },
+  "Messages, cookies and page controls": { en: "Messages, cookies and page controls", he: "הודעות, קוקיז וכלי עמוד", "fr-CA": "Messages, témoins et contrôles" },
+};
 
 function permissionFor(user: CmsUser, resourceKey: string): Permission {
   return user.permissions.find((item) => item.resourceKey === resourceKey) || {
@@ -170,6 +171,7 @@ export default function AdminClient({
   const [users, setUsers] = useState<CmsUser[]>([]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [status, setStatus] = useState("");
+  const [contentSearch, setContentSearch] = useState("");
   const emptyPermissions = resources.map((resource) => ({
     resourceKey: resource.key,
     canViewContent: false,
@@ -214,7 +216,10 @@ export default function AdminClient({
   const existing = useMemo(() => Object.fromEntries(rows.map((row) => [`${row.section}.${row.field}`, row.value])), [rows]);
 
   function defaultValue(section: string, field: string) {
-    if (section === "market.ca-on") return marketDefaults[locale]?.[field] || "";
+    if (section === "market.ca-on") {
+      const entry = marketCopyEntries.find((item) => item.field === field);
+      return locale === "fr-CA" ? entry?.fr || "" : entry?.en || "";
+    }
     const source = section === "translation"
       ? (translations[locale as Locale] as unknown as Record<string, string>)
       : (companyData.copy[locale as Locale] as unknown as Record<string, string>);
@@ -231,6 +236,26 @@ export default function AdminClient({
     });
     setStatus(response.ok ? t.saved : t.failed);
     if (response.ok) await loadContent();
+  }
+
+  async function saveAllMarketChanges() {
+    const changes = Object.entries(drafts).filter(([key]) => key.startsWith("market.ca-on."));
+    if (!changes.length) return;
+    setStatus(t.saving);
+    for (const [key, value] of changes) {
+      const field = key.slice("market.ca-on.".length);
+      const response = await fetch("/api/cms/content", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ locale, section: "market.ca-on", field, value }),
+      });
+      if (!response.ok) {
+        setStatus(t.failed);
+        return;
+      }
+    }
+    setStatus(t.saved);
+    await loadContent();
   }
 
   async function addUser() {
@@ -265,8 +290,27 @@ export default function AdminClient({
     void updateUser(user, { permissions } as Partial<CmsUser>);
   }
 
+  const normalizedSearch = contentSearch.trim().toLocaleLowerCase();
+  const visibleMarketEntries = marketCopyEntries.filter((entry) =>
+    !normalizedSearch ||
+    entry.label.toLocaleLowerCase().includes(normalizedSearch) ||
+    entry.en.toLocaleLowerCase().includes(normalizedSearch) ||
+    entry.fr.toLocaleLowerCase().includes(normalizedSearch)
+  );
+  const marketGroups = [...new Set(visibleMarketEntries.map((entry) => entry.group))];
+  const marketDraftCount = Object.keys(drafts).filter((key) => key.startsWith("market.ca-on.")).length;
   const sectionGroups = tab === "market"
-    ? [{ section: "market.ca-on", label: t.marketSection, fields: marketFields }]
+    ? marketGroups.map((group) => ({
+        section: "market.ca-on",
+        label: marketGroupLabels[group]?.[uiLocale] || group,
+        fields: visibleMarketEntries
+          .filter((entry) => entry.group === group)
+          .map((entry) => [
+            entry.field,
+            locale === "fr-CA" ? entry.fr : entry.en,
+            entry.label,
+          ] as const),
+      }))
     : [
         { section: "translation", label: t.homeSection, fields: globalFields.translation },
         { section: "company", label: t.companySection, fields: globalFields.company },
@@ -292,13 +336,18 @@ export default function AdminClient({
             <label>{t.contentLanguage}<select value={locale} onChange={(event) => setLocale(event.target.value)}>{contentLocaleOptions.map((option) => <option key={option.code} value={option.code}>{option.label}</option>)}</select></label>
             <span>{t.languageNote}</span>
           </div>
-          {sectionGroups.map((group) => <div className="cms-card" key={group.section}>
-            <h2>{group.label}</h2>
+          {tab === "market" ? <div className="cms-market-tools">
+            <input type="search" value={contentSearch} onChange={(event) => setContentSearch(event.target.value)} placeholder={t.searchContent} aria-label={t.searchContent} />
+            <strong>{visibleMarketEntries.length} {t.fields}</strong>
+            {can(resourceKey, "canEditContent") ? <button type="button" disabled={!marketDraftCount} onClick={() => void saveAllMarketChanges()}>{t.saveAll}{marketDraftCount ? ` (${marketDraftCount})` : ""}</button> : null}
+          </div> : null}
+          {sectionGroups.map((group) => <div className="cms-card" key={`${group.section}-${group.label}`}>
+            <h2>{group.label} <small>{group.fields.length}</small></h2>
             <div className="cms-fields">
-              {group.fields.map(([field, label]) => {
+              {group.fields.map(([field, label, description]) => {
                 const key = `${group.section}.${field}`;
                 const value = drafts[key] ?? existing[key] ?? defaultValue(group.section, field);
-                return <label key={key}><span>{label}</span><textarea value={value} rows={value.length > 130 ? 5 : 2} disabled={!can(resourceKey, "canEditContent")} onChange={(event) => setDrafts((current) => ({ ...current, [key]: event.target.value }))} />
+                return <label key={key}><span>{description || label}</span>{description ? <small>{label}</small> : null}<textarea value={value} rows={value.length > 130 ? 5 : 2} disabled={!can(resourceKey, "canEditContent")} onChange={(event) => setDrafts((current) => ({ ...current, [key]: event.target.value }))} />
                   {can(resourceKey, "canEditContent") ? <button type="button" onClick={() => void save(group.section, field)}>{t.save}</button> : null}
                 </label>;
               })}
