@@ -355,6 +355,14 @@ const worker = {
       return env.ASSETS.fetch(new Request(new URL("/app-sitemap.xml", request.url)));
     }
 
+    if (
+      hostname === "app.spaplus.co" &&
+      (request.method === "GET" || request.method === "HEAD")
+    ) {
+      const assetResponse = await env.ASSETS.fetch(request);
+      if (assetResponse.status !== 404) return assetResponse;
+    }
+
     if (hostname === "www.spaplus.co") {
       url.hostname = "spaplus.co";
       return Response.redirect(url.toString(), 308);

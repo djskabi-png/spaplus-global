@@ -397,12 +397,13 @@ test("every target market has English pages and every page template has Coming S
 });
 
 test("management permissions fail closed and leads are scoped by market", async () => {
-  const [access, usersRoute, submissionsRoute, marketRoute, migration] = await Promise.all([
+  const [access, usersRoute, submissionsRoute, marketRoute, migration, worker] = await Promise.all([
     read("app/cms-access.ts"),
     read("app/api/cms/users/route.ts"),
     read("app/api/cms/submissions/route.ts"),
     read("app/api/market-spa-leads/route.ts"),
     read("drizzle/0002_motionless_spectrum.sql"),
+    read("worker/index.ts"),
   ]);
   assert.match(access, /if \(role === "owner"\) return true/);
   assert.match(access, /return false/);
@@ -413,6 +414,8 @@ test("management permissions fail closed and leads are scoped by market", async 
   assert.match(submissionsRoute, /manageLeads/);
   assert.match(marketRoute, /resourceKey: "market:ca:on"/);
   assert.match(migration, /INSERT INTO `cms_permissions`/);
+  assert.match(worker, /const assetResponse = await env\.ASSETS\.fetch\(request\)/);
+  assert.match(worker, /assetResponse\.status !== 404/);
 });
 
 test("accessibility controls and statements are available in every published language", async () => {
