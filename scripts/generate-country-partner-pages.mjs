@@ -54,7 +54,6 @@ let hebrew = htmlSource
   .replace('src="./script.js', 'src="../script.js')
   .replaceAll('src="../spaplus-', 'src="../../spaplus-')
   .replaceAll('src="../adir-naor-founder.jpg', 'src="../../adir-naor-founder.jpg')
-  .replaceAll('href="../spaplus-mark.png?v=3', 'href="../../spaplus-mark.png?v=3')
   .replaceAll('href="../"', 'href="../../"')
   .replaceAll('href="../#privacy"', 'href="../../#privacy"')
   .replace('<option value="en">English</option>', '<option value="en">English</option>')

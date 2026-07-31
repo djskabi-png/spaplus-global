@@ -1829,7 +1829,7 @@ function renderFunnelPage(market, type) {
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">${JSON.stringify(schema).replaceAll("<", "\\u003c")}</script>
   <title>${escapeHtml(title)} | SpaPlus Global</title>
-  <link rel="icon" href="/spaplus-global/spaplus-mark.png?v=3" type="image/png">
+  <link rel="icon" href="https://spaplus.co/spaplus-mark.png?v=3" type="image/png">
   <link rel="stylesheet" href="/spaplus-global/markets/market.css?v=20260725-2">
 </head>
 <body class="funnel-page">
@@ -2094,7 +2094,7 @@ function renderMarketPage(market) {
   <meta name="twitter:description" content="${escapeHtml(description)}">
   <meta name="twitter:image" content="${previewOrigin}/${market.image}">
   <title>${escapeHtml(pageTitle)}</title>
-  <link rel="icon" href="/spaplus-global/spaplus-mark.png?v=3" type="image/png">
+  <link rel="icon" href="https://spaplus.co/spaplus-mark.png?v=3" type="image/png">
   <link rel="stylesheet" href="/spaplus-global/markets/market.css?v=20260725-2">
   <script type="application/ld+json">${JSON.stringify(schema)}</script>
 </head>
@@ -2279,7 +2279,7 @@ function renderMarketsHub(locale) {
   <meta property="og:image" content="${previewOrigin}/cyprus-market-hero.png">
   <meta name="twitter:card" content="summary_large_image">
   <title>${escapeHtml(title)} | SpaPlus Global</title>
-  <link rel="icon" href="/spaplus-global/spaplus-mark.png?v=3" type="image/png">
+  <link rel="icon" href="https://spaplus.co/spaplus-mark.png?v=3" type="image/png">
   <link rel="stylesheet" href="/spaplus-global/markets/market.css?v=20260725-2">
 </head>
 <body class="hub-page">

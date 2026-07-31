@@ -27,8 +27,8 @@ test("static pages use the official SpaPlus mark instead of the retired heart ic
     read("codepen/favicon.svg"),
   ]);
 
-  assert.match(home, /href="\.\/spaplus-mark\.png\?v=3" type="image\/png"/);
-  assert.match(favicon, /spaplus-mark\.png\?v=3/);
+  assert.match(home, /href="https:\/\/spaplus\.co\/spaplus-mark\.png\?v=3" type="image\/png"/);
+  assert.match(favicon, /https:\/\/spaplus\.co\/spaplus-mark\.png\?v=3/);
   assert.doesNotMatch(favicon, /M32 51C15 40/);
 });
 
