@@ -17,8 +17,19 @@ async function read(path) {
 test("the browser icon uses the official SpaPlus mark", async () => {
   const layout = await read("app/layout.tsx");
 
-  assert.match(layout, /spaplus-mark\.png\?v=2/);
+  assert.match(layout, /spaplus-mark\.png\?v=3/);
   assert.doesNotMatch(layout, /icon:\s*"\/spaplus-logo\.png"/);
+});
+
+test("static pages use the official SpaPlus mark instead of the retired heart icon", async () => {
+  const [home, favicon] = await Promise.all([
+    read("codepen/index.html"),
+    read("codepen/favicon.svg"),
+  ]);
+
+  assert.match(home, /href="\.\/spaplus-mark\.png\?v=3" type="image\/png"/);
+  assert.match(favicon, /spaplus-mark\.png\?v=3/);
+  assert.doesNotMatch(favicon, /M32 51C15 40/);
 });
 
 test("static preview is a complete standalone website", async () => {
