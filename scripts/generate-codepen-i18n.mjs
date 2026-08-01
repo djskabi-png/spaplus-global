@@ -215,6 +215,7 @@ const companyContent = companyData.copy;
 const teamMembers = companyData.team;
 const localeStorageKey = "spaplus-global-locale";
 const cookieConsentStorageKey = "spaplus-cookie-consent-v1";
+const globalTagManagerId = "GTM-TRNPLFMK";
 const supportedLocales = Object.keys(translations);
 const marketLabels = ${JSON.stringify({
   en: ["United States", "Cyprus", "Greece", "Hungary", "Italy", "United Kingdom", "Germany", "France", "Netherlands", "Sweden", "Norway", "Switzerland", "Dubai and the UAE"],
@@ -270,6 +271,38 @@ const contactFormEndpoint =
   "https://app.spaplus.co/api/contact";
 const founderPhotoDataUri = ${JSON.stringify(founderPhotoDataUri)};
 document.querySelector(".founder-photo").src = founderPhotoDataUri;
+
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  event: "spaplus_consent_default",
+  analytics_storage: "denied",
+  ad_storage: "denied",
+  ad_user_data: "denied",
+  ad_personalization: "denied",
+});
+
+let globalTagManagerLoaded = false;
+const isGlobalProductionHost = () =>
+  location.hostname === "spaplus.co" || location.hostname === "www.spaplus.co";
+const loadGlobalTagManager = () => {
+  if (globalTagManagerLoaded || !isGlobalProductionHost()) return;
+  globalTagManagerLoaded = true;
+  window.dataLayer.push({ event: "spaplus_consent_granted" });
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = "https://www.googletagmanager.com/gtm.js?id=" + globalTagManagerId;
+  document.head.append(script);
+};
+const trackGlobalEvent = (event, parameters = {}) => {
+  if (localStorage.getItem(cookieConsentStorageKey) !== "all" || !isGlobalProductionHost()) return;
+  window.dataLayer.push({
+    event,
+    analytics_site: "global",
+    page_language: activeLocale,
+    page_path: location.pathname,
+    ...parameters,
+  });
+};
 
 const createBrandLockup = (footer = false) => {
   const wrapper = document.createElement("span");
@@ -419,6 +452,10 @@ const saveCookieConsent = (consent) => {
   window.dispatchEvent(new CustomEvent("spaplus:consent-changed", {
     detail: { consent },
   }));
+  if (consent === "all") {
+    loadGlobalTagManager();
+    trackGlobalEvent("cookie_consent_update", { consent_choice: "analytics" });
+  }
   cookieBanner.hidden = true;
 };
 
@@ -429,6 +466,7 @@ if (storedCookieConsent === "all" || storedCookieConsent === "essential") {
 } else {
   cookieBanner.hidden = false;
 }
+if (storedCookieConsent === "all") loadGlobalTagManager();
 cookieEssentialButton.addEventListener("click", () => saveCookieConsent("essential"));
 cookieAllButton.addEventListener("click", () => saveCookieConsent("all"));
 cookieSettingsButton.addEventListener("click", () => {
@@ -794,6 +832,7 @@ const copyShareUrl = async () => {
 };
 
 shareButton.addEventListener("click", async () => {
+  trackGlobalEvent("share_click", { share_method: "native_or_copy" });
   if (navigator.share) {
     try {
       await navigator.share({
@@ -831,6 +870,10 @@ document.querySelectorAll("[data-topic-index]").forEach((link) => {
   });
 });
 
+contactForm.addEventListener("focusin", () => {
+  trackGlobalEvent("contact_form_start");
+}, { once: true });
+
 contactForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const company = companyContent[activeLocale] || companyContent.en;
@@ -844,6 +887,7 @@ contactForm.addEventListener("submit", async (event) => {
   const honey = String(data.get("_honey") || "");
   const button = contactForm.querySelector('button[type="submit"]');
   const status = contactForm.querySelector(".form-status");
+  trackGlobalEvent("contact_form_submit", { contact_topic: topic });
 
   button.disabled = true;
   button.textContent = company.formSending;
@@ -884,9 +928,11 @@ contactForm.addEventListener("submit", async (event) => {
     renderTopics(company);
     status.textContent = "";
     openSuccessModal();
+    trackGlobalEvent("generate_lead", { lead_type: "global_contact", contact_topic: topic });
   } catch {
     status.classList.add("is-error");
     status.textContent = company.formError;
+    trackGlobalEvent("contact_form_error", { contact_topic: topic });
   } finally {
     button.disabled = false;
     button.textContent = company.formSubmit;
@@ -895,6 +941,7 @@ contactForm.addEventListener("submit", async (event) => {
 
 languageSelect.addEventListener("change", (event) => {
   const locale = event.target.value;
+  trackGlobalEvent("language_change", { language_to: locale });
   localStorage.setItem(localeStorageKey, locale);
   const root = location.hostname.endsWith("github.io") ? "/spaplus-global/" : "/";
   location.href = root + localePathMap[locale] + "/" + location.hash;
