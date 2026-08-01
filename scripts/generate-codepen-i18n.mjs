@@ -273,8 +273,10 @@ const founderPhotoDataUri = ${JSON.stringify(founderPhotoDataUri)};
 document.querySelector(".founder-photo").src = founderPhotoDataUri;
 
 window.dataLayer = window.dataLayer || [];
-window.dataLayer.push({
-  event: "spaplus_consent_default",
+function gtag() {
+  window.dataLayer.push(arguments);
+}
+gtag("consent", "default", {
   analytics_storage: "denied",
   ad_storage: "denied",
   ad_user_data: "denied",
@@ -287,6 +289,12 @@ const isGlobalProductionHost = () =>
 const loadGlobalTagManager = () => {
   if (globalTagManagerLoaded || !isGlobalProductionHost()) return;
   globalTagManagerLoaded = true;
+  gtag("consent", "update", {
+    analytics_storage: "granted",
+    ad_storage: "denied",
+    ad_user_data: "denied",
+    ad_personalization: "denied",
+  });
   window.dataLayer.push({ event: "spaplus_consent_granted" });
   const script = document.createElement("script");
   script.async = true;

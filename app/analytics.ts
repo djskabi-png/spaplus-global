@@ -53,7 +53,10 @@ function dataLayer() {
 }
 
 function gtag(...args: unknown[]) {
-  dataLayer().push(args);
+  void args;
+  // Google Tag expects the native arguments object, not a regular array.
+  // eslint-disable-next-line prefer-rest-params
+  dataLayer().push(arguments);
 }
 
 function consentState(granted: boolean) {
