@@ -2016,22 +2016,22 @@
     "fr": "true"
   },
   {
-    "field": "spaTypeThermalNordicEnabled",
+    "field": "spaTypeNordicThermalEnabled",
     "label": "Show spa type option: thermal or Nordic spa",
     "group": "Registration form settings",
     "en": "true",
     "fr": "true"
   },
   {
-    "field": "spaTypeDestinationEnabled",
-    "label": "Show spa type option: destination spa",
+    "field": "spaTypeMedicalWellnessEnabled",
+    "label": "Show spa type option: medical or wellness spa",
     "group": "Registration form settings",
     "en": "true",
     "fr": "true"
   },
   {
-    "field": "spaTypeWellnessCentreEnabled",
-    "label": "Show spa type option: wellness centre",
+    "field": "spaTypeMultiLocationEnabled",
+    "label": "Show spa type option: multi-location spa group",
     "group": "Registration form settings",
     "en": "true",
     "fr": "true"
