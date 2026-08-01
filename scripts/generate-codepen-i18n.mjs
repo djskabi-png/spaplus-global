@@ -216,6 +216,7 @@ const teamMembers = companyData.team;
 const localeStorageKey = "spaplus-global-locale";
 const cookieConsentStorageKey = "spaplus-cookie-consent-v1";
 const globalTagManagerId = "GTM-TRNPLFMK";
+const globalMeasurementId = "G-G6H96L75SG";
 const supportedLocales = Object.keys(translations);
 const marketLabels = ${JSON.stringify({
   en: ["United States", "Cyprus", "Greece", "Hungary", "Italy", "United Kingdom", "Germany", "France", "Netherlands", "Sweden", "Norway", "Switzerland", "Dubai and the UAE"],
@@ -296,6 +297,13 @@ const loadGlobalTagManager = () => {
     ad_personalization: "denied",
   });
   window.dataLayer.push({ event: "spaplus_consent_granted" });
+  gtag("js", new Date());
+  gtag("config", globalMeasurementId);
+  const analyticsScript = document.createElement("script");
+  analyticsScript.id = "spaplus-google-tag";
+  analyticsScript.async = true;
+  analyticsScript.src = "https://www.googletagmanager.com/gtag/js?id=" + globalMeasurementId;
+  document.head.append(analyticsScript);
   const script = document.createElement("script");
   script.async = true;
   script.src = "https://www.googletagmanager.com/gtm.js?id=" + globalTagManagerId;
@@ -303,13 +311,14 @@ const loadGlobalTagManager = () => {
 };
 const trackGlobalEvent = (event, parameters = {}) => {
   if (localStorage.getItem(cookieConsentStorageKey) !== "all" || !isGlobalProductionHost()) return;
-  window.dataLayer.push({
-    event,
+  const eventParameters = {
     analytics_site: "global",
     page_language: activeLocale,
     page_path: location.pathname,
     ...parameters,
-  });
+  };
+  window.dataLayer.push({ event, ...eventParameters });
+  gtag("event", event, eventParameters);
 };
 
 const createBrandLockup = (footer = false) => {

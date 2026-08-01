@@ -9,17 +9,20 @@ const analyticsConfig: Record<
   AnalyticsSite,
   {
     containerId: string;
+    measurementId: string;
     storageKey: string;
     grantedValue: string;
   }
 > = {
   global: {
     containerId: "GTM-TRNPLFMK",
+    measurementId: "G-G6H96L75SG",
     storageKey: "spaplus-cookie-consent-v1",
     grantedValue: "all",
   },
   ontario: {
     containerId: "GTM-KKN2S8SP",
+    measurementId: "G-2QBE2SPWPG",
     storageKey: "spaplus-consent",
     grantedValue: "analytics",
   },
@@ -77,21 +80,35 @@ function hasConsent(site: AnalyticsSite) {
 
 function loadContainer(site: AnalyticsSite) {
   if (!isPublicSite(site) || !hasConsent(site)) return;
-  const { containerId } = analyticsConfig[site];
-  const scriptId = `spaplus-gtm-${site}`;
-  if (document.getElementById(scriptId)) return;
+  const { containerId, measurementId } = analyticsConfig[site];
+  const gtagScriptId = `spaplus-gtag-${site}`;
+  const containerScriptId = `spaplus-gtm-${site}`;
 
   gtag("consent", "update", consentState(true));
-  dataLayer().push({
-    event: "spaplus_analytics_ready",
-    analytics_site: site,
-  });
 
-  const script = document.createElement("script");
-  script.id = scriptId;
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(containerId)}`;
-  document.head.appendChild(script);
+  if (!document.getElementById(gtagScriptId)) {
+    gtag("js", new Date());
+    gtag("config", measurementId);
+
+    const gtagScript = document.createElement("script");
+    gtagScript.id = gtagScriptId;
+    gtagScript.async = true;
+    gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`;
+    document.head.appendChild(gtagScript);
+  }
+
+  if (!document.getElementById(containerScriptId)) {
+    dataLayer().push({
+      event: "spaplus_analytics_ready",
+      analytics_site: site,
+    });
+
+    const containerScript = document.createElement("script");
+    containerScript.id = containerScriptId;
+    containerScript.async = true;
+    containerScript.src = `https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(containerId)}`;
+    document.head.appendChild(containerScript);
+  }
 }
 
 export function initializeSpaPlusAnalytics(site: AnalyticsSite) {
