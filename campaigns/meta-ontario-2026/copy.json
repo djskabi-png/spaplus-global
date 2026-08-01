@@ -1,0 +1,54 @@
+{
+  "en-ca": {
+    "founding": {
+      "primary": "SpaPlus is coming to Ontario. We are inviting established spas, hotel spas, resort spas and destination wellness venues to join the founding list. Registration is free, with no commitment and no credit card required. Tell us about your spa and our team will review it within 72 hours.",
+      "headline": "Join the founding SpaPlus Ontario list",
+      "description": "Built for established spa businesses.",
+      "cta": "SIGN_UP"
+    },
+    "hotel_resort": {
+      "primary": "Give more guests a simple way to discover your spa. SpaPlus is preparing its Ontario launch and is now speaking with established hotel, resort, Nordic and destination spa operators. Join the early list at no cost and with no commitment.",
+      "headline": "Bring your Ontario spa to SpaPlus",
+      "description": "A new discovery and booking channel is coming.",
+      "cta": "LEARN_MORE"
+    },
+    "regional": {
+      "primary": "Ontario is next for SpaPlus. We are building a qualified founding group of established spa businesses across Toronto, the GTA, Niagara, Ottawa, Muskoka and Hamilton. Introduce your spa before the market opens.",
+      "headline": "Your region. Your spa. Ontario's next chapter.",
+      "description": "Free registration. No commitment. No credit card.",
+      "cta": "SIGN_UP"
+    },
+    "retargeting": {
+      "primary": "Still considering SpaPlus Ontario? Review how the launch will work and tell us about your spa. Registration is free, creates no commitment and takes only a few minutes.",
+      "headline": "Complete your SpaPlus Ontario registration",
+      "description": "Our team responds within 72 hours.",
+      "cta": "SIGN_UP"
+    }
+  },
+  "fr-ca": {
+    "founding": {
+      "primary": "SpaPlus arrive en Ontario. Nous invitons les spas établis, les spas hôteliers, les centres de villégiature avec spa ainsi que les établissements de mieux-être à se joindre à notre liste de partenaires fondateurs. L'inscription est gratuite, sans engagement et sans carte de crédit. Présentez-nous votre établissement. Notre équipe examinera votre demande dans un délai maximal de 72 heures.",
+      "headline": "Joignez la liste des spas fondateurs en Ontario",
+      "description": "Pour les établissements de spa reconnus.",
+      "cta": "SIGN_UP"
+    },
+    "hotel_resort": {
+      "primary": "Aidez davantage de clients à découvrir votre spa simplement. SpaPlus prépare son arrivée en Ontario et souhaite échanger avec des spas hôteliers, des centres de villégiature, des spas nordiques et des destinations mieux-être bien établis. Inscrivez-vous sans frais et sans engagement.",
+      "headline": "Faites découvrir votre spa ontarien sur SpaPlus",
+      "description": "Un nouveau canal de découverte et de réservation arrive.",
+      "cta": "LEARN_MORE"
+    },
+    "regional": {
+      "primary": "L'Ontario est la prochaine étape de SpaPlus. Nous formons un premier groupe de spas établis à Toronto, dans le Grand Toronto, à Niagara, à Ottawa, à Muskoka et à Hamilton. Présentez-nous votre établissement avant l'ouverture du marché.",
+      "headline": "Votre région. Votre spa. La prochaine étape.",
+      "description": "Inscription gratuite. Sans engagement. Sans carte de crédit.",
+      "cta": "SIGN_UP"
+    },
+    "retargeting": {
+      "primary": "Vous songez toujours à SpaPlus Ontario? Découvrez le fonctionnement du lancement et présentez-nous votre spa. L'inscription est gratuite, sans engagement et ne prend que quelques minutes.",
+      "headline": "Terminez votre inscription à SpaPlus Ontario",
+      "description": "Notre équipe vous répond dans un délai maximal de 72 heures.",
+      "cta": "SIGN_UP"
+    }
+  }
+}

@@ -671,7 +671,7 @@ test("Ontario early-access funnel is complete, bilingual, regional and launch-ga
   assert.match(client, /utm_campaign/);
   assert.match(client, /spaplus-consent/);
   assert.match(client, /Essential only/);
-  assert.match(client, /Allow analytics/);
+  assert.match(client, /Allow measurement/);
   assert.match(client, /spaplus:consent/);
   assert.match(client, /languageLinks\.map/);
   assert.match(client, /window\.location\.assign\(link\.href\)/);

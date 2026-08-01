@@ -10,7 +10,7 @@
     "build": "node scripts/generate-market-copy-manifest.mjs && node scripts/prepare-production-static.mjs && vinext build",
     "start": "vinext start",
     "generate:preview": "node scripts/generate-codepen-i18n.mjs && node scripts/generate-country-partner-pages.mjs && node scripts/generate-market-pages.mjs && node scripts/generate-language-routes.mjs && node scripts/generate-accessibility-pages.mjs",
-    "test": "pnpm run build && node --test tests/rendered-html.test.mjs",
+    "test": "pnpm run build && node --test tests/*.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"
   },

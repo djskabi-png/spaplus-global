@@ -61,7 +61,7 @@ export const en: Translation = {
   soloBody: "Sometimes the best plan is simply time to switch off and be looked after.",
   privacyTitle: "Privacy Policy",
   privacyBody:
-    "When you contact us, we collect the details you choose to provide so the SpaPlus team can respond, manage the enquiry and explore a possible business relationship. The information may be shared with relevant SpaPlus group companies, authorized team members and essential providers of hosting, security and email services, including providers outside your country. We do not sell personal information. We keep it only for as long as needed for these purposes, legal obligations and protection of our rights. You may ask to review, correct or delete your information through the contact form.",
+    "When you contact us, we collect the details you choose to provide so the SpaPlus team can respond, manage the enquiry and explore a possible business relationship. The information may be shared with relevant SpaPlus group companies, authorized team members and essential providers of hosting, security and email services, including providers outside your country. Optional analytics and advertising measurement from Google and Meta run only after consent. We do not sell personal information. We keep it only for as long as needed for these purposes, legal obligations and protection of our rights. You may ask to review, correct or delete your information through the contact form.",
   privacyConsent:
     "I have read the Privacy Policy and agree that my details may be shared with the SpaPlus team and essential service providers to handle my enquiry.",
   accessibilityTitle: "Accessibility Statement",

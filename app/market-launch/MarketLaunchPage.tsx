@@ -1781,8 +1781,8 @@ export default function MarketLaunchPage({
             <strong>{tr("Your privacy, your choice.", "Votre vie privée, votre choix.")}</strong>
             <p>
               {tr(
-                "Essential storage runs the site. Analytics runs only with your permission. Read our ",
-                "Le stockage essentiel fait fonctionner le site. Les outils d’analyse ne sont activés qu’avec votre permission. Consultez notre ",
+                "Essential storage runs the site. Analytics and advertising measurement run only with your permission. Read our ",
+                "Le stockage essentiel fait fonctionner le site. Les outils d’analyse et de mesure publicitaire ne sont activés qu’avec votre permission. Consultez notre ",
               )}
               <a
                 href={`${homeHref}#privacy`}
@@ -1799,7 +1799,7 @@ export default function MarketLaunchPage({
               {tr("Essential only", "Essentiels seulement")}
             </button>
             <button type="button" onClick={() => setConsent("analytics")}>
-              {tr("Allow analytics", "Autoriser l’analyse")}
+              {tr("Allow measurement", "Autoriser la mesure")}
             </button>
           </div>
         </aside>

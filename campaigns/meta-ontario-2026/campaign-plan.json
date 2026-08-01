@@ -1,0 +1,30 @@
+{
+  "account": {
+    "name": "SpaPlus Main",
+    "id": "1589838366042003",
+    "currency": "CAD"
+  },
+  "destination": "https://app.spaplus.co/en-ca/ontario",
+  "durationDays": 90,
+  "dailyBudgetPerCampaign": 10,
+  "maximumPlannedSpend": 7200,
+  "prefix": "ONTARIO | ADIR MADE, DO NOT DELETE",
+  "campaigns": [
+    {"key":"founding_fb","platform":"facebook","type":"founding_spa_partners","dailyBudget":10},
+    {"key":"founding_ig","platform":"instagram","type":"founding_spa_partners","dailyBudget":10},
+    {"key":"hotel_resort_fb","platform":"facebook","type":"hotel_and_resort_spas","dailyBudget":10},
+    {"key":"hotel_resort_ig","platform":"instagram","type":"hotel_and_resort_spas","dailyBudget":10},
+    {"key":"regional_fb","platform":"facebook","type":"regional_ontario","dailyBudget":10},
+    {"key":"regional_ig","platform":"instagram","type":"regional_ontario","dailyBudget":10},
+    {"key":"retargeting_fb","platform":"facebook","type":"retargeting","dailyBudget":10},
+    {"key":"retargeting_ig","platform":"instagram","type":"retargeting","dailyBudget":10}
+  ],
+  "regions": ["toronto", "greater-toronto-area", "niagara", "ottawa", "muskoka", "hamilton"],
+  "languages": ["en-ca", "fr-ca"],
+  "events": {
+    "primary": "Lead",
+    "formStart": "start_ontario_spa_form",
+    "formSubmit": "submit_ontario_spa_form"
+  },
+  "utmTemplate": "utm_source=meta&utm_medium=paid_social&utm_campaign=ontario_{campaign}_{platform}_{language}&utm_content={creative}_{placement}&utm_term={audience}"
+}

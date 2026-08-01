@@ -30,35 +30,35 @@
   {
     "field": "copy1ynuomf",
     "label": "Close navigation",
-    "group": "Navigation and accessibility",
+    "group": "Hero and launch status",
     "en": "Close navigation",
     "fr": "Fermer la navigation"
   },
   {
     "field": "copy1f2882l",
     "label": "Open navigation",
-    "group": "Navigation and accessibility",
+    "group": "Hero and launch status",
     "en": "Open navigation",
     "fr": "Ouvrir la navigation"
   },
   {
     "field": "copytsuatj",
     "label": "The platform",
-    "group": "Final call to action and footer",
+    "group": "Messages, cookies and page controls",
     "en": "The platform",
     "fr": "La plateforme"
   },
   {
     "field": "copy1lrzbkg",
     "label": "How it works",
-    "group": "Final call to action and footer",
+    "group": "Messages, cookies and page controls",
     "en": "How it works",
     "fr": "Fonctionnement"
   },
   {
     "field": "copy80mhlu",
     "label": "Questions",
-    "group": "Final call to action and footer",
+    "group": "Messages, cookies and page controls",
     "en": "Questions",
     "fr": "Questions"
   },
@@ -79,28 +79,28 @@
   {
     "field": "copy9by5jv",
     "label": "Registration terms",
-    "group": "Hero and launch status",
+    "group": "Growth and founding partner offer",
     "en": "Registration terms",
     "fr": "Conditions d’inscription"
   },
   {
     "field": "copylelnb4",
     "label": "No fee to register",
-    "group": "Hero and launch status",
+    "group": "Growth and founding partner offer",
     "en": "No fee to register",
     "fr": "Inscription gratuite"
   },
   {
     "field": "copyb1zb33",
     "label": "No commitment",
-    "group": "Hero and launch status",
+    "group": "Growth and founding partner offer",
     "en": "No commitment",
     "fr": "Sans engagement"
   },
   {
     "field": "copyq34vnv",
     "label": "No credit card",
-    "group": "Hero and launch status",
+    "group": "Growth and founding partner offer",
     "en": "No credit card",
     "fr": "Sans carte de crédit"
   },
@@ -198,35 +198,35 @@
   {
     "field": "copyek3su",
     "label": "Join before the launch",
-    "group": "Growth and founding partner offer",
+    "group": "Platform preview",
     "en": "Join before the launch",
     "fr": "Inscrivez-vous avant le lancement"
   },
   {
     "field": "copyfu2kb7",
     "label": "Get discovered by new guests",
-    "group": "Growth and founding partner offer",
+    "group": "Platform preview",
     "en": "Get discovered by new guests",
     "fr": "Faites-vous découvrir par de nouveaux clients"
   },
   {
     "field": "copyzu6jdo",
     "label": "Present the experiences, packages and occasions that make your spa worth choosing.",
-    "group": "Growth and founding partner offer",
+    "group": "Platform preview",
     "en": "Present the experiences, packages and occasions that make your spa worth choosing.",
     "fr": "Présentez les expériences, forfaits et occasions qui donnent envie de choisir votre spa."
   },
   {
     "field": "copyxct3g2",
     "label": "Review the offer before deciding",
-    "group": "Growth and founding partner offer",
+    "group": "Platform preview",
     "en": "Review the offer before deciding",
     "fr": "Voyez l’offre avant de décider"
   },
   {
     "field": "copyvzkil4",
     "label": "If the fit is right, we will explain the launch offer and next steps. You decide whether to continue.",
-    "group": "Growth and founding partner offer",
+    "group": "Platform preview",
     "en": "If the fit is right, we will explain the launch offer and next steps. You decide whether to continue.",
     "fr": "Si le partenariat semble prometteur, nous vous présenterons l’offre de lancement et la suite. La décision vous appartient."
   },
@@ -359,7 +359,7 @@
   {
     "field": "copyljbnj0",
     "label": "Explore",
-    "group": "Final call to action and footer",
+    "group": "Messages, cookies and page controls",
     "en": "Explore",
     "fr": "Explorer"
   },
@@ -408,70 +408,70 @@
   {
     "field": "copyl83yo4",
     "label": "Today at your spa",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "Today at your spa",
     "fr": "Aujourd’hui dans votre spa"
   },
   {
     "field": "copyj7t41b",
     "label": "LIVE",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "LIVE",
     "fr": "EN DIRECT"
   },
   {
     "field": "copya56axp",
     "label": "NEW REQUESTS",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "NEW REQUESTS",
     "fr": "NOUVELLES DEMANDES"
   },
   {
     "field": "copy1kocui6",
     "label": "CONFIRMED",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "CONFIRMED",
     "fr": "CONFIRMÉES"
   },
   {
     "field": "copymltjrc",
     "label": "Couples spa experience",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "Couples spa experience",
     "fr": "Expérience spa en couple"
   },
   {
     "field": "copy1ozyk5g",
     "label": "2 guests · Confirmation requested",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "2 guests · Confirmation requested",
     "fr": "2 personnes · Confirmation demandée"
   },
   {
     "field": "copytnr3lt",
     "label": "Review",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "Review",
     "fr": "Voir"
   },
   {
     "field": "copyvfo2eb",
     "label": "Day spa package",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "Day spa package",
     "fr": "Forfait spa de jour"
   },
   {
     "field": "copyu8qumc",
     "label": "1 guest · Confirmed",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "1 guest · Confirmed",
     "fr": "1 personne · Confirmée"
   },
   {
     "field": "copy39rjx0",
     "label": "Ready",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "Ready",
     "fr": "Prête"
   },
@@ -541,14 +541,14 @@
   {
     "field": "copy1vog3qb",
     "label": "THE OCCASIONS PEOPLE MAKE TIME FOR",
-    "group": "Proof and guest experiences",
+    "group": "Partner fit and launch areas",
     "en": "THE OCCASIONS PEOPLE MAKE TIME FOR",
     "fr": "LES OCCASIONS QUI MÉRITENT DU TEMPS"
   },
   {
     "field": "copyppfad7",
     "label": "Not one kind of guest. Not one kind of spa day.",
-    "group": "Proof and guest experiences",
+    "group": "Partner fit and launch areas",
     "en": "Not one kind of guest. Not one kind of spa day.",
     "fr": "Chaque client est différent. Chaque journée spa aussi."
   },
@@ -618,42 +618,42 @@
   {
     "field": "copyfk0g19",
     "label": "WHO WE WANT TO MEET",
-    "group": "Partner fit and launch areas",
+    "group": "Commercial model and process",
     "en": "WHO WE WANT TO MEET",
     "fr": "LES PARTENAIRES QUE NOUS RECHERCHONS"
   },
   {
     "field": "copy139ng65",
     "label": "Day spas with a physical commercial location",
-    "group": "Partner fit and launch areas",
+    "group": "Commercial model and process",
     "en": "Day spas with a physical commercial location",
     "fr": "Spas de jour ayant un établissement commercial"
   },
   {
     "field": "copy1redwle",
     "label": "Hotel, resort, Nordic and thermal spas",
-    "group": "Partner fit and launch areas",
+    "group": "Commercial model and process",
     "en": "Hotel, resort, Nordic and thermal spas",
     "fr": "Spas d’hôtel, de villégiature, nordiques et thermaux"
   },
   {
     "field": "copy13nx4gg",
     "label": "Wellness venues with bookable spa experiences",
-    "group": "Partner fit and launch areas",
+    "group": "Commercial model and process",
     "en": "Wellness venues with bookable spa experiences",
     "fr": "Établissements mieux-être proposant des expériences réservables"
   },
   {
     "field": "copyial08i",
     "label": "Multi-location groups preparing for their next growth channel",
-    "group": "Partner fit and launch areas",
+    "group": "Commercial model and process",
     "en": "Multi-location groups preparing for their next growth channel",
     "fr": "Groupes multisites prêts à développer un nouveau canal de croissance"
   },
   {
     "field": "copy1u6hg9c",
     "label": "SpaPlus is not currently onboarding individual mobile therapists, home-based services or solo private treatment rooms through this program.",
-    "group": "Partner fit and launch areas",
+    "group": "Commercial model and process",
     "en": "SpaPlus is not currently onboarding individual mobile therapists, home-based services or solo private treatment rooms through this program.",
     "fr": "Ce programme ne vise pas actuellement les thérapeutes mobiles indépendants, les services à domicile ni les salles de soins privées exploitées par une seule personne."
   },
@@ -758,56 +758,56 @@
   {
     "field": "copy2pbs9d",
     "label": "PAYMENT",
-    "group": "Commercial model and process",
+    "group": "Registration form",
     "en": "PAYMENT",
     "fr": "PAIEMENT"
   },
   {
     "field": "copy1s0cqxt",
     "label": "The guest chooses the available payment option",
-    "group": "Commercial model and process",
+    "group": "Registration form",
     "en": "The guest chooses the available payment option",
     "fr": "Le client choisit l’option de paiement offerte"
   },
   {
     "field": "copyrn6p36",
     "label": "For pay-at-spa bookings, the spa charges the guest. For prepaid bookings, SpaPlus processes the payment.",
-    "group": "Commercial model and process",
+    "group": "Registration form",
     "en": "For pay-at-spa bookings, the spa charges the guest. For prepaid bookings, SpaPlus processes the payment.",
     "fr": "Pour une réservation payable sur place, le spa facture le client. Pour une réservation prépayée, SpaPlus traite le paiement."
   },
   {
     "field": "copy101xvbe",
     "label": "SETTLEMENT",
-    "group": "Commercial model and process",
+    "group": "Registration form",
     "en": "SETTLEMENT",
     "fr": "RÈGLEMENT"
   },
   {
     "field": "copy5qwc69",
     "label": "One clear monthly picture",
-    "group": "Commercial model and process",
+    "group": "Registration form",
     "en": "One clear monthly picture",
     "fr": "Un portrait mensuel clair"
   },
   {
     "field": "copy11mlosg",
     "label": "A report shows what was charged, the applicable commission and the net balance to settle between the parties.",
-    "group": "Commercial model and process",
+    "group": "Registration form",
     "en": "A report shows what was charged, the applicable commission and the net balance to settle between the parties.",
     "fr": "Un rapport indique les montants facturés, la commission applicable et le solde net à régler entre les parties."
   },
   {
     "field": "copy16p0wv8",
     "label": "Built to become even easier",
-    "group": "Commercial model and process",
+    "group": "Registration form",
     "en": "Built to become even easier",
     "fr": "Pensé pour devenir encore plus simple"
   },
   {
     "field": "copy1pq3ocg",
     "label": "After the initial operating period, deeper calendar connections may allow full availability checks and more bookings to flow through automatically.",
-    "group": "Commercial model and process",
+    "group": "Registration form",
     "en": "After the initial operating period, deeper calendar connections may allow full availability checks and more bookings to flow through automatically.",
     "fr": "Après la période initiale, des connexions plus poussées aux calendriers pourront permettre la vérification complète des disponibilités et l’automatisation d’un plus grand nombre de réservations."
   },
@@ -835,7 +835,7 @@
   {
     "field": "copy139qwxb",
     "label": "Introduce your spa",
-    "group": "Final call to action and footer",
+    "group": "Messages, cookies and page controls",
     "en": "Introduce your spa",
     "fr": "Présenter votre spa"
   },
@@ -1045,28 +1045,28 @@
   {
     "field": "copyby43vy",
     "label": "Current booking system",
-    "group": "Registration form",
+    "group": "Frequently asked questions",
     "en": "Current booking system",
     "fr": "Système de réservation actuel"
   },
   {
     "field": "copy1yfbac9",
     "label": "Optional",
-    "group": "Registration form",
+    "group": "Frequently asked questions",
     "en": "Optional",
     "fr": "Facultatif"
   },
   {
     "field": "copy1jxjgx8",
     "label": "Anything we should know?",
-    "group": "Registration form",
+    "group": "Frequently asked questions",
     "en": "Anything we should know?",
     "fr": "Y a-t-il autre chose à savoir?"
   },
   {
     "field": "copy17cdbu9",
     "label": "Leave this field empty",
-    "group": "Registration form",
+    "group": "Frequently asked questions",
     "en": "Leave this field empty",
     "fr": "Laisser ce champ vide"
   },
@@ -1094,14 +1094,14 @@
   {
     "field": "copyf8wwfw",
     "label": "Sending your details...",
-    "group": "Frequently asked questions",
+    "group": "Final call to action and footer",
     "en": "Sending your details...",
     "fr": "Envoi de vos renseignements..."
   },
   {
     "field": "copy14yjwa6",
     "label": "Founding partner terms are not guaranteed. Any commercial offer will be shared separately in writing after a fit review.",
-    "group": "Frequently asked questions",
+    "group": "Final call to action and footer",
     "en": "Founding partner terms are not guaranteed. Any commercial offer will be shared separately in writing after a fit review.",
     "fr": "Les conditions de partenaire fondateur ne sont pas garanties. Toute offre commerciale sera transmise séparément par écrit après l’évaluation du partenariat."
   },
@@ -1185,35 +1185,35 @@
   {
     "field": "copyeorvln",
     "label": "Ontario page links",
-    "group": "Final call to action and footer",
+    "group": "Messages, cookies and page controls",
     "en": "Ontario page links",
     "fr": "Liens de la page Ontario"
   },
   {
     "field": "copyn8hgke",
     "label": "SpaPlus network links",
-    "group": "Final call to action and footer",
+    "group": "Messages, cookies and page controls",
     "en": "SpaPlus network links",
     "fr": "Liens du réseau SpaPlus"
   },
   {
     "field": "copy1ll48zb",
     "label": "SpaPlus network",
-    "group": "Final call to action and footer",
+    "group": "Messages, cookies and page controls",
     "en": "SpaPlus network",
     "fr": "Réseau SpaPlus"
   },
   {
     "field": "copy673qkk",
     "label": "SpaPlus Global",
-    "group": "Final call to action and footer",
+    "group": "Messages, cookies and page controls",
     "en": "SpaPlus Global",
     "fr": "SpaPlus mondial"
   },
   {
     "field": "copy10pysc5",
     "label": "SpaPlus Canada",
-    "group": "Final call to action and footer",
+    "group": "Messages, cookies and page controls",
     "en": "SpaPlus Canada",
     "fr": "SpaPlus Canada"
   },
@@ -1330,11 +1330,11 @@
     "fr": "Votre vie privée, votre choix."
   },
   {
-    "field": "copy81va7q",
-    "label": "Essential storage runs the site. Analytics runs only with your permission. Read our ",
+    "field": "copyauotwa",
+    "label": "Essential storage runs the site. Analytics and advertising measurement run only with your permission. Read our ",
     "group": "Messages, cookies and page controls",
-    "en": "Essential storage runs the site. Analytics runs only with your permission. Read our ",
-    "fr": "Le stockage essentiel fait fonctionner le site. Les outils d’analyse ne sont activés qu’avec votre permission. Consultez notre "
+    "en": "Essential storage runs the site. Analytics and advertising measurement run only with your permission. Read our ",
+    "fr": "Le stockage essentiel fait fonctionner le site. Les outils d’analyse et de mesure publicitaire ne sont activés qu’avec votre permission. Consultez notre "
   },
   {
     "field": "copy1o14qsb",
@@ -1344,11 +1344,11 @@
     "fr": "Essentiels seulement"
   },
   {
-    "field": "copy1nf768u",
-    "label": "Allow analytics",
+    "field": "copy10f4dyy",
+    "label": "Allow measurement",
     "group": "Messages, cookies and page controls",
-    "en": "Allow analytics",
-    "fr": "Autoriser l’analyse"
+    "en": "Allow measurement",
+    "fr": "Autoriser la mesure"
   },
   {
     "field": "heroEyebrow",

@@ -5,6 +5,8 @@ export type AnalyticsSite = "global" | "ontario";
 type AnalyticsValue = string | number | boolean;
 type AnalyticsParams = Record<string, AnalyticsValue | undefined>;
 
+const ontarioMetaPixelId = "2038670133405498";
+
 const analyticsConfig: Record<
   AnalyticsSite,
   {
@@ -32,6 +34,14 @@ declare global {
   interface Window {
     dataLayer?: unknown[];
     gtag?: (...args: unknown[]) => void;
+    fbq?: ((...args: unknown[]) => void) & {
+      callMethod?: (...args: unknown[]) => void;
+      push?: (...args: unknown[]) => void;
+      loaded?: boolean;
+      version?: string;
+      queue?: unknown[][];
+    };
+    _fbq?: Window["fbq"];
   }
 }
 
@@ -109,6 +119,42 @@ function loadContainer(site: AnalyticsSite) {
     containerScript.src = `https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(containerId)}`;
     document.head.appendChild(containerScript);
   }
+
+  if (site === "ontario") {
+    loadMetaPixel();
+  }
+}
+
+function loadMetaPixel() {
+  if (!isPublicSite("ontario") || !hasConsent("ontario")) return;
+
+  if (!window.fbq) {
+    const fbq = function (...args: unknown[]) {
+      if (fbq.callMethod) fbq.callMethod(...args);
+      else fbq.queue?.push(args);
+    } as NonNullable<Window["fbq"]>;
+    fbq.push = fbq;
+    fbq.loaded = true;
+    fbq.version = "2.0";
+    fbq.queue = [];
+    window.fbq = fbq;
+    window._fbq = fbq;
+  }
+
+  const scriptId = "spaplus-meta-pixel-ontario";
+  if (!document.getElementById(scriptId)) {
+    const script = document.createElement("script");
+    script.id = scriptId;
+    script.async = true;
+    script.src = "https://connect.facebook.net/en_US/fbevents.js";
+    document.head.appendChild(script);
+    window.fbq("init", ontarioMetaPixelId);
+    window.fbq("track", "PageView", {
+      market: "ontario",
+      province: "ontario",
+      funnel: "spa_partner_recruitment",
+    });
+  }
 }
 
 export function initializeSpaPlusAnalytics(site: AnalyticsSite) {
@@ -159,4 +205,19 @@ export function trackAnalyticsEvent(
     page_path: window.location.pathname,
     ...safeParams,
   });
+
+  if (site === "ontario" && window.fbq) {
+    const metaParams = {
+      market: "ontario",
+      province: "ontario",
+      funnel: "spa_partner_recruitment",
+      page_language: document.documentElement.lang || "",
+      ...safeParams,
+    };
+    if (eventName === "generate_lead") {
+      window.fbq("track", "Lead", metaParams);
+    } else {
+      window.fbq("trackCustom", eventName, metaParams);
+    }
+  }
 }
