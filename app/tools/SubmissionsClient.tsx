@@ -113,6 +113,11 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
   const [query, setQuery] = useState("");
   const [updatingId, setUpdatingId] = useState<number | null>(null);
 
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    document.documentElement.dir = locale === "he" ? "rtl" : "ltr";
+  }, [locale]);
+
   async function load() {
     setError("");
     try {

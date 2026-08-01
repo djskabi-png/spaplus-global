@@ -438,6 +438,8 @@ test("lead management provides a localized four-state operational dashboard", as
   assert.match(dashboard, /דשבורד לידים/);
   assert.match(dashboard, /Tableau de bord des prospects/);
   assert.match(dashboard, /normalizeSystemLocale\(systemLocale\)/);
+  assert.match(dashboard, /document\.documentElement\.lang = locale/);
+  assert.match(dashboard, /document\.documentElement\.dir = locale === "he" \? "rtl" : "ltr"/);
   assert.match(page, /normalizeSystemLocale\(admin\.systemLocale\)/);
   assert.match(page, /lang=\{systemLocale\}/);
   assert.match(systemLocale, /locale\.startsWith\("he-"\)/);
