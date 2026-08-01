@@ -2101,7 +2101,7 @@
   },
   {
     "field": "notificationRecipients",
-    "label": "Internal notification recipients",
+    "label": "Internal notification recipients, separated by commas",
     "group": "Email messages and delivery",
     "en": "",
     "fr": ""
@@ -2136,10 +2136,31 @@
   },
   {
     "field": "emailOwnerButton",
-    "label": "Internal email button",
+    "label": "Internal email page button",
     "group": "Email messages and delivery",
     "en": "Open the Ontario page",
     "fr": "Ouvrir la page Ontario"
+  },
+  {
+    "field": "emailOwnerReplyButton",
+    "label": "Internal email reply button",
+    "group": "Email messages and delivery",
+    "en": "Reply to spa",
+    "fr": "Répondre au spa"
+  },
+  {
+    "field": "emailOwnerReplySubject",
+    "label": "Prepared reply email subject",
+    "group": "Email messages and delivery",
+    "en": "SpaPlus Ontario | Your registration",
+    "fr": "SpaPlus Ontario | Votre inscription"
+  },
+  {
+    "field": "emailOwnerReplyBody",
+    "label": "Prepared reply email message",
+    "group": "Email messages and delivery",
+    "en": "Hello {{name}},\n\nThank you for registering {{organization}} for SpaPlus Ontario. We have received your details and will be in touch shortly.\n\nBest regards,\nSpaPlus Ontario",
+    "fr": "Bonjour {{name}},\n\nMerci d'avoir inscrit {{organization}} à SpaPlus Ontario. Nous avons reçu vos renseignements et nous communiquerons avec vous sous peu.\n\nCordialement,\nSpaPlus Ontario"
   },
   {
     "field": "emailOwnerFooter",

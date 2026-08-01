@@ -57,6 +57,7 @@ function shell({
   intro,
   body,
   buttonLabel,
+  buttonHref,
   languageTag,
   footerLine,
   companyName,
@@ -68,6 +69,7 @@ function shell({
   intro: string;
   body: string;
   buttonLabel: string;
+  buttonHref?: string;
   languageTag: string;
   footerLine: string;
   companyName: string;
@@ -114,7 +116,7 @@ function shell({
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top:28px;">
                 <tr>
                   <td style="border-radius:999px;background:#cf0e5a;">
-                    <a href="${pageUrl}" style="display:inline-block;padding:15px 25px;color:#ffffff;text-decoration:none;font-size:14px;line-height:1;font-weight:800;">${escapeHtml(buttonLabel)}</a>
+                    <a href="${escapeHtml(buttonHref || pageUrl)}" style="display:inline-block;padding:15px 25px;color:#ffffff;text-decoration:none;font-size:14px;line-height:1;font-weight:800;">${escapeHtml(buttonLabel)}</a>
                   </td>
                 </tr>
               </table>
@@ -143,6 +145,14 @@ function detailRow(label: string, value: string) {
   </tr>`;
 }
 
+function replyLink(
+  recipient: string,
+  subject: string,
+  body: string,
+) {
+  return `mailto:${encodeURIComponent(recipient)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
 export function buildMarketOwnerEmail(
   data: MarketLeadEmailData,
   context: MarketEmailContext,
@@ -152,10 +162,22 @@ export function buildMarketOwnerEmail(
   const campaign = Object.entries(data.campaign)
     .map(([key, value]) => `${key}: ${value}`)
     .join("\n");
+  const replySubject = message(
+    context,
+    "emailOwnerReplySubject",
+    "SpaPlus Ontario | Your registration",
+    values,
+  );
+  const replyBody = message(
+    context,
+    "emailOwnerReplyBody",
+    "Hello {{name}},\n\nThank you for registering {{organization}} for SpaPlus Ontario. We have received your details and will be in touch shortly.\n\nBest regards,\nSpaPlus Ontario",
+    values,
+  );
   const body = `
     <div style="margin:4px 0 20px;padding:16px 18px;border:1px solid #f4c8d9;border-radius:16px;background:#fff0f6;color:#192d4c;font-size:13px;line-height:1.6;">
       <strong>${escapeHtml(marketName)} founding spa lead</strong><br>
-      Replying to this email goes directly to ${escapeHtml(data.name)}.
+      Replying to this email goes directly to ${escapeHtml(data.name)}. The reply button below opens a prepared email to the spa contact.
     </div>
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border:1px solid #e1e6ed;border-radius:16px;border-collapse:separate;overflow:hidden;">
       ${detailRow("Spa", data.organization)}
@@ -209,7 +231,8 @@ export function buildMarketOwnerEmail(
       title: data.organization,
       intro: message(context, "emailOwnerIntro", `A spa has joined the ${marketName} founding partner list. The full enquiry is ready for review.`, values),
       body,
-      buttonLabel: message(context, "emailOwnerButton", `Open the ${marketName} page`, values),
+      buttonLabel: message(context, "emailOwnerReplyButton", "Reply to spa", values),
+      buttonHref: replyLink(data.email, replySubject, replyBody),
       languageTag: "en",
       footerLine: message(context, "emailOwnerFooter", "A better way to discover, book and enjoy spa experiences.", values),
       companyName: context.copy?.emailCompanyName || "Global Spa Management Ltd.",
