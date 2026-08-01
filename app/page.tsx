@@ -10,6 +10,11 @@ import {
   type Locale,
 } from "./i18n";
 import companyData from "./company-data.json";
+import {
+  initializeSpaPlusAnalytics,
+  setSpaPlusAnalyticsConsent,
+  trackAnalyticsEvent,
+} from "./analytics";
 
 const israelUrl = "https://www.spaplus.co.il/";
 const localeStorageKey = "spaplus-global-locale";
@@ -309,6 +314,7 @@ export default function Home() {
   >({});
   const shareToastTimerRef = useRef<number | null>(null);
   const successCloseRef = useRef<HTMLButtonElement>(null);
+  const contactStartedRef = useRef(false);
   const t = {
     ...translations[locale],
     ...(cmsOverrides.translation || {}),
@@ -327,6 +333,8 @@ export default function Home() {
       return () => window.cancelAnimationFrame(frame);
     }
   }, []);
+
+  useEffect(() => initializeSpaPlusAnalytics("global"), []);
   const showcase = productShowcase[locale];
   const canadaUrl = "#contact";
 
@@ -458,9 +466,15 @@ export default function Home() {
   const saveCookieConsent = (consent: "all" | "essential") => {
     window.localStorage.setItem(cookieConsentStorageKey, consent);
     document.documentElement.dataset.cookieConsent = consent;
+    setSpaPlusAnalyticsConsent("global", consent === "all");
     window.dispatchEvent(
       new CustomEvent("spaplus:consent-changed", { detail: { consent } }),
     );
+    if (consent === "all") {
+      trackAnalyticsEvent("global", "cookie_consent_update", {
+        consent_choice: "analytics",
+      });
+    }
     setCookieBannerVisible(false);
   };
   const openLegalSection = (id: string) => {
@@ -494,6 +508,7 @@ export default function Home() {
     showShareToast();
   };
   const shareCurrentPage = async () => {
+    trackAnalyticsEvent("global", "share_click", { share_method: "native_or_copy" });
     if (navigator.share) {
       try {
         await navigator.share({
@@ -522,6 +537,7 @@ export default function Home() {
     const submissionId = crypto.randomUUID();
 
     setFormStatus("sending");
+    trackAnalyticsEvent("global", "contact_form_submit", { contact_topic: topic });
     try {
       const response = await fetch(contactFormEndpoint, {
         method: "POST",
@@ -548,8 +564,13 @@ export default function Home() {
       }
       form.reset();
       setFormStatus("success");
+      trackAnalyticsEvent("global", "generate_lead", {
+        lead_type: "global_contact",
+        contact_topic: topic,
+      });
     } catch {
       setFormStatus("error");
+      trackAnalyticsEvent("global", "contact_form_error", { contact_topic: topic });
     }
   };
 
@@ -591,7 +612,14 @@ export default function Home() {
             <select
               value={locale}
               aria-label={t.languageLabel}
-              onChange={(event) => setLocale(event.target.value as Locale)}
+              onChange={(event) => {
+                const nextLocale = event.target.value as Locale;
+                trackAnalyticsEvent("global", "language_change", {
+                  from_language: locale,
+                  to_language: nextLocale,
+                });
+                setLocale(nextLocale);
+              }}
             >
               {localeOptions.map((option) => (
                 <option key={option.code} value={option.code}>
@@ -1103,7 +1131,17 @@ export default function Home() {
             </div>
           </div>
 
-          <form key={locale} className="contact-form" onSubmit={submitContactForm} data-reveal>
+          <form
+            key={locale}
+            className="contact-form"
+            onSubmit={submitContactForm}
+            onFocus={() => {
+              if (contactStartedRef.current) return;
+              contactStartedRef.current = true;
+              trackAnalyticsEvent("global", "contact_form_start");
+            }}
+            data-reveal
+          >
             <label className="form-honey" aria-hidden="true">
               <span>Leave this field empty</span>
               <input name="_honey" type="text" tabIndex={-1} autoComplete="off" />

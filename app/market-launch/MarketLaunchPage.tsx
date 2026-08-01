@@ -9,6 +9,11 @@ import {
 } from "react";
 import styles from "./market-launch.module.css";
 import { marketCopyFieldKey } from "./market-copy";
+import {
+  initializeSpaPlusAnalytics,
+  setSpaPlusAnalyticsConsent,
+  trackAnalyticsEvent,
+} from "../analytics";
 
 type SubmitState = "idle" | "submitting" | "success" | "error";
 
@@ -130,12 +135,7 @@ function track(event: string, data: Record<string, string> = {}) {
       detail: { event, ...data },
     }),
   );
-  const candidate = window as Window & {
-    dataLayer?: Array<Record<string, string>>;
-  };
-  if (window.localStorage.getItem("spaplus-consent") === "analytics") {
-    candidate.dataLayer?.push({ event, ...data });
-  }
+  trackAnalyticsEvent("ontario", event, data);
 }
 
 export default function MarketLaunchPage({
@@ -238,7 +238,17 @@ export default function MarketLaunchPage({
   }, [languageTag]);
 
   useEffect(() => {
-    setShowCookieConsent(!window.localStorage.getItem("spaplus-consent"));
+    return initializeSpaPlusAnalytics("ontario");
+  }, []);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      setShowCookieConsent(!window.localStorage.getItem("spaplus-consent"));
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
     track(`view_${eventPrefix}_launch`, {
       market: marketSlug,
       language: locale,
@@ -331,6 +341,7 @@ export default function MarketLaunchPage({
   function setConsent(value: "essential" | "analytics") {
     window.localStorage.setItem("spaplus-consent", value);
     setShowCookieConsent(false);
+    setSpaPlusAnalyticsConsent("ontario", value === "analytics");
     window.dispatchEvent(
       new CustomEvent("spaplus:consent", {
         detail: { analytics: value === "analytics" },
@@ -361,6 +372,10 @@ export default function MarketLaunchPage({
     const services = values.getAll("services").map(String);
     if (services.length === 0) {
       setSubmitState("error");
+      track("spa_registration_error", {
+        market: marketSlug,
+        error_type: "missing_services",
+      });
       setErrorMessage(
         tr(
           "Please choose at least one main service.",
@@ -419,8 +434,17 @@ export default function MarketLaunchPage({
         market: marketSlug,
         lead_type: "spa_partner",
       });
+      track("generate_lead", {
+        market: marketSlug,
+        lead_type: "spa_partner",
+        area: selectedArea?.slug || "ontario",
+      });
     } catch {
       setSubmitState("error");
+      track("spa_registration_error", {
+        market: marketSlug,
+        error_type: "submission_failed",
+      });
       setErrorMessage(
         tr(
           "We could not send your details right now. Please try again in a moment.",
@@ -537,6 +561,11 @@ export default function MarketLaunchPage({
                 onClick={(event) => {
                   event.preventDefault();
                   setMenuOpen(false);
+                  track("language_change", {
+                    market: marketSlug,
+                    from_language: languageTag,
+                    to_language: link.languageTag,
+                  });
                   window.location.assign(link.href);
                 }}
               >

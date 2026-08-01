@@ -342,6 +342,26 @@ test("cookie consent is localized, persistent and available on every page", asyn
   assert.match(partnerScript, /cookieBanner\.hidden = true/);
 });
 
+test("analytics is separated by site and remains blocked until consent", async () => {
+  const [analytics, globalPage, ontarioPage] = await Promise.all([
+    read("app/analytics.ts"),
+    read("app/page.tsx"),
+    read("app/market-launch/MarketLaunchPage.tsx"),
+  ]);
+
+  assert.match(analytics, /GTM-TRNPLFMK/);
+  assert.match(analytics, /GTM-KKN2S8SP/);
+  assert.match(analytics, /hostname === "spaplus\.co"/);
+  assert.match(analytics, /hostname === "app\.spaplus\.co"/);
+  assert.match(analytics, /analytics_storage: granted \? "granted" : "denied"/);
+  assert.match(analytics, /ad_storage: "denied"/);
+  assert.match(analytics, /if \(!isPublicSite\(site\) \|\| !hasConsent\(site\)\) return/);
+  assert.match(globalPage, /initializeSpaPlusAnalytics\("global"\)/);
+  assert.match(globalPage, /trackAnalyticsEvent\("global", "generate_lead"/);
+  assert.match(ontarioPage, /initializeSpaPlusAnalytics\("ontario"\)/);
+  assert.match(ontarioPage, /track\("generate_lead"/);
+});
+
 test("every target market has English pages and every page template has Coming Soon links", async () => {
   const englishMarkets = [
     ["en-us", "united-states", "en-us/spas/join"],
