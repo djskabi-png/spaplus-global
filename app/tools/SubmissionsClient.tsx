@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { normalizeSystemLocale } from "../system-locale";
 
 type StoredStatus = "new" | "in_progress" | "closed" | "won" | "irrelevant" | "deleted";
 type DashboardStatus = "new" | "won" | "irrelevant" | "deleted";
@@ -102,7 +103,7 @@ function normalizeStatus(status: StoredStatus): DashboardStatus {
 }
 
 export default function SubmissionsClient({ systemLocale }: { systemLocale: string }) {
-  const locale = systemLocale === "he" || systemLocale === "fr-CA" ? systemLocale : "en";
+  const locale = normalizeSystemLocale(systemLocale);
   const t = copy[locale];
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);

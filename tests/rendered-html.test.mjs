@@ -416,9 +416,11 @@ test("management permissions fail closed and leads are scoped by market", async 
   assert.match(worker, /assetResponse\.status !== 404/);
 });
 
-test("lead management provides a four-state operational dashboard", async () => {
-  const [dashboard, route, schema, styles] = await Promise.all([
+test("lead management provides a localized four-state operational dashboard", async () => {
+  const [dashboard, page, systemLocale, route, schema, styles] = await Promise.all([
     read("app/tools/SubmissionsClient.tsx"),
+    read("app/tools/page.tsx"),
+    read("app/system-locale.ts"),
     read("app/api/cms/submissions/route.ts"),
     read("db/schema.ts"),
     read("app/tools/leads.css"),
@@ -433,6 +435,13 @@ test("lead management provides a four-state operational dashboard", async () => 
   assert.match(dashboard, /setStatusFilter\("all"\)/);
   assert.match(dashboard, /type="search"/);
   assert.match(dashboard, /Deleted leads remain available here and can be restored/);
+  assert.match(dashboard, /דשבורד לידים/);
+  assert.match(dashboard, /Tableau de bord des prospects/);
+  assert.match(dashboard, /normalizeSystemLocale\(systemLocale\)/);
+  assert.match(page, /normalizeSystemLocale\(admin\.systemLocale\)/);
+  assert.match(page, /lang=\{systemLocale\}/);
+  assert.match(systemLocale, /locale\.startsWith\("he-"\)/);
+  assert.match(systemLocale, /locale\.startsWith\("fr-"\)/);
   assert.match(route, /manageLeads/);
   assert.doesNotMatch(route, /export async function DELETE/);
   assert.match(styles, /grid-template-columns:repeat\(4/);
