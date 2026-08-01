@@ -181,7 +181,9 @@ export default function MarketLaunchPage({
   const dynamicCopy = (field: string, english: string, french: string) =>
     managed(field, isFrench ? french : english);
   const formFlag = (field: string, fallback: boolean) => {
-    const value = managed(field, fallback ? "true" : "false").toLowerCase();
+    // Form behaviour is shared by the Ontario page and its city pages.
+    // City copy can remain specific while visibility and validation stay consistent.
+    const value = (cmsCopy[field] || (fallback ? "true" : "false")).toLowerCase();
     return value === "true";
   };
   const fieldVisible = (field: string) => formFlag(`formField${field}Visible`, true);
@@ -209,7 +211,6 @@ export default function MarketLaunchPage({
   }, [languageTag]);
 
   useEffect(() => {
-    if (selectedArea) return;
     const fallbackTitle = isFrench
       ? "SpaPlus arrive en Ontario | Spas partenaires fondateurs"
       : "SpaPlus is coming to Ontario | Founding spa partners";
@@ -1426,14 +1427,14 @@ export default function MarketLaunchPage({
           {fieldVisible("BookingSystem") ? <div className={styles.field}>
             <label htmlFor="bookingSystem">
               {tr("Current booking system", "Système de réservation actuel")}{" "}
-              <span>{tr("Optional", "Facultatif")}</span>
+              <span>{fieldRequired("BookingSystem", false) ? tr("Required", "Obligatoire") : tr("Optional", "Facultatif")}</span>
             </label>
             <input id="bookingSystem" name="bookingSystem" required={fieldRequired("BookingSystem", false)} maxLength={120} />
           </div> : null}
           {fieldVisible("Message") ? <div className={`${styles.field} ${styles.fullField}`}>
             <label htmlFor="message">
               {tr("Anything we should know?", "Y a-t-il autre chose à savoir?")}{" "}
-              <span>{tr("Optional", "Facultatif")}</span>
+              <span>{fieldRequired("Message", false) ? tr("Required", "Obligatoire") : tr("Optional", "Facultatif")}</span>
             </label>
             <textarea id="message" name="message" required={fieldRequired("Message", false)} rows={5} maxLength={1500} />
           </div> : null}

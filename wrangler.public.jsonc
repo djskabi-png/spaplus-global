@@ -11,6 +11,13 @@
     }
   ],
   "workers_dev": true,
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "spaplus-global-production",
+      "database_id": "72b69593-1268-48a9-90fa-2a73dc1fd7c7"
+    }
+  ],
   "assets": {
     "directory": "dist/client",
     "binding": "ASSETS",

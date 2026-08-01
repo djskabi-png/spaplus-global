@@ -380,7 +380,7 @@
   {
     "field": "copy1cz9wro",
     "label": "More than a treatment",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "More than a treatment",
     "fr": "Bien plus qu’un soin"
   },
@@ -1048,6 +1048,13 @@
     "group": "Frequently asked questions",
     "en": "Current booking system",
     "fr": "Système de réservation actuel"
+  },
+  {
+    "field": "copymq0cow",
+    "label": "Required",
+    "group": "Frequently asked questions",
+    "en": "Required",
+    "fr": "Obligatoire"
   },
   {
     "field": "copy1yfbac9",
@@ -1993,6 +2000,104 @@
     "group": "Registration form settings",
     "en": "false",
     "fr": "false"
+  },
+  {
+    "field": "spaTypeHotelResortEnabled",
+    "label": "Show spa type option: hotel or resort spa",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "spaTypeDaySpaEnabled",
+    "label": "Show spa type option: day spa",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "spaTypeThermalNordicEnabled",
+    "label": "Show spa type option: thermal or Nordic spa",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "spaTypeDestinationEnabled",
+    "label": "Show spa type option: destination spa",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "spaTypeWellnessCentreEnabled",
+    "label": "Show spa type option: wellness centre",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "spaTypeOtherEstablishedEnabled",
+    "label": "Show spa type option: other established spa",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "serviceMassageEnabled",
+    "label": "Show service option: massage",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "serviceFacialsEnabled",
+    "label": "Show service option: facials and skincare",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "serviceBodyTreatmentsEnabled",
+    "label": "Show service option: body treatments",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "serviceThermalNordicEnabled",
+    "label": "Show service option: thermal or Nordic experience",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "serviceCouplesEnabled",
+    "label": "Show service option: couples experiences",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "serviceGroupsEnabled",
+    "label": "Show service option: group experiences",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "serviceDayPassesEnabled",
+    "label": "Show service option: day passes",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "serviceSpaStaysEnabled",
+    "label": "Show service option: spa stays",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
   },
   {
     "field": "notificationRecipients",
