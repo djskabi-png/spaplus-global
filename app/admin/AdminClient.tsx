@@ -131,6 +131,8 @@ const marketGroupLabels: Record<string, { en: string; he: string; "fr-CA": strin
   "Partner fit and launch areas": { en: "Partner fit and launch areas", he: "התאמת שותפים ואזורי השקה", "fr-CA": "Profil des partenaires et zones de lancement" },
   "Commercial model and process": { en: "Commercial model and process", he: "מודל מסחרי ותהליך", "fr-CA": "Modèle commercial et processus" },
   "Registration form": { en: "Registration form", he: "טופס הרשמה", "fr-CA": "Formulaire d’inscription" },
+  "Registration form settings": { en: "Registration form settings", he: "הגדרות טופס ההרשמה", "fr-CA": "Réglages du formulaire d’inscription" },
+  "Email messages and delivery": { en: "Email messages and delivery", he: "הודעות מייל ושליחה", "fr-CA": "Courriels et livraison" },
   "Frequently asked questions": { en: "Frequently asked questions", he: "שאלות נפוצות", "fr-CA": "Questions fréquentes" },
   "Final call to action and footer": { en: "Final call to action and footer", he: "קריאה אחרונה לפעולה ופוטר", "fr-CA": "Appel final et pied de page" },
   "Messages, cookies and page controls": { en: "Messages, cookies and page controls", he: "הודעות, קוקיז וכלי עמוד", "fr-CA": "Messages, témoins et contrôles" },
@@ -360,7 +362,8 @@ export default function AdminClient({
                 const key = `${group.section}.${field}`;
                 const value = drafts[key] ?? existing[key] ?? defaultValue(group.section, field);
                 const showDescription = Boolean(description && description !== label);
-                return <label key={key}><span>{showDescription ? description : label}</span>{showDescription ? <small>{label}</small> : null}<textarea value={value} rows={value.length > 130 ? 5 : 2} disabled={contentLoading || !can(resourceKey, "canEditContent")} onChange={(event) => setDrafts((current) => ({ ...current, [key]: event.target.value }))} />
+                const isToggle = /(?:Visible|Required|Enabled)$/.test(field);
+                return <label key={key}><span>{showDescription ? description : label}</span>{showDescription ? <small>{label}</small> : null}{isToggle ? <input type="checkbox" checked={value === "true"} disabled={contentLoading || !can(resourceKey, "canEditContent")} onChange={(event) => setDrafts((current) => ({ ...current, [key]: event.target.checked ? "true" : "false" }))} /> : <textarea value={value} rows={value.length > 130 ? 5 : 2} disabled={contentLoading || !can(resourceKey, "canEditContent")} onChange={(event) => setDrafts((current) => ({ ...current, [key]: event.target.value }))} />}
                   {can(resourceKey, "canEditContent") ? <button type="button" disabled={contentLoading} onClick={() => void save(group.section, field)}>{t.save}</button> : null}
                 </label>;
               })}

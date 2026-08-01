@@ -25,7 +25,15 @@ export type MarketEmailContext = {
   pageUrl: string;
   reviewWindowHours: number;
   languageTag: string;
+  copy?: Record<string, string>;
 };
+
+const message = (
+  context: MarketEmailContext,
+  key: string,
+  fallback: string,
+  values: Record<string, string | number> = {},
+) => (context.copy?.[key] || fallback).replace(/\{\{([a-zA-Z]+)\}\}/g, (_match, name: string) => String(values[name] ?? ""));
 
 const logoUrl = "https://spaplus.co/spaplus-wordmark.png";
 const markUrl = "https://spaplus.co/spaplus-mark.png";
@@ -51,6 +59,7 @@ function shell({
   buttonLabel,
   languageTag,
   footerLine,
+  companyName,
 }: {
   pageUrl: string;
   preheader: string;
@@ -61,6 +70,7 @@ function shell({
   buttonLabel: string;
   languageTag: string;
   footerLine: string;
+  companyName: string;
 }) {
   return `<!doctype html>
 <html lang="${escapeHtml(languageTag)}">
@@ -114,7 +124,7 @@ function shell({
             <td style="padding:24px 34px;background:#192d4c;color:#b7c2d2;font-size:11px;line-height:1.7;">
               <strong style="color:#ffffff;">SpaPlus</strong><br>
               ${escapeHtml(footerLine)}<br>
-              Global Spa Management Ltd.
+              ${escapeHtml(companyName)}
             </td>
           </tr>
         </table>
@@ -138,6 +148,7 @@ export function buildMarketOwnerEmail(
   context: MarketEmailContext,
 ) {
   const { marketName, pageUrl } = context;
+  const values = { name: data.name, organization: data.organization, hours: context.reviewWindowHours, market: marketName };
   const campaign = Object.entries(data.campaign)
     .map(([key, value]) => `${key}: ${value}`)
     .join("\n");
@@ -165,7 +176,7 @@ export function buildMarketOwnerEmail(
       ${detailRow("Campaign", campaign || "Direct or untagged")}
       ${detailRow("Source", data.source)}
     </table>`;
-  const subject = `${marketName} spa lead: ${data.organization} | SpaPlus`;
+  const subject = message(context, "emailOwnerSubject", `${marketName} spa lead: {{organization}} | SpaPlus`, values);
   const text = [
     `New ${marketName} founding spa lead`,
     "",
@@ -194,14 +205,14 @@ export function buildMarketOwnerEmail(
     html: shell({
       pageUrl,
       preheader: `${data.organization} joined the ${marketName} early-access list.`,
-      eyebrow: `NEW ${marketName.toUpperCase()} SPA LEAD`,
+      eyebrow: message(context, "emailOwnerEyebrow", `NEW ${marketName.toUpperCase()} SPA LEAD`, values),
       title: data.organization,
-      intro:
-        `A spa has joined the ${marketName} founding partner list. The full enquiry is ready for review.`,
+      intro: message(context, "emailOwnerIntro", `A spa has joined the ${marketName} founding partner list. The full enquiry is ready for review.`, values),
       body,
-      buttonLabel: `Open the ${marketName} page`,
+      buttonLabel: message(context, "emailOwnerButton", `Open the ${marketName} page`, values),
       languageTag: "en",
-      footerLine: "A better way to discover, book and enjoy spa experiences.",
+      footerLine: message(context, "emailOwnerFooter", "A better way to discover, book and enjoy spa experiences.", values),
+      companyName: context.copy?.emailCompanyName || "Global Spa Management Ltd.",
     }),
   };
 }
@@ -211,6 +222,7 @@ export function buildMarketVisitorEmail(
   context: MarketEmailContext,
 ) {
   const { marketName, pageUrl, reviewWindowHours, languageTag } = context;
+  const values = { name: data.name, organization: data.organization, hours: reviewWindowHours, market: marketName };
   const isFrench = languageTag.toLowerCase().startsWith("fr");
   if (isFrench) {
     const preferredContact =
@@ -221,8 +233,8 @@ export function buildMarketVisitorEmail(
           : data.preferredContact;
     const body = `
       <div style="margin:4px 0 22px;padding:19px;border:1px solid #f4c8d9;border-radius:16px;background:#fff0f6;">
-        <strong style="display:block;margin-bottom:7px;color:#192d4c;font-size:14px;">La suite</strong>
-        <p style="margin:0;color:#5d6a7d;font-size:13px;line-height:1.7;">Nous examinerons votre spa, son emplacement et ses services. Un membre de l’équipe SpaPlus communiquera avec vous dans un délai de ${reviewWindowHours} heures selon votre méthode de contact préférée.</p>
+        <strong style="display:block;margin-bottom:7px;color:#192d4c;font-size:14px;">${escapeHtml(message(context, "emailVisitorNextTitle", "La suite", values))}</strong>
+        <p style="margin:0;color:#5d6a7d;font-size:13px;line-height:1.7;">${escapeHtml(message(context, "emailVisitorNextBody", `Nous examinerons votre spa, son emplacement et ses services. Un membre de l’équipe SpaPlus communiquera avec vous dans un délai de {{hours}} heures selon votre méthode de contact préférée.`, values))}</p>
       </div>
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border:1px solid #e1e6ed;border-radius:16px;border-collapse:separate;overflow:hidden;">
         ${detailRow("Spa", data.organization)}
@@ -231,7 +243,7 @@ export function buildMarketVisitorEmail(
         ${detailRow("Contact préféré", preferredContact)}
       </table>
       <p style="margin:22px 0 0;color:#5d6a7d;font-size:12px;line-height:1.7;">Cette inscription exprime seulement votre intérêt. Elle ne crée aucun engagement, ne demande aucun paiement et ne recueille aucun renseignement de carte de crédit. Toute offre de lancement vous sera expliquée séparément avant que vous décidiez d’aller de l’avant.</p>`;
-    const subject = `Votre spa est sur la liste prioritaire de l’${marketName} | SpaPlus`;
+    const subject = message(context, "emailVisitorSubject", `Votre spa est sur la liste prioritaire de l’${marketName} | SpaPlus`, values);
     const text = [
       `Merci, ${data.name}.`,
       "",
@@ -248,20 +260,21 @@ export function buildMarketVisitorEmail(
       html: shell({
         pageUrl,
         preheader: `Votre spa est sur la liste prioritaire SpaPlus pour l’${marketName}. Nous communiquerons avec vous dans un délai de ${reviewWindowHours} heures.`,
-        eyebrow: `ACCÈS PRIORITAIRE ${marketName.toUpperCase()}`,
-        title: `Merci, ${data.name}.`,
-        intro: `${data.organization} est maintenant sur la liste prioritaire SpaPlus pour l’${marketName}.`,
+        eyebrow: message(context, "emailVisitorEyebrow", `ACCÈS PRIORITAIRE ${marketName.toUpperCase()}`, values),
+        title: message(context, "emailVisitorTitle", `Merci, {{name}}.`, values),
+        intro: message(context, "emailVisitorIntro", `${data.organization} est maintenant sur la liste prioritaire SpaPlus pour l’${marketName}.`, values),
         body,
-        buttonLabel: `Retourner à SpaPlus ${marketName}`,
+        buttonLabel: message(context, "emailVisitorButton", `Retourner à SpaPlus ${marketName}`, values),
         languageTag: "fr-CA",
-        footerLine: "Une meilleure façon de découvrir, réserver et vivre des expériences spa.",
+        footerLine: message(context, "emailVisitorFooter", "Une meilleure façon de découvrir, réserver et vivre des expériences spa.", values),
+        companyName: context.copy?.emailCompanyName || "Global Spa Management Ltd.",
       }),
     };
   }
   const body = `
     <div style="margin:4px 0 22px;padding:19px;border:1px solid #f4c8d9;border-radius:16px;background:#fff0f6;">
-      <strong style="display:block;margin-bottom:7px;color:#192d4c;font-size:14px;">What happens next</strong>
-      <p style="margin:0;color:#5d6a7d;font-size:13px;line-height:1.7;">We will review your spa, location and services. A member of the SpaPlus team will contact you within ${reviewWindowHours} hours using your preferred contact method.</p>
+      <strong style="display:block;margin-bottom:7px;color:#192d4c;font-size:14px;">${escapeHtml(message(context, "emailVisitorNextTitle", "What happens next", values))}</strong>
+      <p style="margin:0;color:#5d6a7d;font-size:13px;line-height:1.7;">${escapeHtml(message(context, "emailVisitorNextBody", "We will review your spa, location and services. A member of the SpaPlus team will contact you within {{hours}} hours using your preferred contact method.", values))}</p>
     </div>
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border:1px solid #e1e6ed;border-radius:16px;border-collapse:separate;overflow:hidden;">
       ${detailRow("Spa", data.organization)}
@@ -270,7 +283,7 @@ export function buildMarketVisitorEmail(
       ${detailRow("Preferred contact", data.preferredContact)}
     </table>
     <p style="margin:22px 0 0;color:#5d6a7d;font-size:12px;line-height:1.7;">This registration is an expression of interest only. It creates no commitment, requires no payment and does not request credit card information. Any launch offer will be explained separately before you decide whether to continue.</p>`;
-  const subject = `Your spa is on the ${marketName} early list | SpaPlus`;
+  const subject = message(context, "emailVisitorSubject", `Your spa is on the ${marketName} early list | SpaPlus`, values);
   const text = [
     `Thank you, ${data.name}.`,
     "",
@@ -288,13 +301,14 @@ export function buildMarketVisitorEmail(
     html: shell({
       pageUrl,
       preheader: `Your spa is on the SpaPlus ${marketName} early-access list. We will contact you within ${reviewWindowHours} hours.`,
-      eyebrow: `${marketName.toUpperCase()} EARLY ACCESS`,
-      title: `Thank you, ${data.name}.`,
-      intro: `${data.organization} is now on the SpaPlus ${marketName} early-access list.`,
+      eyebrow: message(context, "emailVisitorEyebrow", `${marketName.toUpperCase()} EARLY ACCESS`, values),
+      title: message(context, "emailVisitorTitle", `Thank you, {{name}}.`, values),
+      intro: message(context, "emailVisitorIntro", `${data.organization} is now on the SpaPlus ${marketName} early-access list.`, values),
       body,
-      buttonLabel: `Return to SpaPlus ${marketName}`,
+      buttonLabel: message(context, "emailVisitorButton", `Return to SpaPlus ${marketName}`, values),
       languageTag: "en-CA",
-      footerLine: "A better way to discover, book and enjoy spa experiences.",
+      footerLine: message(context, "emailVisitorFooter", "A better way to discover, book and enjoy spa experiences.", values),
+      companyName: context.copy?.emailCompanyName || "Global Spa Management Ltd.",
     }),
   };
 }

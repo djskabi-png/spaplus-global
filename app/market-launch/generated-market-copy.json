@@ -184,14 +184,14 @@
   {
     "field": "copyajpmsl",
     "label": "Better spa experiences for guests. New opportunities for Ontario spas.",
-    "group": "Growth and founding partner offer",
+    "group": "Platform preview",
     "en": "Better spa experiences for guests. New opportunities for Ontario spas.",
     "fr": "De meilleures expériences spa pour les clients. De nouvelles possibilités pour les spas de l’Ontario."
   },
   {
     "field": "copy1yaryd7",
     "label": "SpaPlus brings discovery, offers and booking into one focused spa platform. Guests get a simpler way to find an experience worth making time for. Spa partners get a new channel designed around the way spa businesses actually work.",
-    "group": "Growth and founding partner offer",
+    "group": "Platform preview",
     "en": "SpaPlus brings discovery, offers and booking into one focused spa platform. Guests get a simpler way to find an experience worth making time for. Spa partners get a new channel designed around the way spa businesses actually work.",
     "fr": "SpaPlus réunit la découverte, les offres et la réservation dans une plateforme entièrement consacrée au spa. Les clients trouvent plus facilement une expérience qui vaut le détour. Les partenaires obtiennent un nouveau canal pensé selon la réalité des entreprises de spa."
   },
@@ -387,21 +387,21 @@
   {
     "field": "copyvdumy9",
     "label": "SOLO RESET",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "SOLO RESET",
     "fr": "PAUSE EN SOLO"
   },
   {
     "field": "copyboo9cb",
     "label": "Time that is entirely yours",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "Time that is entirely yours",
     "fr": "Du temps rien que pour vous"
   },
   {
     "field": "copy14u16ku",
     "label": "PARTNER VIEW",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "PARTNER VIEW",
     "fr": "ESPACE PARTENAIRE"
   },
@@ -604,14 +604,14 @@
   {
     "field": "copya6poqa",
     "label": "For the whole day",
-    "group": "Partner fit and launch areas",
+    "group": "Commercial model and process",
     "en": "For the whole day",
     "fr": "Pour toute la journée"
   },
   {
     "field": "copy16x509p",
     "label": "Day passes, thermal experiences, resort spas and spa stays.",
-    "group": "Partner fit and launch areas",
+    "group": "Commercial model and process",
     "en": "Day passes, thermal experiences, resort spas and spa stays.",
     "fr": "Accès à la journée, expériences thermales, centres de villégiature et séjours spa."
   },
@@ -737,21 +737,21 @@
   {
     "field": "copy1cb7bjk",
     "label": "BOOKING",
-    "group": "Commercial model and process",
+    "group": "Registration form",
     "en": "BOOKING",
     "fr": "RÉSERVATION"
   },
   {
     "field": "copy1rpfwj",
     "label": "You stay in control of confirmation",
-    "group": "Commercial model and process",
+    "group": "Registration form",
     "en": "You stay in control of confirmation",
     "fr": "Vous gardez le contrôle de la confirmation"
   },
   {
     "field": "copyw3ykqt",
     "label": "Confirm from the email or partner system. If you maintain live availability, eligible bookings can be confirmed immediately.",
-    "group": "Commercial model and process",
+    "group": "Registration form",
     "en": "Confirm from the email or partner system. If you maintain live availability, eligible bookings can be confirmed immediately.",
     "fr": "Confirmez depuis le courriel ou l’espace partenaire. Si vos disponibilités sont à jour, les réservations admissibles peuvent être confirmées immédiatement."
   },
@@ -954,7 +954,7 @@
   {
     "field": "copypsvqr9",
     "label": "Select one",
-    "group": "Registration form",
+    "group": "Frequently asked questions",
     "en": "Select one",
     "fr": "Choisir une option"
   },
@@ -1024,21 +1024,21 @@
   {
     "field": "copykb2lhr",
     "label": "Phone",
-    "group": "Registration form",
+    "group": "Frequently asked questions",
     "en": "Phone",
     "fr": "Téléphone"
   },
   {
     "field": "copy1yke1ci",
     "label": "Preferred contact",
-    "group": "Registration form",
+    "group": "Frequently asked questions",
     "en": "Preferred contact",
     "fr": "Méthode de contact préférée"
   },
   {
     "field": "copyinbfc7",
     "label": "Email",
-    "group": "Registration form",
+    "group": "Frequently asked questions",
     "en": "Email",
     "fr": "Courriel"
   },
@@ -1087,7 +1087,7 @@
   {
     "field": "copy13gv4s4",
     "label": "I understand that this registration is an expression of interest only. It creates no commitment and requests no payment or credit card.",
-    "group": "Frequently asked questions",
+    "group": "Final call to action and footer",
     "en": "I understand that this registration is an expression of interest only. It creates no commitment and requests no payment or credit card.",
     "fr": "Je comprends que cette inscription exprime seulement mon intérêt. Elle ne crée aucun engagement et ne demande aucun paiement ni carte de crédit."
   },
@@ -1178,7 +1178,7 @@
   {
     "field": "copy3xyvvz",
     "label": "Discover. Book. Relax.",
-    "group": "Final call to action and footer",
+    "group": "Messages, cookies and page controls",
     "en": "Discover. Book. Relax.",
     "fr": "Découvrir. Réserver. Décrocher."
   },
@@ -1797,5 +1797,306 @@
     "group": "Messages, cookies and page controls",
     "en": "A confirmation is on its way to your email. Our team will review the information and contact you within 72 hours.",
     "fr": "Un courriel de confirmation est en route. Notre équipe examinera les renseignements et communiquera avec vous dans un délai de 72 heures."
+  },
+  {
+    "field": "formFieldOrganizationVisible",
+    "label": "Show spa or business name",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldOrganizationRequired",
+    "label": "Require spa or business name",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldWebsiteVisible",
+    "label": "Show website or social profile",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldWebsiteRequired",
+    "label": "Require website or social profile",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldCityVisible",
+    "label": "Show city",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldCityRequired",
+    "label": "Require city",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldPostalCodeVisible",
+    "label": "Show postal code",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldPostalCodeRequired",
+    "label": "Require postal code",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldSpaTypeVisible",
+    "label": "Show spa type",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldSpaTypeRequired",
+    "label": "Require spa type",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldLocationsVisible",
+    "label": "Show number of locations",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldLocationsRequired",
+    "label": "Require number of locations",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldServicesVisible",
+    "label": "Show main services",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldServicesRequired",
+    "label": "Require a main service",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldNameVisible",
+    "label": "Show contact name",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldNameRequired",
+    "label": "Require contact name",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldRoleVisible",
+    "label": "Show contact role",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldRoleRequired",
+    "label": "Require contact role",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldEmailVisible",
+    "label": "Show business email",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldEmailRequired",
+    "label": "Require business email",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldPhoneVisible",
+    "label": "Show phone",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldPhoneRequired",
+    "label": "Require phone",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldPreferredContactVisible",
+    "label": "Show preferred contact method",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldPreferredContactRequired",
+    "label": "Require preferred contact method",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldBookingSystemVisible",
+    "label": "Show current booking system",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldBookingSystemRequired",
+    "label": "Require current booking system",
+    "group": "Registration form settings",
+    "en": "false",
+    "fr": "false"
+  },
+  {
+    "field": "formFieldMessageVisible",
+    "label": "Show additional message",
+    "group": "Registration form settings",
+    "en": "true",
+    "fr": "true"
+  },
+  {
+    "field": "formFieldMessageRequired",
+    "label": "Require additional message",
+    "group": "Registration form settings",
+    "en": "false",
+    "fr": "false"
+  },
+  {
+    "field": "notificationRecipients",
+    "label": "Internal notification recipients",
+    "group": "Email messages and delivery",
+    "en": "",
+    "fr": ""
+  },
+  {
+    "field": "emailCompanyName",
+    "label": "Email footer company name",
+    "group": "Email messages and delivery",
+    "en": "Global Spa Management Ltd.",
+    "fr": "Global Spa Management Ltd."
+  },
+  {
+    "field": "emailOwnerSubject",
+    "label": "Internal email subject",
+    "group": "Email messages and delivery",
+    "en": "Ontario spa lead: {{organization}} | SpaPlus",
+    "fr": "Nouveau prospect spa Ontario : {{organization}} | SpaPlus"
+  },
+  {
+    "field": "emailOwnerEyebrow",
+    "label": "Internal email eyebrow",
+    "group": "Email messages and delivery",
+    "en": "NEW ONTARIO SPA LEAD",
+    "fr": "NOUVEAU PROSPECT SPA ONTARIO"
+  },
+  {
+    "field": "emailOwnerIntro",
+    "label": "Internal email introduction",
+    "group": "Email messages and delivery",
+    "en": "A spa has joined the Ontario founding partner list. The full enquiry is ready for review.",
+    "fr": "Un spa s'est inscrit à la liste des partenaires fondateurs de l'Ontario. La demande complète est prête à être examinée."
+  },
+  {
+    "field": "emailOwnerButton",
+    "label": "Internal email button",
+    "group": "Email messages and delivery",
+    "en": "Open the Ontario page",
+    "fr": "Ouvrir la page Ontario"
+  },
+  {
+    "field": "emailOwnerFooter",
+    "label": "Internal email footer",
+    "group": "Email messages and delivery",
+    "en": "A better way to discover, book and enjoy spa experiences.",
+    "fr": "Une meilleure façon de découvrir, réserver et vivre des expériences spa."
+  },
+  {
+    "field": "emailVisitorSubject",
+    "label": "Spa confirmation email subject",
+    "group": "Email messages and delivery",
+    "en": "Your spa is on the Ontario early list | SpaPlus",
+    "fr": "Votre spa est sur la liste prioritaire de l'Ontario | SpaPlus"
+  },
+  {
+    "field": "emailVisitorEyebrow",
+    "label": "Spa confirmation email eyebrow",
+    "group": "Email messages and delivery",
+    "en": "ONTARIO EARLY ACCESS",
+    "fr": "ACCÈS PRIORITAIRE ONTARIO"
+  },
+  {
+    "field": "emailVisitorTitle",
+    "label": "Spa confirmation email title",
+    "group": "Email messages and delivery",
+    "en": "Thank you, {{name}}.",
+    "fr": "Merci, {{name}}."
+  },
+  {
+    "field": "emailVisitorIntro",
+    "label": "Spa confirmation email introduction",
+    "group": "Email messages and delivery",
+    "en": "{{organization}} is now on the SpaPlus Ontario early-access list.",
+    "fr": "{{organization}} est maintenant sur la liste prioritaire SpaPlus pour l'Ontario."
+  },
+  {
+    "field": "emailVisitorNextTitle",
+    "label": "Spa confirmation next steps title",
+    "group": "Email messages and delivery",
+    "en": "What happens next",
+    "fr": "La suite"
+  },
+  {
+    "field": "emailVisitorNextBody",
+    "label": "Spa confirmation next steps text",
+    "group": "Email messages and delivery",
+    "en": "We will review your spa, location and services. A member of the SpaPlus team will contact you within {{hours}} hours using your preferred contact method.",
+    "fr": "Nous examinerons votre spa, son emplacement et ses services. Un membre de l'équipe SpaPlus communiquera avec vous dans un délai de {{hours}} heures selon votre méthode de contact préférée."
+  },
+  {
+    "field": "emailVisitorButton",
+    "label": "Spa confirmation email button",
+    "group": "Email messages and delivery",
+    "en": "Return to SpaPlus Ontario",
+    "fr": "Retourner à SpaPlus Ontario"
+  },
+  {
+    "field": "emailVisitorFooter",
+    "label": "Spa confirmation email footer",
+    "group": "Email messages and delivery",
+    "en": "A better way to discover, book and enjoy spa experiences.",
+    "fr": "Une meilleure façon de découvrir, réserver et vivre des expériences spa."
   }
 ]

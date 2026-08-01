@@ -180,6 +180,19 @@ export default function MarketLaunchPage({
     managed(marketCopyFieldKey(english), isFrench ? french : english);
   const dynamicCopy = (field: string, english: string, french: string) =>
     managed(field, isFrench ? french : english);
+  const formFlag = (field: string, fallback: boolean) => {
+    const value = managed(field, fallback ? "true" : "false").toLowerCase();
+    return value === "true";
+  };
+  const fieldVisible = (field: string) => formFlag(`formField${field}Visible`, true);
+  const fieldRequired = (field: string, fallback = true) =>
+    fieldVisible(field) && formFlag(`formField${field}Required`, fallback);
+  const visibleSpaTypes = spaTypes.filter((item) =>
+    formFlag(`${item.field}Enabled`, true),
+  );
+  const visibleServiceOptions = serviceOptions.filter((item) =>
+    formFlag(`${item.field}Enabled`, true),
+  );
   const campaignData = useMemo(() => {
     if (typeof window === "undefined") return {};
     const params = new URLSearchParams(window.location.search);
@@ -370,7 +383,7 @@ export default function MarketLaunchPage({
     const form = event.currentTarget;
     const values = new FormData(form);
     const services = values.getAll("services").map(String);
-    if (services.length === 0) {
+    if (fieldRequired("Services") && services.length === 0) {
       setSubmitState("error");
       track("spa_registration_error", {
         market: marketSlug,
@@ -1289,55 +1302,55 @@ export default function MarketLaunchPage({
           onSubmit={handleSubmit}
           onFocus={beginForm}
         >
-          <div className={styles.field}>
+          {fieldVisible("Organization") ? <div className={styles.field}>
             <label htmlFor="organization">{tr("Spa or business name", "Nom du spa ou de l’entreprise")}</label>
-            <input id="organization" name="organization" required maxLength={160} />
-          </div>
-          <div className={styles.field}>
+            <input id="organization" name="organization" required={fieldRequired("Organization")} maxLength={160} />
+          </div> : null}
+          {fieldVisible("Website") ? <div className={styles.field}>
             <label htmlFor="website">{tr("Website or social profile", "Site Web ou profil social")}</label>
             <input
               id="website"
               name="website"
               type="url"
               placeholder={managed("websitePlaceholder", "https://")}
-              required
+              required={fieldRequired("Website")}
               maxLength={300}
             />
-          </div>
-          <div className={styles.field}>
+          </div> : null}
+          {fieldVisible("City") ? <div className={styles.field}>
             <label htmlFor="city">
               {selectedArea
                 ? tr("City or community", "Ville ou collectivité")
                 : dynamicCopy("formCityLabel", `${marketName} city`, `Ville en ${marketName}`)}
             </label>
-            <input id="city" name="city" required maxLength={100} />
-          </div>
-          <div className={styles.field}>
+            <input id="city" name="city" required={fieldRequired("City")} maxLength={100} />
+          </div> : null}
+          {fieldVisible("PostalCode") ? <div className={styles.field}>
             <label htmlFor="postalCode">{tr("Postal code", "Code postal")}</label>
             <input
               id="postalCode"
               name="postalCode"
               autoComplete="postal-code"
-              required
+              required={fieldRequired("PostalCode")}
               maxLength={12}
             />
-          </div>
-          <div className={styles.field}>
+          </div> : null}
+          {fieldVisible("SpaType") ? <div className={styles.field}>
             <label htmlFor="spaType">{tr("Type of spa", "Type de spa")}</label>
-            <select id="spaType" name="spaType" required defaultValue="">
+            <select id="spaType" name="spaType" required={fieldRequired("SpaType")} defaultValue="">
               <option value="" disabled>
                 {tr("Select one", "Choisir une option")}
               </option>
-              {spaTypes.map((item) => (
+              {visibleSpaTypes.map((item) => (
                 <option key={item.value} value={item.value}>
                   {dynamicCopy(item.field, item.en, item.fr)}
                 </option>
               ))}
             </select>
-          </div>
-          <div className={styles.field}>
+          </div> : null}
+          {fieldVisible("Locations") ? <div className={styles.field}>
             <label htmlFor="locations">{tr("Number of locations", "Nombre d’établissements")}</label>
-            <select id="locations" name="locations" required defaultValue="">
+            <select id="locations" name="locations" required={fieldRequired("Locations")} defaultValue="">
               <option value="" disabled>
                 {tr("Select one", "Choisir une option")}
               </option>
@@ -1346,60 +1359,60 @@ export default function MarketLaunchPage({
               <option value="4-10">{tr("4 to 10 locations", "4 à 10 établissements")}</option>
               <option value="11+">{tr("11 or more locations", "11 établissements ou plus")}</option>
             </select>
-          </div>
-          <fieldset className={styles.services}>
+          </div> : null}
+          {fieldVisible("Services") ? <fieldset className={styles.services}>
             <legend>{tr("Main services offered", "Principaux services offerts")}</legend>
             <div>
-              {serviceOptions.map((service) => (
+              {visibleServiceOptions.map((service) => (
                 <label key={service.value}>
                   <input type="checkbox" name="services" value={service.value} />
                   <span>{dynamicCopy(service.field, service.en, service.fr)}</span>
                 </label>
               ))}
             </div>
-          </fieldset>
-          <div className={styles.field}>
+          </fieldset> : null}
+          {fieldVisible("Name") ? <div className={styles.field}>
             <label htmlFor="name">{tr("Your full name", "Votre nom complet")}</label>
             <input
               id="name"
               name="name"
               autoComplete="name"
-              required
+              required={fieldRequired("Name")}
               maxLength={100}
             />
-          </div>
-          <div className={styles.field}>
+          </div> : null}
+          {fieldVisible("Role") ? <div className={styles.field}>
             <label htmlFor="role">{tr("Your role", "Votre fonction")}</label>
-            <input id="role" name="role" required maxLength={100} />
-          </div>
-          <div className={styles.field}>
+            <input id="role" name="role" required={fieldRequired("Role")} maxLength={100} />
+          </div> : null}
+          {fieldVisible("Email") ? <div className={styles.field}>
             <label htmlFor="email">{tr("Business email", "Courriel professionnel")}</label>
             <input
               id="email"
               name="email"
               type="email"
               autoComplete="email"
-              required
+              required={fieldRequired("Email")}
               maxLength={180}
             />
-          </div>
-          <div className={styles.field}>
+          </div> : null}
+          {fieldVisible("Phone") ? <div className={styles.field}>
             <label htmlFor="phone">{tr("Phone", "Téléphone")}</label>
             <input
               id="phone"
               name="phone"
               type="tel"
               autoComplete="tel"
-              required
+              required={fieldRequired("Phone")}
               maxLength={40}
             />
-          </div>
-          <div className={styles.field}>
+          </div> : null}
+          {fieldVisible("PreferredContact") ? <div className={styles.field}>
             <label htmlFor="preferredContact">{tr("Preferred contact", "Méthode de contact préférée")}</label>
             <select
               id="preferredContact"
               name="preferredContact"
-              required
+              required={fieldRequired("PreferredContact")}
               defaultValue=""
             >
               <option value="" disabled>
@@ -1409,21 +1422,21 @@ export default function MarketLaunchPage({
               <option value="Phone">{tr("Phone", "Téléphone")}</option>
               <option value="WhatsApp">WhatsApp</option>
             </select>
-          </div>
-          <div className={styles.field}>
+          </div> : null}
+          {fieldVisible("BookingSystem") ? <div className={styles.field}>
             <label htmlFor="bookingSystem">
               {tr("Current booking system", "Système de réservation actuel")}{" "}
               <span>{tr("Optional", "Facultatif")}</span>
             </label>
-            <input id="bookingSystem" name="bookingSystem" maxLength={120} />
-          </div>
-          <div className={`${styles.field} ${styles.fullField}`}>
+            <input id="bookingSystem" name="bookingSystem" required={fieldRequired("BookingSystem", false)} maxLength={120} />
+          </div> : null}
+          {fieldVisible("Message") ? <div className={`${styles.field} ${styles.fullField}`}>
             <label htmlFor="message">
               {tr("Anything we should know?", "Y a-t-il autre chose à savoir?")}{" "}
               <span>{tr("Optional", "Facultatif")}</span>
             </label>
-            <textarea id="message" name="message" rows={5} maxLength={1500} />
-          </div>
+            <textarea id="message" name="message" required={fieldRequired("Message", false)} rows={5} maxLength={1500} />
+          </div> : null}
           <div className={styles.honeypot} aria-hidden="true">
             <label htmlFor="website_confirm">{tr("Leave this field empty", "Laisser ce champ vide")}</label>
             <input

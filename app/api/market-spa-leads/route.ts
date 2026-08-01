@@ -1,5 +1,6 @@
+import { and, eq } from "drizzle-orm";
 import { getDb } from "../../../db";
-import { formSubmissions } from "../../../db/schema";
+import { cmsContent, formSubmissions } from "../../../db/schema";
 import {
   buildMarketOwnerEmail,
   buildMarketVisitorEmail,
@@ -54,6 +55,20 @@ const campaignKeys = new Set([
   "gclid",
   "fbclid",
 ]);
+
+const formFlag = (
+  content: Record<string, string>,
+  field: string,
+  fallback: boolean,
+) => (content[field] || String(fallback)).toLowerCase() === "true";
+
+const isFieldRequired = (
+  content: Record<string, string>,
+  field: string,
+  fallback = true,
+) =>
+  formFlag(content, `formField${field}Visible`, true) &&
+  formFlag(content, `formField${field}Required`, fallback);
 
 export async function OPTIONS(request: Request) {
   return new Response(null, {
@@ -169,6 +184,18 @@ export async function POST(request: Request) {
     const acceptedLocale = requestedLocale.startsWith("fr")
       ? "fr-CA"
       : "en-CA";
+    const marketContentRows = await getDb()
+      .select()
+      .from(cmsContent)
+      .where(
+        and(
+          eq(cmsContent.locale, acceptedLocale),
+          eq(cmsContent.section, "market.ca-on"),
+        ),
+      );
+    const marketContent = Object.fromEntries(
+      marketContentRows.map((row) => [row.field, row.value]),
+    );
     const requestedArea = clean(body.area, 100);
     const acceptedArea = ontarioAreas.some(
       (area) => area.slug === requestedArea,
@@ -206,18 +233,20 @@ export async function POST(request: Request) {
       !isSubmissionId(submissionId) ||
       body.privacyAccepted !== true ||
       body.acknowledgementAccepted !== true ||
-      data.name.length < 2 ||
-      data.role.length < 2 ||
-      !isEmail(data.email) ||
-      data.phone.length < 7 ||
-      data.organization.length < 2 ||
-      !/^https?:\/\/\S+/i.test(data.website) ||
-      data.city.length < 2 ||
-      data.postalCode.length < 3 ||
-      data.spaType.length < 2 ||
-      data.locations.length < 1 ||
-      data.preferredContact.length < 2 ||
-      data.services.length < 1
+      (isFieldRequired(marketContent, "Name") && data.name.length < 2) ||
+      (isFieldRequired(marketContent, "Role") && data.role.length < 2) ||
+      (isFieldRequired(marketContent, "Email") && !isEmail(data.email)) ||
+      (data.email && !isEmail(data.email)) ||
+      (isFieldRequired(marketContent, "Phone") && data.phone.length < 7) ||
+      (isFieldRequired(marketContent, "Organization") && data.organization.length < 2) ||
+      (isFieldRequired(marketContent, "Website") && !/^https?:\/\/\S+/i.test(data.website)) ||
+      (data.website && !/^https?:\/\/\S+/i.test(data.website)) ||
+      (isFieldRequired(marketContent, "City") && data.city.length < 2) ||
+      (isFieldRequired(marketContent, "PostalCode") && data.postalCode.length < 3) ||
+      (isFieldRequired(marketContent, "SpaType") && data.spaType.length < 2) ||
+      (isFieldRequired(marketContent, "Locations") && data.locations.length < 1) ||
+      (isFieldRequired(marketContent, "PreferredContact") && data.preferredContact.length < 2) ||
+      (isFieldRequired(marketContent, "Services") && data.services.length < 1)
     ) {
       return Response.json(
         { success: false, error: "Please complete all required fields" },
@@ -274,6 +303,7 @@ export async function POST(request: Request) {
     const apiKey = process.env.RESEND_API_KEY;
     const marketOwnerEmailsKey = `${marketSlug.toUpperCase()}_CONTACT_TO_EMAILS`;
     const ownerEmails = (
+      marketContent.notificationRecipients ||
       process.env[marketOwnerEmailsKey] ||
       process.env.CONTACT_TO_EMAILS ||
       process.env.CONTACT_TO_EMAIL ||
@@ -301,6 +331,7 @@ export async function POST(request: Request) {
           : `https://app.spaplus.co/en-ca/ontario/${data.area ? `${data.area}/` : ""}`,
       reviewWindowHours: market.reviewWindowHours,
       languageTag: data.locale,
+      copy: marketContent,
     };
     const owner = buildMarketOwnerEmail(data, emailContext);
     const visitor = buildMarketVisitorEmail(data, emailContext);
