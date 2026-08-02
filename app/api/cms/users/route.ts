@@ -5,7 +5,7 @@ import {
   cmsPermissions,
   cmsUsers,
 } from "../../../../db/schema";
-import { getAuthorizedAdmin } from "../../../admin-auth";
+import { getAuthorizedAdmin, isPermanentOwner } from "../../../admin-auth";
 import {
   cmsResources,
   getUserPermissions,
@@ -100,7 +100,7 @@ export async function POST(request: Request) {
   };
   const email = String(body.email || "").trim().toLowerCase();
   const displayName = String(body.displayName || "").trim().slice(0, 120);
-  const role = String(body.role || "viewer");
+  const role = isPermanentOwner(email) ? "owner" : String(body.role || "viewer");
   const defaultLocale = String(body.defaultLocale || "en");
   const systemLocale = String(body.systemLocale || "en");
   const permissions = body.permissions === undefined ? [] : cleanPermissions(body.permissions);
@@ -172,6 +172,10 @@ export async function PATCH(request: Request) {
   const db = getDb();
   const [existing] = await db.select().from(cmsUsers).where(eq(cmsUsers.id, id)).limit(1);
   if (!existing) return Response.json({ error: "User not found" }, { status: 404 });
+
+  if (isPermanentOwner(existing.email)) {
+    return Response.json({ error: "Permanent owner access cannot be changed" }, { status: 400 });
+  }
 
   const status = body.status === undefined ? existing.status : body.status === "active" ? "active" : "inactive";
   const role = body.role === undefined ? existing.role : String(body.role);
