@@ -14,6 +14,17 @@ export default async function AdminPage() {
   const canViewLeads = cmsResources.some((resource) =>
     hasPermission(admin.role, admin.permissions, resource.key, "viewLeads"),
   );
+  const canViewVila4uLeads = hasPermission(
+    admin.role,
+    admin.permissions,
+    "business:vila4u:leads",
+    "viewLeads",
+  );
+  const canViewOtherLeads = cmsResources.some(
+    (resource) => resource.key !== "business:vila4u:leads" &&
+      hasPermission(admin.role, admin.permissions, resource.key, "viewLeads"),
+  );
+  if (!canViewContent && canViewVila4uLeads && !canViewOtherLeads) redirect("/vila4u");
   if (!canViewContent && canViewLeads) redirect("/tools");
   if (!canViewContent && !canViewLeads && admin.role !== "owner") redirect("/access-denied");
   const isHebrew = admin.systemLocale === "he";
