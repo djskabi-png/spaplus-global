@@ -15,11 +15,9 @@ const brand = {
   soft: "#eef3f8"
 };
 
-const logoMark = path.join(root, "public", "spaplus-mark.png");
-const logoWordmark = path.join(root, "public", "spaplus-wordmark.png");
+const canadaLogo = path.join(root, "public", "ontario", "spaplus-canada-logo.png");
 const sources = {
-  concept: path.join(root, "public", "ontario", "hero-ontario-campaign-v2.jpg"),
-  quebec: path.join(root, "public", "ontario", "quebec-balnea.jpg")
+  concept: path.join(root, "public", "ontario", "hero-ontario-campaign-v2.jpg")
 };
 
 const formats = {
@@ -31,9 +29,9 @@ const formats = {
 const copy = {
   en: {
     a: {
-      eyebrow: "ONTARIO, YOU'RE NEXT",
-      title: ["Founding spa", "partners wanted."],
-      body: ["Free registration.", "No commitment. No credit card."],
+      eyebrow: "GET YOUR SPA DISCOVERED",
+      title: ["More visibility.", "More bookings."],
+      body: ["A new spa discovery and booking", "channel is coming to Ontario."],
       cta: "INTRODUCE YOUR SPA",
       note: "Illustrative launch concept. Not an Ontario partner location."
     },
@@ -42,7 +40,7 @@ const copy = {
       title: ["Bring your hotel", "or resort spa", "to SpaPlus."],
       body: ["A new discovery and booking", "channel is coming to Ontario."],
       cta: "JOIN THE FOUNDING LIST",
-      note: "SpaPlus Canada platform imagery from Québec."
+      note: "Illustrative launch concept. Not an Ontario partner location."
     },
     c: {
       eyebrow: "A STRONGER WAY TO GROW",
@@ -54,9 +52,9 @@ const copy = {
   },
   fr: {
     a: {
-      eyebrow: "L'ONTARIO, C'EST À VOTRE TOUR",
-      title: ["Spas fondateurs", "recherchés."],
-      body: ["Inscription gratuite.", "Sans engagement. Sans carte de crédit."],
+      eyebrow: "FAITES DÉCOUVRIR VOTRE SPA",
+      title: ["Plus de visibilité.", "Plus de réservations."],
+      body: ["Une nouvelle plateforme de découverte", "et de réservation de spas arrive en Ontario."],
       cta: "PRÉSENTEZ VOTRE SPA",
       note: "Concept visuel. Il ne s'agit pas d'un spa partenaire en Ontario."
     },
@@ -65,7 +63,7 @@ const copy = {
       title: ["Présentez votre spa", "hôtelier ou centre", "de villégiature."],
       body: ["Un nouveau canal de découverte", "et de réservation arrive."],
       cta: "JOIGNEZ LA LISTE FONDATRICE",
-      note: "Images de la plateforme SpaPlus Canada au Québec."
+      note: "Concept visuel. Il ne s'agit pas d'un spa partenaire en Ontario."
     },
     c: {
       eyebrow: "UNE MEILLEURE FAÇON DE GRANDIR",
@@ -122,23 +120,21 @@ function overlaySvg({ width, height, item, concept }) {
 
 async function buildOne(lang, concept, format, size) {
   const item = copy[lang][concept];
-  const background = concept === "a" ? sources.concept : concept === "b" ? sources.quebec : null;
+  const background = concept === "a" || concept === "b" ? sources.concept : null;
   let image = background
     ? sharp(background).resize(size.width, size.height, { fit: "cover", position: concept === "b" ? "centre" : "east" })
     : sharp({ create: { ...size, channels: 4, background: brand.blush } });
-  const logoMarkWidth = Math.round(size.width * 0.085);
-  const logoWordWidth = Math.round(size.width * 0.15);
-  const logoMarkBuffer = await sharp(logoMark).resize({ width: logoMarkWidth }).png().toBuffer();
-  const logoWordBuffer = await sharp(logoWordmark).resize({ width: logoWordWidth }).png().toBuffer();
-  const plateWidth = logoMarkWidth + logoWordWidth + 72;
-  const plateHeight = logoMarkWidth + 36;
+  const canadaLogoWidth = Math.round(size.width * 0.255);
+  const canadaLogoBuffer = await sharp(canadaLogo).resize({ width: canadaLogoWidth }).png().toBuffer();
+  const logoMetadata = await sharp(canadaLogoBuffer).metadata();
+  const plateWidth = canadaLogoWidth + 48;
+  const plateHeight = (logoMetadata.height || 96) + 36;
   const logoPlate = Buffer.from(`<svg width="${plateWidth}" height="${plateHeight}" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" rx="26" fill="white" fill-opacity="0.96"/></svg>`);
   const side = Math.round(size.width * 0.075);
   image = image.composite([
     { input: overlaySvg({ ...size, item, concept }), left: 0, top: 0 },
     { input: logoPlate, left: side, top: side },
-    { input: logoMarkBuffer, left: side + 18, top: side + 18 },
-    { input: logoWordBuffer, left: side + logoMarkWidth + 36, top: side + Math.round((plateHeight - logoMarkWidth * 0.28) / 2) }
+    { input: canadaLogoBuffer, left: side + 24, top: side + 18 }
   ]);
   const out = path.join(outDir, `${lang}-${concept}-${format}.jpg`);
   await image.jpeg({ quality: 92, chromaSubsampling: "4:4:4" }).toFile(out);
