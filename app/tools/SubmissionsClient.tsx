@@ -131,6 +131,22 @@ function sourceLabels(locale: string) {
   return { title: "Lead sources", all: "All lead sources", meta_paid: "Paid Facebook and Instagram campaign", google_paid: "Paid Google campaign", direct: "Direct visit", other: "Other source" };
 }
 
+function receivedAt(item: Submission, locale: string) {
+  const isOntario = item.resourceKey === "market:ca:on";
+  const timeZone = isOntario ? "America/Toronto" : "Asia/Jerusalem";
+  const zoneLabel = locale === "he"
+    ? (isOntario ? "שעון טורונטו" : "שעון ישראל")
+    : locale === "fr-CA"
+      ? (isOntario ? "Heure de Toronto" : "Heure d’Israël")
+      : (isOntario ? "Toronto time" : "Israel time");
+  const formatted = new Intl.DateTimeFormat(locale === "he" ? "he-IL" : locale, {
+    dateStyle: "short",
+    timeStyle: "medium",
+    timeZone,
+  }).format(new Date(item.createdAt));
+  return { formatted, zoneLabel };
+}
+
 export default function SubmissionsClient({ systemLocale }: { systemLocale: string }) {
   const locale = normalizeSystemLocale(systemLocale);
   const t = copy[locale];
@@ -283,6 +299,7 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
         {visible.map((item) => {
           const currentStatus = normalizeStatus(item.status);
           const leadAttribution = attribution(item);
+          const received = receivedAt(item, locale);
           return (
             <article className={`lead-card is-${currentStatus}`} key={item.id}>
               <header>
@@ -291,7 +308,7 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
                   <small>{resourceLabel(item.resourceKey)}</small>
                   <span className={`lead-source-badge is-${leadAttribution.group}`}>{sources[leadAttribution.group]}</span>
                 </div>
-                <time dateTime={item.createdAt}>{t.received}: {new Date(item.createdAt).toLocaleString(locale === "he" ? "he-IL" : locale)}</time>
+                <time dateTime={item.createdAt}>{t.received}: {received.formatted} <span className="lead-time-zone">{received.zoneLabel}</span></time>
               </header>
               <div className="lead-card-grid">
                 <section>
