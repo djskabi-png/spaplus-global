@@ -18,23 +18,11 @@ export type AuthorizedAdmin = AuthenticatedUser & {
   permissions: CmsPermissionRecord[];
 };
 
-const permanentOwnerEmails = new Set([
-  "rhareset@gmail.com",
-  "vila4uservice@gmail.com",
-]);
-
 export function configuredOwners() {
-  return [...new Set([
-    ...(process.env.ADMIN_EMAILS || "")
+  return (process.env.ADMIN_EMAILS || "")
     .split(",")
     .map((email) => email.trim().toLowerCase())
-    .filter(Boolean),
-    ...permanentOwnerEmails,
-  ])];
-}
-
-export function isPermanentOwner(email: string) {
-  return permanentOwnerEmails.has(email.trim().toLowerCase());
+    .filter(Boolean);
 }
 
 export async function getAuthorizedAdmin(): Promise<AuthorizedAdmin | null> {
