@@ -415,8 +415,11 @@ test("every target market has English pages and every page template has Coming S
 });
 
 test("management permissions fail closed and leads are scoped by market", async () => {
-  const [access, usersRoute, submissionsRoute, marketRoute, migration, worker] = await Promise.all([
+  const [access, adminPage, toolsPage, dashboard, usersRoute, submissionsRoute, marketRoute, migration, worker] = await Promise.all([
     read("app/cms-access.ts"),
+    read("app/admin/page.tsx"),
+    read("app/tools/page.tsx"),
+    read("app/tools/SubmissionsClient.tsx"),
     read("app/api/cms/users/route.ts"),
     read("app/api/cms/submissions/route.ts"),
     read("app/api/market-spa-leads/route.ts"),
@@ -425,7 +428,16 @@ test("management permissions fail closed and leads are scoped by market", async 
   ]);
   assert.match(access, /if \(role === "owner"\) return true/);
   assert.match(access, /return false/);
+  assert.match(access, /resource\.type === "site" \|\| resource\.type === "market"/);
   assert.doesNotMatch(access, /permissions\.length === 0/);
+  assert.match(adminPage, /cmsContentResources\.some/);
+  assert.match(adminPage, /redirect\("\/tools"\)/);
+  assert.match(toolsPage, /allowedLeadResourceKeys/);
+  assert.match(toolsPage, /canViewContentManagement/);
+  assert.match(toolsPage, /\/auth\/logout\?return_to=\//);
+  assert.match(dashboard, /allowedResourceKeys/);
+  assert.match(dashboard, /allowedBusinesses\.includes\("spaplus"\)/);
+  assert.match(dashboard, /allowedBusinesses\.includes\("vila4u"\)/);
   assert.match(usersRoute, /replacePermissions/);
   assert.match(usersRoute, /validResourceKey/);
   assert.match(submissionsRoute, /inArray\(formSubmissions\.resourceKey, resources\)/);

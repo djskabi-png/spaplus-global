@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { requireAuthorizedAdmin } from "../admin-auth";
-import { cmsResources, hasPermission } from "../cms-access";
+import { cmsContentResources, cmsResources, hasPermission } from "../cms-access";
 import { normalizeSystemLocale } from "../system-locale";
 import SubmissionsClient from "./SubmissionsClient";
 import "../admin/admin.css";
@@ -10,9 +10,15 @@ export const dynamic = "force-dynamic";
 
 export default async function ToolsPage() {
   const admin = await requireAuthorizedAdmin("/tools");
-  if (!cmsResources.some((resource) => hasPermission(admin.role, admin.permissions, resource.key, "viewLeads"))) {
+  const allowedLeadResourceKeys = cmsResources
+    .filter((resource) => hasPermission(admin.role, admin.permissions, resource.key, "viewLeads"))
+    .map((resource) => resource.key);
+  if (allowedLeadResourceKeys.length === 0) {
     redirect("/access-denied");
   }
+  const canViewContentManagement = cmsContentResources.some((resource) =>
+    hasPermission(admin.role, admin.permissions, resource.key, "viewContent"),
+  );
   const systemLocale = normalizeSystemLocale(admin.systemLocale);
   const isHebrew = systemLocale === "he";
   const centreName = isHebrew
@@ -21,10 +27,11 @@ export default async function ToolsPage() {
       ? "Centre des prospects"
       : "Lead centre";
   const backLabel = isHebrew
-    ? "חזרה לניהול"
+    ? canViewContentManagement ? "חזרה לניהול" : "יציאה"
     : systemLocale === "fr-CA"
-      ? "Retour à la gestion"
-      : "Back to management";
+      ? canViewContentManagement ? "Retour à la gestion" : "Déconnexion"
+      : canViewContentManagement ? "Back to management" : "Sign out";
+  const backHref = canViewContentManagement ? "/admin" : "/auth/logout?return_to=/";
 
   return (
     <main className="cms-shell" dir={isHebrew ? "rtl" : "ltr"} lang={systemLocale}>
@@ -33,9 +40,9 @@ export default async function ToolsPage() {
           <img src="/spaplus-mark.png" alt="" />
           <span>{centreName}</span>
         </a>
-        <a className="cms-preview" href="/admin">{backLabel}</a>
+        <a className="cms-preview" href={backHref}>{backLabel}</a>
       </header>
-      <SubmissionsClient systemLocale={systemLocale} />
+      <SubmissionsClient systemLocale={systemLocale} allowedResourceKeys={allowedLeadResourceKeys} />
     </main>
   );
 }

@@ -40,6 +40,10 @@ export const cmsResources = [
   },
 ] as const;
 
+export const cmsContentResources = cmsResources.filter(
+  (resource) => resource.type === "site" || resource.type === "market",
+);
+
 export type CmsResourceKey = (typeof cmsResources)[number]["key"];
 export type CmsCapability =
   | "viewContent"

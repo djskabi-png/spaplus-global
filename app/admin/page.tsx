@@ -1,6 +1,6 @@
 import { requireAuthorizedAdmin } from "../admin-auth";
 import AdminClient from "./AdminClient";
-import { cmsResources, hasPermission } from "../cms-access";
+import { cmsContentResources, cmsResources, hasPermission } from "../cms-access";
 import { redirect } from "next/navigation";
 import "./admin.css";
 
@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   const admin = await requireAuthorizedAdmin("/admin");
-  const canViewContent = cmsResources.some((resource) =>
+  const canViewContent = cmsContentResources.some((resource) =>
     hasPermission(admin.role, admin.permissions, resource.key, "viewContent"),
   );
   const canViewLeads = cmsResources.some((resource) =>

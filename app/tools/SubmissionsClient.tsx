@@ -169,14 +169,26 @@ function receivedAt(item: Submission, locale: string) {
   return { formatted, zoneLabel };
 }
 
-export default function SubmissionsClient({ systemLocale }: { systemLocale: string }) {
+export default function SubmissionsClient({
+  systemLocale,
+  allowedResourceKeys,
+}: {
+  systemLocale: string;
+  allowedResourceKeys: string[];
+}) {
   const locale = normalizeSystemLocale(systemLocale);
   const t = copy[locale];
+  const allowedBusinesses = Array.from(new Set(
+    allowedResourceKeys.map((resourceKey) => leadBusiness({ resourceKey })),
+  ));
+  const initialBusiness: BusinessFilter = allowedBusinesses.length === 1
+    ? allowedBusinesses[0]
+    : "all";
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [resource, setResource] = useState("all");
-  const [business, setBusiness] = useState<BusinessFilter>("all");
+  const [business, setBusiness] = useState<BusinessFilter>(initialBusiness);
   const [sourceFilter, setSourceFilter] = useState<SourceGroup | "all">("all");
   const [statusFilter, setStatusFilter] = useState<DashboardStatus | "all">("new");
   const [datePeriod, setDatePeriod] = useState<DatePeriod>("all");
@@ -301,9 +313,9 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
       </div>
 
       <nav className="lead-business-tabs" aria-label={businesses.all}>
-        <button className={business === "all" ? "is-active" : ""} type="button" onClick={() => { setBusiness("all"); setResource("all"); }}>{businesses.all} ({submissions.length})</button>
-        <button className={business === "spaplus" ? "is-active" : ""} type="button" onClick={() => { setBusiness("spaplus"); setResource("all"); }}>{businesses.spaplus} ({submissions.filter((item) => leadBusiness(item) === "spaplus").length})</button>
-        <button className={business === "vila4u" ? "is-active" : ""} type="button" onClick={() => { setBusiness("vila4u"); setResource("all"); }}>{businesses.vila4u} ({submissions.filter((item) => leadBusiness(item) === "vila4u").length})</button>
+        {allowedBusinesses.length > 1 ? <button className={business === "all" ? "is-active" : ""} type="button" onClick={() => { setBusiness("all"); setResource("all"); }}>{businesses.all} ({submissions.length})</button> : null}
+        {allowedBusinesses.includes("spaplus") ? <button className={business === "spaplus" ? "is-active" : ""} type="button" onClick={() => { setBusiness("spaplus"); setResource("all"); }}>{businesses.spaplus} ({submissions.filter((item) => leadBusiness(item) === "spaplus").length})</button> : null}
+        {allowedBusinesses.includes("vila4u") ? <button className={business === "vila4u" ? "is-active" : ""} type="button" onClick={() => { setBusiness("vila4u"); setResource("all"); }}>{businesses.vila4u} ({submissions.filter((item) => leadBusiness(item) === "vila4u").length})</button> : null}
       </nav>
 
       <section className="lead-status-overview" aria-label={t.update}>

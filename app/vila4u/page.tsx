@@ -28,7 +28,7 @@ export default async function Vila4uLeadsPage() {
           {isHebrew ? "חזרה לניהול" : "Back to management"}
         </a>
       </header>
-      <SubmissionsClient systemLocale={systemLocale} />
+      <SubmissionsClient systemLocale={systemLocale} allowedResourceKeys={["business:vila4u:leads"]} />
     </main>
   );
 }
