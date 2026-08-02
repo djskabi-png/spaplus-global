@@ -102,6 +102,35 @@ function normalizeStatus(status: StoredStatus): DashboardStatus {
   return status;
 }
 
+type SourceGroup = "meta_paid" | "google_paid" | "direct" | "other";
+
+function attribution(item: Submission) {
+  const source = item.source || "";
+  const campaign = item.message.match(/Campaign:\s*([^\n]+)/i)?.[1] || "";
+  const values = new URLSearchParams(campaign.replace(/,\s*/g, "&"));
+  const normalized = `${source} ${campaign}`.toLowerCase();
+  const group: SourceGroup = /(^|[=&\s])meta|facebook|instagram|fbclid/.test(normalized)
+    ? "meta_paid"
+    : /google|gclid/.test(normalized)
+      ? "google_paid"
+      : !campaign || /direct or untagged/i.test(campaign)
+        ? "direct"
+        : "other";
+  return {
+    group,
+    utmSource: values.get("utm_source") || "",
+    utmMedium: values.get("utm_medium") || "",
+    utmCampaign: values.get("utm_campaign") || "",
+    utmContent: values.get("utm_content") || "",
+  };
+}
+
+function sourceLabels(locale: string) {
+  if (locale === "he") return { title: "מקורות לידים", all: "כל מקורות הלידים", meta_paid: "קמפיין פייסבוק ואינסטגרם ממומן", google_paid: "קמפיין גוגל ממומן", direct: "הגעה ישירה", other: "מקור אחר" };
+  if (locale === "fr-CA") return { title: "Sources des prospects", all: "Toutes les sources", meta_paid: "Campagne Facebook et Instagram", google_paid: "Campagne Google", direct: "Accès direct", other: "Autre source" };
+  return { title: "Lead sources", all: "All lead sources", meta_paid: "Paid Facebook and Instagram campaign", google_paid: "Paid Google campaign", direct: "Direct visit", other: "Other source" };
+}
+
 export default function SubmissionsClient({ systemLocale }: { systemLocale: string }) {
   const locale = normalizeSystemLocale(systemLocale);
   const t = copy[locale];
@@ -109,6 +138,7 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [resource, setResource] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState<SourceGroup | "all">("all");
   const [statusFilter, setStatusFilter] = useState<DashboardStatus | "all">("new");
   const [query, setQuery] = useState("");
   const [updatingId, setUpdatingId] = useState<number | null>(null);
@@ -150,8 +180,16 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
     ]),
   ) as Record<DashboardStatus, number>;
   const normalizedQuery = query.trim().toLocaleLowerCase();
+  const sources = sourceLabels(locale);
+  const sourceCounts = Object.fromEntries(
+    (["meta_paid", "google_paid", "direct", "other"] as SourceGroup[]).map((source) => [
+      source,
+      resourceLeads.filter((item) => attribution(item).group === source).length,
+    ]),
+  ) as Record<SourceGroup, number>;
   const visible = resourceLeads.filter((item) => {
     if (statusFilter !== "all" && normalizeStatus(item.status) !== statusFilter) return false;
+    if (sourceFilter !== "all" && attribution(item).group !== sourceFilter) return false;
     if (!normalizedQuery) return true;
     return [item.name, item.organization, item.email, item.phone, item.topic, item.message]
       .join(" ")
@@ -213,6 +251,29 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
         <button className={statusFilter === "all" ? "is-active" : ""} type="button" onClick={() => setStatusFilter("all")}>{t.allLeads} ({resourceLeads.length})</button>
       </div>
 
+      <nav className="lead-source-tabs" aria-label={sources.title}>
+        <button className={sourceFilter === "all" ? "is-active" : ""} type="button" onClick={() => setSourceFilter("all")}>{sources.all} ({resourceLeads.length})</button>
+        {(["meta_paid", "google_paid", "direct", "other"] as SourceGroup[]).map((source) => (
+          <button className={sourceFilter === source ? "is-active" : ""} key={source} type="button" onClick={() => setSourceFilter(source)}>{sources[source]} ({sourceCounts[source]})</button>
+        ))}
+      </nav>
+
+      <section className="lead-source-dashboard" aria-label={sources.title}>
+        {(["meta_paid", "google_paid", "direct", "other"] as SourceGroup[]).map((source) => {
+          const sourceLeads = resourceLeads.filter((item) => attribution(item).group === source);
+          const sourceStatus = Object.fromEntries(
+            dashboardStatuses.map((status) => [status, sourceLeads.filter((item) => normalizeStatus(item.status) === status).length]),
+          ) as Record<DashboardStatus, number>;
+          return (
+            <button className={`lead-source-summary is-${source}${sourceFilter === source ? " is-active" : ""}`} key={source} type="button" onClick={() => setSourceFilter(source)}>
+              <span>{sources[source]}</span>
+              <strong>{sourceLeads.length}</strong>
+              <small>{t.new}: {sourceStatus.new} · {t.won}: {sourceStatus.won} · {t.irrelevant}: {sourceStatus.irrelevant}</small>
+            </button>
+          );
+        })}
+      </section>
+
       {statusFilter === "deleted" ? <p className="lead-restore-note">{t.restoreHint}</p> : null}
       {loading ? <p className="lead-system-message">{t.loading}</p> : null}
       {error ? <p className="lead-system-message is-error" role="alert">{error}</p> : null}
@@ -221,12 +282,14 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
       <div className="lead-list">
         {visible.map((item) => {
           const currentStatus = normalizeStatus(item.status);
+          const leadAttribution = attribution(item);
           return (
             <article className={`lead-card is-${currentStatus}`} key={item.id}>
               <header>
                 <div>
                   <span className={`lead-status-badge is-${currentStatus}`}>{statusLabel(currentStatus)}</span>
                   <small>{resourceLabel(item.resourceKey)}</small>
+                  <span className={`lead-source-badge is-${leadAttribution.group}`}>{sources[leadAttribution.group]}</span>
                 </div>
                 <time dateTime={item.createdAt}>{t.received}: {new Date(item.createdAt).toLocaleString(locale === "he" ? "he-IL" : locale)}</time>
               </header>
@@ -241,6 +304,13 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
                 <section>
                   <span>{t.enquiry}</span>
                   {item.topic ? <h3>{item.topic}</h3> : null}
+                  <div className="lead-attribution" dir="ltr">
+                    <strong>{sources.title}</strong>
+                    <span>{leadAttribution.utmSource || leadAttribution.group}</span>
+                    {leadAttribution.utmMedium ? <span>{leadAttribution.utmMedium}</span> : null}
+                    {leadAttribution.utmCampaign ? <span>{leadAttribution.utmCampaign}</span> : null}
+                    {leadAttribution.utmContent ? <span>{leadAttribution.utmContent}</span> : null}
+                  </div>
                   <p>{item.message}</p>
                 </section>
               </div>

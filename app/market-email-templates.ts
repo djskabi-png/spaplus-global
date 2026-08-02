@@ -74,14 +74,17 @@ function shell({
   footerLine: string;
   companyName: string;
 }) {
+  const isRtl = /^(ar|he)(-|$)/i.test(languageTag);
+  const direction = isRtl ? "rtl" : "ltr";
+  const alignment = isRtl ? "right" : "left";
   return `<!doctype html>
-<html lang="${escapeHtml(languageTag)}">
+<html lang="${escapeHtml(languageTag)}" dir="${direction}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>${escapeHtml(title)}</title>
 </head>
-<body style="margin:0;padding:0;background:#f3f5f8;color:#192d4c;font-family:'Noto Sans',Arial,sans-serif;">
+<body dir="${direction}" style="margin:0;padding:0;background:#f3f5f8;color:#192d4c;font-family:'Noto Sans',Arial,sans-serif;direction:${direction};text-align:${alignment};">
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(preheader)}</div>
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f3f5f8;">
     <tr>
@@ -105,13 +108,13 @@ function shell({
           </tr>
           <tr>
             <td style="padding:42px 34px 18px;background:linear-gradient(135deg,#fff4f8 0%,#ffffff 65%);">
-              <p style="margin:0 0 12px;color:#cf0e5a;font-size:11px;line-height:1.4;font-weight:800;letter-spacing:2px;">${escapeHtml(eyebrow)}</p>
-              <h1 style="margin:0;color:#192d4c;font-size:38px;line-height:1.08;letter-spacing:-1.4px;">${escapeHtml(title)}</h1>
-              <p style="margin:20px 0 0;color:#5d6a7d;font-size:16px;line-height:1.7;">${escapeHtml(intro)}</p>
+              <p dir="${direction}" style="margin:0 0 12px;color:#cf0e5a;font-size:11px;line-height:1.4;font-weight:800;letter-spacing:2px;text-align:${alignment};">${escapeHtml(eyebrow)}</p>
+              <h1 dir="${direction}" style="margin:0;color:#192d4c;font-size:38px;line-height:1.08;letter-spacing:-1.4px;text-align:${alignment};">${escapeHtml(title)}</h1>
+              <p dir="${direction}" style="margin:20px 0 0;color:#5d6a7d;font-size:16px;line-height:1.7;text-align:${alignment};">${escapeHtml(intro)}</p>
             </td>
           </tr>
           <tr>
-            <td style="padding:14px 34px 36px;">
+            <td dir="${direction}" style="padding:14px 34px 36px;direction:${direction};text-align:${alignment};">
               ${body}
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top:28px;">
                 <tr>
