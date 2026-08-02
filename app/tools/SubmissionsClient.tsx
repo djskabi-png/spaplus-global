@@ -106,12 +106,12 @@ function normalizeStatus(status: StoredStatus): DashboardStatus {
 }
 
 type SourceGroup = "meta_paid" | "google_paid" | "direct" | "other";
-type DatePeriod = "all" | "today" | "week" | "month";
+type DatePeriod = "all" | "today" | "week" | "month" | "custom";
 
 function periodLabels(locale: string) {
-  if (locale === "he") return { total: "סך הכול לידים", label: "תקופה", all: "כל התקופות", today: "היום", week: "7 ימים אחרונים", month: "30 ימים אחרונים" };
-  if (locale === "fr-CA") return { total: "Total des prospects", label: "Période", all: "Depuis le début", today: "Aujourd’hui", week: "7 derniers jours", month: "30 derniers jours" };
-  return { total: "Total leads", label: "Period", all: "All time", today: "Today", week: "Last 7 days", month: "Last 30 days" };
+  if (locale === "he") return { total: "סך הכול לידים", label: "תקופה", all: "כל התקופות", today: "היום", week: "7 ימים אחרונים", month: "30 ימים אחרונים", custom: "טווח לבחירה", from: "מתאריך", to: "עד תאריך" };
+  if (locale === "fr-CA") return { total: "Total des prospects", label: "Période", all: "Depuis le début", today: "Aujourd’hui", week: "7 derniers jours", month: "30 derniers jours", custom: "Plage personnalisée", from: "Date de début", to: "Date de fin" };
+  return { total: "Total leads", label: "Period", all: "All time", today: "Today", week: "Last 7 days", month: "Last 30 days", custom: "Custom range", from: "From", to: "To" };
 }
 
 function attribution(item: Submission) {
@@ -167,6 +167,8 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
   const [sourceFilter, setSourceFilter] = useState<SourceGroup | "all">("all");
   const [statusFilter, setStatusFilter] = useState<DashboardStatus | "all">("new");
   const [datePeriod, setDatePeriod] = useState<DatePeriod>("all");
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
   const [query, setQuery] = useState("");
   const [updatingId, setUpdatingId] = useState<number | null>(null);
 
@@ -202,10 +204,18 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
     : submissions.filter((item) => item.resourceKey === resource);
   const periodLeads = useMemo(() => {
     if (datePeriod === "all") return resourceLeads;
+    if (datePeriod === "custom") {
+      const start = customFrom ? new Date(`${customFrom}T00:00:00`).getTime() : Number.NEGATIVE_INFINITY;
+      const end = customTo ? new Date(`${customTo}T23:59:59.999`).getTime() : Number.POSITIVE_INFINITY;
+      return resourceLeads.filter((item) => {
+        const createdAt = new Date(item.createdAt).getTime();
+        return createdAt >= start && createdAt <= end;
+      });
+    }
     const now = Date.now();
     const duration = datePeriod === "today" ? 24 * 60 * 60 * 1000 : datePeriod === "week" ? 7 * 24 * 60 * 60 * 1000 : 30 * 24 * 60 * 60 * 1000;
     return resourceLeads.filter((item) => now - new Date(item.createdAt).getTime() <= duration);
-  }, [datePeriod, resourceLeads]);
+  }, [customFrom, customTo, datePeriod, resourceLeads]);
   const counts = Object.fromEntries(
     dashboardStatuses.map((status) => [
       status,
@@ -215,6 +225,15 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const sources = sourceLabels(locale);
   const periods = periodLabels(locale);
+  const periodSummary = datePeriod === "all"
+    ? periods.all
+    : datePeriod === "today"
+      ? periods.today
+      : datePeriod === "week"
+        ? periods.week
+        : datePeriod === "month"
+          ? periods.month
+          : [customFrom || periods.from, customTo || periods.to].join(" / ");
   const sourceCounts = Object.fromEntries(
     (["meta_paid", "google_paid", "direct", "other"] as SourceGroup[]).map((source) => [
       source,
@@ -267,7 +286,7 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
       <section className="lead-status-overview" aria-label={t.update}>
         <div className="lead-status-heading">
           <p>{sourceFilter === "all" ? t.title : sources[sourceFilter]}</p>
-          <span>{sourceFilter === "all" ? t.subtitle : `${sources[sourceFilter]} · ${periods.label}: ${datePeriod === "all" ? periods.all : datePeriod === "today" ? periods.today : datePeriod === "week" ? periods.week : periods.month}`}</span>
+          <span>{sourceFilter === "all" ? t.subtitle : `${sources[sourceFilter]} · ${periods.label}: ${periodSummary}`}</span>
         </div>
       <div className="lead-status-grid">
         <button
@@ -294,7 +313,7 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
       </div>
       </section>
 
-      <div className="lead-filters">
+      <div className={`lead-filters${datePeriod === "custom" ? " has-custom-range" : ""}`}>
         <label>
           <span>{periods.label}</span>
           <select value={datePeriod} onChange={(event) => setDatePeriod(event.target.value as DatePeriod)}>
@@ -302,8 +321,21 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
             <option value="today">{periods.today}</option>
             <option value="week">{periods.week}</option>
             <option value="month">{periods.month}</option>
+            <option value="custom">{periods.custom}</option>
           </select>
         </label>
+        {datePeriod === "custom" ? (
+          <div className="lead-date-range">
+            <label>
+              <span>{periods.from}</span>
+              <input type="date" value={customFrom} max={customTo || undefined} onChange={(event) => setCustomFrom(event.target.value)} />
+            </label>
+            <label>
+              <span>{periods.to}</span>
+              <input type="date" value={customTo} min={customFrom || undefined} onChange={(event) => setCustomTo(event.target.value)} />
+            </label>
+          </div>
+        ) : null}
         <label>
           <span>{t.allAreas}</span>
           <select value={resource} onChange={(event) => setResource(event.target.value)}>
