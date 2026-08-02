@@ -2,9 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { normalizeSystemLocale } from "../system-locale";
+import "./status.css";
 
 type StoredStatus = "new" | "in_progress" | "closed" | "won" | "irrelevant" | "deleted";
-type DashboardStatus = "new" | "won" | "irrelevant" | "deleted";
+type DashboardStatus = "new" | "in_progress" | "won" | "irrelevant" | "deleted";
 
 type Submission = {
   id: number;
@@ -35,6 +36,7 @@ const copy = {
     allLeads: "All leads",
     search: "Search by name, spa, email or phone",
     new: "New",
+    in_progress: "In progress",
     won: "Closed successfully",
     irrelevant: "Not relevant",
     deleted: "Deleted",
@@ -58,6 +60,7 @@ const copy = {
     allLeads: "כל הלידים",
     search: "חיפוש לפי שם, ספא, מייל או טלפון",
     new: "חדש",
+    in_progress: "בטיפול",
     won: "נסגר בהצלחה",
     irrelevant: "לא רלוונטי",
     deleted: "נמחק",
@@ -81,6 +84,7 @@ const copy = {
     allLeads: "Tous les prospects",
     search: "Rechercher par nom, spa, courriel ou téléphone",
     new: "Nouveau",
+    in_progress: "En traitement",
     won: "Conclu avec succès",
     irrelevant: "Non pertinent",
     deleted: "Supprimé",
@@ -94,11 +98,10 @@ const copy = {
   },
 } as const;
 
-const dashboardStatuses: DashboardStatus[] = ["new", "won", "irrelevant", "deleted"];
+const dashboardStatuses: DashboardStatus[] = ["new", "in_progress", "won", "irrelevant", "deleted"];
 
 function normalizeStatus(status: StoredStatus): DashboardStatus {
   if (status === "closed") return "won";
-  if (status === "in_progress") return "new";
   return status;
 }
 
@@ -284,7 +287,7 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
             <button className={`lead-source-summary is-${source}${sourceFilter === source ? " is-active" : ""}`} key={source} type="button" onClick={() => setSourceFilter(source)}>
               <span>{sources[source]}</span>
               <strong>{sourceLeads.length}</strong>
-              <small>{t.new}: {sourceStatus.new} · {t.won}: {sourceStatus.won} · {t.irrelevant}: {sourceStatus.irrelevant}</small>
+              <small>{t.new}: {sourceStatus.new} · {t.in_progress}: {sourceStatus.in_progress} · {t.won}: {sourceStatus.won}</small>
             </button>
           );
         })}

@@ -1,0 +1,4 @@
+.lead-status-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+.lead-status-card.is-in_progress strong{color:#1760ad}
+.lead-status-badge.is-in_progress{background:#e9f2ff;color:#1760ad}
+@media(max-width:900px){.lead-status-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
