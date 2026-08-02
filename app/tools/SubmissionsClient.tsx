@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { normalizeSystemLocale } from "../system-locale";
 import "./status.css";
+import "./business-tabs.css";
 
 type StoredStatus = "new" | "in_progress" | "closed" | "won" | "irrelevant" | "deleted";
 type DashboardStatus = "new" | "in_progress" | "won" | "irrelevant" | "deleted";
@@ -107,6 +108,17 @@ function normalizeStatus(status: StoredStatus): DashboardStatus {
 
 type SourceGroup = "meta_paid" | "google_paid" | "direct" | "other";
 type DatePeriod = "all" | "today" | "week" | "month" | "custom";
+type BusinessFilter = "all" | "spaplus" | "vila4u";
+
+function leadBusiness(item: Pick<Submission, "resourceKey">): Exclude<BusinessFilter, "all"> {
+  return item.resourceKey.startsWith("business:vila4u:") ? "vila4u" : "spaplus";
+}
+
+function businessLabels(locale: string) {
+  if (locale === "he") return { all: "כל העסקים", spaplus: "ספא פלוס", vila4u: "וילה פור יו" };
+  if (locale === "fr-CA") return { all: "Toutes les entreprises", spaplus: "SpaPlus", vila4u: "Vila4U" };
+  return { all: "All businesses", spaplus: "SpaPlus", vila4u: "Vila4U" };
+}
 
 function periodLabels(locale: string) {
   if (locale === "he") return { total: "סך הכול לידים", label: "תקופה", all: "כל התקופות", today: "היום", week: "7 ימים אחרונים", month: "30 ימים אחרונים", custom: "טווח לבחירה", from: "מתאריך", to: "עד תאריך" };
@@ -164,6 +176,7 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [resource, setResource] = useState("all");
+  const [business, setBusiness] = useState<BusinessFilter>("all");
   const [sourceFilter, setSourceFilter] = useState<SourceGroup | "all">("all");
   const [statusFilter, setStatusFilter] = useState<DashboardStatus | "all">("new");
   const [datePeriod, setDatePeriod] = useState<DatePeriod>("all");
@@ -197,11 +210,14 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
     () => Array.from(new Set(submissions.map((item) => item.resourceKey))),
     [submissions],
   );
-  const resourceLabel = (key: string) => key === "market:ca:on" ? t.ontario : t.global;
+  const resourceLabel = (key: string) => key.startsWith("business:vila4u:") ? businessLabels(locale).vila4u : key === "market:ca:on" ? t.ontario : t.global;
   const statusLabel = (status: DashboardStatus) => t[status];
-  const resourceLeads = resource === "all"
+  const selectedBusinessLeads = business === "all"
     ? submissions
-    : submissions.filter((item) => item.resourceKey === resource);
+    : submissions.filter((item) => leadBusiness(item) === business);
+  const resourceLeads = resource === "all"
+    ? selectedBusinessLeads
+    : selectedBusinessLeads.filter((item) => item.resourceKey === resource);
   const periodLeads = useMemo(() => {
     if (datePeriod === "all") return resourceLeads;
     if (datePeriod === "custom") {
@@ -224,6 +240,7 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
   ) as Record<DashboardStatus, number>;
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const sources = sourceLabels(locale);
+  const businesses = businessLabels(locale);
   const periods = periodLabels(locale);
   const periodSummary = datePeriod === "all"
     ? periods.all
@@ -283,6 +300,12 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
         <div><p>{t.eyebrow}</p><h1>{t.title}</h1><span>{t.subtitle}</span></div>
       </div>
 
+      <nav className="lead-business-tabs" aria-label={businesses.all}>
+        <button className={business === "all" ? "is-active" : ""} type="button" onClick={() => { setBusiness("all"); setResource("all"); }}>{businesses.all} ({submissions.length})</button>
+        <button className={business === "spaplus" ? "is-active" : ""} type="button" onClick={() => { setBusiness("spaplus"); setResource("all"); }}>{businesses.spaplus} ({submissions.filter((item) => leadBusiness(item) === "spaplus").length})</button>
+        <button className={business === "vila4u" ? "is-active" : ""} type="button" onClick={() => { setBusiness("vila4u"); setResource("all"); }}>{businesses.vila4u} ({submissions.filter((item) => leadBusiness(item) === "vila4u").length})</button>
+      </nav>
+
       <section className="lead-status-overview" aria-label={t.update}>
         <div className="lead-status-heading">
           <p>{sourceFilter === "all" ? t.title : sources[sourceFilter]}</p>
@@ -340,7 +363,7 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
           <span>{t.allAreas}</span>
           <select value={resource} onChange={(event) => setResource(event.target.value)}>
             <option value="all">{t.allAreas}</option>
-            {resources.map((key) => <option key={key} value={key}>{resourceLabel(key)}</option>)}
+            {resources.filter((key) => business === "all" || leadBusiness({ resourceKey: key }) === business).map((key) => <option key={key} value={key}>{resourceLabel(key)}</option>)}
           </select>
         </label>
         <label className="lead-search">

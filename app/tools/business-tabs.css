@@ -1,0 +1,29 @@
+.lead-business-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 22px;
+  padding: 7px;
+  overflow-x: auto;
+  border: 1px solid #d9e3ee;
+  border-radius: 16px;
+  background: #f3f7fa;
+}
+
+.lead-business-tabs button {
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 11px;
+  background: transparent;
+  color: #35516c;
+  font: inherit;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.lead-business-tabs button.is-active {
+  background: #153b67;
+  color: #fff;
+  box-shadow: 0 7px 18px rgba(21, 59, 103, .18);
+}
