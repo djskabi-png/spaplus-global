@@ -187,6 +187,7 @@ export default function AdminClient({
   const [status, setStatus] = useState("");
   const [contentSearch, setContentSearch] = useState("");
   const [contentLoading, setContentLoading] = useState(false);
+  const [savingAction, setSavingAction] = useState<string | null>(null);
   const contentRequestId = useRef(0);
   const emptyPermissions = resources.map((resource) => ({
     resourceKey: resource.key,
@@ -260,12 +261,14 @@ export default function AdminClient({
     const key = `${section}.${field}`;
     const value = drafts[key] ?? existing[key] ?? defaultValue(section, field);
     setStatus(t.saving);
+    setSavingAction(`content:${section}.${field}`);
     const response = await fetch("/api/cms/content", {
       method: "PUT", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ locale, section, field, value }),
     });
     setStatus(response.ok ? t.saved : t.failed);
     if (response.ok) await loadContent();
+    setSavingAction(null);
   }
 
   async function saveAllMarketChanges() {
@@ -273,6 +276,7 @@ export default function AdminClient({
     const changes = Object.entries(drafts).filter(([key]) => key.startsWith("market.ca-on."));
     if (!changes.length) return;
     setStatus(t.saving);
+    setSavingAction("content:all");
     for (const [key, value] of changes) {
       const field = key.slice("market.ca-on.".length);
       const response = await fetch("/api/cms/content", {
@@ -282,15 +286,18 @@ export default function AdminClient({
       });
       if (!response.ok) {
         setStatus(t.failed);
+        setSavingAction(null);
         return;
       }
     }
     setStatus(t.saved);
     await loadContent();
+    setSavingAction(null);
   }
 
   async function addUser() {
     setStatus(t.saving);
+    setSavingAction("user:new");
     const response = await fetch("/api/cms/users", {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newUser),
     });
@@ -299,15 +306,18 @@ export default function AdminClient({
       setNewUser({ email: "", displayName: "", role: "editor", defaultLocale: "en", systemLocale: "en", permissions: emptyPermissions });
       await loadUsers();
     }
+    setSavingAction(null);
   }
 
-  async function updateUser(user: CmsUser, changes: Partial<CmsUser>) {
+  async function updateUser(user: CmsUser, changes: Partial<CmsUser>, action = "settings") {
     setStatus(t.saving);
+    setSavingAction(`user:${user.id}:${action}`);
     const response = await fetch("/api/cms/users", {
       method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: user.id, ...changes }),
     });
     setStatus(response.ok ? t.saved : t.failed);
     if (response.ok) await loadUsers();
+    setSavingAction(null);
   }
 
   function setUserPermission(user: CmsUser, resourceKey: string, kind: "content" | "leads", level: string) {
@@ -318,7 +328,7 @@ export default function AdminClient({
         ? { ...current, canViewContent: level === "view" || level === "edit", canEditContent: level === "edit" }
         : { ...current, canViewLeads: level === "view" || level === "manage", canManageLeads: level === "manage" };
     });
-    void updateUser(user, { permissions } as Partial<CmsUser>);
+    void updateUser(user, { permissions } as Partial<CmsUser>, `permission:${resourceKey}:${kind}`);
   }
 
   const normalizedSearch = contentSearch.trim().toLocaleLowerCase();
@@ -379,7 +389,7 @@ export default function AdminClient({
         {role === "owner" ? <button className={tab === "users" ? "active" : ""} onClick={() => setTab("users")}>{t.users}</button> : null}
         {resources.some((resource) => can(resource.key, "canViewLeads")) ? <a href="/tools">{t.leads}</a> : null}
       </nav>
-      {status ? <div className="cms-status" role="status">{status}</div> : null}
+      {status ? <div className={`cms-status${savingAction ? " is-saving" : ""}`} role="status" aria-live="polite">{savingAction ? <i className="cms-spinner" aria-hidden="true" /> : null}{status}</div> : null}
 
       {tab !== "users" ? (
         <>
@@ -390,7 +400,7 @@ export default function AdminClient({
           {tab === "market" ? <div className="cms-market-tools">
             <input type="search" value={contentSearch} onChange={(event) => setContentSearch(event.target.value)} placeholder={t.searchContent} aria-label={t.searchContent} />
             <strong>{visibleMarketEntries.length} {t.fields}</strong>
-            {can(resourceKey, "canEditContent") ? <button type="button" disabled={contentLoading || !marketDraftCount} onClick={() => void saveAllMarketChanges()}>{t.saveAll}{marketDraftCount ? ` (${marketDraftCount})` : ""}</button> : null}
+            {can(resourceKey, "canEditContent") ? <button className={savingAction === "content:all" ? "is-loading" : ""} type="button" disabled={contentLoading || !marketDraftCount || Boolean(savingAction)} onClick={() => void saveAllMarketChanges()}>{savingAction === "content:all" ? <><i className="cms-spinner" aria-hidden="true" />{t.saving}</> : <>{t.saveAll}{marketDraftCount ? ` (${marketDraftCount})` : ""}</>}</button> : null}
           </div> : null}
           {sectionGroups.map((group, index) => {
             const fields = <div className="cms-fields">
@@ -400,7 +410,7 @@ export default function AdminClient({
                 const showDescription = Boolean(description && description !== label);
                 const isToggle = /(?:Visible|Required|Enabled)$/.test(field);
                 return <label key={key}><span>{showDescription ? description : label}</span>{showDescription ? <small>{label}</small> : null}{isToggle ? <input type="checkbox" checked={value === "true"} disabled={contentLoading || !can(resourceKey, "canEditContent")} onChange={(event) => setDrafts((current) => ({ ...current, [key]: event.target.checked ? "true" : "false" }))} /> : <textarea value={value} rows={value.length > 130 ? 5 : 2} disabled={contentLoading || !can(resourceKey, "canEditContent")} onChange={(event) => setDrafts((current) => ({ ...current, [key]: event.target.value }))} />}
-                  {can(resourceKey, "canEditContent") ? <button type="button" disabled={contentLoading} onClick={() => void save(group.section, field)}>{t.save}</button> : null}
+                  {can(resourceKey, "canEditContent") ? <button className={savingAction === `content:${key}` ? "is-loading" : ""} type="button" disabled={contentLoading || Boolean(savingAction)} onClick={() => void save(group.section, field)}>{savingAction === `content:${key}` ? <><i className="cms-spinner" aria-hidden="true" />{t.saving}</> : t.save}</button> : null}
                 </label>;
               })}
             </div>;
@@ -419,15 +429,15 @@ export default function AdminClient({
             <select value={newUser.role} onChange={(event) => setNewUser({ ...newUser, role: event.target.value })}><option value="editor">{t.editor}</option><option value="viewer">{t.viewer}</option><option value="owner">{t.owner}</option></select>
             <select aria-label={t.systemLanguage} value={newUser.systemLocale} onChange={(event) => setNewUser({ ...newUser, systemLocale: event.target.value as "en" | "he" | "fr-CA" })}>{systemLanguageOptions.map((option) => <option key={option.code} value={option.code}>{option.label}</option>)}</select>
             <select aria-label={t.defaultContentLanguage} value={newUser.defaultLocale} onChange={(event) => setNewUser({ ...newUser, defaultLocale: event.target.value as Locale })}>{localeOptions.map((option) => <option key={option.code} value={option.code}>{option.label}</option>)}</select>
-            <button onClick={() => void addUser()}>{t.add}</button>
+            <button className={savingAction === "user:new" ? "is-loading" : ""} disabled={Boolean(savingAction)} onClick={() => void addUser()}>{savingAction === "user:new" ? <><i className="cms-spinner" aria-hidden="true" />{t.saving}</> : t.add}</button>
           </div>
           <div className="cms-user-list">
-            {users.map((user) => <article className="cms-user-card" key={user.id}>
+            {users.map((user) => <article className={`cms-user-card${savingAction?.startsWith(`user:${user.id}:`) ? " is-saving" : ""}`} aria-busy={savingAction?.startsWith(`user:${user.id}:`) || undefined} key={user.id}>
               <div className="cms-user-identity"><strong>{user.displayName || user.email}</strong><span dir="ltr">{user.email}</span></div>
               <div className="cms-user-settings">
-                <label>{t.systemLanguage}<select value={user.systemLocale} onChange={(event) => void updateUser(user, { systemLocale: event.target.value as CmsUser["systemLocale"] })}>{systemLanguageOptions.map((option) => <option key={option.code} value={option.code}>{option.label}</option>)}</select></label>
-                <label>{t.defaultContentLanguage}<select value={user.defaultLocale} onChange={(event) => void updateUser(user, { defaultLocale: event.target.value as Locale })}>{localeOptions.map((option) => <option key={option.code} value={option.code}>{option.label}</option>)}</select></label>
-                <label>{t.users}<select value={user.role} onChange={(event) => void updateUser(user, { role: event.target.value as AdminRole })}><option value="owner">{t.owner}</option><option value="editor">{t.editor}</option><option value="viewer">{t.viewer}</option></select></label>
+                <label>{t.systemLanguage}<select disabled={Boolean(savingAction)} value={user.systemLocale} onChange={(event) => void updateUser(user, { systemLocale: event.target.value as CmsUser["systemLocale"] }, "system-language")}>{systemLanguageOptions.map((option) => <option key={option.code} value={option.code}>{option.label}</option>)}</select></label>
+                <label>{t.defaultContentLanguage}<select disabled={Boolean(savingAction)} value={user.defaultLocale} onChange={(event) => void updateUser(user, { defaultLocale: event.target.value as Locale }, "content-language")}>{localeOptions.map((option) => <option key={option.code} value={option.code}>{option.label}</option>)}</select></label>
+                <label>{t.users}<select disabled={Boolean(savingAction)} value={user.role} onChange={(event) => void updateUser(user, { role: event.target.value as AdminRole }, "role") }><option value="owner">{t.owner}</option><option value="editor">{t.editor}</option><option value="viewer">{t.viewer}</option></select></label>
               </div>
               <div className="cms-permission-grid">
                 {resourceBusinesses.map((business) => <section className="cms-business-permissions" key={business}>
@@ -438,12 +448,13 @@ export default function AdminClient({
                   const leadLevel = permission.canManageLeads ? "manage" : permission.canViewLeads ? "view" : "none";
                   return <div className="cms-permission-row" key={resource.key}>
                     <strong>{resource.labels[uiLocale]}</strong>
-                    {resource.type === "site" || resource.type === "market" ? <label>{t.contentAccess}<select value={contentLevel} onChange={(event) => setUserPermission(user, resource.key, "content", event.target.value)}><option value="none">{t.none}</option><option value="view">{t.view}</option><option value="edit">{t.edit}</option></select></label> : null}
-                    <label>{t.leadAccess}<select value={leadLevel} onChange={(event) => setUserPermission(user, resource.key, "leads", event.target.value)}><option value="none">{t.none}</option><option value="view">{t.view}</option><option value="manage">{t.manage}</option></select></label>
+                    {resource.type === "site" || resource.type === "market" ? <label>{t.contentAccess}<select disabled={Boolean(savingAction)} value={contentLevel} onChange={(event) => setUserPermission(user, resource.key, "content", event.target.value)}><option value="none">{t.none}</option><option value="view">{t.view}</option><option value="edit">{t.edit}</option></select></label> : null}
+                    <label>{t.leadAccess}<select disabled={Boolean(savingAction)} value={leadLevel} onChange={(event) => setUserPermission(user, resource.key, "leads", event.target.value)}><option value="none">{t.none}</option><option value="view">{t.view}</option><option value="manage">{t.manage}</option></select></label>
                   </div>;
                 })}</section>)}
               </div>
-              <div className="cms-user-actions"><span>{user.status === "active" ? t.active : t.inactive}</span><button onClick={() => void updateUser(user, { status: user.status === "active" ? "inactive" : "active" })}>{user.status === "active" ? t.disable : t.enable}</button></div>
+              {savingAction?.startsWith(`user:${user.id}:`) ? <div className="cms-user-saving" role="status"><i className="cms-spinner" aria-hidden="true" />{t.saving}</div> : null}
+              <div className="cms-user-actions"><span>{user.status === "active" ? t.active : t.inactive}</span><button disabled={Boolean(savingAction)} onClick={() => void updateUser(user, { status: user.status === "active" ? "inactive" : "active" }, "status")}>{user.status === "active" ? t.disable : t.enable}</button></div>
             </article>)}
           </div>
         </div>

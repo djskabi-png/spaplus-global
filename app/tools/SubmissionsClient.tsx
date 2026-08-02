@@ -165,19 +165,19 @@ function activityLabels(locale: string) {
     activity: "היסטוריית טיפול", created: "הליד נוצר", changed: "שינה מצב", from: "ממצב", to: "למצב",
     notes: "הערות לליד", add: "הוספת הערה חדשה", placeholder: "כתבו הערה על הטיפול בליד", publish: "פרסום הערה",
     open: "רגילה", important: "חשובה", handled: "טופלה", all: "כל ההערות", noteFilter: "סינון הערות",
-    noteError: "לא ניתן לשמור את ההערה. נסו שוב.", noNotes: "אין הערות בסינון שנבחר.", by: "על ידי",
+    noteError: "לא ניתן לשמור את ההערה. נסו שוב.", noNotes: "אין הערות בסינון שנבחר.", by: "על ידי", saving: "שומר, נא להמתין...",
   };
   if (locale === "fr-CA") return {
     activity: "Historique du suivi", created: "Prospect créé", changed: "a modifié l’état", from: "de", to: "à",
     notes: "Notes du prospect", add: "Ajouter une note", placeholder: "Écrivez une note sur le suivi", publish: "Publier la note",
     open: "Normale", important: "Importante", handled: "Traitée", all: "Toutes les notes", noteFilter: "Filtrer les notes",
-    noteError: "La note n’a pas pu être enregistrée.", noNotes: "Aucune note pour ce filtre.", by: "par",
+    noteError: "La note n’a pas pu être enregistrée.", noNotes: "Aucune note pour ce filtre.", by: "par", saving: "Enregistrement en cours...",
   };
   return {
     activity: "Lead activity", created: "Lead created", changed: "changed status", from: "from", to: "to",
     notes: "Lead notes", add: "Add a new note", placeholder: "Write a note about this lead", publish: "Publish note",
     open: "Normal", important: "Important", handled: "Handled", all: "All notes", noteFilter: "Filter notes",
-    noteError: "The note could not be saved. Please try again.", noNotes: "No notes match this filter.", by: "by",
+    noteError: "The note could not be saved. Please try again.", noNotes: "No notes match this filter.", by: "by", saving: "Saving, please wait...",
   };
 }
 
@@ -518,6 +518,7 @@ export default function SubmissionsClient({
                   >
                     {dashboardStatuses.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}
                   </select>
+                  {updatingId === item.id ? <span className="action-loading" role="status"><i aria-hidden="true" />{activity.saving}</span> : null}
                 </label>
               </footer>
               <div className="lead-activity-grid">
@@ -555,8 +556,9 @@ export default function SubmissionsClient({
                   <div className="lead-note-form">
                     <label><span>{activity.add}</span><textarea value={noteDrafts[item.id] || ""} placeholder={activity.placeholder} maxLength={4000} onChange={(event) => setNoteDrafts((current) => ({ ...current, [item.id]: event.target.value }))} /></label>
                     <select value={noteKinds[item.id] || "open"} onChange={(event) => setNoteKinds((current) => ({ ...current, [item.id]: event.target.value as NoteState }))}><option value="open">{activity.open}</option><option value="important">{activity.important}</option><option value="handled">{activity.handled}</option></select>
-                    <button type="button" disabled={savingNoteId === item.id || !(noteDrafts[item.id] || "").trim()} onClick={() => void addNote(item)}>{activity.publish}</button>
+                    <button className={savingNoteId === item.id ? "is-loading" : ""} type="button" disabled={savingNoteId === item.id || !(noteDrafts[item.id] || "").trim()} onClick={() => void addNote(item)}>{savingNoteId === item.id ? <><i className="action-spinner" aria-hidden="true" />{activity.saving}</> : activity.publish}</button>
                   </div>
+                  {savingNoteId === item.id ? <span className="action-loading lead-note-loading" role="status"><i aria-hidden="true" />{activity.saving}</span> : null}
                 </section>
               </div>
             </article>
