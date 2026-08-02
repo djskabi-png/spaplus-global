@@ -169,7 +169,16 @@ export default function AdminClient({
   const direction = uiLocale === "he" ? "rtl" : "ltr";
   const can = (resourceKey: string, capability: keyof Omit<Permission, "resourceKey">) =>
     role === "owner" || permissions.some((item) => item.resourceKey === resourceKey && (item[capability] || (capability === "canViewContent" && item.canEditContent) || (capability === "canViewLeads" && item.canManageLeads)));
-  const initialTab = can("site:global", "canViewContent") ? "global" : "market";
+  const canViewGlobalContent = can("site:global", "canViewContent");
+  const canViewMarketContent = can("market:ca:on", "canViewContent");
+  const hasContentAccess = canViewGlobalContent || canViewMarketContent;
+  const hasLeadAccess = resources.some((resource) => can(resource.key, "canViewLeads"));
+  const hasVila4uLeadAccess = can("business:vila4u:leads", "canViewLeads");
+  const hasOtherLeadAccess = resources.some((resource) =>
+    resource.key !== "business:vila4u:leads" && can(resource.key, "canViewLeads"),
+  );
+  const leadsOnlyHref = hasVila4uLeadAccess && !hasOtherLeadAccess ? "/vila4u" : "/tools";
+  const initialTab = canViewGlobalContent ? "global" : "market";
   const [tab, setTab] = useState<"global" | "market" | "users">(initialTab);
   const [locale, setLocale] = useState<string>(defaultLocale);
   const [rows, setRows] = useState<CmsRow[]>([]);
@@ -191,6 +200,7 @@ export default function AdminClient({
     systemLocale: "en" as "en" | "he" | "fr-CA", permissions: emptyPermissions,
   });
   const resourceKey = tab === "market" ? "market:ca:on" : "site:global";
+  const canViewSelectedContent = tab === "market" ? canViewMarketContent : canViewGlobalContent;
   const contentLocaleOptions = tab === "market"
     ? [{ code: "en-CA", label: "English, Canada" }, { code: "fr-CA", label: "Français canadien" }]
     : localeOptions;
@@ -202,7 +212,7 @@ export default function AdminClient({
   }, [tab]);
 
   const loadContent = useCallback(async () => {
-    if (tab === "users") return;
+    if (tab === "users" || !canViewSelectedContent) return;
     const requestId = ++contentRequestId.current;
     setContentLoading(true);
     setRows([]);
@@ -215,7 +225,7 @@ export default function AdminClient({
     } finally {
       if (requestId === contentRequestId.current) setContentLoading(false);
     }
-  }, [locale, resourceKey, tab]);
+  }, [canViewSelectedContent, locale, resourceKey, tab]);
 
   const loadUsers = useCallback(async () => {
     const response = await fetch("/api/cms/users");
@@ -226,6 +236,11 @@ export default function AdminClient({
 
   useEffect(() => { void loadContent(); }, [loadContent]);
   useEffect(() => { if (tab === "users") void loadUsers(); }, [tab, loadUsers]);
+  useEffect(() => {
+    if (role !== "owner" && !hasContentAccess && hasLeadAccess) {
+      window.location.replace(leadsOnlyHref);
+    }
+  }, [hasContentAccess, hasLeadAccess, leadsOnlyHref, role]);
 
   const existing = useMemo(() => Object.fromEntries(rows.map((row) => [`${row.section}.${row.field}`, row.value])), [rows]);
 
@@ -340,6 +355,18 @@ export default function AdminClient({
   } as const;
   const resourceBusinesses = Array.from(new Set(resources.map((resource) => resource.business)));
 
+  if (role !== "owner" && !hasContentAccess) {
+    return (
+      <section className="cms-content" dir={direction} lang={uiLocale}>
+        <div className="cms-status" role="status">
+          <a href={hasLeadAccess ? leadsOnlyHref : "/access-denied"}>
+            {uiLocale === "he" ? "מעבר לאזור המורשה" : uiLocale === "fr-CA" ? "Accéder à la zone autorisée" : "Continue to your authorized area"}
+          </a>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="cms-content" dir={direction} lang={uiLocale} data-release="2026-08-01-b">
       <div className="cms-intro">
@@ -347,8 +374,8 @@ export default function AdminClient({
         <a className="cms-preview" href="/" target="_blank" rel="noreferrer">{t.preview}</a>
       </div>
       <nav className="cms-tabs" aria-label={t.eyebrow}>
-        {can("site:global", "canViewContent") ? <button className={tab === "global" ? "active" : ""} onClick={() => setTab("global")}>{t.global}</button> : null}
-        {can("market:ca:on", "canViewContent") ? <button className={tab === "market" ? "active" : ""} onClick={() => setTab("market")}>{t.market}</button> : null}
+        {canViewGlobalContent ? <button className={tab === "global" ? "active" : ""} onClick={() => setTab("global")}>{t.global}</button> : null}
+        {canViewMarketContent ? <button className={tab === "market" ? "active" : ""} onClick={() => setTab("market")}>{t.market}</button> : null}
         {role === "owner" ? <button className={tab === "users" ? "active" : ""} onClick={() => setTab("users")}>{t.users}</button> : null}
         {resources.some((resource) => can(resource.key, "canViewLeads")) ? <a href="/tools">{t.leads}</a> : null}
       </nav>
@@ -411,7 +438,7 @@ export default function AdminClient({
                   const leadLevel = permission.canManageLeads ? "manage" : permission.canViewLeads ? "view" : "none";
                   return <div className="cms-permission-row" key={resource.key}>
                     <strong>{resource.labels[uiLocale]}</strong>
-                    <label>{t.contentAccess}<select value={contentLevel} onChange={(event) => setUserPermission(user, resource.key, "content", event.target.value)}><option value="none">{t.none}</option><option value="view">{t.view}</option><option value="edit">{t.edit}</option></select></label>
+                    {resource.type === "site" || resource.type === "market" ? <label>{t.contentAccess}<select value={contentLevel} onChange={(event) => setUserPermission(user, resource.key, "content", event.target.value)}><option value="none">{t.none}</option><option value="view">{t.view}</option><option value="edit">{t.edit}</option></select></label> : null}
                     <label>{t.leadAccess}<select value={leadLevel} onChange={(event) => setUserPermission(user, resource.key, "leads", event.target.value)}><option value="none">{t.none}</option><option value="view">{t.view}</option><option value="manage">{t.manage}</option></select></label>
                   </div>;
                 })}</section>)}
