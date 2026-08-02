@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     const email = clean(lead.email).toLowerCase();
     const phone = clean(lead.phone).replace(/^p:/, "");
 
-    if (lead.isTest || !leadId || !name || (!email && !phone)) {
+    if (!leadId || !name || (!email && !phone)) {
       skipped += 1;
       continue;
     }
@@ -82,13 +82,14 @@ export async function POST(request: Request) {
 
     await db.insert(formSubmissions).values({
       submissionId,
-      formType: "rooms-vip-owner-lead",
+      formType: lead.isTest ? "rooms-vip-owner-lead-test" : "rooms-vip-owner-lead",
       name,
       email,
       phone,
       organization: propertyLocation,
       topic: propertyType,
       message: [
+        lead.isTest && "Lead type: Test lead",
         propertyType && `Property type: ${propertyType}`,
         propertyLocation && `Property and city: ${propertyLocation}`,
         platform && `Platform: ${platform}`,

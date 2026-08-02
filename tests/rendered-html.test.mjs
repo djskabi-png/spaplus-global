@@ -21,6 +21,13 @@ test("the browser icon uses the official SpaPlus mark", async () => {
   assert.doesNotMatch(layout, /icon:\s*"\/spaplus-logo\.png"/);
 });
 
+test("RoomsVIP test leads are retained and clearly marked", async () => {
+  const route = await read("app/api/integrations/roomsvip-leads/route.ts");
+  assert.doesNotMatch(route, /lead\.isTest\s*\|\|\s*!leadId/);
+  assert.match(route, /rooms-vip-owner-lead-test/);
+  assert.match(route, /Lead type: Test lead/);
+});
+
 test("static pages use the official SpaPlus mark instead of the retired heart icon", async () => {
   const [home, favicon] = await Promise.all([
     read("codepen/index.html"),
