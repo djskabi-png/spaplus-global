@@ -4,9 +4,14 @@ import { useEffect, useMemo, useState } from "react";
 import { normalizeSystemLocale } from "../system-locale";
 import "./status.css";
 import "./business-tabs.css";
+import "./lead-activity.css";
 
 type StoredStatus = "new" | "in_progress" | "closed" | "won" | "irrelevant" | "deleted";
 type DashboardStatus = "new" | "in_progress" | "won" | "irrelevant" | "deleted";
+type NoteState = "open" | "important" | "handled";
+
+type LeadStatusEvent = { id: number; fromStatus: StoredStatus; toStatus: StoredStatus; actorEmail: string; actorName: string; createdAt: string };
+type LeadNote = { id: number; body: string; state: NoteState; actorEmail: string; actorName: string; createdAt: string; updatedAt: string };
 
 type Submission = {
   id: number;
@@ -22,6 +27,8 @@ type Submission = {
   resourceKey: string;
   status: StoredStatus;
   createdAt: string;
+  statusEvents: LeadStatusEvent[];
+  notes: LeadNote[];
 };
 
 const copy = {
@@ -153,6 +160,27 @@ function sourceLabels(locale: string) {
   return { title: "Lead sources", all: "All lead sources", meta_paid: "Paid Facebook and Instagram campaign", google_paid: "Paid Google campaign", direct: "Direct visit", other: "Other source" };
 }
 
+function activityLabels(locale: string) {
+  if (locale === "he") return {
+    activity: "היסטוריית טיפול", created: "הליד נוצר", changed: "שינה מצב", from: "ממצב", to: "למצב",
+    notes: "הערות לליד", add: "הוספת הערה חדשה", placeholder: "כתבו הערה על הטיפול בליד", publish: "פרסום הערה",
+    open: "רגילה", important: "חשובה", handled: "טופלה", all: "כל ההערות", noteFilter: "סינון הערות",
+    noteError: "לא ניתן לשמור את ההערה. נסו שוב.", noNotes: "אין הערות בסינון שנבחר.", by: "על ידי",
+  };
+  if (locale === "fr-CA") return {
+    activity: "Historique du suivi", created: "Prospect créé", changed: "a modifié l’état", from: "de", to: "à",
+    notes: "Notes du prospect", add: "Ajouter une note", placeholder: "Écrivez une note sur le suivi", publish: "Publier la note",
+    open: "Normale", important: "Importante", handled: "Traitée", all: "Toutes les notes", noteFilter: "Filtrer les notes",
+    noteError: "La note n’a pas pu être enregistrée.", noNotes: "Aucune note pour ce filtre.", by: "par",
+  };
+  return {
+    activity: "Lead activity", created: "Lead created", changed: "changed status", from: "from", to: "to",
+    notes: "Lead notes", add: "Add a new note", placeholder: "Write a note about this lead", publish: "Publish note",
+    open: "Normal", important: "Important", handled: "Handled", all: "All notes", noteFilter: "Filter notes",
+    noteError: "The note could not be saved. Please try again.", noNotes: "No notes match this filter.", by: "by",
+  };
+}
+
 function receivedAt(item: Submission, locale: string) {
   const isOntario = item.resourceKey === "market:ca:on";
   const timeZone = isOntario ? "America/Toronto" : "Asia/Jerusalem";
@@ -196,6 +224,10 @@ export default function SubmissionsClient({
   const [customTo, setCustomTo] = useState("");
   const [query, setQuery] = useState("");
   const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [noteDrafts, setNoteDrafts] = useState<Record<number, string>>({});
+  const [noteKinds, setNoteKinds] = useState<Record<number, NoteState>>({});
+  const [noteFilters, setNoteFilters] = useState<Record<number, NoteState | "all">>({});
+  const [savingNoteId, setSavingNoteId] = useState<number | null>(null);
 
   useEffect(() => {
     document.documentElement.lang = locale;
@@ -254,6 +286,7 @@ export default function SubmissionsClient({
   const sources = sourceLabels(locale);
   const businesses = businessLabels(locale);
   const periods = periodLabels(locale);
+  const activity = activityLabels(locale);
   const periodSummary = datePeriod === "all"
     ? periods.all
     : datePeriod === "today"
@@ -297,13 +330,39 @@ export default function SubmissionsClient({
       body: JSON.stringify({ id: item.id, status }),
     });
     if (response.ok) {
-      setSubmissions((current) => current.map((lead) =>
-        lead.id === item.id ? { ...lead, status } : lead,
-      ));
+      await load();
     } else {
       setError(t.updateError);
     }
     setUpdatingId(null);
+  }
+
+  async function addNote(item: Submission) {
+    const body = (noteDrafts[item.id] || "").trim();
+    if (!body) return;
+    setSavingNoteId(item.id);
+    setError("");
+    const response = await fetch("/api/cms/submissions/notes", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ submissionId: item.id, body, state: noteKinds[item.id] || "open" }),
+    });
+    if (response.ok) {
+      setNoteDrafts((current) => ({ ...current, [item.id]: "" }));
+      await load();
+    } else setError(activity.noteError);
+    setSavingNoteId(null);
+  }
+
+  async function updateNoteState(item: Submission, note: LeadNote, state: NoteState) {
+    setSavingNoteId(item.id);
+    setError("");
+    const response = await fetch("/api/cms/submissions/notes", {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: note.id, state }),
+    });
+    if (response.ok) await load();
+    else setError(activity.noteError);
+    setSavingNoteId(null);
   }
 
   return (
@@ -461,6 +520,45 @@ export default function SubmissionsClient({
                   </select>
                 </label>
               </footer>
+              <div className="lead-activity-grid">
+                <section className="lead-history">
+                  <h3>{activity.activity}</h3>
+                  <ol>
+                    {item.statusEvents.map((event) => (
+                      <li key={event.id}>
+                        <strong>{event.actorName || event.actorEmail}</strong>
+                        <span>{activity.changed}: {statusLabel(normalizeStatus(event.fromStatus))} → {statusLabel(normalizeStatus(event.toStatus))}</span>
+                        <time dateTime={event.createdAt}>{new Intl.DateTimeFormat(locale === "he" ? "he-IL" : locale, { dateStyle: "short", timeStyle: "short" }).format(new Date(event.createdAt))}</time>
+                      </li>
+                    ))}
+                    <li>
+                      <strong>{activity.created}</strong>
+                      <time dateTime={item.createdAt}>{received.formatted}</time>
+                    </li>
+                  </ol>
+                </section>
+                <section className="lead-notes">
+                  <div className="lead-notes-heading">
+                    <h3>{activity.notes}</h3>
+                    <label><span>{activity.noteFilter}</span><select value={noteFilters[item.id] || "all"} onChange={(event) => setNoteFilters((current) => ({ ...current, [item.id]: event.target.value as NoteState | "all" }))}><option value="all">{activity.all}</option><option value="open">{activity.open}</option><option value="important">{activity.important}</option><option value="handled">{activity.handled}</option></select></label>
+                  </div>
+                  <div className="lead-note-list">
+                    {item.notes.filter((note) => !noteFilters[item.id] || noteFilters[item.id] === "all" || note.state === noteFilters[item.id]).map((note) => (
+                      <article className={`lead-note is-${note.state}`} key={note.id}>
+                        <p>{note.body}</p>
+                        <div><span>{activity.by} {note.actorName || note.actorEmail}</span><time dateTime={note.createdAt}>{new Intl.DateTimeFormat(locale === "he" ? "he-IL" : locale, { dateStyle: "short", timeStyle: "short" }).format(new Date(note.createdAt))}</time></div>
+                        <select aria-label={activity.noteFilter} value={note.state} disabled={savingNoteId === item.id} onChange={(event) => void updateNoteState(item, note, event.target.value as NoteState)}><option value="open">{activity.open}</option><option value="important">{activity.important}</option><option value="handled">{activity.handled}</option></select>
+                      </article>
+                    ))}
+                    {item.notes.length > 0 && item.notes.filter((note) => !noteFilters[item.id] || noteFilters[item.id] === "all" || note.state === noteFilters[item.id]).length === 0 ? <p>{activity.noNotes}</p> : null}
+                  </div>
+                  <div className="lead-note-form">
+                    <label><span>{activity.add}</span><textarea value={noteDrafts[item.id] || ""} placeholder={activity.placeholder} maxLength={4000} onChange={(event) => setNoteDrafts((current) => ({ ...current, [item.id]: event.target.value }))} /></label>
+                    <select value={noteKinds[item.id] || "open"} onChange={(event) => setNoteKinds((current) => ({ ...current, [item.id]: event.target.value as NoteState }))}><option value="open">{activity.open}</option><option value="important">{activity.important}</option><option value="handled">{activity.handled}</option></select>
+                    <button type="button" disabled={savingNoteId === item.id || !(noteDrafts[item.id] || "").trim()} onClick={() => void addNote(item)}>{activity.publish}</button>
+                  </div>
+                </section>
+              </div>
             </article>
           );
         })}

@@ -100,3 +100,30 @@ export const formSubmissions = sqliteTable("form_submissions", {
     .default("new"),
   createdAt: text("created_at").notNull(),
 });
+
+export const leadStatusEvents = sqliteTable("lead_status_events", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  submissionId: integer("submission_id")
+    .notNull()
+    .references(() => formSubmissions.id, { onDelete: "cascade" }),
+  fromStatus: text("from_status").notNull(),
+  toStatus: text("to_status").notNull(),
+  actorEmail: text("actor_email").notNull(),
+  actorName: text("actor_name").notNull().default(""),
+  createdAt: text("created_at").notNull(),
+});
+
+export const leadNotes = sqliteTable("lead_notes", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  submissionId: integer("submission_id")
+    .notNull()
+    .references(() => formSubmissions.id, { onDelete: "cascade" }),
+  body: text("body").notNull(),
+  state: text("state", { enum: ["open", "important", "handled"] })
+    .notNull()
+    .default("open"),
+  actorEmail: text("actor_email").notNull(),
+  actorName: text("actor_name").notNull().default(""),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});

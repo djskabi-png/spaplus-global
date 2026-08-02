@@ -1,6 +1,6 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { getDb } from "../../../../db";
-import { cmsAuditLog, formSubmissions } from "../../../../db/schema";
+import { cmsAuditLog, formSubmissions, leadNotes, leadStatusEvents } from "../../../../db/schema";
 import { getAuthorizedAdmin } from "../../../admin-auth";
 import { cmsResources, hasPermission } from "../../../cms-access";
 
@@ -26,7 +26,20 @@ export async function GET() {
     .where(inArray(formSubmissions.resourceKey, resources))
     .orderBy(desc(formSubmissions.createdAt))
     .limit(200);
-  return Response.json({ submissions });
+  const ids = submissions.map((submission) => submission.id);
+  if (ids.length === 0) return Response.json({ submissions: [] });
+  const db = getDb();
+  const [statusEvents, notes] = await Promise.all([
+    db.select().from(leadStatusEvents).where(inArray(leadStatusEvents.submissionId, ids)).orderBy(desc(leadStatusEvents.createdAt)),
+    db.select().from(leadNotes).where(inArray(leadNotes.submissionId, ids)).orderBy(desc(leadNotes.createdAt)),
+  ]);
+  return Response.json({
+    submissions: submissions.map((submission) => ({
+      ...submission,
+      statusEvents: statusEvents.filter((event) => event.submissionId === submission.id),
+      notes: notes.filter((note) => note.submissionId === submission.id),
+    })),
+  });
 }
 
 export async function PATCH(request: Request) {
@@ -48,17 +61,29 @@ export async function PATCH(request: Request) {
   if (!hasPermission(admin.role, admin.permissions, submission.resourceKey, "manageLeads")) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
-  await db
-    .update(formSubmissions)
-    .set({ status: status as "new" | "in_progress" | "won" | "irrelevant" | "deleted" })
-    .where(and(eq(formSubmissions.id, id), eq(formSubmissions.resourceKey, submission.resourceKey)));
+  const previousStatus = submission.status === "closed" ? "won" : submission.status;
+  if (previousStatus === status) return Response.json({ success: true });
+  const createdAt = new Date().toISOString();
+  await db.batch([
+    db.update(formSubmissions)
+      .set({ status: status as "new" | "in_progress" | "won" | "irrelevant" | "deleted" })
+      .where(and(eq(formSubmissions.id, id), eq(formSubmissions.resourceKey, submission.resourceKey))),
+    db.insert(leadStatusEvents).values({
+      submissionId: id,
+      fromStatus: previousStatus,
+      toStatus: status,
+      actorEmail: admin.email,
+      actorName: admin.displayName,
+      createdAt,
+    }),
+  ]);
   await db.insert(cmsAuditLog).values({
     actorEmail: admin.email,
     action: "lead.status.updated",
     entityType: "submission",
     entityId: String(id),
     details: JSON.stringify({ resourceKey: submission.resourceKey, status }),
-    createdAt: new Date().toISOString(),
+    createdAt,
   });
   return Response.json({ success: true });
 }
