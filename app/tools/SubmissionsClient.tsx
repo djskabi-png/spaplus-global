@@ -328,11 +328,11 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
           <div className="lead-date-range">
             <label>
               <span>{periods.from}</span>
-              <input type="date" value={customFrom} max={customTo || undefined} onChange={(event) => setCustomFrom(event.target.value)} />
+              <input type="date" value={customFrom} max={customTo || undefined} onInput={(event) => setCustomFrom(event.currentTarget.value)} />
             </label>
             <label>
               <span>{periods.to}</span>
-              <input type="date" value={customTo} min={customFrom || undefined} onChange={(event) => setCustomTo(event.target.value)} />
+              <input type="date" value={customTo} min={customFrom || undefined} onInput={(event) => setCustomTo(event.currentTarget.value)} />
             </label>
           </div>
         ) : null}
