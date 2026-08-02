@@ -264,7 +264,8 @@ async function proxyProtectedRequest(request: Request, env: Env, session: Signed
     body = body
       .replaceAll(env.PRIVATE_BACKEND_ORIGIN, publicUrl.origin)
       .replaceAll(LEGACY_SIGN_IN_PATH, "/auth/google/start")
-      .replaceAll(LEGACY_SIGN_OUT_PATH, "/auth/logout");
+      .replaceAll(LEGACY_SIGN_OUT_PATH, "/auth/logout")
+      .replaceAll("index-MnjarlW8.js", "index-D03kzx0b.js");
     body = body.replace(new RegExp(LEGACY_BRAND_TERMS[0], "gi"), "Google");
     body = body.replace(new RegExp(LEGACY_BRAND_TERMS[1], "gi"), "SpaPlus");
     headers.delete("content-length");
@@ -341,6 +342,12 @@ const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     const hostname = url.hostname.toLowerCase();
+
+    if (hostname === "app.spaplus.co" && url.pathname === "/assets/index-MnjarlW8.js") {
+      const localAssetUrl = new URL(request.url);
+      localAssetUrl.pathname = "/assets/index-D03kzx0b.js";
+      return env.ASSETS.fetch(new Request(localAssetUrl, request));
+    }
 
     if (hostname === "app.spaplus.co" && url.pathname === "/") {
       url.pathname = "/en-ca/ontario/";
