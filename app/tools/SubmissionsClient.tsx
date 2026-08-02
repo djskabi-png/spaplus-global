@@ -315,7 +315,7 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
           <span>{t.search}</span>
           <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t.search} />
         </label>
-        <button className={statusFilter === "all" ? "is-active" : ""} type="button" onClick={() => setStatusFilter("all")}>{t.allLeads} ({periodLeads.length})</button>
+        <button className={statusFilter === "all" ? "is-active" : ""} type="button" onClick={() => setStatusFilter("all")}>{t.allLeads} ({dashboardLeads.length})</button>
       </div>
 
       <nav className="lead-source-tabs" aria-label={sources.title}>
