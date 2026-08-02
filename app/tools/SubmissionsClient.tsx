@@ -106,6 +106,13 @@ function normalizeStatus(status: StoredStatus): DashboardStatus {
 }
 
 type SourceGroup = "meta_paid" | "google_paid" | "direct" | "other";
+type DatePeriod = "all" | "today" | "week" | "month";
+
+function periodLabels(locale: string) {
+  if (locale === "he") return { total: "סך הכול לידים", label: "תקופה", all: "כל התקופות", today: "היום", week: "7 ימים אחרונים", month: "30 ימים אחרונים" };
+  if (locale === "fr-CA") return { total: "Total des prospects", label: "Période", all: "Depuis le début", today: "Aujourd’hui", week: "7 derniers jours", month: "30 derniers jours" };
+  return { total: "Total leads", label: "Period", all: "All time", today: "Today", week: "Last 7 days", month: "Last 30 days" };
+}
 
 function attribution(item: Submission) {
   const source = item.source || "";
@@ -159,6 +166,7 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
   const [resource, setResource] = useState("all");
   const [sourceFilter, setSourceFilter] = useState<SourceGroup | "all">("all");
   const [statusFilter, setStatusFilter] = useState<DashboardStatus | "all">("new");
+  const [datePeriod, setDatePeriod] = useState<DatePeriod>("all");
   const [query, setQuery] = useState("");
   const [updatingId, setUpdatingId] = useState<number | null>(null);
 
@@ -192,21 +200,28 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
   const resourceLeads = resource === "all"
     ? submissions
     : submissions.filter((item) => item.resourceKey === resource);
+  const periodLeads = useMemo(() => {
+    if (datePeriod === "all") return resourceLeads;
+    const now = Date.now();
+    const duration = datePeriod === "today" ? 24 * 60 * 60 * 1000 : datePeriod === "week" ? 7 * 24 * 60 * 60 * 1000 : 30 * 24 * 60 * 60 * 1000;
+    return resourceLeads.filter((item) => now - new Date(item.createdAt).getTime() <= duration);
+  }, [datePeriod, resourceLeads]);
   const counts = Object.fromEntries(
     dashboardStatuses.map((status) => [
       status,
-      resourceLeads.filter((item) => normalizeStatus(item.status) === status).length,
+      periodLeads.filter((item) => normalizeStatus(item.status) === status).length,
     ]),
   ) as Record<DashboardStatus, number>;
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const sources = sourceLabels(locale);
+  const periods = periodLabels(locale);
   const sourceCounts = Object.fromEntries(
     (["meta_paid", "google_paid", "direct", "other"] as SourceGroup[]).map((source) => [
       source,
-      resourceLeads.filter((item) => attribution(item).group === source).length,
+      periodLeads.filter((item) => attribution(item).group === source).length,
     ]),
   ) as Record<SourceGroup, number>;
-  const visible = resourceLeads.filter((item) => {
+  const visible = periodLeads.filter((item) => {
     if (statusFilter !== "all" && normalizeStatus(item.status) !== statusFilter) return false;
     if (sourceFilter !== "all" && attribution(item).group !== sourceFilter) return false;
     if (!normalizedQuery) return true;
@@ -241,6 +256,15 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
       </div>
 
       <div className="lead-status-grid" aria-label={t.update}>
+        <button
+          className={`lead-status-card is-total${statusFilter === "all" ? " is-active" : ""}`}
+          type="button"
+          aria-pressed={statusFilter === "all"}
+          onClick={() => setStatusFilter("all")}
+        >
+          <span>{periods.total}</span>
+          <strong>{periodLeads.length}</strong>
+        </button>
         {dashboardStatuses.map((status) => (
           <button
             className={`lead-status-card is-${status}${statusFilter === status ? " is-active" : ""}`}
@@ -257,6 +281,15 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
 
       <div className="lead-filters">
         <label>
+          <span>{periods.label}</span>
+          <select value={datePeriod} onChange={(event) => setDatePeriod(event.target.value as DatePeriod)}>
+            <option value="all">{periods.all}</option>
+            <option value="today">{periods.today}</option>
+            <option value="week">{periods.week}</option>
+            <option value="month">{periods.month}</option>
+          </select>
+        </label>
+        <label>
           <span>{t.allAreas}</span>
           <select value={resource} onChange={(event) => setResource(event.target.value)}>
             <option value="all">{t.allAreas}</option>
@@ -267,11 +300,11 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
           <span>{t.search}</span>
           <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t.search} />
         </label>
-        <button className={statusFilter === "all" ? "is-active" : ""} type="button" onClick={() => setStatusFilter("all")}>{t.allLeads} ({resourceLeads.length})</button>
+        <button className={statusFilter === "all" ? "is-active" : ""} type="button" onClick={() => setStatusFilter("all")}>{t.allLeads} ({periodLeads.length})</button>
       </div>
 
       <nav className="lead-source-tabs" aria-label={sources.title}>
-        <button className={sourceFilter === "all" ? "is-active" : ""} type="button" onClick={() => setSourceFilter("all")}>{sources.all} ({resourceLeads.length})</button>
+        <button className={sourceFilter === "all" ? "is-active" : ""} type="button" onClick={() => setSourceFilter("all")}>{sources.all} ({periodLeads.length})</button>
         {(["meta_paid", "google_paid", "direct", "other"] as SourceGroup[]).map((source) => (
           <button className={sourceFilter === source ? "is-active" : ""} key={source} type="button" onClick={() => setSourceFilter(source)}>{sources[source]} ({sourceCounts[source]})</button>
         ))}
@@ -279,7 +312,7 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
 
       <section className="lead-source-dashboard" aria-label={sources.title}>
         {(["meta_paid", "google_paid", "direct", "other"] as SourceGroup[]).map((source) => {
-          const sourceLeads = resourceLeads.filter((item) => attribution(item).group === source);
+          const sourceLeads = periodLeads.filter((item) => attribution(item).group === source);
           const sourceStatus = Object.fromEntries(
             dashboardStatuses.map((status) => [status, sourceLeads.filter((item) => normalizeStatus(item.status) === status).length]),
           ) as Record<DashboardStatus, number>;
