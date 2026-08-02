@@ -1,10 +1,30 @@
 .page {
+  width: 100%;
+  max-width: 100%;
   min-height: 100vh;
+  overflow-x: hidden;
   color: #142b4d;
   background:
     radial-gradient(circle at 92% 2%, rgba(240, 13, 99, 0.12), transparent 28rem),
     linear-gradient(180deg, #fff 0%, #f4f7fb 100%);
   padding: 44px clamp(20px, 5vw, 82px) 54px;
+}
+
+.hero,
+.heroCopy,
+.notice,
+.languageSection,
+.grid,
+.card,
+.footer {
+  min-width: 0;
+}
+
+.heroCopy h1,
+.heroCopy p,
+.notice span,
+.footer p {
+  overflow-wrap: anywhere;
 }
 
 .hero {
@@ -188,6 +208,16 @@
   .hero {
     padding: 24px 20px;
     border-radius: 24px;
+  }
+
+  .logo {
+    width: 150px;
+  }
+
+  .heroCopy h1 {
+    font-size: clamp(2rem, 10vw, 2.45rem);
+    line-height: 1.02;
+    letter-spacing: -0.045em;
   }
 
   .notice,
