@@ -1,5 +1,11 @@
 .lead-status-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
 .lead-status-card.is-total strong{color:#152d50}
+.lead-status-overview{margin:32px 0 18px}
+.lead-status-overview .lead-status-grid{margin:14px 0 0}
+.lead-status-heading{display:flex;align-items:end;justify-content:space-between;gap:18px}
+.lead-status-heading p{margin:0;color:#152d50;font-size:18px;font-weight:800}
+.lead-status-heading span{max-width:680px;color:#60728d;font-size:13px;line-height:1.5}
 .lead-status-card.is-in_progress strong{color:#1760ad}
 .lead-status-badge.is-in_progress{background:#e9f2ff;color:#1760ad}
 @media(max-width:900px){.lead-status-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.lead-status-heading{align-items:start;flex-direction:column;gap:5px}.lead-status-heading p{font-size:16px}}

@@ -221,6 +221,15 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
       periodLeads.filter((item) => attribution(item).group === source).length,
     ]),
   ) as Record<SourceGroup, number>;
+  const dashboardLeads = sourceFilter === "all"
+    ? periodLeads
+    : periodLeads.filter((item) => attribution(item).group === sourceFilter);
+  const dashboardCounts = Object.fromEntries(
+    dashboardStatuses.map((status) => [
+      status,
+      dashboardLeads.filter((item) => normalizeStatus(item.status) === status).length,
+    ]),
+  ) as Record<DashboardStatus, number>;
   const visible = periodLeads.filter((item) => {
     if (statusFilter !== "all" && normalizeStatus(item.status) !== statusFilter) return false;
     if (sourceFilter !== "all" && attribution(item).group !== sourceFilter) return false;
@@ -255,7 +264,12 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
         <div><p>{t.eyebrow}</p><h1>{t.title}</h1><span>{t.subtitle}</span></div>
       </div>
 
-      <div className="lead-status-grid" aria-label={t.update}>
+      <section className="lead-status-overview" aria-label={t.update}>
+        <div className="lead-status-heading">
+          <p>{sourceFilter === "all" ? t.title : sources[sourceFilter]}</p>
+          <span>{sourceFilter === "all" ? t.subtitle : `${sources[sourceFilter]} · ${periods.label}: ${datePeriod === "all" ? periods.all : datePeriod === "today" ? periods.today : datePeriod === "week" ? periods.week : periods.month}`}</span>
+        </div>
+      <div className="lead-status-grid">
         <button
           className={`lead-status-card is-total${statusFilter === "all" ? " is-active" : ""}`}
           type="button"
@@ -263,7 +277,7 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
           onClick={() => setStatusFilter("all")}
         >
           <span>{periods.total}</span>
-          <strong>{periodLeads.length}</strong>
+          <strong>{dashboardLeads.length}</strong>
         </button>
         {dashboardStatuses.map((status) => (
           <button
@@ -274,10 +288,11 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
             onClick={() => setStatusFilter(status)}
           >
             <span>{statusLabel(status)}</span>
-            <strong>{counts[status]}</strong>
+            <strong>{dashboardCounts[status]}</strong>
           </button>
         ))}
       </div>
+      </section>
 
       <div className="lead-filters">
         <label>
@@ -320,7 +335,7 @@ export default function SubmissionsClient({ systemLocale }: { systemLocale: stri
             <button className={`lead-source-summary is-${source}${sourceFilter === source ? " is-active" : ""}`} key={source} type="button" onClick={() => setSourceFilter(source)}>
               <span>{sources[source]}</span>
               <strong>{sourceLeads.length}</strong>
-              <small>{t.new}: {sourceStatus.new} · {t.in_progress}: {sourceStatus.in_progress} · {t.won}: {sourceStatus.won}</small>
+              <small>{t.new}: {sourceStatus.new} · {t.in_progress}: {sourceStatus.in_progress} · {t.won}: {sourceStatus.won} · {t.irrelevant}: {sourceStatus.irrelevant} · {t.deleted}: {sourceStatus.deleted}</small>
             </button>
           );
         })}
