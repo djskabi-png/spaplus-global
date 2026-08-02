@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { localeOptions, translations, type Locale } from "../i18n";
 import companyData from "../company-data.json";
 import marketCopyManifest from "../market-launch/generated-market-copy.json";
+import "./business-permissions.css";
 
 type AdminRole = "owner" | "editor" | "viewer";
 type Permission = {
@@ -16,6 +17,8 @@ type Permission = {
 type Resource = {
   key: string;
   type: string;
+  business: string;
+  topic: string;
   labels: { en: string; he: string; "fr-CA": string };
 };
 type CmsRow = {
@@ -331,6 +334,12 @@ export default function AdminClient({
         { section: "company", label: t.companySection, fields: globalFields.company },
       ];
 
+  const businessLabels = {
+    "spaplus-global": { en: "SpaPlus Global", he: "ספא פלוס העולמית", "fr-CA": "SpaPlus Global" },
+    vila4u: { en: "Vila4U Group", he: "קבוצת וילה פור יו", "fr-CA": "Groupe Vila4U" },
+  } as const;
+  const resourceBusinesses = Array.from(new Set(resources.map((resource) => resource.business)));
+
   return (
     <section className="cms-content" dir={direction} lang={uiLocale} data-release="2026-08-01-b">
       <div className="cms-intro">
@@ -394,7 +403,9 @@ export default function AdminClient({
                 <label>{t.users}<select value={user.role} onChange={(event) => void updateUser(user, { role: event.target.value as AdminRole })}><option value="owner">{t.owner}</option><option value="editor">{t.editor}</option><option value="viewer">{t.viewer}</option></select></label>
               </div>
               <div className="cms-permission-grid">
-                {resources.map((resource) => {
+                {resourceBusinesses.map((business) => <section className="cms-business-permissions" key={business}>
+                  <h3>{businessLabels[business as keyof typeof businessLabels]?.[uiLocale] || business}</h3>
+                  {resources.filter((resource) => resource.business === business).map((resource) => {
                   const permission = permissionFor(user, resource.key);
                   const contentLevel = permission.canEditContent ? "edit" : permission.canViewContent ? "view" : "none";
                   const leadLevel = permission.canManageLeads ? "manage" : permission.canViewLeads ? "view" : "none";
@@ -403,7 +414,7 @@ export default function AdminClient({
                     <label>{t.contentAccess}<select value={contentLevel} onChange={(event) => setUserPermission(user, resource.key, "content", event.target.value)}><option value="none">{t.none}</option><option value="view">{t.view}</option><option value="edit">{t.edit}</option></select></label>
                     <label>{t.leadAccess}<select value={leadLevel} onChange={(event) => setUserPermission(user, resource.key, "leads", event.target.value)}><option value="none">{t.none}</option><option value="view">{t.view}</option><option value="manage">{t.manage}</option></select></label>
                   </div>;
-                })}
+                })}</section>)}
               </div>
               <div className="cms-user-actions"><span>{user.status === "active" ? t.active : t.inactive}</span><button onClick={() => void updateUser(user, { status: user.status === "active" ? "inactive" : "active" })}>{user.status === "active" ? t.disable : t.enable}</button></div>
             </article>)}

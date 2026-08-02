@@ -6,12 +6,37 @@ export const cmsResources = [
   {
     key: "site:global",
     type: "site",
+    business: "spaplus-global",
+    topic: "website",
     labels: { en: "SpaPlus Global website", he: "האתר העולמי של ספא פלוס", "fr-CA": "Site mondial SpaPlus" },
   },
   {
     key: "market:ca:on",
     type: "market",
+    business: "spaplus-global",
+    topic: "ontario",
     labels: { en: "Ontario launch", he: "השקת אונטריו", "fr-CA": "Lancement en Ontario" },
+  },
+  {
+    key: "business:vila4u:leads",
+    type: "business",
+    business: "vila4u",
+    topic: "leads",
+    labels: { en: "Leads dashboard", he: "דשבורד לידים", "fr-CA": "Tableau de bord des prospects" },
+  },
+  {
+    key: "business:vila4u:campaigns",
+    type: "business",
+    business: "vila4u",
+    topic: "campaigns",
+    labels: { en: "Campaigns and email", he: "קמפיינים ומיילים", "fr-CA": "Campagnes et courriels" },
+  },
+  {
+    key: "business:vila4u:users",
+    type: "business",
+    business: "vila4u",
+    topic: "users",
+    labels: { en: "Users and permissions", he: "משתמשים והרשאות", "fr-CA": "Utilisateurs et autorisations" },
   },
 ] as const;
 

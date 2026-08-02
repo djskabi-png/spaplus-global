@@ -1,0 +1,18 @@
+.cms-business-permissions {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid #d8e2ee;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.cms-business-permissions > h3 {
+  margin: 0 0 4px;
+  color: #153b67;
+  font-size: 17px;
+}
+
+.cms-business-permissions + .cms-business-permissions {
+  margin-top: 8px;
+}
