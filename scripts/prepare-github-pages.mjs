@@ -26,7 +26,11 @@ async function rewriteTree(directory) {
     const rewritten = original
       .replaceAll(githubOrigin, publicOrigin)
       .replaceAll(legacyOrigin, publicOrigin)
-      .replaceAll("/spaplus-global/", "/");
+      .replaceAll("/spaplus-global/", "/")
+      .replace(
+        /\s*<url><loc>https:\/\/spaplus\.co\/<\/loc><lastmod>[^<]+<\/lastmod><\/url>/g,
+        "",
+      );
 
     if (rewritten !== original) {
       await writeFile(fullPath, rewritten, "utf8");
