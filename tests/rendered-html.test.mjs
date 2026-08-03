@@ -486,6 +486,14 @@ test("the Ontario application returns a branded localized page for unknown route
   assert.match(worker, /appNotFoundResponse\(url\.pathname\)/);
 });
 
+test("management access starts on a branded page before Google sign-in", async () => {
+  const worker = await read("worker/index.ts");
+  assert.match(worker, /function googleLoginLanding/);
+  assert.match(worker, /כניסה מאובטחת/);
+  assert.match(worker, /\/auth\/google\/authorize/);
+  assert.match(worker, /url\.pathname === "\/auth\/google\/start"\)[\s\S]*googleLoginLanding/);
+});
+
 test("lead management provides a localized four-state operational dashboard", async () => {
   const [dashboard, page, systemLocale, route, schema, styles] = await Promise.all([
     read("app/tools/SubmissionsClient.tsx"),
