@@ -61,13 +61,13 @@ export const en: Translation = {
   soloBody: "Sometimes the best plan is simply time to switch off and be looked after.",
   privacyTitle: "Privacy Policy",
   privacyBody:
-    "When you contact us, we collect the details you choose to provide so the SpaPlus team can respond, manage the enquiry and explore a possible business relationship. The information may be shared with relevant SpaPlus group companies, authorized team members and essential providers of hosting, security and email services, including providers outside your country. Optional analytics and advertising measurement from Google and Meta run only after consent. We do not sell personal information. We keep it only for as long as needed for these purposes, legal obligations and protection of our rights. You may ask to review, correct or delete your information through the contact form.",
+    "Global Spa Management Ltd. operates this website. We collect information you choose to submit, such as your name, contact details, company, country and message, together with limited technical, security, language and consent records. We use it to respond to enquiries, take steps toward a possible business relationship, operate and protect the website, comply with legal obligations and improve our services. Essential storage remembers language, accessibility and privacy choices. Optional analytics and advertising measurement from Google and Meta load only after consent, which you can withdraw through Cookie settings. Information may be handled by authorized SpaPlus group companies and necessary hosting, security, email and analytics providers. International transfers use appropriate safeguards where required. We do not sell personal information. If optional advertising technology may be treated as sharing under local law, rejecting optional cookies prevents it from loading. We retain information only as long as necessary for these purposes, legal requirements and the protection of our rights. Depending on where you live, you may request access, correction, deletion, portability or restriction, object to certain uses, withdraw consent, opt out of eligible sale or sharing, and complain to a supervisory authority. Submit a privacy request through the contact form.",
   privacyConsent:
     "I have read the Privacy Policy and agree that my details may be shared with the SpaPlus team and essential service providers to handle my enquiry.",
   accessibilityTitle: "Accessibility Statement",
   accessibilityBody:
     "We want SpaPlus Global to be usable by everyone. The site supports keyboard navigation, visible focus, screen-reader labels, alternative text, responsive layouts, reduced-motion preferences and clear form feedback. We continue to review the site against WCAG accessibility principles. If you encounter a barrier, tell us through the contact form and include the page and a short description so we can address it.",
-  legalUpdated: "Last updated: July 2026",
+  legalUpdated: "Last updated: August 2026",
   productsEyebrow: "Our Products",
   productsTitle: "One ecosystem built to move the spa business forward.",
   productsIntro:

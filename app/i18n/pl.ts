@@ -61,13 +61,13 @@ export const pl: Translation = {
   soloBody: "Czasem najlepszy plan to wyłączyć myślenie o obowiązkach i pozwolić zadbać o siebie.",
   privacyTitle: "Polityka prywatności",
   privacyBody:
-    "Gdy się z nami kontaktujesz, zbieramy dane, które podajesz, aby zespół SpaPlus mógł odpowiedzieć, obsłużyć zapytanie i omówić możliwą współpracę. Dane mogą być przekazane właściwym spółkom grupy SpaPlus, upoważnionym członkom zespołu oraz niezbędnym dostawcom hostingu, bezpieczeństwa i poczty elektronicznej, także poza Twoim krajem. Nie sprzedajemy danych osobowych. Przechowujemy je tylko tak długo, jak jest to potrzebne do tych celów, obowiązków prawnych i ochrony naszych praw. Przez formularz możesz poprosić o dostęp, poprawienie lub usunięcie danych.",
+    "Operatorem tej witryny jest Global Spa Management Ltd. Zbieramy informacje, które zdecydujesz się przesłać, takie jak imię i nazwisko, dane kontaktowe, firma, kraj i treść wiadomości, a także ograniczone dane techniczne, bezpieczeństwa, języka i zgody. Używamy ich do odpowiadania na zapytania, przygotowania możliwej relacji biznesowej, obsługi i ochrony witryny, realizacji obowiązków prawnych oraz ulepszania usług. Niezbędna pamięć zachowuje wybór języka, dostępności i prywatności. Opcjonalne narzędzia analityczne i pomiar reklam Google oraz Meta są ładowane wyłącznie po wyrażeniu zgody, którą można wycofać w ustawieniach plików cookie. Dane mogą być przetwarzane przez upoważnione spółki grupy SpaPlus oraz niezbędnych dostawców hostingu, bezpieczeństwa, poczty i analityki. Transfery międzynarodowe są zabezpieczane zgodnie z wymaganiami prawa. Nie sprzedajemy danych osobowych. Jeśli opcjonalna technologia reklamowa jest uznawana za udostępnianie danych, jej ładowaniu zapobiega odrzucenie opcjonalnych plików cookie. Dane przechowujemy tylko tak długo, jak jest to konieczne. Zależnie od miejsca zamieszkania możesz żądać dostępu, sprostowania, usunięcia, przeniesienia lub ograniczenia, sprzeciwić się określonym zastosowaniom, wycofać zgodę, zrezygnować z właściwej sprzedaży lub udostępniania i złożyć skargę do właściwego organu. Wniosek wyślij przez formularz kontaktowy.",
   privacyConsent:
     "Zapoznałem się z Polityką prywatności i zgadzam się na przekazanie moich danych zespołowi SpaPlus oraz niezbędnym dostawcom w celu obsługi zapytania.",
   accessibilityTitle: "Deklaracja dostępności",
   accessibilityBody:
     "Chcemy, aby SpaPlus Global było wygodne dla każdego. Serwis obsługuje nawigację klawiaturą, widoczny fokus, etykiety dla czytników ekranu, opisy obrazów, urządzenia mobilne, ograniczenie animacji oraz czytelne komunikaty w formularzach. Stale sprawdzamy go zgodnie z zasadami dostępności WCAG. Jeśli napotkasz barierę, napisz przez formularz, podając stronę i krótki opis.",
-  legalUpdated: "Ostatnia aktualizacja: lipiec 2026",
+  legalUpdated: "Ostatnia aktualizacja: sierpień 2026",
   productsEyebrow: "Nasze produkty",
   productsTitle: "Jeden ekosystem, który napędza rozwój biznesu spa.",
   productsIntro:

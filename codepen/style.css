@@ -1223,7 +1223,7 @@ h1 span {
 }
 
 .pathway-card h3 {
-  margin: auto 0 12px;
+  margin: 24px 0 12px;
   color: var(--navy);
   font-size: 25px;
   line-height: 1.15;
@@ -1248,6 +1248,10 @@ h1 span {
   text-decoration: none;
   border-bottom: 1px solid currentColor;
   padding-bottom: 3px;
+}
+
+.pathway-card > a {
+  margin-top: auto;
 }
 
 .pathway-countries {

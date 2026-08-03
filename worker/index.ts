@@ -343,6 +343,37 @@ const worker = {
     const url = new URL(request.url);
     const hostname = url.hostname.toLowerCase();
 
+    if (hostname === "www.spaplus.co") {
+      url.hostname = "spaplus.co";
+      return Response.redirect(url.toString(), 308);
+    }
+
+    if (hostname === "spaplus.co" && url.pathname === "/") {
+      const legacyLocale = url.searchParams.get("lang")?.toLowerCase();
+      const localePaths: Record<string, string> = {
+        en: "/en/",
+        he: "/he/",
+        "fr-ca": "/fr-ca/",
+        fr: "/fr-ca/",
+        ru: "/ru/",
+        el: "/el/",
+        it: "/it/",
+        hu: "/hu/",
+        pl: "/pl/",
+        es: "/es/",
+      };
+      const acceptedLanguage = request.headers
+        .get("accept-language")
+        ?.split(",", 1)[0]
+        ?.split(";", 1)[0]
+        ?.toLowerCase();
+      const languageKey = legacyLocale || acceptedLanguage || "en";
+      url.pathname =
+        localePaths[languageKey] || localePaths[languageKey.split("-", 1)[0]] || "/en/";
+      url.searchParams.delete("lang");
+      return Response.redirect(url.toString(), 307);
+    }
+
     if (hostname === "app.spaplus.co" && url.pathname === "/assets/index-MnjarlW8.js") {
       const localAssetUrl = new URL(request.url);
       localAssetUrl.pathname = "/assets/index-D03kzx0b.js";
@@ -445,11 +476,6 @@ const worker = {
         }
         return renderedResponse;
       }
-    }
-
-    if (hostname === "www.spaplus.co") {
-      url.hostname = "spaplus.co";
-      return Response.redirect(url.toString(), 308);
     }
 
     if (hostname === "admin.spaplus.co" && url.pathname === "/") {

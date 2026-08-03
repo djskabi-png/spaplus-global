@@ -22,6 +22,15 @@ const routes = [
   ["es", "es", "ltr"],
 ];
 
+const alternateLinks = routes
+  .map(([segment, lang]) =>
+    `<link rel="alternate" hreflang="${lang}" href="https://djskabi-png.github.io/spaplus-global/${segment}/">`,
+  )
+  .concat(
+    '<link rel="alternate" hreflang="x-default" href="https://djskabi-png.github.io/spaplus-global/en/">',
+  )
+  .join("\n  ");
+
 for (const [segment, lang, dir] of routes) {
   const directory = path.join(outputRoot, segment);
   await mkdir(directory, { recursive: true });
@@ -30,12 +39,12 @@ for (const [segment, lang, dir] of routes) {
     .replace(/<html lang="[^"]+"(?: dir="[^"]+")?>/, `<html lang="${lang}" dir="${dir}">`)
     .replace("<head>", `<head>\n  <base href="/spaplus-global/">`)
     .replace(
-      '<meta name="viewport" content="width=device-width, initial-scale=1">',
-      '<meta name="viewport" content="width=device-width, initial-scale=1">\n  <meta name="robots" content="noindex,follow">',
-    )
-    .replace(
       /<link rel="canonical" href="[^"]+">/,
       `<link rel="canonical" href="${canonical}">`,
+    )
+    .replace(
+      /<link rel="alternate" hreflang="[^"]+" href="[^"]+">(?:\s*<link rel="alternate" hreflang="[^"]+" href="[^"]+">)*/,
+      alternateLinks,
     )
     .replace(
       /<meta property="og:url" content="[^"]+">/,

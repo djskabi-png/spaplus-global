@@ -5,6 +5,7 @@ const source = path.resolve("codepen");
 const target = path.resolve("public");
 const productionOrigin = "https://spaplus.co";
 const githubOrigin = "https://djskabi-png.github.io/spaplus-global";
+const legacyGlobalOrigin = "https://global.spaplus.co";
 const generatedDirectories = [
   "country-partners",
   "de-ch",
@@ -77,7 +78,16 @@ async function rewriteTree(directory) {
     const original = await readFile(fullPath, "utf8");
     const rewritten = original
       .replaceAll(githubOrigin, productionOrigin)
-      .replaceAll("/spaplus-global/", "/");
+      .replaceAll(legacyGlobalOrigin, productionOrigin)
+      .replaceAll("/spaplus-global/", "/")
+      .replace(
+        /\s*<url><loc>https:\/\/spaplus\.co\/<\/loc><lastmod>[^<]+<\/lastmod><\/url>/g,
+        "",
+      )
+      .replace(
+        /\s*<a\b[^>]*class="[^"]*management-login-link[^"]*"[^>]*>[^<]*<\/a>/gi,
+        "",
+      );
     if (rewritten !== original) await writeFile(fullPath, rewritten, "utf8");
   }
 }

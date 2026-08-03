@@ -287,7 +287,7 @@ function BrandLockup({ footer = false }: { footer?: boolean }) {
       <img
         className="brand-wordmark"
         src="/spaplus-wordmark.png"
-        alt="SpaPlus"
+        alt="SpaPlus Global"
         width={112}
         height={60}
       />
@@ -792,7 +792,7 @@ export default function Home() {
 
         <section className="section vision-section" id="vision">
           <div className="vision-brand" data-reveal>
-            <div className="logo-card">
+            <div className="logo-card" role="img" aria-label="SpaPlus Global">
               <BrandLockup />
             </div>
           </div>
@@ -1302,9 +1302,6 @@ export default function Home() {
               onClick={() => openLegalSection("accessibility")}
             >
               {t.accessibilityTitle}
-            </a>
-            <a href="https://app.spaplus.co/admin">
-              {locale === "he" ? "כניסה לניהול" : locale === "fr-CA" ? "Accès à la gestion" : "Management login"}
             </a>
             <button
               className="cookie-settings-link"

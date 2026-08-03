@@ -52,11 +52,11 @@ const translations = {
     "soloTitle": "Just for you",
     "soloBody": "Sometimes the best plan is simply time to switch off and be looked after.",
     "privacyTitle": "Privacy Policy",
-    "privacyBody": "When you contact us, we collect the details you choose to provide so the SpaPlus team can respond, manage the enquiry and explore a possible business relationship. The information may be shared with relevant SpaPlus group companies, authorized team members and essential providers of hosting, security and email services, including providers outside your country. We do not sell personal information. We keep it only for as long as needed for these purposes, legal obligations and protection of our rights. You may ask to review, correct or delete your information through the contact form.",
+    "privacyBody": "Global Spa Management Ltd. operates this website. We collect information you choose to submit, such as your name, contact details, company, country and message, together with limited technical, security, language and consent records. We use it to respond to enquiries, take steps toward a possible business relationship, operate and protect the website, comply with legal obligations and improve our services. Essential storage remembers language, accessibility and privacy choices. Optional analytics and advertising measurement from Google and Meta load only after consent, which you can withdraw through Cookie settings. Information may be handled by authorized SpaPlus group companies and necessary hosting, security, email and analytics providers. International transfers use appropriate safeguards where required. We do not sell personal information. If optional advertising technology may be treated as sharing under local law, rejecting optional cookies prevents it from loading. We retain information only as long as necessary for these purposes, legal requirements and the protection of our rights. Depending on where you live, you may request access, correction, deletion, portability or restriction, object to certain uses, withdraw consent, opt out of eligible sale or sharing, and complain to a supervisory authority. Submit a privacy request through the contact form.",
     "privacyConsent": "I have read the Privacy Policy and agree that my details may be shared with the SpaPlus team and essential service providers to handle my enquiry.",
     "accessibilityTitle": "Accessibility Statement",
     "accessibilityBody": "We want SpaPlus Global to be usable by everyone. The site supports keyboard navigation, visible focus, screen-reader labels, alternative text, responsive layouts, reduced-motion preferences and clear form feedback. We continue to review the site against WCAG accessibility principles. If you encounter a barrier, tell us through the contact form and include the page and a short description so we can address it.",
-    "legalUpdated": "Last updated: July 2026",
+    "legalUpdated": "Last updated: August 2026",
     "productsEyebrow": "Our Products",
     "productsTitle": "One ecosystem built to move the spa business forward.",
     "productsIntro": "From the guest’s first search to the day-to-day work behind the scenes, SpaPlus connects discovery, sales, service and operations.",
@@ -162,11 +162,11 @@ const translations = {
     "soloTitle": "רגע שהוא רק שלך",
     "soloBody": "לפעמים כל מה שצריך הוא לעצור, להתנתק ולתת למישהו אחר לדאוג לך.",
     "privacyTitle": "מדיניות פרטיות",
-    "privacyBody": "כאשר פונים אלינו, אנחנו אוספים את הפרטים שבחרתם למסור כדי שצוות SpaPlus יוכל לחזור אליכם, לטפל בפנייה ולבחון אפשרות לקשר עסקי. המידע עשוי לעבור לחברות רלוונטיות בקבוצת SpaPlus, לאנשי צוות מורשים ולספקים חיוניים של אחסון, אבטחה ודיוור, לרבות ספקים שמערכותיהם נמצאות מחוץ לישראל. איננו מוכרים מידע אישי. נשמור את המידע רק כל עוד הוא דרוש לטיפול בפנייה, לעמידה בדרישות הדין ולהגנה על זכויותינו. ניתן לבקש לעיין במידע, לתקן אותו או למחוק אותו באמצעות טופס יצירת הקשר.",
+    "privacyBody": "האתר מופעל על ידי Global Spa Management Ltd. אנו אוספים מידע שבחרתם למסור, כגון שם, פרטי קשר, חברה, מדינה ותוכן הפנייה, וכן נתונים טכניים מצומצמים, נתוני אבטחה, שפה והעדפות פרטיות. המידע משמש למענה לפניות, לקידום קשר עסקי אפשרי, להפעלת האתר ולאבטחתו, לעמידה בחובות חוקיות ולשיפור השירות. אחסון חיוני שומר את בחירות השפה, הנגישות והפרטיות. כלי ניתוח ומדידת פרסום אופציונליים של Google ושל Meta נטענים רק לאחר הסכמה, וניתן לבטל אותה דרך הגדרות הקוקיז. המידע עשוי להיות מטופל בידי חברות מורשות בקבוצת SpaPlus ובידי ספקים נחוצים של אחסון, אבטחה, דואר אלקטרוני וניתוח נתונים. העברות מידע בינלאומיות נעשות תוך שימוש בהגנות מתאימות כאשר הדין דורש זאת. איננו מוכרים מידע אישי. אם טכנולוגיית פרסום אופציונלית נחשבת לשיתוף מידע לפי דין מקומי, דחיית הקוקיז האופציונליים מונעת את טעינתה. נשמור מידע רק כל עוד הוא נחוץ למטרות אלו, לחובות חוקיות ולהגנה על זכויותינו. בהתאם למקום מגוריכם, ייתכן שתוכלו לבקש עיון, תיקון, מחיקה, ניידות או הגבלה, להתנגד לשימושים מסוימים, לבטל הסכמה, לבקש להימנע ממכירה או שיתוף החלים עליכם ולהגיש תלונה לרשות מוסמכת. בקשת פרטיות ניתן לשלוח באמצעות טופס יצירת הקשר.",
     "privacyConsent": "קראתי את מדיניות הפרטיות ואני מסכים שהפרטים יועברו לצוות SpaPlus ולספקי שירות חיוניים לצורך הטיפול בפנייה.",
     "accessibilityTitle": "הצהרת נגישות",
     "accessibilityBody": "חשוב לנו שאתר SpaPlus Global יהיה נוח לשימוש עבור כולם. האתר תומך בניווט במקלדת, סימון מיקוד ברור, תוויות לקוראי מסך, טקסט חלופי לתמונות, התאמה לנייד, העדפת הפחתת תנועה ומשוב ברור בטפסים. אנחנו ממשיכים לבדוק ולשפר את האתר לפי עקרונות הנגישות של WCAG. אם נתקלתם בקושי, כתבו לנו בטופס יצירת הקשר וציינו את העמוד ותיאור קצר כדי שנוכל לטפל בו.",
-    "legalUpdated": "עודכן לאחרונה: יולי 2026",
+    "legalUpdated": "עודכן לאחרונה: אוגוסט 2026",
     "productsEyebrow": "המוצרים שלנו",
     "productsTitle": "מעטפת אחת שמקדמת את עסקי הספא בכל נקודה.",
     "productsIntro": "מהחיפוש הראשון של הלקוח ועד לעבודה שמתרחשת מאחורי הקלעים, SpaPlus מחברת בין הזמנות, מכירות, שירות, שיווק ותפעול.",
@@ -272,11 +272,11 @@ const translations = {
     "soloTitle": "Rien que pour vous",
     "soloBody": "Parfois, le meilleur programme consiste simplement à décrocher et à se laisser dorloter.",
     "privacyTitle": "Politique de confidentialité",
-    "privacyBody": "Lorsque vous communiquez avec nous, nous recueillons les renseignements que vous choisissez de fournir afin que l’équipe SpaPlus puisse vous répondre, traiter votre demande et évaluer une relation d’affaires possible. Ces renseignements peuvent être transmis aux sociétés concernées du groupe SpaPlus, aux membres autorisés de l’équipe et aux fournisseurs essentiels d’hébergement, de sécurité et de courriel, y compris à l’extérieur de votre pays. Nous ne vendons aucun renseignement personnel. Nous les conservons seulement aussi longtemps que nécessaire pour ces fins, nos obligations légales et la protection de nos droits. Vous pouvez demander l’accès, la correction ou la suppression de vos renseignements au moyen du formulaire de contact.",
+    "privacyBody": "Global Spa Management Ltd. exploite ce site. Nous recueillons les renseignements que vous choisissez de fournir, notamment votre nom, vos coordonnées, votre entreprise, votre pays et votre message, ainsi que des données techniques, de sécurité, de langue et de consentement limitées. Nous les utilisons pour répondre aux demandes, préparer une éventuelle relation d’affaires, exploiter et protéger le site, respecter nos obligations légales et améliorer nos services. Le stockage essentiel mémorise vos choix de langue, d’accessibilité et de confidentialité. Les outils facultatifs d’analyse et de mesure publicitaire de Google et de Meta ne sont activés qu’après votre consentement, que vous pouvez retirer dans les paramètres des témoins. Les renseignements peuvent être traités par les sociétés autorisées du groupe SpaPlus et par les fournisseurs nécessaires d’hébergement, de sécurité, de courriel et d’analyse. Les transferts internationaux sont assortis des mesures de protection requises. Nous ne vendons aucun renseignement personnel. Si une technologie publicitaire facultative constitue un partage au sens d’une loi locale, le refus des témoins facultatifs empêche son chargement. Nous conservons les renseignements seulement aussi longtemps que nécessaire. Selon votre lieu de résidence, vous pouvez demander l’accès, la rectification, la suppression, la portabilité ou la limitation, vous opposer à certaines utilisations, retirer votre consentement, refuser toute vente ou tout partage applicable et déposer une plainte auprès d’une autorité compétente. Envoyez votre demande de confidentialité au moyen du formulaire de contact.",
     "privacyConsent": "J’ai lu la Politique de confidentialité et j’accepte que mes renseignements soient transmis à l’équipe SpaPlus et aux fournisseurs essentiels afin de traiter ma demande.",
     "accessibilityTitle": "Déclaration d’accessibilité",
     "accessibilityBody": "Nous voulons que SpaPlus Global soit facile à utiliser pour tout le monde. Le site prend en charge la navigation au clavier, un indicateur de focus visible, les libellés pour lecteurs d’écran, les textes de remplacement, l’affichage adaptatif, la réduction des animations et des messages clairs dans les formulaires. Nous poursuivons nos vérifications selon les principes d’accessibilité WCAG. Si vous rencontrez un obstacle, écrivez-nous par le formulaire en indiquant la page et une courte description.",
-    "legalUpdated": "Dernière mise à jour : juillet 2026",
+    "legalUpdated": "Dernière mise à jour : août 2026",
     "productsEyebrow": "Nos produits",
     "productsTitle": "Un seul écosystème pour faire avancer l’industrie du spa.",
     "productsIntro": "De la première recherche du client aux opérations en coulisses, SpaPlus relie la découverte, les ventes, le service, le marketing et la gestion.",
@@ -382,11 +382,11 @@ const translations = {
     "soloTitle": "Только для себя",
     "soloBody": "Иногда лучший план состоит в том, чтобы отключиться от забот и позволить позаботиться о себе.",
     "privacyTitle": "Политика конфиденциальности",
-    "privacyBody": "Когда вы связываетесь с нами, мы собираем только те данные, которые вы сами указываете, чтобы команда SpaPlus могла ответить, обработать обращение и обсудить возможное сотрудничество. Данные могут передаваться соответствующим компаниям группы SpaPlus, уполномоченным сотрудникам и необходимым поставщикам услуг хостинга, безопасности и электронной почты, в том числе за пределами вашей страны. Мы не продаём персональные данные. Они хранятся только столько, сколько нужно для обработки обращения, выполнения требований закона и защиты наших прав. Через форму обратной связи можно запросить доступ, исправление или удаление данных.",
+    "privacyBody": "Оператор этого сайта: Global Spa Management Ltd. Мы собираем информацию, которую вы решаете отправить, например имя, контактные данные, компанию, страну и текст сообщения, а также ограниченные технические данные, сведения о безопасности, языке и согласии. Мы используем их, чтобы отвечать на обращения, готовить возможные деловые отношения, обеспечивать работу и защиту сайта, выполнять требования закона и улучшать услуги. Обязательное хранилище запоминает выбор языка, доступности и конфиденциальности. Дополнительные инструменты Google и Meta для аналитики и измерения рекламы загружаются только после согласия, которое можно отозвать в настройках файлов cookie. Данные могут обрабатываться уполномоченными компаниями группы SpaPlus и необходимыми поставщиками хостинга, безопасности, электронной почты и аналитики. При международной передаче применяются требуемые гарантии. Мы не продаём персональные данные. Если дополнительная рекламная технология считается передачей данных по местному законодательству, отказ от дополнительных файлов cookie блокирует её загрузку. Мы храним данные только необходимый срок. В зависимости от места проживания вы можете запросить доступ, исправление, удаление, переносимость или ограничение обработки, возразить против отдельных способов использования, отозвать согласие, отказаться от применимой продажи или передачи данных и подать жалобу в уполномоченный орган. Отправьте запрос через форму обратной связи.",
     "privacyConsent": "Я ознакомился с Политикой конфиденциальности и согласен на передачу моих данных команде SpaPlus и необходимым поставщикам услуг для обработки обращения.",
     "accessibilityTitle": "Заявление о доступности",
     "accessibilityBody": "Мы хотим, чтобы SpaPlus Global было удобно пользоваться каждому. Сайт поддерживает управление с клавиатуры, заметный фокус, подписи для экранных дикторов, описания изображений, мобильные устройства, режим уменьшения движения и понятные сообщения в формах. Мы продолжаем проверять сайт по принципам доступности WCAG. Если вы столкнулись с трудностью, напишите нам через форму и укажите страницу и краткое описание.",
-    "legalUpdated": "Последнее обновление: июль 2026 года",
+    "legalUpdated": "Последнее обновление: август 2026 года",
     "productsEyebrow": "Наши продукты",
     "productsTitle": "Единая экосистема для развития спа-бизнеса.",
     "productsIntro": "От первого поиска гостя до ежедневной работы команды SpaPlus объединяет бронирование, продажи, сервис, маркетинг и управление.",
@@ -492,11 +492,11 @@ const translations = {
     "soloTitle": "Μόνο για εσάς",
     "soloBody": "Μερικές φορές το καλύτερο σχέδιο είναι να αφήσετε τα πάντα πίσω και να σας φροντίσουν.",
     "privacyTitle": "Πολιτική απορρήτου",
-    "privacyBody": "Όταν επικοινωνείτε μαζί μας, συλλέγουμε τα στοιχεία που επιλέγετε να δώσετε ώστε η ομάδα SpaPlus να απαντήσει, να διαχειριστεί το αίτημά σας και να εξετάσει μια πιθανή συνεργασία. Τα στοιχεία μπορεί να κοινοποιηθούν σε σχετικές εταιρείες του ομίλου SpaPlus, σε εξουσιοδοτημένα μέλη της ομάδας και σε απαραίτητους παρόχους φιλοξενίας, ασφάλειας και email, ακόμη και εκτός της χώρας σας. Δεν πουλάμε προσωπικά δεδομένα. Τα διατηρούμε μόνο όσο χρειάζεται για αυτούς τους σκοπούς, για νομικές υποχρεώσεις και για την προστασία των δικαιωμάτων μας. Μπορείτε να ζητήσετε πρόσβαση, διόρθωση ή διαγραφή μέσω της φόρμας επικοινωνίας.",
+    "privacyBody": "Η Global Spa Management Ltd. λειτουργεί αυτόν τον ιστότοπο. Συλλέγουμε τις πληροφορίες που επιλέγετε να υποβάλετε, όπως όνομα, στοιχεία επικοινωνίας, εταιρεία, χώρα και μήνυμα, μαζί με περιορισμένα τεχνικά δεδομένα, δεδομένα ασφάλειας, γλώσσας και συγκατάθεσης. Τις χρησιμοποιούμε για να απαντούμε σε αιτήματα, να προετοιμάζουμε μια πιθανή επιχειρηματική σχέση, να λειτουργούμε και να προστατεύουμε τον ιστότοπο, να τηρούμε νομικές υποχρεώσεις και να βελτιώνουμε τις υπηρεσίες μας. Η απαραίτητη αποθήκευση θυμάται τις επιλογές γλώσσας, προσβασιμότητας και απορρήτου. Τα προαιρετικά εργαλεία ανάλυσης και μέτρησης διαφημίσεων της Google και της Meta φορτώνονται μόνο μετά από συγκατάθεση, η οποία ανακαλείται από τις ρυθμίσεις cookies. Οι πληροφορίες μπορεί να υποβάλλονται σε επεξεργασία από εξουσιοδοτημένες εταιρείες του ομίλου SpaPlus και απαραίτητους παρόχους φιλοξενίας, ασφάλειας, email και ανάλυσης. Οι διεθνείς διαβιβάσεις χρησιμοποιούν τις απαιτούμενες εγγυήσεις. Δεν πουλάμε προσωπικά δεδομένα. Αν προαιρετική διαφημιστική τεχνολογία θεωρείται κοινοποίηση βάσει τοπικού δικαίου, η απόρριψη προαιρετικών cookies εμποδίζει τη φόρτωσή της. Διατηρούμε τα δεδομένα μόνο όσο είναι αναγκαίο. Ανάλογα με τον τόπο διαμονής σας, μπορείτε να ζητήσετε πρόσβαση, διόρθωση, διαγραφή, φορητότητα ή περιορισμό, να αντιταχθείτε σε ορισμένες χρήσεις, να ανακαλέσετε συγκατάθεση, να εξαιρεθείτε από σχετική πώληση ή κοινοποίηση και να υποβάλετε καταγγελία σε αρμόδια αρχή. Στείλτε το αίτημά σας μέσω της φόρμας επικοινωνίας.",
     "privacyConsent": "Διάβασα την Πολιτική απορρήτου και συμφωνώ να κοινοποιηθούν τα στοιχεία μου στην ομάδα SpaPlus και στους απαραίτητους παρόχους για τη διαχείριση του αιτήματός μου.",
     "accessibilityTitle": "Δήλωση προσβασιμότητας",
     "accessibilityBody": "Θέλουμε το SpaPlus Global να είναι εύχρηστο για όλους. Ο ιστότοπος υποστηρίζει πλοήγηση με πληκτρολόγιο, εμφανή εστίαση, ετικέτες για αναγνώστες οθόνης, εναλλακτικό κείμενο, προσαρμογή σε κινητά, μειωμένη κίνηση και σαφή μηνύματα στις φόρμες. Συνεχίζουμε τους ελέγχους βάσει των αρχών WCAG. Αν συναντήσετε εμπόδιο, ενημερώστε μας μέσω της φόρμας με τη σελίδα και μια σύντομη περιγραφή.",
-    "legalUpdated": "Τελευταία ενημέρωση: Ιούλιος 2026",
+    "legalUpdated": "Τελευταία ενημέρωση: Αύγουστος 2026",
     "productsEyebrow": "Τα προϊόντα μας",
     "productsTitle": "Ένα οικοσύστημα που κινεί την επιχείρηση spa μπροστά.",
     "productsIntro": "Από την πρώτη αναζήτηση του επισκέπτη έως την καθημερινή λειτουργία, η SpaPlus συνδέει κρατήσεις, πωλήσεις, εξυπηρέτηση, marketing και διαχείριση.",
@@ -602,11 +602,11 @@ const translations = {
     "soloTitle": "Un momento tutto tuo",
     "soloBody": "A volte il programma migliore è staccare da tutto e lasciarsi coccolare.",
     "privacyTitle": "Informativa sulla privacy",
-    "privacyBody": "Quando ci contatti, raccogliamo i dati che scegli di fornirci affinché il team SpaPlus possa rispondere, gestire la richiesta e valutare una possibile collaborazione. I dati possono essere condivisi con le società interessate del gruppo SpaPlus, con membri autorizzati del team e con fornitori essenziali di hosting, sicurezza ed email, anche al di fuori del tuo Paese. Non vendiamo dati personali. Li conserviamo solo per il tempo necessario a queste finalità, agli obblighi di legge e alla tutela dei nostri diritti. Puoi chiedere accesso, correzione o cancellazione tramite il modulo di contatto.",
+    "privacyBody": "Global Spa Management Ltd. gestisce questo sito. Raccogliamo le informazioni che scegli di inviare, come nome, recapiti, azienda, Paese e messaggio, insieme a dati tecnici, di sicurezza, lingua e consenso limitati. Le utilizziamo per rispondere alle richieste, preparare un possibile rapporto commerciale, gestire e proteggere il sito, adempiere agli obblighi di legge e migliorare i servizi. La memorizzazione essenziale conserva le preferenze di lingua, accessibilità e privacy. Gli strumenti facoltativi di analisi e misurazione pubblicitaria di Google e Meta vengono caricati solo dopo il consenso, revocabile nelle impostazioni dei cookie. I dati possono essere trattati da società autorizzate del gruppo SpaPlus e da fornitori necessari di hosting, sicurezza, email e analisi. I trasferimenti internazionali adottano le garanzie richieste. Non vendiamo dati personali. Se una tecnologia pubblicitaria facoltativa è considerata condivisione ai sensi della legge locale, rifiutare i cookie facoltativi ne impedisce il caricamento. Conserviamo i dati solo per il tempo necessario. In base al luogo di residenza, puoi chiedere accesso, rettifica, cancellazione, portabilità o limitazione, opporti a determinati usi, revocare il consenso, rifiutare eventuali vendite o condivisioni applicabili e presentare reclamo a un’autorità competente. Invia la richiesta tramite il modulo di contatto.",
     "privacyConsent": "Ho letto l’Informativa sulla privacy e acconsento alla condivisione dei miei dati con il team SpaPlus e i fornitori essenziali per gestire la richiesta.",
     "accessibilityTitle": "Dichiarazione di accessibilità",
     "accessibilityBody": "Vogliamo che SpaPlus Global sia facile da usare per tutti. Il sito supporta la navigazione da tastiera, la messa a fuoco visibile, le etichette per screen reader, i testi alternativi, i dispositivi mobili, la riduzione delle animazioni e messaggi chiari nei moduli. Continuiamo a verificarlo secondo i principi di accessibilità WCAG. Se incontri una difficoltà, segnalacela dal modulo indicando la pagina e una breve descrizione.",
-    "legalUpdated": "Ultimo aggiornamento: luglio 2026",
+    "legalUpdated": "Ultimo aggiornamento: agosto 2026",
     "productsEyebrow": "I nostri prodotti",
     "productsTitle": "Un unico ecosistema per far crescere il business delle spa.",
     "productsIntro": "Dalla prima ricerca del cliente al lavoro quotidiano dietro le quinte, SpaPlus unisce prenotazioni, vendite, servizio, marketing e gestione.",
@@ -712,11 +712,11 @@ const translations = {
     "soloTitle": "Csak neked",
     "soloBody": "Néha az a legjobb program, ha kikapcsolsz, és hagyod, hogy most rólad gondoskodjanak.",
     "privacyTitle": "Adatvédelmi tájékoztató",
-    "privacyBody": "Amikor kapcsolatba lépsz velünk, az általad megadott adatokat azért gyűjtjük, hogy a SpaPlus csapata válaszolhasson, kezelhesse a megkeresést és megvizsgálhassa az együttműködés lehetőségét. Az adatokat megoszthatjuk a SpaPlus csoport érintett vállalataival, jogosult munkatársakkal, valamint a tárhelyet, biztonságot és e-mail-szolgáltatást biztosító nélkülözhetetlen partnerekkel, akár az országodon kívül is. Személyes adatokat nem értékesítünk. Csak addig őrizzük meg őket, ameddig az ügyintézéshez, jogi kötelezettségeinkhez és jogaink védelméhez szükséges. A kapcsolatfelvételi űrlapon kérhetsz hozzáférést, helyesbítést vagy törlést.",
+    "privacyBody": "A webhely üzemeltetője a Global Spa Management Ltd. Az általad megadott információkat gyűjtjük, például a nevet, elérhetőséget, vállalatot, országot és üzenetet, továbbá korlátozott technikai, biztonsági, nyelvi és hozzájárulási adatokat. Ezeket a megkeresések megválaszolására, egy lehetséges üzleti kapcsolat előkészítésére, a webhely működtetésére és védelmére, jogi kötelezettségek teljesítésére és szolgáltatásaink fejlesztésére használjuk. A szükséges tárolás megjegyzi a nyelvi, akadálymentességi és adatvédelmi beállításokat. A Google és a Meta opcionális elemzési és hirdetésmérési eszközei csak hozzájárulás után töltődnek be, amely a cookie-beállításokban visszavonható. Az adatokat a SpaPlus csoport felhatalmazott vállalatai, valamint a szükséges tárhely-, biztonsági, e-mail- és elemzési szolgáltatók kezelhetik. A nemzetközi adattovábbítást az előírt garanciák védik. Személyes adatokat nem értékesítünk. Ha egy opcionális hirdetési technológia a helyi jog szerint adatmegosztásnak minősül, az opcionális cookie-k elutasítása megakadályozza a betöltését. Az adatokat csak a szükséges ideig őrizzük meg. Lakóhelyedtől függően kérhetsz hozzáférést, helyesbítést, törlést, hordozhatóságot vagy korlátozást, tiltakozhatsz bizonyos felhasználások ellen, visszavonhatod hozzájárulásodat, letilthatod az alkalmazandó értékesítést vagy megosztást, és panaszt tehetsz az illetékes hatóságnál. Kérelmedet a kapcsolatfelvételi űrlapon küldheted el.",
     "privacyConsent": "Elolvastam az Adatvédelmi tájékoztatót, és hozzájárulok, hogy adataimat a SpaPlus csapata és a szükséges szolgáltatók kezeljék a megkeresésem megválaszolásához.",
     "accessibilityTitle": "Akadálymentességi nyilatkozat",
     "accessibilityBody": "Azt szeretnénk, hogy a SpaPlus Global mindenki számára könnyen használható legyen. Az oldal támogatja a billentyűzetes navigációt, a jól látható fókuszt, a képernyőolvasó-címkéket, a képleírásokat, a mobilnézetet, a csökkentett mozgást és az egyértelmű űrlapüzeneteket. Folyamatosan ellenőrizzük a WCAG alapelvei szerint. Ha akadályba ütközöl, jelezd az űrlapon az oldal és a probléma rövid leírásával.",
-    "legalUpdated": "Utolsó frissítés: 2026. július",
+    "legalUpdated": "Utolsó frissítés: 2026. augusztus",
     "productsEyebrow": "Termékeink",
     "productsTitle": "Egyetlen ökoszisztéma, amely előreviszi a spa-vállalkozásokat.",
     "productsIntro": "A vendég első keresésétől a háttérben zajló napi munkáig a SpaPlus összeköti a foglalást, az értékesítést, az ügyfélszolgálatot, a marketinget és a működést.",
@@ -822,11 +822,11 @@ const translations = {
     "soloTitle": "Chwila tylko dla Ciebie",
     "soloBody": "Czasem najlepszy plan to wyłączyć myślenie o obowiązkach i pozwolić zadbać o siebie.",
     "privacyTitle": "Polityka prywatności",
-    "privacyBody": "Gdy się z nami kontaktujesz, zbieramy dane, które podajesz, aby zespół SpaPlus mógł odpowiedzieć, obsłużyć zapytanie i omówić możliwą współpracę. Dane mogą być przekazane właściwym spółkom grupy SpaPlus, upoważnionym członkom zespołu oraz niezbędnym dostawcom hostingu, bezpieczeństwa i poczty elektronicznej, także poza Twoim krajem. Nie sprzedajemy danych osobowych. Przechowujemy je tylko tak długo, jak jest to potrzebne do tych celów, obowiązków prawnych i ochrony naszych praw. Przez formularz możesz poprosić o dostęp, poprawienie lub usunięcie danych.",
+    "privacyBody": "Operatorem tej witryny jest Global Spa Management Ltd. Zbieramy informacje, które zdecydujesz się przesłać, takie jak imię i nazwisko, dane kontaktowe, firma, kraj i treść wiadomości, a także ograniczone dane techniczne, bezpieczeństwa, języka i zgody. Używamy ich do odpowiadania na zapytania, przygotowania możliwej relacji biznesowej, obsługi i ochrony witryny, realizacji obowiązków prawnych oraz ulepszania usług. Niezbędna pamięć zachowuje wybór języka, dostępności i prywatności. Opcjonalne narzędzia analityczne i pomiar reklam Google oraz Meta są ładowane wyłącznie po wyrażeniu zgody, którą można wycofać w ustawieniach plików cookie. Dane mogą być przetwarzane przez upoważnione spółki grupy SpaPlus oraz niezbędnych dostawców hostingu, bezpieczeństwa, poczty i analityki. Transfery międzynarodowe są zabezpieczane zgodnie z wymaganiami prawa. Nie sprzedajemy danych osobowych. Jeśli opcjonalna technologia reklamowa jest uznawana za udostępnianie danych, jej ładowaniu zapobiega odrzucenie opcjonalnych plików cookie. Dane przechowujemy tylko tak długo, jak jest to konieczne. Zależnie od miejsca zamieszkania możesz żądać dostępu, sprostowania, usunięcia, przeniesienia lub ograniczenia, sprzeciwić się określonym zastosowaniom, wycofać zgodę, zrezygnować z właściwej sprzedaży lub udostępniania i złożyć skargę do właściwego organu. Wniosek wyślij przez formularz kontaktowy.",
     "privacyConsent": "Zapoznałem się z Polityką prywatności i zgadzam się na przekazanie moich danych zespołowi SpaPlus oraz niezbędnym dostawcom w celu obsługi zapytania.",
     "accessibilityTitle": "Deklaracja dostępności",
     "accessibilityBody": "Chcemy, aby SpaPlus Global było wygodne dla każdego. Serwis obsługuje nawigację klawiaturą, widoczny fokus, etykiety dla czytników ekranu, opisy obrazów, urządzenia mobilne, ograniczenie animacji oraz czytelne komunikaty w formularzach. Stale sprawdzamy go zgodnie z zasadami dostępności WCAG. Jeśli napotkasz barierę, napisz przez formularz, podając stronę i krótki opis.",
-    "legalUpdated": "Ostatnia aktualizacja: lipiec 2026",
+    "legalUpdated": "Ostatnia aktualizacja: sierpień 2026",
     "productsEyebrow": "Nasze produkty",
     "productsTitle": "Jeden ekosystem, który napędza rozwój biznesu spa.",
     "productsIntro": "Od pierwszego wyszukiwania gościa po codzienną pracę zespołu SpaPlus łączy rezerwacje, sprzedaż, obsługę, marketing i zarządzanie.",
@@ -932,11 +932,11 @@ const translations = {
     "soloTitle": "Un momento solo para ti",
     "soloBody": "A veces, el mejor plan es desconectar de todo y dejar que te cuiden.",
     "privacyTitle": "Política de privacidad",
-    "privacyBody": "Cuando contactas con nosotros, recogemos los datos que decides facilitar para que el equipo de SpaPlus pueda responder, gestionar tu consulta y valorar una posible colaboración. Los datos pueden compartirse con las empresas correspondientes del grupo SpaPlus, miembros autorizados del equipo y proveedores esenciales de alojamiento, seguridad y correo electrónico, incluso fuera de tu país. No vendemos datos personales. Los conservamos solo durante el tiempo necesario para estos fines, el cumplimiento legal y la protección de nuestros derechos. Puedes solicitar acceso, corrección o eliminación a través del formulario de contacto.",
+    "privacyBody": "Global Spa Management Ltd. gestiona este sitio. Recogemos la información que decides enviar, como tu nombre, datos de contacto, empresa, país y mensaje, junto con datos técnicos, de seguridad, idioma y consentimiento limitados. La usamos para responder consultas, preparar una posible relación comercial, operar y proteger el sitio, cumplir obligaciones legales y mejorar nuestros servicios. El almacenamiento esencial recuerda tus preferencias de idioma, accesibilidad y privacidad. Las herramientas opcionales de análisis y medición publicitaria de Google y Meta se cargan solo con tu consentimiento, que puedes retirar en la configuración de cookies. La información puede ser tratada por empresas autorizadas del grupo SpaPlus y proveedores necesarios de alojamiento, seguridad, correo y análisis. Las transferencias internacionales utilizan las garantías exigidas cuando corresponda. No vendemos datos personales. Si una tecnología publicitaria opcional se considera intercambio de datos según la legislación local, rechazar las cookies opcionales impide que se cargue. Conservamos la información solo durante el tiempo necesario. Según tu lugar de residencia, puedes solicitar acceso, rectificación, eliminación, portabilidad o limitación, oponerte a determinados usos, retirar el consentimiento, excluirte de la venta o intercambio aplicable y reclamar ante una autoridad competente. Envía tu solicitud mediante el formulario de contacto.",
     "privacyConsent": "He leído la Política de privacidad y acepto que mis datos se compartan con el equipo de SpaPlus y los proveedores esenciales para gestionar mi consulta.",
     "accessibilityTitle": "Declaración de accesibilidad",
     "accessibilityBody": "Queremos que SpaPlus Global sea fácil de usar para todo el mundo. La web permite navegar con teclado, muestra el foco de forma visible, incluye etiquetas para lectores de pantalla, textos alternativos, diseño adaptable, reducción de movimiento y mensajes claros en los formularios. Seguimos revisándola según los principios de accesibilidad WCAG. Si encuentras una barrera, avísanos mediante el formulario indicando la página y una breve descripción.",
-    "legalUpdated": "Última actualización: julio de 2026",
+    "legalUpdated": "Última actualización: agosto de 2026",
     "productsEyebrow": "Nuestros productos",
     "productsTitle": "Un solo ecosistema para impulsar el negocio del spa.",
     "productsIntro": "Desde la primera búsqueda del cliente hasta el trabajo diario del equipo, SpaPlus conecta reservas, ventas, atención, marketing y gestión.",
@@ -1288,17 +1288,6 @@ const siteEnhancements = {
     "metaDescription": "SpaPlus conecta a clientes, negocios de spa y socios locales mediante plataformas de bienestar, reservas y herramientas de gestión.",
     "interfaceAria": "Interfaz de reservas y gestión de SpaPlus"
   }
-};
-const managementLabels = {
-  "en": "Management login",
-  "he": "כניסה לניהול",
-  "fr-CA": "Accès à la gestion",
-  "ru": "Вход в систему управления",
-  "el": "Είσοδος στη διαχείριση",
-  "it": "Accesso alla gestione",
-  "hu": "Belépés a kezelőfelületre",
-  "pl": "Logowanie do panelu",
-  "es": "Acceso a la gestión"
 };
 const companyData = {
   "team": [
@@ -2939,7 +2928,7 @@ const createBrandLockup = (footer = false) => {
   wrapper.className = "brand-lockup" + (footer ? " footer-lockup" : "");
   wrapper.innerHTML =
     '<img class="brand-mark" src="./spaplus-mark.png" alt="">' +
-    '<img class="brand-wordmark" src="./spaplus-wordmark.png" alt="SpaPlus">';
+    '<img class="brand-wordmark" src="./spaplus-wordmark.png" alt="SpaPlus Global">';
   return wrapper;
 };
 
@@ -3366,8 +3355,6 @@ const applyLocale = (locale) => {
   footerItems[10].textContent = t.contact;
   footerItems[11].textContent = t.privacyTitle;
   footerItems[12].textContent = t.accessibilityTitle;
-  const managementLink = document.querySelector(".management-login-link");
-  if (managementLink) managementLink.textContent = managementLabels[locale] || managementLabels.en;
   setText(
     ".footer-bottom span:first-child",
     "© " + new Date().getFullYear() + " SpaPlus Global. " + t.rights,

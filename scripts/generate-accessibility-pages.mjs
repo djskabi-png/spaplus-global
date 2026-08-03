@@ -49,17 +49,6 @@ const statementLabels = {
   "de-ch": "Erklärung zur Barrierefreiheit", "en-ae": "Accessibility statement",
 };
 
-const managementLabels = {
-  en: "Management login", he: "כניסה לניהול", "fr-ca": "Accès à la gestion",
-  ru: "Вход в систему управления", el: "Είσοδος στη διαχείριση", it: "Accesso alla gestione",
-  hu: "Belépés a kezelőfelületre", pl: "Logowanie do panelu", es: "Acceso a la gestión",
-  "en-us": "Management login", "el-cy": "Είσοδος στη διαχείριση", "el-gr": "Είσοδος στη διαχείριση",
-  "hu-hu": "Belépés a kezelőfelületre", "it-it": "Accesso alla gestione", "en-gb": "Management login",
-  "de-de": "Anmeldung zur Verwaltung", "fr-fr": "Accès à la gestion", "nl-nl": "Inloggen bij beheer",
-  "sv-se": "Logga in i administrationen", "nb-no": "Logg inn i administrasjonen",
-  "de-ch": "Anmeldung zur Verwaltung", "en-ae": "Management login",
-};
-
 function page(locale, lang, dir) {
   const t = copy[lang] || copy.en;
   const homeLocale = ({ "en-us": "en", "en-gb": "en", "en-ae": "en", "el-cy": "el", "el-gr": "el", "hu-hu": "hu", "it-it": "it", "fr-fr": "fr-ca", "de-de": "en", "de-ch": "en", "nl-nl": "en", "sv-se": "en", "nb-no": "en" })[locale] || locale;
@@ -97,7 +86,7 @@ ${alternateLinks}
     </article>
     <section class="languages" aria-labelledby="statement-languages"><h2 id="statement-languages">${t.language}</h2><nav>${languageLinks}</nav></section>
   </main>
-  <footer><strong>GLOBAL SPA MANAGEMENT LTD</strong><br>© 2026 SpaPlus Global<br><a class="management-login-link" href="https://app.spaplus.co/admin">${managementLabels[locale] || managementLabels.en}</a></footer>
+  <footer><strong>GLOBAL SPA MANAGEMENT LTD</strong><br>© 2026 SpaPlus Global</footer>
   <script src="/spaplus-global/accessibility.js?v=20260727-1" defer></script>
 </body>
 </html>`;
@@ -152,13 +141,7 @@ for (const file of await walk(output)) {
   } else {
     html = html.replace(new RegExp(`(<a\\s+)([^>]*href="${href.replaceAll("/", "\\/")}")`, "g"), "$1class=\"global-accessibility-link\" $2");
   }
-  if (!html.includes('class="management-login-link"')) {
-    const managementLabel = managementLabels[routeLocale] || managementLabels.en;
-    html = html.replace(/<\/footer>/, `<a class="management-login-link" href="https://app.spaplus.co/admin">${managementLabel}</a>\n  </footer>`);
-  } else {
-    const managementLabel = managementLabels[routeLocale] || managementLabels.en;
-    html = html.replace(/(<a class="management-login-link" href="https:\/\/app\.spaplus\.co\/admin">)[^<]*(<\/a>)/g, `$1${managementLabel}$2`);
-  }
+  html = html.replace(/\s*<a\b[^>]*class="[^"]*management-login-link[^"]*"[^>]*>[^<]*<\/a>/gi, "");
   html = html.replace("</body>", `  <script src="/spaplus-global/accessibility.js?v=20260727-1" defer></script>\n</body>`);
   await fs.writeFile(file, html, "utf8");
 }

@@ -5,17 +5,6 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const locales = ["en", "he", "fr-CA", "ru", "el", "it", "hu", "pl", "es"];
 const translations = {};
-const managementLabels = {
-  en: "Management login",
-  he: "כניסה לניהול",
-  "fr-CA": "Accès à la gestion",
-  ru: "Вход в систему управления",
-  el: "Είσοδος στη διαχείριση",
-  it: "Accesso alla gestione",
-  hu: "Belépés a kezelőfelületre",
-  pl: "Logowanie do panelu",
-  es: "Acceso a la gestión",
-};
 const siteEnhancements = {
   en: {
     navPartners: "Country Partners",
@@ -207,7 +196,6 @@ for (const locale of locales) {
 
 const runtime = `const translations = ${JSON.stringify(translations, null, 2)};
 const siteEnhancements = ${JSON.stringify(siteEnhancements, null, 2)};
-const managementLabels = ${JSON.stringify(managementLabels, null, 2)};
 const companyData = ${JSON.stringify(companyData, null, 2)};
 const productShowcase = ${JSON.stringify(productShowcase, null, 2)};
 const cookieCopy = ${JSON.stringify(cookieCopy, null, 2)};
@@ -326,7 +314,7 @@ const createBrandLockup = (footer = false) => {
   wrapper.className = "brand-lockup" + (footer ? " footer-lockup" : "");
   wrapper.innerHTML =
     '<img class="brand-mark" src="./spaplus-mark.png" alt="">' +
-    '<img class="brand-wordmark" src="./spaplus-wordmark.png" alt="SpaPlus">';
+    '<img class="brand-wordmark" src="./spaplus-wordmark.png" alt="SpaPlus Global">';
   return wrapper;
 };
 
@@ -753,8 +741,6 @@ const applyLocale = (locale) => {
   footerItems[10].textContent = t.contact;
   footerItems[11].textContent = t.privacyTitle;
   footerItems[12].textContent = t.accessibilityTitle;
-  const managementLink = document.querySelector(".management-login-link");
-  if (managementLink) managementLink.textContent = managementLabels[locale] || managementLabels.en;
   setText(
     ".footer-bottom span:first-child",
     "© " + new Date().getFullYear() + " SpaPlus Global. " + t.rights,
