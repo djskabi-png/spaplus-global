@@ -1440,7 +1440,7 @@ export default function MarketLaunchPage({
               }
             >
               <option value="" disabled>
-                {tr("Select one", "Choisir une option")}
+                {dynamicCopy("formRegionPlaceholder", "Select a province or territory", "Choisir une province ou un territoire")}
               </option>
               {regionOptions.map((region) => (
                 <option key={region.value} value={region.value}>
@@ -1469,7 +1469,7 @@ export default function MarketLaunchPage({
             <label htmlFor="spaType">{tr("Type of spa", "Type de spa")}</label>
             <select id="spaType" name="spaType" required={fieldRequired("SpaType")} defaultValue="">
               <option value="" disabled>
-                {tr("Select one", "Choisir une option")}
+                {dynamicCopy("formSpaTypePlaceholder", "Select a spa type", "Choisir un type de spa")}
               </option>
               {visibleSpaTypes.map((item) => (
                 <option key={item.value} value={item.value}>
@@ -1482,7 +1482,7 @@ export default function MarketLaunchPage({
             <label htmlFor="locations">{tr("Number of locations", "Nombre d’établissements")}</label>
             <select id="locations" name="locations" required={fieldRequired("Locations")} defaultValue="">
               <option value="" disabled>
-                {tr("Select one", "Choisir une option")}
+                {dynamicCopy("formLocationsPlaceholder", "Select the number of locations", "Choisir le nombre d’établissements")}
               </option>
               <option value="1">{tr("1 location", "1 établissement")}</option>
               <option value="2-3">{tr("2 to 3 locations", "2 à 3 établissements")}</option>
@@ -1546,7 +1546,7 @@ export default function MarketLaunchPage({
               defaultValue=""
             >
               <option value="" disabled>
-                {tr("Select one", "Choisir une option")}
+                {dynamicCopy("formPreferredContactPlaceholder", "Select a contact method", "Choisir une méthode de contact")}
               </option>
               <option value="Email">{tr("Email", "Courriel")}</option>
               <option value="Phone">{tr("Phone", "Téléphone")}</option>

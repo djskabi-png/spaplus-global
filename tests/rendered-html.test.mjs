@@ -664,6 +664,7 @@ test("Ontario early-access funnel is complete, bilingual, regional and launch-ga
     playbook,
     sitemap,
     llms,
+    manifestSource,
   ] = await Promise.all([
     read("app/en-ca/ontario/page.tsx"),
     read("app/fr-ca/ontario/page.tsx"),
@@ -678,6 +679,7 @@ test("Ontario early-access funnel is complete, bilingual, regional and launch-ga
     read("project_knowledge/ONTARIO_LAUNCH_PLAYBOOK.md"),
     read("public/app-sitemap.xml"),
     read("public/llms.txt"),
+    read("scripts/generate-market-copy-manifest.mjs"),
   ]);
   const marketPage = `${client}\n${marketConfig}`;
 
@@ -739,6 +741,14 @@ test("Ontario early-access funnel is complete, bilingual, regional and launch-ga
   assert.match(client, /window\.location\.assign\(link\.href\)/);
   assert.match(client, /document\.documentElement\.lang = languageTag/);
   assert.match(client, /hrefLang=\{link\.languageTag\}/);
+  assert.match(client, /formRegionPlaceholder/);
+  assert.match(client, /formSpaTypePlaceholder/);
+  assert.match(client, /formLocationsPlaceholder/);
+  assert.match(client, /formPreferredContactPlaceholder/);
+  assert.match(manifestSource, /formRegionPlaceholder/);
+  assert.match(manifestSource, /formSpaTypePlaceholder/);
+  assert.match(manifestSource, /formLocationsPlaceholder/);
+  assert.match(manifestSource, /formPreferredContactPlaceholder/);
   assert.match(marketConfig, /label: "FR CA"/);
   assert.match(marketConfig, /ariaLabel: "Français canadien"/);
   assert.match(marketConfig, /referenceSpas: frenchReferenceSpas/);

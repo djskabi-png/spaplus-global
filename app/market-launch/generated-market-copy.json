@@ -994,13 +994,6 @@
     "fr": "Ville ou collectivité"
   },
   {
-    "field": "copypsvqr9",
-    "label": "Select one",
-    "group": "Final call to action and footer",
-    "en": "Select one",
-    "fr": "Choisir une option"
-  },
-  {
     "field": "copy1wxjluq",
     "label": "Ontario is not included here. Use the dedicated Ontario page.",
     "group": "Frequently asked questions",
@@ -1622,6 +1615,34 @@
     "group": "Registration form",
     "en": "Ontario city",
     "fr": "Ville en Ontario"
+  },
+  {
+    "field": "formRegionPlaceholder",
+    "label": "Province or territory placeholder",
+    "group": "Registration form",
+    "en": "Select a province or territory",
+    "fr": "Choisir une province ou un territoire"
+  },
+  {
+    "field": "formSpaTypePlaceholder",
+    "label": "Spa type placeholder",
+    "group": "Registration form",
+    "en": "Select a spa type",
+    "fr": "Choisir un type de spa"
+  },
+  {
+    "field": "formLocationsPlaceholder",
+    "label": "Number of locations placeholder",
+    "group": "Registration form",
+    "en": "Select the number of locations",
+    "fr": "Choisir le nombre d’établissements"
+  },
+  {
+    "field": "formPreferredContactPlaceholder",
+    "label": "Preferred contact placeholder",
+    "group": "Registration form",
+    "en": "Select a contact method",
+    "fr": "Choisir une méthode de contact"
   },
   {
     "field": "websitePlaceholder",
