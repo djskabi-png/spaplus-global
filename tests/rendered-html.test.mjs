@@ -482,7 +482,8 @@ test("the Ontario application returns a branded localized page for unknown route
   assert.match(worker, /function appNotFoundResponse/);
   assert.match(worker, /Page not found \| SpaPlus/);
   assert.match(worker, /Page introuvable \| SpaPlus/);
-  assert.match(worker, /return appNotFoundResponse\(url\.pathname\)/);
+  assert.match(worker, /dynamicResponse\.status === 404/);
+  assert.match(worker, /appNotFoundResponse\(url\.pathname\)/);
 });
 
 test("lead management provides a localized four-state operational dashboard", async () => {

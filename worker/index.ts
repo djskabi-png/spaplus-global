@@ -544,7 +544,10 @@ const worker = {
         if (privateAsset) return privateAsset;
       }
 
-      return appNotFoundResponse(url.pathname);
+      const dynamicResponse = await handler.fetch(request, env, ctx);
+      return dynamicResponse.status === 404
+        ? appNotFoundResponse(url.pathname)
+        : dynamicResponse;
     }
 
     if (hostname === "admin.spaplus.co" && url.pathname === "/") {
