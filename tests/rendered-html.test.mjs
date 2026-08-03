@@ -460,6 +460,12 @@ test("management permissions fail closed and leads are scoped by market", async 
   assert.match(worker, /url\.pathname\.startsWith\("\/assets\/"\)/);
 });
 
+test("the static export never shadows the authenticated management route", async () => {
+  const staticPreparation = await read("scripts/prepare-production-static.mjs");
+  assert.doesNotMatch(staticPreparation, /"admin",/);
+  assert.match(staticPreparation, /rm\(path\.join\(target, "admin"\)/);
+});
+
 test("lead management provides a localized four-state operational dashboard", async () => {
   const [dashboard, page, systemLocale, route, schema, styles] = await Promise.all([
     read("app/tools/SubmissionsClient.tsx"),

@@ -8,7 +8,6 @@ const productionOrigin = "https://spaplus.co";
 const githubOrigin = "https://djskabi-png.github.io/spaplus-global";
 const legacyGlobalOrigin = "https://global.spaplus.co";
 const generatedDirectories = [
-  "admin",
   "country-partners",
   "de-ch",
   "de-de",
@@ -64,6 +63,11 @@ for (const directory of generatedDirectories) {
   await rm(destination, { recursive: true, force: true });
   await cp(path.join(source, directory), destination, { recursive: true });
 }
+
+// The administration area is a dynamic authenticated application. A legacy
+// static redirect here shadows the application route in production and causes
+// a redirect loop after Google sign-in.
+await rm(path.join(target, "admin"), { recursive: true, force: true });
 
 for (const file of sharedFiles) {
   await cp(path.join(source, file), path.join(target, file));
