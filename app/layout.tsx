@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Heebo, Noto_Sans } from "next/font/google";
 import "./globals.css";
 
@@ -44,13 +45,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const documentLanguage = (await headers()).get("x-spaplus-document-language") || "en";
+
   return (
-    <html lang="en">
+    <html lang={documentLanguage} dir={documentLanguage === "he" ? "rtl" : "ltr"}>
       <body className={`${notoSans.variable} ${heebo.variable}`}>
         {children}
       </body>

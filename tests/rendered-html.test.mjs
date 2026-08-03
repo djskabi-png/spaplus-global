@@ -466,6 +466,17 @@ test("the static export never shadows the authenticated management route", async
   assert.match(staticPreparation, /rm\(path\.join\(target, "admin"\)/);
 });
 
+test("Ontario documents declare their Canadian language on the server", async () => {
+  const [middleware, layout] = await Promise.all([
+    read("proxy.ts"),
+    read("app/layout.tsx"),
+  ]);
+  assert.match(middleware, /pathname\.startsWith\("\/fr-ca\/"\).*"fr-CA"/);
+  assert.match(middleware, /x-spaplus-document-language/);
+  assert.match(layout, /headers\(\)/);
+  assert.match(layout, /<html lang=\{documentLanguage\}/);
+});
+
 test("lead management provides a localized four-state operational dashboard", async () => {
   const [dashboard, page, systemLocale, route, schema, styles] = await Promise.all([
     read("app/tools/SubmissionsClient.tsx"),

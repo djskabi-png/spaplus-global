@@ -22,19 +22,37 @@ const routes = [
   ["es", "es", "ltr"],
 ];
 
+const seoByLocale = {
+  en: {
+    title: "SpaPlus Global | Discover. Book. Relax.",
+    description: "SpaPlus connects guests, spa businesses and local partners through trusted wellness marketplaces, booking technology and business tools.",
+  },
+  he: {
+    title: "SpaPlus Global | מגלים. מזמינים. נרגעים.",
+    description: "SpaPlus מחברת בין אורחים, בתי ספא ושותפים מקומיים באמצעות זירות וולנס, טכנולוגיית הזמנות וכלים לניהול העסק.",
+  },
+  "fr-ca": {
+    title: "SpaPlus Global | Découvrir. Réserver. Se détendre.",
+    description: "SpaPlus relie les clients, les spas et les partenaires locaux grâce à des plateformes de mieux-être, des réservations et des outils d’affaires.",
+  },
+};
+
+const escapeAttribute = (value) => value.replaceAll("&", "&amp;").replaceAll('"', "&quot;");
+
 const alternateLinks = routes
   .map(([segment, lang]) =>
-    `<link rel="alternate" hreflang="${lang}" href="https://djskabi-png.github.io/spaplus-global/${segment}/">`,
+    `<link rel="alternate" hreflang="${lang}" href="https://spaplus.co/${segment}/">`,
   )
   .concat(
-    '<link rel="alternate" hreflang="x-default" href="https://djskabi-png.github.io/spaplus-global/en/">',
+    '<link rel="alternate" hreflang="x-default" href="https://spaplus.co/en/">',
   )
   .join("\n  ");
 
 for (const [segment, lang, dir] of routes) {
   const directory = path.join(outputRoot, segment);
   await mkdir(directory, { recursive: true });
-  const canonical = `https://djskabi-png.github.io/spaplus-global/${segment}/`;
+  const canonical = `https://spaplus.co/${segment}/`;
+  const seo = seoByLocale[segment] || seoByLocale.en;
   const html = source
     .replace(/<html lang="[^"]+"(?: dir="[^"]+")?>/, `<html lang="${lang}" dir="${dir}">`)
     .replace("<head>", `<head>\n  <base href="/spaplus-global/">`)
@@ -49,6 +67,19 @@ for (const [segment, lang, dir] of routes) {
     .replace(
       /<meta property="og:url" content="[^"]+">/,
       `<meta property="og:url" content="${canonical}">`,
+    )
+    .replace(/<title>[^<]*<\/title>/, `<title>${escapeAttribute(seo.title)}</title>`)
+    .replace(
+      /(<meta name="description" content=")[^"]*(">)/,
+      `$1${escapeAttribute(seo.description)}$2`,
+    )
+    .replace(
+      /(<meta property="og:title" content=")[^"]*(">)/,
+      `$1${escapeAttribute(seo.title)}$2`,
+    )
+    .replace(
+      /(<meta property="og:description" content=")[^"]*(">)/,
+      `$1${escapeAttribute(seo.description)}$2`,
     );
   await writeFile(path.join(directory, "index.html"), html, "utf8");
 }
