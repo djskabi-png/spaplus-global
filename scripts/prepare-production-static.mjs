@@ -1,5 +1,6 @@
 import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { createRootLanguageRedirect } from "./root-language-redirect.mjs";
 
 const source = path.resolve("codepen");
 const target = path.resolve("public");
@@ -93,3 +94,4 @@ async function rewriteTree(directory) {
 }
 
 await rewriteTree(target);
+await writeFile(path.join(target, "index.html"), createRootLanguageRedirect(productionOrigin), "utf8");

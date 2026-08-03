@@ -1,5 +1,6 @@
 import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { createRootLanguageRedirect } from "./root-language-redirect.mjs";
 
 const source = path.resolve("codepen");
 const target = path.resolve(".pages-dist");
@@ -34,4 +35,5 @@ async function rewriteTree(directory) {
 }
 
 await rewriteTree(target);
+await writeFile(path.join(target, "index.html"), createRootLanguageRedirect(publicOrigin), "utf8");
 console.log("Prepared SpaPlus Global for its public root domain.");
