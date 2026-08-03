@@ -489,6 +489,10 @@ test("the Ontario application returns a branded localized page for unknown route
 test("management access starts on a branded page before Google sign-in", async () => {
   const worker = await read("worker/index.ts");
   assert.match(worker, /function googleLoginLanding/);
+  assert.match(worker, /function brandedAdministrationUnavailable/);
+  assert.match(worker, /function isSitesAuthenticationGate/);
+  assert.match(worker, /isSitesAuthenticationGate\(body, contentType\)/);
+  assert.match(worker, /retry-after/);
   assert.match(worker, /כניסה מאובטחת/);
   assert.match(worker, /\/auth\/google\/authorize/);
   assert.match(worker, /url\.pathname === "\/auth\/google\/start"\)[\s\S]*googleLoginLanding/);
