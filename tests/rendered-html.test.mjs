@@ -499,8 +499,9 @@ test("management access starts on a branded page before Google sign-in", async (
 });
 
 test("lead management provides a localized four-state operational dashboard", async () => {
-  const [dashboard, page, systemLocale, route, schema, styles] = await Promise.all([
+  const [dashboard, admin, page, systemLocale, route, schema, styles] = await Promise.all([
     read("app/tools/SubmissionsClient.tsx"),
+    read("app/admin/AdminClient.tsx"),
     read("app/tools/page.tsx"),
     read("app/system-locale.ts"),
     read("app/api/cms/submissions/route.ts"),
@@ -522,6 +523,8 @@ test("lead management provides a localized four-state operational dashboard", as
   assert.match(dashboard, /normalizeSystemLocale\(systemLocale\)/);
   assert.match(dashboard, /document\.documentElement\.lang = locale/);
   assert.match(dashboard, /document\.documentElement\.dir = locale === "he" \? "rtl" : "ltr"/);
+  assert.match(admin, /document\.documentElement\.lang = uiLocale/);
+  assert.match(admin, /document\.documentElement\.dir = direction/);
   assert.match(page, /normalizeSystemLocale\(admin\.systemLocale\)/);
   assert.match(page, /lang=\{systemLocale\}/);
   assert.match(systemLocale, /locale\.startsWith\("he-"\)/);

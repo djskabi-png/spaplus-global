@@ -208,6 +208,11 @@ export default function AdminClient({
     : localeOptions;
 
   useEffect(() => {
+    document.documentElement.lang = uiLocale;
+    document.documentElement.dir = direction;
+  }, [direction, uiLocale]);
+
+  useEffect(() => {
     if (!contentLocaleOptions.some((option) => option.code === locale)) {
       setLocale(contentLocaleOptions[0].code);
     }
