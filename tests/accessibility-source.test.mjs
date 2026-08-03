@@ -39,7 +39,10 @@ function contrast(first, second) {
 }
 
 test("every generated public page keeps the baseline accessibility structure", async () => {
-  const files = await collectHtml(codepenRoot);
+  const files = (await collectHtml(codepenRoot)).filter((file) => {
+    const page = relative(file);
+    return page !== "404.html" && page !== "admin/index.html";
+  });
   assert.equal(files.length, 146);
   for (const file of files) {
     const html = await readFile(file, "utf8");
@@ -58,6 +61,17 @@ test("every generated public page keeps the baseline accessibility structure", a
     assert.match(html, /accessibility\.css/, `${relative(file)} is missing accessibility.css`);
     assert.match(html, /accessibility\.js/, `${relative(file)} is missing accessibility.js`);
   }
+});
+
+test("the recovery pages are branded and provide a safe next step", async () => {
+  const notFound = await readFile(path.join(codepenRoot, "404.html"), "utf8");
+  const admin = await readFile(path.join(codepenRoot, "admin", "index.html"), "utf8");
+  assert.match(notFound, /<h1 id="title">/);
+  assert.match(notFound, /href="\/en\/"/);
+  assert.match(notFound, /favicon\.svg/);
+  assert.match(notFound, /noindex,follow/);
+  assert.match(admin, /https:\/\/app\.spaplus\.co\/admin/);
+  assert.match(admin, /noindex,nofollow/);
 });
 
 test("all spa funnels expose progress and focusable step headings", async () => {

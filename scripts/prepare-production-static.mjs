@@ -8,6 +8,7 @@ const productionOrigin = "https://spaplus.co";
 const githubOrigin = "https://djskabi-png.github.io/spaplus-global";
 const legacyGlobalOrigin = "https://global.spaplus.co";
 const generatedDirectories = [
+  "admin",
   "country-partners",
   "de-ch",
   "de-de",
@@ -35,6 +36,7 @@ const generatedDirectories = [
 ];
 
 const sharedFiles = [
+  "404.html",
   "accessibility.css",
   "accessibility.js",
   "adir-naor-founder.jpg",
