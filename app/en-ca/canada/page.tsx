@@ -5,8 +5,8 @@ import { canadaMarket } from "../../market-launch/markets";
 const canonicalUrl = "https://app.spaplus.co/en-ca/canada/";
 
 export const metadata: Metadata = {
-  title: "Join SpaPlus Canada | Spa partners",
-  description: "Introduce your spa to SpaPlus Canada. Join a dedicated spa discovery and booking channel built for established spas across Canada.",
+  title: "Join SpaPlus Canada outside Ontario | Spa partners",
+  description: "Introduce your spa to SpaPlus Canada. This partner page serves established spas across Canada outside Ontario, which has its own dedicated campaign.",
   keywords: ["SpaPlus Canada", "join spa platform Canada", "spa booking platform Canada", "spa marketing Canada", "Canadian spa partners"],
   alternates: {
     canonical: canonicalUrl,
@@ -17,8 +17,8 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Bring your spa to SpaPlus Canada",
-    description: "A dedicated discovery and booking channel for established spas across Canada.",
+    title: "Bring your spa to SpaPlus Canada outside Ontario",
+    description: "A dedicated discovery and booking channel for established spas across Canada outside Ontario.",
     url: canonicalUrl,
     siteName: "SpaPlus",
     locale: "en_CA",
@@ -33,7 +33,7 @@ const structuredData = {
   "@context": "https://schema.org",
   "@graph": [
     { "@type": "Organization", "@id": "https://spaplus.co/#organization", name: "SpaPlus", legalName: "Global Spa Management Ltd.", url: "https://spaplus.co/", logo: "https://spaplus.co/spaplus-logo.png" },
-    { "@type": "WebPage", "@id": `${canonicalUrl}#webpage`, url: canonicalUrl, name: "Join SpaPlus Canada", description: "A partner interest page for established spas across Canada.", inLanguage: "en-CA", about: { "@id": "https://spaplus.co/#organization" } },
+    { "@type": "WebPage", "@id": `${canonicalUrl}#webpage`, url: canonicalUrl, name: "Join SpaPlus Canada outside Ontario", description: "A partner interest page for established spas across Canada outside Ontario.", inLanguage: "en-CA", about: { "@id": "https://spaplus.co/#organization" } },
     { "@type": "BreadcrumbList", itemListElement: [
       { "@type": "ListItem", position: 1, name: "SpaPlus Global", item: "https://spaplus.co/en/" },
       { "@type": "ListItem", position: 2, name: "Canada", item: canonicalUrl },

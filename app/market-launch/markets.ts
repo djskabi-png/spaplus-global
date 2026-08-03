@@ -171,7 +171,7 @@ export const ontarioMarket: MarketLaunchConfig = {
     },
   ],
   marketLinks: [
-    { label: "All Canada", href: "/en-ca/canada/", active: false },
+    { label: "Rest of Canada", href: "/en-ca/canada/", active: false },
     { label: "Ontario", href: "/en-ca/ontario/", active: true },
   ],
 };
@@ -207,13 +207,12 @@ export const ontarioFrenchMarket: MarketLaunchConfig = {
     },
   ],
   marketLinks: [
-    { label: "Tout le Canada", href: "/fr-ca/canada/", active: false },
+    { label: "Reste du Canada", href: "/fr-ca/canada/", active: false },
     { label: "Ontario", href: "/fr-ca/ontario/", active: true },
   ],
 };
 
 const canadaRegions = [
-  ["Ontario", "Ontario"],
   ["Québec", "Québec"],
   ["British Columbia", "Colombie-Britannique"],
   ["Alberta", "Alberta"],
@@ -227,6 +226,12 @@ const canadaRegions = [
   ["Northwest Territories", "Territoires du Nord-Ouest"],
   ["Nunavut", "Nunavut"],
 ] as const;
+
+const canadaRegionOptions = canadaRegions.map(([english, french]) => ({
+  value: english.toLowerCase().replaceAll(" ", "-"),
+  english,
+  french,
+}));
 
 const baseCanadaConfig = {
   marketName: "Canada",
@@ -254,14 +259,18 @@ export const canadaMarket: MarketLaunchConfig = {
   heroDisclosure: "Illustrative SpaPlus Canada concept. It does not depict a specific partner spa.",
   priorityAreas: canadaRegions.map(([label]) => ({
     label,
-    href: label === "Ontario" ? "/en-ca/ontario/" : `/en-ca/canada/?utm_content=${encodeURIComponent(label.toLowerCase().replaceAll(" ", "-"))}#join`,
+    href: `/en-ca/canada/?utm_content=${encodeURIComponent(label.toLowerCase().replaceAll(" ", "-"))}#join`,
+  })),
+  regionOptions: canadaRegionOptions.map((region) => ({
+    value: region.value,
+    label: region.english,
   })),
   languageLinks: [
     { label: "EN CA", ariaLabel: "English, Canada", languageTag: "en-CA", href: "/en-ca/canada/", active: true },
     { label: "FR CA", ariaLabel: "Français canadien", languageTag: "fr-CA", href: "/fr-ca/canada/", active: false },
   ],
   marketLinks: [
-    { label: "All Canada", href: "/en-ca/canada/", active: true },
+    { label: "Rest of Canada", href: "/en-ca/canada/", active: true },
     { label: "Ontario", href: "/en-ca/ontario/", active: false },
   ],
 };
@@ -277,14 +286,18 @@ export const canadaFrenchMarket: MarketLaunchConfig = {
   referenceSpas: frenchReferenceSpas,
   priorityAreas: canadaRegions.map(([english, french]) => ({
     label: french,
-    href: english === "Ontario" ? "/fr-ca/ontario/" : `/fr-ca/canada/?utm_content=${encodeURIComponent(english.toLowerCase().replaceAll(" ", "-"))}#join`,
+    href: `/fr-ca/canada/?utm_content=${encodeURIComponent(english.toLowerCase().replaceAll(" ", "-"))}#join`,
+  })),
+  regionOptions: canadaRegionOptions.map((region) => ({
+    value: region.value,
+    label: region.french,
   })),
   languageLinks: [
     { label: "EN CA", ariaLabel: "English, Canada", languageTag: "en-CA", href: "/en-ca/canada/", active: false },
     { label: "FR CA", ariaLabel: "Français canadien", languageTag: "fr-CA", href: "/fr-ca/canada/", active: true },
   ],
   marketLinks: [
-    { label: "Tout le Canada", href: "/fr-ca/canada/", active: true },
+    { label: "Reste du Canada", href: "/fr-ca/canada/", active: true },
     { label: "Ontario", href: "/fr-ca/ontario/", active: false },
   ],
 };

@@ -5,8 +5,8 @@ import { canadaFrenchMarket } from "../../market-launch/markets";
 const canonicalUrl = "https://app.spaplus.co/fr-ca/canada/";
 
 export const metadata: Metadata = {
-  title: "Joignez SpaPlus Canada | Partenaires spa",
-  description: "Présentez votre spa à SpaPlus Canada et découvrez un canal spécialisé conçu pour aider les spas reconnus à joindre plus de clients partout au pays.",
+  title: "Joignez SpaPlus Canada hors Ontario | Partenaires spa",
+  description: "Présentez votre spa à SpaPlus Canada. Cette page partenaires s'adresse aux spas reconnus partout au Canada, à l'exception de l'Ontario.",
   keywords: ["SpaPlus Canada", "plateforme de réservation spa Canada", "partenaires spa Canada", "marketing spa Canada"],
   alternates: {
     canonical: canonicalUrl,
@@ -17,8 +17,8 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Faites découvrir votre spa avec SpaPlus Canada",
-    description: "Un canal spécialisé dans la découverte et la réservation pour les spas reconnus partout au Canada.",
+    title: "Faites découvrir votre spa avec SpaPlus Canada hors Ontario",
+    description: "Un canal spécialisé dans la découverte et la réservation pour les spas reconnus partout au Canada hors Ontario.",
     url: canonicalUrl,
     siteName: "SpaPlus",
     locale: "fr_CA",
@@ -33,7 +33,7 @@ const structuredData = {
   "@context": "https://schema.org",
   "@graph": [
     { "@type": "Organization", "@id": "https://spaplus.co/#organization", name: "SpaPlus", legalName: "Global Spa Management Ltd.", url: "https://spaplus.co/", logo: "https://spaplus.co/spaplus-logo.png" },
-    { "@type": "WebPage", "@id": `${canonicalUrl}#webpage`, url: canonicalUrl, name: "Joignez SpaPlus Canada", description: "Une page destinée aux spas reconnus qui souhaitent explorer un partenariat avec SpaPlus Canada.", inLanguage: "fr-CA", about: { "@id": "https://spaplus.co/#organization" } },
+    { "@type": "WebPage", "@id": `${canonicalUrl}#webpage`, url: canonicalUrl, name: "Joignez SpaPlus Canada hors Ontario", description: "Une page destinée aux spas reconnus hors Ontario qui souhaitent explorer un partenariat avec SpaPlus Canada.", inLanguage: "fr-CA", about: { "@id": "https://spaplus.co/#organization" } },
     { "@type": "BreadcrumbList", itemListElement: [
       { "@type": "ListItem", position: 1, name: "SpaPlus Global", item: "https://spaplus.co/fr-ca/" },
       { "@type": "ListItem", position: 2, name: "Canada", item: canonicalUrl },

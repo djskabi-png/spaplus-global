@@ -365,7 +365,8 @@ test("analytics is separated by site and remains blocked until consent", async (
   assert.match(analytics, /if \(!isPublicSite\(site\) \|\| !hasConsent\(site\)\) return/);
   assert.match(globalPage, /initializeSpaPlusAnalytics\("global"\)/);
   assert.match(globalPage, /trackAnalyticsEvent\("global", "generate_lead"/);
-  assert.match(ontarioPage, /initializeSpaPlusAnalytics\("ontario"\)/);
+  assert.match(ontarioPage, /initializeSpaPlusAnalytics\(analyticsSite\)/);
+  assert.match(ontarioPage, /marketSlug === "canada" \? "canada" : "ontario"/);
   assert.match(ontarioPage, /track\("generate_lead"/);
 });
 
@@ -791,7 +792,31 @@ test("Ontario management exposes the complete bilingual page copy", async () => 
   assert.match(admin, /disabled=\{contentLoading \|\| !marketDraftCount \|\| Boolean\(savingAction\)\}/);
   assert.match(client, /marketCopyFieldKey/);
   assert.match(client, /dynamicCopy/);
-  assert.match(client, /managed\("seoTitle"/);
+  assert.match(client, /isNetwork \? "seoTitleOutsideOntario" : "seoTitle"/);
   assert.match(worker, /applyManagedOntarioMetadata/);
   assert.match(worker, /copy\.seoTitle/);
+  assert.match(worker, /no-store, must-revalidate/);
+});
+
+test("Canada partner funnel excludes Ontario and requires another Canadian region", async () => {
+  const [marketConfig, client, route, englishPage, frenchPage, analytics] = await Promise.all([
+    read("app/market-launch/markets.ts"),
+    read("app/market-launch/MarketLaunchPage.tsx"),
+    read("app/api/market-spa-leads/route.ts"),
+    read("app/en-ca/canada/page.tsx"),
+    read("app/fr-ca/canada/page.tsx"),
+    read("app/analytics.ts"),
+  ]);
+
+  const canadaRegions = marketConfig.match(/const canadaRegions = \[([\s\S]*?)\] as const;/)?.[1] || "";
+  assert.doesNotMatch(canadaRegions, /\["Ontario", "Ontario"\]/);
+  assert.match(marketConfig, /regionOptions: canadaRegionOptions/);
+  assert.match(client, /name="region"/);
+  assert.match(client, /Ontario is not included here/);
+  assert.match(route, /marketSlug === "canada" && !data\.region/);
+  assert.match(route, /Canada outside Ontario spa partner/);
+  assert.match(englishPage, /outside Ontario/);
+  assert.match(frenchPage, /hors Ontario/);
+  assert.match(analytics, /site === "ontario"/);
+  assert.match(analytics, /AnalyticsSite = "global" \| "ontario" \| "canada"/);
 });

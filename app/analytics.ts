@@ -1,6 +1,6 @@
 "use client";
 
-export type AnalyticsSite = "global" | "ontario";
+export type AnalyticsSite = "global" | "ontario" | "canada";
 
 type AnalyticsValue = string | number | boolean;
 type AnalyticsParams = Record<string, AnalyticsValue | undefined>;
@@ -23,6 +23,12 @@ const analyticsConfig: Record<
     grantedValue: "all",
   },
   ontario: {
+    containerId: "GTM-KKN2S8SP",
+    measurementId: "G-2QBE2SPWPG",
+    storageKey: "spaplus-consent",
+    grantedValue: "analytics",
+  },
+  canada: {
     containerId: "GTM-KKN2S8SP",
     measurementId: "G-2QBE2SPWPG",
     storageKey: "spaplus-consent",
@@ -54,10 +60,9 @@ function isPublicSite(site: AnalyticsSite) {
     return hostname === "spaplus.co" || hostname === "www.spaplus.co";
   }
 
-  return (
-    hostname === "app.spaplus.co" &&
-    /^\/(en-ca|fr-ca)\/(ontario|canada)(?:\/|$)/.test(pathname)
-  );
+  if (!(hostname === "app.spaplus.co")) return false;
+  if (site === "ontario") return /^\/(en-ca|fr-ca)\/ontario(?:\/|$)/.test(pathname);
+  return /^\/(en-ca|fr-ca)\/canada(?:\/|$)/.test(pathname);
 }
 
 function dataLayer() {

@@ -6,6 +6,7 @@ export type MarketLeadEmailData = {
   organization: string;
   website: string;
   city: string;
+  region: string;
   postalCode: string;
   spaType: string;
   locations: string;
@@ -189,7 +190,7 @@ export function buildMarketOwnerEmail(
       ${detailRow("Phone", data.phone)}
       ${detailRow("Preferred contact", data.preferredContact)}
       ${detailRow("Website or social", data.website)}
-      ${detailRow("Location", `${data.city}, ${marketName} ${data.postalCode}`)}
+      ${detailRow("Location", `${data.city}${data.region ? `, ${data.region}` : ""}, ${marketName} ${data.postalCode}`)}
       ${detailRow("Campaign area", data.area || "Ontario general")}
       ${detailRow("Page language", data.locale)}
       ${detailRow("Spa type", data.spaType)}
@@ -211,7 +212,7 @@ export function buildMarketOwnerEmail(
     `Phone: ${data.phone}`,
     `Preferred contact: ${data.preferredContact}`,
     `Website or social: ${data.website}`,
-    `Location: ${data.city}, ${marketName} ${data.postalCode}`,
+    `Location: ${data.city}${data.region ? `, ${data.region}` : ""}, ${marketName} ${data.postalCode}`,
     `Campaign area: ${data.area || "Ontario general"}`,
     `Page language: ${data.locale}`,
     `Spa type: ${data.spaType}`,
@@ -265,7 +266,7 @@ export function buildMarketVisitorEmail(
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border:1px solid #e1e6ed;border-radius:16px;border-collapse:separate;overflow:hidden;">
         ${detailRow("Spa", data.organization)}
         ${detailRow("Personne-ressource", data.name)}
-        ${detailRow("Emplacement", `${data.city}, ${marketName}`)}
+        ${detailRow("Emplacement", `${data.city}${data.region ? `, ${data.region}` : ""}, ${marketName}`)}
         ${detailRow("Contact préféré", preferredContact)}
       </table>
       <p style="margin:22px 0 0;color:#5d6a7d;font-size:12px;line-height:1.7;">Cette inscription exprime seulement votre intérêt. Elle ne crée aucun engagement, ne demande aucun paiement et ne recueille aucun renseignement de carte de crédit. Toute offre de lancement vous sera expliquée séparément avant que vous décidiez d’aller de l’avant.</p>`;
@@ -305,7 +306,7 @@ export function buildMarketVisitorEmail(
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border:1px solid #e1e6ed;border-radius:16px;border-collapse:separate;overflow:hidden;">
       ${detailRow("Spa", data.organization)}
       ${detailRow("Contact", data.name)}
-      ${detailRow("Location", `${data.city}, ${marketName}`)}
+      ${detailRow("Location", `${data.city}${data.region ? `, ${data.region}` : ""}, ${marketName}`)}
       ${detailRow("Preferred contact", data.preferredContact)}
     </table>
     <p style="margin:22px 0 0;color:#5d6a7d;font-size:12px;line-height:1.7;">This registration is an expression of interest only. It creates no commitment, requires no payment and does not request credit card information. Any launch offer will be explained separately before you decide whether to continue.</p>`;

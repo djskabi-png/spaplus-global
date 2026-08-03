@@ -6,7 +6,11 @@ import {
   buildMarketVisitorEmail,
   type MarketLeadEmailData,
 } from "../../market-email-templates";
-import { markets, ontarioAreas } from "../../market-launch/markets";
+import {
+  canadaFrenchMarket,
+  markets,
+  ontarioAreas,
+} from "../../market-launch/markets";
 
 type MarketSlug = keyof typeof markets;
 
@@ -93,6 +97,7 @@ export async function GET(request: Request) {
     organization: "North Shore Wellness Spa",
     website: "https://example.com",
     city: "Toronto",
+    region: "ontario",
     postalCode: "M5V 2T6",
     spaType: "Hotel or resort spa",
     locations: "1",
@@ -200,6 +205,13 @@ export async function POST(request: Request) {
     )
       ? requestedArea
       : "";
+    const requestedRegion = clean(body.region, 100).toLowerCase();
+    const regionOptions = requestedLocale.startsWith("fr")
+      ? canadaFrenchMarket.regionOptions || []
+      : markets.canada.regionOptions || [];
+    const acceptedRegion = marketSlug === "canada"
+      ? regionOptions.find((region) => region.value === requestedRegion)?.label || ""
+      : "";
 
     const data: MarketLeadEmailData = {
       name: clean(body.name, 100),
@@ -209,6 +221,7 @@ export async function POST(request: Request) {
       organization: clean(body.organization, 160),
       website: clean(body.website, 300),
       city: clean(body.city, 100),
+      region: acceptedRegion,
       postalCode: clean(body.postalCode, 12).toUpperCase(),
       spaType: clean(body.spaType, 100),
       locations: clean(body.locations, 40),
@@ -240,6 +253,7 @@ export async function POST(request: Request) {
       (isFieldRequired(marketContent, "Website") && !/^https?:\/\/\S+/i.test(data.website)) ||
       (data.website && !/^https?:\/\/\S+/i.test(data.website)) ||
       (isFieldRequired(marketContent, "City") && data.city.length < 2) ||
+      (marketSlug === "canada" && !data.region) ||
       (isFieldRequired(marketContent, "PostalCode") && data.postalCode.length < 3) ||
       (isFieldRequired(marketContent, "SpaType") && data.spaType.length < 2) ||
       (isFieldRequired(marketContent, "Locations") && data.locations.length < 1) ||
@@ -256,8 +270,8 @@ export async function POST(request: Request) {
       `Role: ${data.role}`,
       `Phone: ${data.phone}`,
       `Website: ${data.website}`,
-      `Location: ${data.city}, ${market.marketName} ${data.postalCode}`,
-      `Campaign area: ${data.area || `${market.marketName} general`}`,
+      `Location: ${data.city}${data.region ? `, ${data.region}` : ""}, ${market.marketName} ${data.postalCode}`,
+      `Campaign area: ${data.area || (marketSlug === "canada" ? "Canada outside Ontario" : `${market.marketName} general`)}`,
       `Spa type: ${data.spaType}`,
       `Locations: ${data.locations}`,
       `Services: ${data.services.join(", ")}`,
@@ -281,7 +295,7 @@ export async function POST(request: Request) {
           email: data.email,
           phone: data.phone,
           organization: data.organization,
-          topic: `${market.marketName} founding spa partner`,
+          topic: marketSlug === "canada" ? "Canada outside Ontario spa partner" : `${market.marketName} founding spa partner`,
           message: messageSummary,
           locale: data.locale,
           source: data.source,

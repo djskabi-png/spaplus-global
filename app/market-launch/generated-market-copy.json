@@ -79,14 +79,14 @@
   {
     "field": "copy19bezrl",
     "label": "Market",
-    "group": "Hero and launch status",
+    "group": "Growth and founding partner offer",
     "en": "Market",
     "fr": "Marché"
   },
   {
     "field": "copy16us7mj",
     "label": "Language",
-    "group": "Hero and launch status",
+    "group": "Growth and founding partner offer",
     "en": "Language",
     "fr": "Langue"
   },
@@ -135,14 +135,14 @@
   {
     "field": "copy1efny2h",
     "label": "See SpaPlus in action",
-    "group": "Growth and founding partner offer",
+    "group": "Platform preview",
     "en": "See SpaPlus in action",
     "fr": "Voir SpaPlus en action"
   },
   {
     "field": "copyylb03q",
     "label": "Registration is an expression of interest. It is not a contract or a purchase.",
-    "group": "Growth and founding partner offer",
+    "group": "Platform preview",
     "en": "Registration is an expression of interest. It is not a contract or a purchase.",
     "fr": "L’inscription exprime votre intérêt. Elle ne constitue ni un contrat ni un achat."
   },
@@ -210,11 +210,11 @@
     "fr": "Réserver"
   },
   {
-    "field": "copyerx5gc",
-    "label": "Better spa experiences for guests. New opportunities for Canadian spas.",
+    "field": "copyj1od9h",
+    "label": "Better spa experiences for guests. New opportunities for Canadian spas outside Ontario.",
     "group": "Platform preview",
-    "en": "Better spa experiences for guests. New opportunities for Canadian spas.",
-    "fr": "De meilleures expériences spa pour les clients. De nouvelles possibilités pour les spas canadiens."
+    "en": "Better spa experiences for guests. New opportunities for Canadian spas outside Ontario.",
+    "fr": "De meilleures expériences spa pour les clients. De nouvelles possibilités pour les spas canadiens hors Ontario."
   },
   {
     "field": "copyajpmsl",
@@ -310,49 +310,49 @@
   {
     "field": "copy1u96rta",
     "label": "Register free",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "Register free",
     "fr": "Inscription gratuite"
   },
   {
     "field": "copy97warh",
     "label": "No payment or card",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "No payment or card",
     "fr": "Aucun paiement ni carte"
   },
   {
     "field": "copyitndd4",
     "label": "Build the right offer",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "Build the right offer",
     "fr": "Création de la bonne offre"
   },
   {
     "field": "copykp36zp",
     "label": "Profile, packages and fit",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "Profile, packages and fit",
     "fr": "Profil, forfaits et positionnement"
   },
   {
     "field": "copy14g1a33",
     "label": "Review before launch",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "Review before launch",
     "fr": "Révision avant le lancement"
   },
   {
     "field": "copy18o71hj",
     "label": "Written terms, no pressure",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "Written terms, no pressure",
     "fr": "Conditions écrites, sans pression"
   },
   {
     "field": "copyq5kemp",
     "label": "Grow through bookings",
-    "group": "Platform preview",
+    "group": "Proof and guest experiences",
     "en": "Grow through bookings",
     "fr": "Croissance par les réservations"
   },
@@ -513,21 +513,21 @@
   {
     "field": "copyvfo2eb",
     "label": "Day spa package",
-    "group": "Proof and guest experiences",
+    "group": "Partner fit and launch areas",
     "en": "Day spa package",
     "fr": "Forfait spa de jour"
   },
   {
     "field": "copyu8qumc",
     "label": "1 guest · Confirmed",
-    "group": "Proof and guest experiences",
+    "group": "Partner fit and launch areas",
     "en": "1 guest · Confirmed",
     "fr": "1 personne · Confirmée"
   },
   {
     "field": "copy39rjx0",
     "label": "Ready",
-    "group": "Proof and guest experiences",
+    "group": "Partner fit and launch areas",
     "en": "Ready",
     "fr": "Prête"
   },
@@ -702,37 +702,37 @@
   {
     "field": "copyial08i",
     "label": "Multi-location groups preparing for their next growth channel",
-    "group": "Commercial model and process",
+    "group": "Registration form",
     "en": "Multi-location groups preparing for their next growth channel",
     "fr": "Groupes multisites prêts à développer un nouveau canal de croissance"
   },
   {
     "field": "copy1u6hg9c",
     "label": "SpaPlus is not currently onboarding individual mobile therapists, home-based services or solo private treatment rooms through this program.",
-    "group": "Commercial model and process",
+    "group": "Registration form",
     "en": "SpaPlus is not currently onboarding individual mobile therapists, home-based services or solo private treatment rooms through this program.",
     "fr": "Ce programme ne vise pas actuellement les thérapeutes mobiles indépendants, les services à domicile ni les salles de soins privées exploitées par une seule personne."
   },
   {
     "field": "copy1b6hn9i",
     "label": "Explore Canada",
-    "group": "Commercial model and process",
+    "group": "Registration form",
     "en": "Explore Canada",
     "fr": "Explorer le Canada"
   },
   {
     "field": "copy1gzgz1m",
     "label": "Priority launch areas",
-    "group": "Commercial model and process",
+    "group": "Registration form",
     "en": "Priority launch areas",
     "fr": "Zones de lancement prioritaires"
   },
   {
-    "field": "copy1ew8csb",
-    "label": "Choose Ontario for its dedicated page. Every other region takes you directly to the Canada partner form with the region identified.",
+    "field": "copygsrnv0",
+    "label": "This page is for every Canadian province and territory outside Ontario. Ontario has its own dedicated partner page and campaign.",
     "group": "Registration form",
-    "en": "Choose Ontario for its dedicated page. Every other region takes you directly to the Canada partner form with the region identified.",
-    "fr": "Choisissez l’Ontario pour accéder à sa page dédiée. Pour les autres régions, vous serez dirigé vers le formulaire canadien avec la région déjà identifiée."
+    "en": "This page is for every Canadian province and territory outside Ontario. Ontario has its own dedicated partner page and campaign.",
+    "fr": "Cette page s'adresse aux provinces et territoires du Canada, à l'exception de l'Ontario. L'Ontario possède sa propre page et sa propre campagne partenaires."
   },
   {
     "field": "copyoe6x04",
@@ -982,16 +982,30 @@
   {
     "field": "copyfeop0f",
     "label": "Website or social profile",
-    "group": "Registration form",
+    "group": "Frequently asked questions",
     "en": "Website or social profile",
     "fr": "Site Web ou profil social"
   },
   {
     "field": "copy5snmoy",
     "label": "City or community",
-    "group": "Registration form",
+    "group": "Frequently asked questions",
     "en": "City or community",
     "fr": "Ville ou collectivité"
+  },
+  {
+    "field": "copypsvqr9",
+    "label": "Select one",
+    "group": "Final call to action and footer",
+    "en": "Select one",
+    "fr": "Choisir une option"
+  },
+  {
+    "field": "copy1wxjluq",
+    "label": "Ontario is not included here. Use the dedicated Ontario page.",
+    "group": "Frequently asked questions",
+    "en": "Ontario is not included here. Use the dedicated Ontario page.",
+    "fr": "L'Ontario n'est pas inclus ici. Utilisez la page dédiée à l'Ontario."
   },
   {
     "field": "copy116lrsj",
@@ -1008,65 +1022,58 @@
     "fr": "Type de spa"
   },
   {
-    "field": "copypsvqr9",
-    "label": "Select one",
-    "group": "Final call to action and footer",
-    "en": "Select one",
-    "fr": "Choisir une option"
-  },
-  {
     "field": "copyjqdz05",
     "label": "Number of locations",
-    "group": "Frequently asked questions",
+    "group": "Final call to action and footer",
     "en": "Number of locations",
     "fr": "Nombre d’établissements"
   },
   {
     "field": "copy1p1ecub",
     "label": "1 location",
-    "group": "Frequently asked questions",
+    "group": "Final call to action and footer",
     "en": "1 location",
     "fr": "1 établissement"
   },
   {
     "field": "copy126akbj",
     "label": "2 to 3 locations",
-    "group": "Frequently asked questions",
+    "group": "Final call to action and footer",
     "en": "2 to 3 locations",
     "fr": "2 à 3 établissements"
   },
   {
     "field": "copy26589h",
     "label": "4 to 10 locations",
-    "group": "Frequently asked questions",
+    "group": "Final call to action and footer",
     "en": "4 to 10 locations",
     "fr": "4 à 10 établissements"
   },
   {
     "field": "copy1cbq5v5",
     "label": "11 or more locations",
-    "group": "Frequently asked questions",
+    "group": "Final call to action and footer",
     "en": "11 or more locations",
     "fr": "11 établissements ou plus"
   },
   {
     "field": "copyjb5kb3",
     "label": "Main services offered",
-    "group": "Frequently asked questions",
+    "group": "Final call to action and footer",
     "en": "Main services offered",
     "fr": "Principaux services offerts"
   },
   {
     "field": "copy15cxu2u",
     "label": "Your full name",
-    "group": "Frequently asked questions",
+    "group": "Final call to action and footer",
     "en": "Your full name",
     "fr": "Votre nom complet"
   },
   {
     "field": "copypparhi",
     "label": "Your role",
-    "group": "Frequently asked questions",
+    "group": "Final call to action and footer",
     "en": "Your role",
     "fr": "Votre fonction"
   },
@@ -1157,35 +1164,35 @@
   {
     "field": "copyf8wwfw",
     "label": "Sending your details...",
-    "group": "Final call to action and footer",
+    "group": "Messages, cookies and page controls",
     "en": "Sending your details...",
     "fr": "Envoi de vos renseignements..."
   },
   {
     "field": "copy14yjwa6",
     "label": "Founding partner terms are not guaranteed. Any commercial offer will be shared separately in writing after a fit review.",
-    "group": "Final call to action and footer",
+    "group": "Messages, cookies and page controls",
     "en": "Founding partner terms are not guaranteed. Any commercial offer will be shared separately in writing after a fit review.",
     "fr": "Les conditions de partenaire fondateur ne sont pas garanties. Toute offre commerciale sera transmise séparément par écrit après l’évaluation du partenariat."
   },
   {
     "field": "copyhtr8sv",
     "label": "THE IMPORTANT QUESTIONS",
-    "group": "Final call to action and footer",
+    "group": "Messages, cookies and page controls",
     "en": "THE IMPORTANT QUESTIONS",
     "fr": "LES QUESTIONS IMPORTANTES"
   },
   {
     "field": "copy12xoqx0",
     "label": "Before you register.",
-    "group": "Final call to action and footer",
+    "group": "Messages, cookies and page controls",
     "en": "Before you register.",
     "fr": "Avant de vous inscrire."
   },
   {
     "field": "copyntq42z",
     "label": "Does it cost anything to register?",
-    "group": "Final call to action and footer",
+    "group": "Messages, cookies and page controls",
     "en": "Does it cost anything to register?",
     "fr": "L’inscription est-elle payante?"
   },
@@ -1204,11 +1211,11 @@
     "fr": "Non. Le formulaire indique seulement que vous souhaitez en savoir plus. Vous pourrez examiner l’offre de lancement avant de prendre une décision."
   },
   {
-    "field": "copy1w7toen",
-    "label": "SpaPlus Canada already presents spa experiences in Québec and is growing partner conversations across Canada. Availability varies by region.",
+    "field": "copycaz124",
+    "label": "SpaPlus Canada already presents spa experiences in Québec. This page receives partner enquiries from the rest of Canada outside Ontario, which has its own dedicated page.",
     "group": "Messages, cookies and page controls",
-    "en": "SpaPlus Canada already presents spa experiences in Québec and is growing partner conversations across Canada. Availability varies by region.",
-    "fr": "SpaPlus Canada présente déjà des expériences spa au Québec et développe ses partenariats ailleurs au pays. L’offre varie selon la région."
+    "en": "SpaPlus Canada already presents spa experiences in Québec. This page receives partner enquiries from the rest of Canada outside Ontario, which has its own dedicated page.",
+    "fr": "SpaPlus Canada présente déjà des expériences spa au Québec. Cette page reçoit les demandes de partenariat du reste du Canada hors Ontario, qui possède sa propre page."
   },
   {
     "field": "copyh4bp1x",
@@ -1295,11 +1302,11 @@
     "fr": "Lancement en Ontario"
   },
   {
-    "field": "copym9512e",
-    "label": "Join SpaPlus across Canada",
+    "field": "copy1uq7x9p",
+    "label": "Join SpaPlus across Canada outside Ontario",
     "group": "Messages, cookies and page controls",
-    "en": "Join SpaPlus across Canada",
-    "fr": "Joindre SpaPlus partout au Canada"
+    "en": "Join SpaPlus across Canada outside Ontario",
+    "fr": "Joindre SpaPlus partout au Canada hors Ontario"
   },
   {
     "field": "copy163nd0c",

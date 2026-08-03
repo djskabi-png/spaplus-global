@@ -432,7 +432,18 @@ const worker = {
     ) {
       const assetResponse = await env.ASSETS.fetch(request);
       if (assetResponse.status !== 404) {
-        return applyManagedOntarioMetadata(request, assetResponse, env);
+        const renderedResponse = await applyManagedOntarioMetadata(request, assetResponse, env);
+        if ((renderedResponse.headers.get("content-type") || "").includes("text/html")) {
+          const responseHeaders = new Headers(renderedResponse.headers);
+          responseHeaders.set("cache-control", "no-store, must-revalidate");
+          responseHeaders.delete("content-length");
+          return new Response(renderedResponse.body, {
+            status: renderedResponse.status,
+            statusText: renderedResponse.statusText,
+            headers: responseHeaders,
+          });
+        }
+        return renderedResponse;
       }
     }
 
