@@ -52,6 +52,31 @@ function textResponse(message: string, status = 400): Response {
   );
 }
 
+function appNotFoundResponse(pathname: string): Response {
+  const french = pathname === "/fr-ca" || pathname.startsWith("/fr-ca/");
+  const copy = french
+    ? {
+      title: "Page introuvable | SpaPlus",
+      heading: "Cette page n’existe pas ou a été déplacée.",
+      description: "Retournez à la page SpaPlus Ontario pour découvrir l’accès prioritaire destiné aux spas.",
+      action: "Retour à SpaPlus Ontario",
+      href: "/fr-ca/ontario/",
+      lang: "fr-CA",
+    }
+    : {
+      title: "Page not found | SpaPlus",
+      heading: "This page does not exist or has moved.",
+      description: "Return to the SpaPlus Ontario page to learn about early access for spas.",
+      action: "Return to SpaPlus Ontario",
+      href: "/en-ca/ontario/",
+      lang: "en",
+    };
+  return new Response(
+    `<!doctype html><html lang="${copy.lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${copy.title}</title><meta name="robots" content="noindex,follow"><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#fff8fb,#f2f7ff);color:#172d4f;font-family:Arial,sans-serif}.card{width:min(560px,calc(100% - 40px));padding:48px;border:1px solid #e3dce2;border-radius:28px;background:#fff;box-shadow:0 24px 70px #172d4f18;text-align:center}.mark{display:inline-grid;place-items:center;width:56px;height:56px;margin-bottom:18px;border-radius:18px;background:#ed1766;color:#fff;font-size:25px;font-weight:700}h1{margin:0 0 14px;font-size:clamp(30px,6vw,48px);line-height:1.05}p{margin:0;color:#526984;font-size:18px;line-height:1.6}a{display:inline-block;margin-top:28px;padding:14px 22px;border-radius:999px;background:#ed1766;color:#fff;text-decoration:none;font-weight:700}</style></head><body><main class="card"><div class="mark">SP</div><h1>${copy.heading}</h1><p>${copy.description}</p><a href="${copy.href}">${copy.action}</a></main></body></html>`,
+    { status: 404, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex, follow" } },
+  );
+}
+
 function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (character) => ({
     "&": "&amp;",
@@ -518,6 +543,8 @@ const worker = {
         const privateAsset = await proxyPrivateAsset(request, env);
         if (privateAsset) return privateAsset;
       }
+
+      return appNotFoundResponse(url.pathname);
     }
 
     if (hostname === "admin.spaplus.co" && url.pathname === "/") {

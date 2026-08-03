@@ -477,6 +477,14 @@ test("Ontario documents declare their Canadian language on the server", async ()
   assert.match(layout, /<html lang=\{documentLanguage\}/);
 });
 
+test("the Ontario application returns a branded localized page for unknown routes", async () => {
+  const worker = await read("worker/index.ts");
+  assert.match(worker, /function appNotFoundResponse/);
+  assert.match(worker, /Page not found \| SpaPlus/);
+  assert.match(worker, /Page introuvable \| SpaPlus/);
+  assert.match(worker, /return appNotFoundResponse\(url\.pathname\)/);
+});
+
 test("lead management provides a localized four-state operational dashboard", async () => {
   const [dashboard, page, systemLocale, route, schema, styles] = await Promise.all([
     read("app/tools/SubmissionsClient.tsx"),
