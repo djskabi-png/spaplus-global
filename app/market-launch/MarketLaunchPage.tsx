@@ -50,6 +50,14 @@ export type MarketLaunchConfig = {
     href: string;
     active: boolean;
   }>;
+  pageMode?: "launch" | "network";
+  cmsSection?: string;
+  resourceKey?: string;
+  marketLinks?: Array<{
+    label: string;
+    href: string;
+    active: boolean;
+  }>;
   selectedArea?: {
     slug: string;
     name: string;
@@ -160,9 +168,12 @@ export default function MarketLaunchPage({
     referenceSpas,
     priorityAreas,
     languageLinks,
+    marketLinks = [],
     selectedArea,
   } = config;
   const isFrench = languageTag.toLowerCase().startsWith("fr");
+  const isNetwork = config.pageMode === "network";
+  const cmsSection = config.cmsSection || "market.ca-on";
   const eventPrefix = marketSlug.replace(/[^a-z0-9_]+/g, "_");
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -211,17 +222,29 @@ export default function MarketLaunchPage({
   }, [languageTag]);
 
   useEffect(() => {
-    const fallbackTitle = isFrench
+    const fallbackTitle = isNetwork
+      ? isFrench
+        ? "Joignez SpaPlus Canada | Partenaires spa"
+        : "Join SpaPlus Canada | Spa partners"
+      : isFrench
       ? "SpaPlus arrive en Ontario | Spas partenaires fondateurs"
       : "SpaPlus is coming to Ontario | Founding spa partners";
-    const fallbackDescription = isFrench
+    const fallbackDescription = isNetwork
+      ? isFrench
+        ? "Présentez votre spa à SpaPlus Canada et découvrez un canal spécialisé conçu pour vous aider à joindre plus de clients partout au pays."
+        : "Introduce your spa to SpaPlus Canada and discover a dedicated channel built to help established spas reach more guests across the country."
+      : isFrench
       ? "SpaPlus prépare son lancement en Ontario. Les spas établis peuvent s’inscrire à la liste des partenaires fondateurs, gratuitement, sans engagement et sans carte de crédit."
       : "SpaPlus is preparing to launch in Ontario. Established spas can join the founding partner list with no fee, no commitment and no credit card.";
     const title = managed("seoTitle", fallbackTitle);
     const description = managed("seoDescription", fallbackDescription);
     const imageAlt = managed(
       "seoImageAlt",
-      isFrench
+      isNetwork
+        ? isFrench
+          ? "Concept visuel de SpaPlus Canada. Il ne représente pas un spa partenaire précis."
+          : "Illustrative SpaPlus Canada artwork. It does not depict a specific partner spa."
+        : isFrench
         ? "Concept visuel illustratif du lancement de SpaPlus en Ontario. Il ne représente pas un partenaire ontarien."
         : "Illustrative SpaPlus Ontario launch artwork. It does not depict an Ontario partner.",
     );
@@ -237,7 +260,7 @@ export default function MarketLaunchPage({
     ] as const) {
       document.querySelector<HTMLMetaElement>(selector)?.setAttribute("content", value);
     }
-  }, [cmsCopy, isFrench, selectedArea]);
+  }, [cmsCopy, isFrench, isNetwork, selectedArea]);
 
   useEffect(() => {
     let active = true;
@@ -245,11 +268,11 @@ export default function MarketLaunchPage({
       .then((response) => response.ok ? response.json() : null)
       .then((data) => {
         if (!active || !data) return;
-        setCmsCopy(data.content?.["market.ca-on"] || {});
+        setCmsCopy(data.content?.[cmsSection] || {});
       })
       .catch(() => undefined);
     return () => { active = false; };
-  }, [languageTag]);
+  }, [cmsSection, languageTag]);
 
   useEffect(() => {
     return initializeSpaPlusAnalytics("ontario");
@@ -451,7 +474,7 @@ export default function MarketLaunchPage({
       track("generate_lead", {
         market: marketSlug,
         lead_type: "spa_partner",
-        area: selectedArea?.slug || "ontario",
+        area: selectedArea?.slug || marketSlug,
       });
     } catch {
       setSubmitState("error");
@@ -558,8 +581,17 @@ export default function MarketLaunchPage({
               track("click_join_early_access", { placement: "header" })
             }}
           >
-            {tr("Join early access", "Accès prioritaire")}
+            {isNetwork ? tr("Join SpaPlus", "Joindre SpaPlus") : tr("Join early access", "Accès prioritaire")}
           </a>
+          {marketLinks.length ? (
+            <div className={styles.marketSwitch} aria-label={tr("Market", "Marché")}>
+              {marketLinks.map((link) => (
+                <a key={link.href} href={link.href} aria-current={link.active ? "page" : undefined}>
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          ) : null}
           <div
             className={styles.languageSwitch}
             aria-label={tr("Language", "Langue")}
@@ -599,7 +631,9 @@ export default function MarketLaunchPage({
         <div className={styles.heroShade} aria-hidden="true" />
         <div className={styles.heroContent}>
           <p className={styles.eyebrow}>
-            {managed("heroEyebrow", selectedArea
+            {managed("heroEyebrow", isNetwork
+              ? tr("SPAPLUS CANADA", "SPAPLUS CANADA")
+              : selectedArea
               ? tr(
                   `${selectedArea.name.toUpperCase()}, YOU’RE INVITED`,
                   `${selectedArea.name.toUpperCase()}, À VOUS DE JOUER`,
@@ -610,7 +644,12 @@ export default function MarketLaunchPage({
                 ))}
           </p>
           <h1>
-            {managed("heroTitle", selectedArea
+            {managed("heroTitle", isNetwork
+              ? tr(
+                  "Bring your spa to SpaPlus Canada.",
+                  "Faites découvrir votre spa avec SpaPlus Canada.",
+                )
+              : selectedArea
               ? tr(
                   `SpaPlus is coming to ${selectedArea.name}.`,
                   `SpaPlus arrive à ${selectedArea.name}.`,
@@ -621,7 +660,12 @@ export default function MarketLaunchPage({
                 ))}
           </h1>
           <p className={styles.heroLead}>
-            {managed("heroLead", selectedArea
+            {managed("heroLead", isNetwork
+              ? tr(
+                  "Join a dedicated spa discovery and booking platform built to help established spas reach more guests across Canada.",
+                  "Joignez-vous à une plateforme spécialisée dans la découverte et la réservation de spas, conçue pour aider les établissements reconnus à joindre plus de clients partout au Canada.",
+                )
+              : selectedArea
               ? selectedArea.lead
               : tr(
                   `We are preparing a better way for people in ${primaryCity} and across ${marketName} to discover, compare and book memorable spa experiences.`,
@@ -644,10 +688,12 @@ export default function MarketLaunchPage({
                 track("click_join_early_access", { placement: "hero" })
               }
             >
-              {tr(
-                "Join the Founding Spa List",
-                "Rejoindre la liste des spas fondateurs",
-              )}
+              {isNetwork
+                ? tr("Introduce your spa", "Présenter votre spa")
+                : tr(
+                    "Join the Founding Spa List",
+                    "Rejoindre la liste des spas fondateurs",
+                  )}
             </a>
             <a className={styles.textButton} href="#proof">
               {tr("See SpaPlus in action", "Voir SpaPlus en action")}
@@ -679,7 +725,7 @@ export default function MarketLaunchPage({
           <i />
         </span>
         <div>
-          <small>{tr("COMING NEXT", "PROCHAINE ÉTAPE")}</small>
+          <small>{isNetwork ? tr("OPEN TO PARTNERS", "OUVERT AUX PARTENAIRES") : tr("COMING NEXT", "PROCHAINE ÉTAPE")}</small>
           <strong>
             {selectedArea?.name || managed("marketDisplayName", marketName)}
           </strong>
@@ -705,10 +751,15 @@ export default function MarketLaunchPage({
         </div>
         <div>
           <h2>
-            {tr(
-              "Better spa experiences for guests. New opportunities for Ontario spas.",
-              "De meilleures expériences spa pour les clients. De nouvelles possibilités pour les spas de l’Ontario.",
-            )}
+            {isNetwork
+              ? tr(
+                  "Better spa experiences for guests. New opportunities for Canadian spas.",
+                  "De meilleures expériences spa pour les clients. De nouvelles possibilités pour les spas canadiens.",
+                )
+              : tr(
+                  "Better spa experiences for guests. New opportunities for Ontario spas.",
+                  "De meilleures expériences spa pour les clients. De nouvelles possibilités pour les spas de l’Ontario.",
+                )}
           </h2>
           <p>
             {tr(
@@ -722,12 +773,16 @@ export default function MarketLaunchPage({
       <section className={styles.benefits}>
         <article>
           <span>01</span>
-          <h3>{tr("Join before the launch", "Inscrivez-vous avant le lancement")}</h3>
+          <h3>{isNetwork ? tr("Join the SpaPlus Canada network", "Joignez le réseau SpaPlus Canada") : tr("Join before the launch", "Inscrivez-vous avant le lancement")}</h3>
           <p>
             {dynamicCopy(
               "growthCardOneBody",
-              `Tell us about your business now and be among the first ${marketName} spas considered for onboarding.`,
-              `Présentez-nous votre établissement et faites partie des premiers spas de l’${marketName} considérés pour l’intégration.`,
+              isNetwork
+                ? "Introduce your business and be considered for the SpaPlus Canada partner network."
+                : `Tell us about your business now and be among the first ${marketName} spas considered for onboarding.`,
+              isNetwork
+                ? "Présentez votre établissement afin que notre équipe puisse évaluer son intégration au réseau SpaPlus Canada."
+                : `Présentez-nous votre établissement et faites partie des premiers spas de l’${marketName} considérés pour l’intégration.`,
             )}
           </p>
         </article>
@@ -756,7 +811,7 @@ export default function MarketLaunchPage({
       <section className={styles.foundingOffer} aria-labelledby="founding-offer-title">
         <div>
           <p className={styles.eyebrowDark}>
-            {tr("THE FOUNDING PARTNER ADVANTAGE", "L’AVANTAGE PARTENAIRE FONDATEUR")}
+            {isNetwork ? tr("THE SPAPLUS CANADA ADVANTAGE", "L’AVANTAGE SPAPLUS CANADA") : tr("THE FOUNDING PARTNER ADVANTAGE", "L’AVANTAGE PARTENAIRE FONDATEUR")}
           </p>
           <h2 id="founding-offer-title">
             {tr(
@@ -765,10 +820,15 @@ export default function MarketLaunchPage({
             )}
           </h2>
           <p>
-            {tr(
-              "There is no fee to join the early list. We prepare the opportunity together, explain the written launch terms and move forward only if the fit makes sense.",
-              "L’inscription prioritaire est gratuite. Nous préparons l’occasion avec vous, expliquons les conditions de lancement par écrit et avançons seulement si le partenariat est logique.",
-            )}
+            {isNetwork
+              ? tr(
+                  "There is no fee to send your spa details. We review the opportunity together, explain the commercial terms in writing and move forward only if the fit makes sense.",
+                  "Il n’y a aucuns frais pour présenter votre spa. Nous évaluons l’occasion ensemble, expliquons les conditions commerciales par écrit et avançons seulement si le partenariat convient.",
+                )
+              : tr(
+                  "There is no fee to join the early list. We prepare the opportunity together, explain the written launch terms and move forward only if the fit makes sense.",
+                  "L’inscription prioritaire est gratuite. Nous préparons l’occasion avec vous, expliquons les conditions de lancement par écrit et avançons seulement si le partenariat est logique.",
+                )}
           </p>
         </div>
         <ol className={styles.foundingPath}>
@@ -899,8 +959,12 @@ export default function MarketLaunchPage({
         <p className={styles.interfaceDisclosure}>
           {dynamicCopy(
             "platformDisclosure",
-            `Interface previews are illustrative. ${marketName} inventory is not live and the final partner tools may evolve before launch.`,
-            `Les aperçus d’interface sont illustratifs. L’inventaire de l’${marketName} n’est pas encore en ligne et les outils partenaires peuvent évoluer avant le lancement.`,
+            isNetwork
+              ? "Interface previews are illustrative. Partner availability varies by region and the tools shown may evolve."
+              : `Interface previews are illustrative. ${marketName} inventory is not live and the final partner tools may evolve before launch.`,
+            isNetwork
+              ? "Les aperçus d’interface sont illustratifs. La disponibilité des partenaires varie selon la région et les outils présentés peuvent évoluer."
+              : `Les aperçus d’interface sont illustratifs. L’inventaire de l’${marketName} n’est pas encore en ligne et les outils partenaires peuvent évoluer avant le lancement.`,
           )}
         </p>
 
@@ -968,8 +1032,12 @@ export default function MarketLaunchPage({
           <p>
               {dynamicCopy(
                 "proofIntro",
-                `These are current experiences presented on the live SpaPlus Canada platform. ${marketName} listings are not live yet.`,
-              `Ces expériences sont actuellement présentées sur la plateforme SpaPlus Canada. Les établissements de l’${marketName} ne sont pas encore en ligne.`,
+                isNetwork
+                  ? "These are current experiences presented on the live SpaPlus Canada platform. Availability varies by region."
+                  : `These are current experiences presented on the live SpaPlus Canada platform. ${marketName} listings are not live yet.`,
+                isNetwork
+                  ? "Ces expériences sont actuellement présentées sur la plateforme SpaPlus Canada. L’offre varie selon la région."
+                  : `Ces expériences sont actuellement présentées sur la plateforme SpaPlus Canada. Les établissements de l’${marketName} ne sont pas encore en ligne.`,
             )}
           </p>
         </div>
@@ -992,8 +1060,12 @@ export default function MarketLaunchPage({
         <p className={styles.mediaDisclosure}>
           {dynamicCopy(
             "proofDisclosure",
-            `Images are sourced from current spa listings on the official SpaPlus Canada website. They illustrate the existing ${referenceMarketName} platform in ${referenceCountryName} and do not depict future ${marketName} partners.`,
-            `Les images proviennent de fiches actuelles du site officiel SpaPlus Canada. Elles illustrent la plateforme existante au ${referenceMarketName}, au ${referenceCountryName}, et ne représentent pas de futurs partenaires en ${marketName}.`,
+            isNetwork
+              ? "Images are sourced from current listings on the official SpaPlus Canada website. They show existing listings and do not represent every current or future partner."
+              : `Images are sourced from current spa listings on the official SpaPlus Canada website. They illustrate the existing ${referenceMarketName} platform in ${referenceCountryName} and do not depict future ${marketName} partners.`,
+            isNetwork
+              ? "Les images proviennent de fiches actuelles du site officiel SpaPlus Canada. Elles montrent des établissements déjà présentés et ne représentent pas tous les partenaires actuels ou futurs."
+              : `Les images proviennent de fiches actuelles du site officiel SpaPlus Canada. Elles illustrent la plateforme existante au ${referenceMarketName}, au ${referenceCountryName}, et ne représentent pas de futurs partenaires en ${marketName}.`,
           )}
         </p>
       </section>
@@ -1071,8 +1143,8 @@ export default function MarketLaunchPage({
           <h2>
             {dynamicCopy(
               "partnerFitTitle",
-              `Established ${marketName} spas that care about the guest experience.`,
-              `Des spas établis en ${marketName} qui accordent une vraie importance à l’expérience client.`,
+              isNetwork ? "Established Canadian spas that care about the guest experience." : `Established ${marketName} spas that care about the guest experience.`,
+              isNetwork ? "Des spas canadiens reconnus qui accordent une vraie importance à l’expérience client." : `Des spas établis en ${marketName} qui accordent une vraie importance à l’expérience client.`,
             )}
           </h2>
         </div>
@@ -1089,7 +1161,7 @@ export default function MarketLaunchPage({
           )}
         </p>
         <div className={styles.priorityAreas}>
-          <span>{tr("Priority launch areas", "Zones de lancement prioritaires")}</span>
+          <span>{isNetwork ? tr("Explore Canada", "Explorer le Canada") : tr("Priority launch areas", "Zones de lancement prioritaires")}</span>
           <div>
             {priorityAreas.map((area, index) => (
               <a
@@ -1106,10 +1178,15 @@ export default function MarketLaunchPage({
             ))}
           </div>
           <small>
-            {tr(
-              "Choose an area to open its dedicated partner page. These are campaign targets, not a claim that SpaPlus is already operating there.",
-              "Choisissez une zone pour ouvrir sa page partenaire. Il s’agit de cibles de campagne, et non d’une affirmation que SpaPlus y exerce déjà ses activités.",
-            )}
+            {isNetwork
+              ? tr(
+                  "Choose Ontario for its dedicated page. Every other region takes you directly to the Canada partner form with the region identified.",
+                  "Choisissez l’Ontario pour accéder à sa page dédiée. Pour les autres régions, vous serez dirigé vers le formulaire canadien avec la région déjà identifiée.",
+                )
+              : tr(
+                  "Choose an area to open its dedicated partner page. These are campaign targets, not a claim that SpaPlus is already operating there.",
+                  "Choisissez une zone pour ouvrir sa page partenaire. Il s’agit de cibles de campagne, et non d’une affirmation que SpaPlus y exerce déjà ses activités.",
+                )}
           </small>
         </div>
       </section>
@@ -1138,8 +1215,12 @@ export default function MarketLaunchPage({
             </div>
             <small>
               {tr(
-                "Campaign planning areas only. SpaPlus inventory is not live here yet.",
-                "Secteurs prévus pour les campagnes. L’inventaire SpaPlus n’y est pas encore en ligne.",
+                isNetwork
+                  ? "Partner availability and launch activity vary by province and territory."
+                  : "Campaign planning areas only. SpaPlus inventory is not live here yet.",
+                isNetwork
+                  ? "La disponibilité des partenaires et les activités de lancement varient selon la province ou le territoire."
+                  : "Secteurs prévus pour les campagnes. L’inventaire SpaPlus n’y est pas encore en ligne.",
               )}
             </small>
           </div>
@@ -1276,8 +1357,8 @@ export default function MarketLaunchPage({
           <p className={styles.eyebrowDark}>
             {dynamicCopy(
               "formEyebrow",
-              `${(selectedArea?.name || marketName).toUpperCase()} FOUNDING SPA LIST`,
-              `LISTE PRIORITAIRE DES SPAS DE ${(selectedArea?.name || marketName).toUpperCase()}`,
+              isNetwork ? "SPAPLUS CANADA PARTNER ENQUIRY" : `${(selectedArea?.name || marketName).toUpperCase()} FOUNDING SPA LIST`,
+              isNetwork ? "DEMANDE DE PARTENARIAT SPAPLUS CANADA" : `LISTE PRIORITAIRE DES SPAS DE ${(selectedArea?.name || marketName).toUpperCase()}`,
             )}
           </p>
           <h2>{managed("formTitle", tr("Tell us about your spa.", "Parlez-nous de votre spa."))}</h2>
@@ -1322,7 +1403,7 @@ export default function MarketLaunchPage({
             <label htmlFor="city">
               {selectedArea
                 ? tr("City or community", "Ville ou collectivité")
-                : dynamicCopy("formCityLabel", `${marketName} city`, `Ville en ${marketName}`)}
+                : dynamicCopy("formCityLabel", isNetwork ? "City and province or territory" : `${marketName} city`, isNetwork ? "Ville et province ou territoire" : `Ville en ${marketName}`)}
             </label>
             <input id="city" name="city" required={fieldRequired("City")} maxLength={100} />
           </div> : null}
@@ -1492,8 +1573,8 @@ export default function MarketLaunchPage({
               ? tr("Sending your details...", "Envoi de vos renseignements...")
               : dynamicCopy(
                   "formSubmitButton",
-                  `Join the ${selectedArea?.name || marketName} Founding Spa List`,
-                  `Rejoindre la liste des spas fondateurs de ${selectedArea?.name || marketName}`,
+                  isNetwork ? "Send my spa details" : `Join the ${selectedArea?.name || marketName} Founding Spa List`,
+                  isNetwork ? "Présenter mon spa" : `Rejoindre la liste des spas fondateurs de ${selectedArea?.name || marketName}`,
                 )}
           </button>
           {submitState === "error" ? (
@@ -1521,8 +1602,12 @@ export default function MarketLaunchPage({
             <p>
               {dynamicCopy(
                 "faqCostAnswer",
-                `No. Joining the ${marketName} early-access list is free. We do not ask for payment or credit card details.`,
-                `Non. L’inscription à la liste prioritaire de l’${marketName} est gratuite. Nous ne demandons aucun paiement ni renseignement de carte de crédit.`,
+                isNetwork
+                  ? "No. Sending a partner enquiry is free. We do not ask for payment or credit card details."
+                  : `No. Joining the ${marketName} early-access list is free. We do not ask for payment or credit card details.`,
+                isNetwork
+                  ? "Non. La demande de partenariat est gratuite. Nous ne demandons aucun paiement ni renseignement de carte de crédit."
+                  : `Non. L’inscription à la liste prioritaire de l’${marketName} est gratuite. Nous ne demandons aucun paiement ni renseignement de carte de crédit.`,
               )}
             </p>
           </details>
@@ -1539,15 +1624,20 @@ export default function MarketLaunchPage({
             <summary>
               {dynamicCopy(
                 "faqLaunchQuestion",
-                `When will SpaPlus launch in ${marketName}?`,
-                `Quand SpaPlus sera-t-il lancé en ${marketName}?`,
+                isNetwork ? "Where is SpaPlus available in Canada?" : `When will SpaPlus launch in ${marketName}?`,
+                isNetwork ? "Où SpaPlus est-il offert au Canada?" : `Quand SpaPlus sera-t-il lancé en ${marketName}?`,
               )}
             </summary>
             <p>
-              {tr(
-                "The launch date has not been announced. Early registrations help us build the right founding group before opening the market.",
-                "La date de lancement n’a pas encore été annoncée. Les inscriptions prioritaires nous aident à former le bon groupe de partenaires fondateurs avant l’ouverture du marché.",
-              )}
+              {isNetwork
+                ? tr(
+                    "SpaPlus Canada already presents spa experiences in Québec and is growing partner conversations across Canada. Availability varies by region.",
+                    "SpaPlus Canada présente déjà des expériences spa au Québec et développe ses partenariats ailleurs au pays. L’offre varie selon la région.",
+                  )
+                : tr(
+                    "The launch date has not been announced. Early registrations help us build the right founding group before opening the market.",
+                    "La date de lancement n’a pas encore été annoncée. Les inscriptions prioritaires nous aident à former le bon groupe de partenaires fondateurs avant l’ouverture du marché.",
+                  )}
             </p>
           </details>
           <details>
@@ -1580,10 +1670,15 @@ export default function MarketLaunchPage({
           )}
         </p>
         <h2>
-          {managed("finalTitle", tr(
-            `Your spa could help shape the first SpaPlus experience in ${selectedArea?.name || marketName}.`,
-            `Votre spa pourrait contribuer à façonner la première expérience SpaPlus à ${selectedArea?.name || `l’${marketName}`}.`,
-          ))}
+          {managed("finalTitle", isNetwork
+            ? tr(
+                "Your spa could become part of the growing SpaPlus Canada network.",
+                "Votre spa pourrait faire partie du réseau SpaPlus Canada en pleine croissance.",
+              )
+            : tr(
+                `Your spa could help shape the first SpaPlus experience in ${selectedArea?.name || marketName}.`,
+                `Votre spa pourrait contribuer à façonner la première expérience SpaPlus à ${selectedArea?.name || `l’${marketName}`}.`,
+              ))}
         </h2>
         <a
           className={styles.primaryButton}
@@ -1612,8 +1707,12 @@ export default function MarketLaunchPage({
           <p>
             {dynamicCopy(
               "footerIntro",
-              `SpaPlus is preparing the ${marketName} market in ${countryName}. No ${marketName} spa listings or booking inventory are currently represented on this page.`,
-              `SpaPlus prépare le marché de l’${marketName}, au ${countryName}. Cette page ne présente actuellement aucune fiche ni disponibilité de réservation de spa en ${marketName}.`,
+              isNetwork
+                ? "This page welcomes partner interest from established spas across Canada. Current listings and booking availability vary by region."
+                : `SpaPlus is preparing the ${marketName} market in ${countryName}. No ${marketName} spa listings or booking inventory are currently represented on this page.`,
+              isNetwork
+                ? "Cette page accueille les demandes de partenariat de spas reconnus partout au Canada. Les fiches et les disponibilités varient selon la région."
+                : `SpaPlus prépare le marché de l’${marketName}, au ${countryName}. Cette page ne présente actuellement aucune fiche ni disponibilité de réservation de spa en ${marketName}.`,
             )}
           </p>
           <p className={styles.footerTagline}>
@@ -1652,6 +1751,9 @@ export default function MarketLaunchPage({
           </a>
           <a href={isFrench ? "/fr-ca/ontario/" : "/en-ca/ontario/"}>
             {tr("Ontario launch", "Lancement en Ontario")}
+          </a>
+          <a href={isFrench ? "/fr-ca/canada/" : "/en-ca/canada/"}>
+            {tr("Join SpaPlus across Canada", "Joindre SpaPlus partout au Canada")}
           </a>
         </nav>
 

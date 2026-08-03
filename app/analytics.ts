@@ -56,7 +56,7 @@ function isPublicSite(site: AnalyticsSite) {
 
   return (
     hostname === "app.spaplus.co" &&
-    /^\/(en-ca|fr-ca)\/ontario(?:\/|$)/.test(pathname)
+    /^\/(en-ca|fr-ca)\/(ontario|canada)(?:\/|$)/.test(pathname)
   );
 }
 

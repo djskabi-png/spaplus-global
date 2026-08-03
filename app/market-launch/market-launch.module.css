@@ -179,6 +179,26 @@
   backdrop-filter: blur(12px);
 }
 
+.marketSwitch {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 999px;
+}
+
+.marketSwitch a {
+  padding: 7px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.marketSwitch a[aria-current="page"] {
+  color: #142f55;
+  background: #fff;
+}
+
 .languageSwitch a {
   min-width: 34px;
   padding: 7px 9px;

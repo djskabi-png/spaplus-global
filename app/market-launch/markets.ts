@@ -134,6 +134,8 @@ const baseOntarioConfig = {
   heroImage: "/ontario/hero-ontario-campaign-v2.jpg",
   leadEndpoint: "/api/market-spa-leads",
   reviewWindowHours: 72,
+  cmsSection: "market.ca-on",
+  resourceKey: "market:ca:on",
   referenceMarketName: "Québec",
   referenceCountryName: "Canada",
   referenceSpas,
@@ -168,6 +170,10 @@ export const ontarioMarket: MarketLaunchConfig = {
       active: false,
     },
   ],
+  marketLinks: [
+    { label: "All Canada", href: "/en-ca/canada/", active: false },
+    { label: "Ontario", href: "/en-ca/ontario/", active: true },
+  ],
 };
 
 export const ontarioFrenchMarket: MarketLaunchConfig = {
@@ -199,6 +205,87 @@ export const ontarioFrenchMarket: MarketLaunchConfig = {
       href: "/fr-ca/ontario/",
       active: true,
     },
+  ],
+  marketLinks: [
+    { label: "Tout le Canada", href: "/fr-ca/canada/", active: false },
+    { label: "Ontario", href: "/fr-ca/ontario/", active: true },
+  ],
+};
+
+const canadaRegions = [
+  ["Ontario", "Ontario"],
+  ["Québec", "Québec"],
+  ["British Columbia", "Colombie-Britannique"],
+  ["Alberta", "Alberta"],
+  ["Manitoba", "Manitoba"],
+  ["Saskatchewan", "Saskatchewan"],
+  ["New Brunswick", "Nouveau-Brunswick"],
+  ["Nova Scotia", "Nouvelle-Écosse"],
+  ["Prince Edward Island", "Île-du-Prince-Édouard"],
+  ["Newfoundland and Labrador", "Terre-Neuve-et-Labrador"],
+  ["Yukon", "Yukon"],
+  ["Northwest Territories", "Territoires du Nord-Ouest"],
+  ["Nunavut", "Nunavut"],
+] as const;
+
+const baseCanadaConfig = {
+  marketName: "Canada",
+  marketSlug: "canada",
+  countryName: "Canada",
+  primaryCity: "Canada",
+  pageMode: "network" as const,
+  cmsSection: "market.ca",
+  resourceKey: "market:ca:national",
+  heroImage: "/ontario/hero-ontario-campaign-v2.jpg",
+  leadEndpoint: "/api/market-spa-leads",
+  reviewWindowHours: 72,
+  referenceMarketName: "Québec",
+  referenceCountryName: "Canada",
+  referenceSpas,
+};
+
+export const canadaMarket: MarketLaunchConfig = {
+  ...baseCanadaConfig,
+  locale: "en-ca",
+  languageTag: "en-CA",
+  timeZone: "America/Toronto",
+  pageUrl: "https://app.spaplus.co/en-ca/canada/",
+  homeHref: "https://spaplus.co/en/",
+  heroDisclosure: "Illustrative SpaPlus Canada concept. It does not depict a specific partner spa.",
+  priorityAreas: canadaRegions.map(([label]) => ({
+    label,
+    href: label === "Ontario" ? "/en-ca/ontario/" : `/en-ca/canada/?utm_content=${encodeURIComponent(label.toLowerCase().replaceAll(" ", "-"))}#join`,
+  })),
+  languageLinks: [
+    { label: "EN CA", ariaLabel: "English, Canada", languageTag: "en-CA", href: "/en-ca/canada/", active: true },
+    { label: "FR CA", ariaLabel: "Français canadien", languageTag: "fr-CA", href: "/fr-ca/canada/", active: false },
+  ],
+  marketLinks: [
+    { label: "All Canada", href: "/en-ca/canada/", active: true },
+    { label: "Ontario", href: "/en-ca/ontario/", active: false },
+  ],
+};
+
+export const canadaFrenchMarket: MarketLaunchConfig = {
+  ...baseCanadaConfig,
+  locale: "fr-ca",
+  languageTag: "fr-CA",
+  timeZone: "America/Toronto",
+  pageUrl: "https://app.spaplus.co/fr-ca/canada/",
+  homeHref: "https://spaplus.co/fr-ca/",
+  heroDisclosure: "Concept visuel de SpaPlus Canada. Il ne représente pas un spa partenaire précis.",
+  referenceSpas: frenchReferenceSpas,
+  priorityAreas: canadaRegions.map(([english, french]) => ({
+    label: french,
+    href: english === "Ontario" ? "/fr-ca/ontario/" : `/fr-ca/canada/?utm_content=${encodeURIComponent(english.toLowerCase().replaceAll(" ", "-"))}#join`,
+  })),
+  languageLinks: [
+    { label: "EN CA", ariaLabel: "English, Canada", languageTag: "en-CA", href: "/en-ca/canada/", active: false },
+    { label: "FR CA", ariaLabel: "Français canadien", languageTag: "fr-CA", href: "/fr-ca/canada/", active: true },
+  ],
+  marketLinks: [
+    { label: "Tout le Canada", href: "/fr-ca/canada/", active: true },
+    { label: "Ontario", href: "/fr-ca/ontario/", active: false },
   ],
 };
 
@@ -245,5 +332,9 @@ export const markets = {
   ontario: {
     ...ontarioMarket,
     priorityAreas: ontarioMarket.priorityAreas,
+  },
+  canada: {
+    ...canadaMarket,
+    priorityAreas: canadaMarket.priorityAreas,
   },
 } satisfies Record<string, MarketLaunchConfig>;

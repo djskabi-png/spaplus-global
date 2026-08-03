@@ -18,6 +18,13 @@ export const cmsResources = [
     labels: { en: "Ontario launch", he: "השקת אונטריו", "fr-CA": "Lancement en Ontario" },
   },
   {
+    key: "market:ca:national",
+    type: "market",
+    business: "spaplus-global",
+    topic: "canada",
+    labels: { en: "Canada partner page", he: "עמוד השותפים של קנדה", "fr-CA": "Page partenaires Canada" },
+  },
+  {
     key: "business:vila4u:leads",
     type: "business",
     business: "vila4u",
@@ -96,5 +103,7 @@ export function validResourceKey(value: string) {
 }
 
 export function sectionResource(section: string) {
-  return section.startsWith("market.ca-on") ? "market:ca:on" : "site:global";
+  if (section.startsWith("market.ca-on")) return "market:ca:on";
+  if (section.startsWith("market.ca")) return "market:ca:national";
+  return "site:global";
 }

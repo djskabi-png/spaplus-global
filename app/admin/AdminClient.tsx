@@ -73,7 +73,7 @@ const marketCopyEntries = marketCopyManifest as MarketCopyEntry[];
 const uiCopy = {
   en: {
     title: "Clear content. Precise access.", eyebrow: "SpaPlus management",
-    preview: "View website", global: "Global website", market: "Ontario page",
+    preview: "View website", global: "Global website", market: "Ontario page", canada: "Canada page",
     users: "Users and permissions", leads: "Leads and forms", contentLanguage: "Content language",
     languageNote: "Changes apply only to the selected content language.", save: "Save",
     saving: "Saving...", saved: "Saved successfully", failed: "Unable to save",
@@ -88,7 +88,7 @@ const uiCopy = {
   },
   he: {
     title: "תוכן ברור. הרשאות מדויקות.", eyebrow: "מערכת הניהול של ספא פלוס",
-    preview: "צפייה באתר", global: "האתר העולמי", market: "עמוד אונטריו",
+    preview: "צפייה באתר", global: "האתר העולמי", market: "עמוד אונטריו", canada: "עמוד קנדה",
     users: "משתמשים והרשאות", leads: "פניות וטפסים", contentLanguage: "שפת התוכן",
     languageNote: "השינויים יחולו רק על שפת התוכן שנבחרה.", save: "שמירה",
     saving: "שומר...", saved: "נשמר בהצלחה", failed: "לא ניתן לשמור",
@@ -103,7 +103,7 @@ const uiCopy = {
   },
   "fr-CA": {
     title: "Un contenu clair. Des accès précis.", eyebrow: "Gestion SpaPlus",
-    preview: "Voir le site", global: "Site mondial", market: "Page Ontario",
+    preview: "Voir le site", global: "Site mondial", market: "Page Ontario", canada: "Page Canada",
     users: "Utilisateurs et autorisations", leads: "Demandes et formulaires", contentLanguage: "Langue du contenu",
     languageNote: "Les changements s’appliquent uniquement à la langue de contenu choisie.", save: "Enregistrer",
     saving: "Enregistrement...", saved: "Enregistré", failed: "Enregistrement impossible",
@@ -171,15 +171,16 @@ export default function AdminClient({
     role === "owner" || permissions.some((item) => item.resourceKey === resourceKey && (item[capability] || (capability === "canViewContent" && item.canEditContent) || (capability === "canViewLeads" && item.canManageLeads)));
   const canViewGlobalContent = can("site:global", "canViewContent");
   const canViewMarketContent = can("market:ca:on", "canViewContent");
-  const hasContentAccess = canViewGlobalContent || canViewMarketContent;
+  const canViewCanadaContent = can("market:ca:national", "canViewContent");
+  const hasContentAccess = canViewGlobalContent || canViewMarketContent || canViewCanadaContent;
   const hasLeadAccess = resources.some((resource) => can(resource.key, "canViewLeads"));
   const hasVila4uLeadAccess = can("business:vila4u:leads", "canViewLeads");
   const hasOtherLeadAccess = resources.some((resource) =>
     resource.key !== "business:vila4u:leads" && can(resource.key, "canViewLeads"),
   );
   const leadsOnlyHref = hasVila4uLeadAccess && !hasOtherLeadAccess ? "/vila4u" : "/tools";
-  const initialTab = canViewGlobalContent ? "global" : "market";
-  const [tab, setTab] = useState<"global" | "market" | "users">(initialTab);
+  const initialTab = canViewGlobalContent ? "global" : canViewCanadaContent ? "canada" : "market";
+  const [tab, setTab] = useState<"global" | "market" | "canada" | "users">(initialTab);
   const [locale, setLocale] = useState<string>(defaultLocale);
   const [rows, setRows] = useState<CmsRow[]>([]);
   const [users, setUsers] = useState<CmsUser[]>([]);
@@ -200,9 +201,9 @@ export default function AdminClient({
     email: "", displayName: "", role: "editor", defaultLocale: "en" as Locale,
     systemLocale: "en" as "en" | "he" | "fr-CA", permissions: emptyPermissions,
   });
-  const resourceKey = tab === "market" ? "market:ca:on" : "site:global";
-  const canViewSelectedContent = tab === "market" ? canViewMarketContent : canViewGlobalContent;
-  const contentLocaleOptions = tab === "market"
+  const resourceKey = tab === "market" ? "market:ca:on" : tab === "canada" ? "market:ca:national" : "site:global";
+  const canViewSelectedContent = tab === "market" ? canViewMarketContent : tab === "canada" ? canViewCanadaContent : canViewGlobalContent;
+  const contentLocaleOptions = tab === "market" || tab === "canada"
     ? [{ code: "en-CA", label: "English, Canada" }, { code: "fr-CA", label: "Français canadien" }]
     : localeOptions;
 
@@ -246,7 +247,7 @@ export default function AdminClient({
   const existing = useMemo(() => Object.fromEntries(rows.map((row) => [`${row.section}.${row.field}`, row.value])), [rows]);
 
   function defaultValue(section: string, field: string) {
-    if (section === "market.ca-on") {
+    if (section === "market.ca-on" || section === "market.ca") {
       const entry = marketCopyEntries.find((item) => item.field === field);
       return locale === "fr-CA" ? entry?.fr || "" : entry?.en || "";
     }
@@ -273,16 +274,17 @@ export default function AdminClient({
 
   async function saveAllMarketChanges() {
     if (contentLoading) return;
-    const changes = Object.entries(drafts).filter(([key]) => key.startsWith("market.ca-on."));
+    const section = tab === "canada" ? "market.ca" : "market.ca-on";
+    const changes = Object.entries(drafts).filter(([key]) => key.startsWith(`${section}.`));
     if (!changes.length) return;
     setStatus(t.saving);
     setSavingAction("content:all");
     for (const [key, value] of changes) {
-      const field = key.slice("market.ca-on.".length);
+      const field = key.slice(`${section}.`.length);
       const response = await fetch("/api/cms/content", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ locale, section: "market.ca-on", field, value }),
+        body: JSON.stringify({ locale, section, field, value }),
       });
       if (!response.ok) {
         setStatus(t.failed);
@@ -341,10 +343,11 @@ export default function AdminClient({
   const marketGroups = Object.keys(marketGroupLabels).filter((group) =>
     visibleMarketEntries.some((entry) => entry.group === group)
   );
-  const marketDraftCount = Object.keys(drafts).filter((key) => key.startsWith("market.ca-on.")).length;
-  const sectionGroups = tab === "market"
+  const currentMarketSection = tab === "canada" ? "market.ca" : "market.ca-on";
+  const marketDraftCount = Object.keys(drafts).filter((key) => key.startsWith(`${currentMarketSection}.`)).length;
+  const sectionGroups = tab === "market" || tab === "canada"
     ? marketGroups.map((group) => ({
-        section: "market.ca-on",
+        section: currentMarketSection,
         label: marketGroupLabels[group]?.[uiLocale] || group,
         fields: visibleMarketEntries
           .filter((entry) => entry.group === group)
@@ -381,10 +384,11 @@ export default function AdminClient({
     <section className="cms-content" dir={direction} lang={uiLocale} data-release="2026-08-01-b">
       <div className="cms-intro">
         <div><p>{t.eyebrow}</p><h1>{t.title}</h1></div>
-        <a className="cms-preview" href="/" target="_blank" rel="noreferrer">{t.preview}</a>
+        <a className="cms-preview" href={tab === "canada" ? "/en-ca/canada/" : tab === "market" ? "/en-ca/ontario/" : "https://spaplus.co/"} target="_blank" rel="noreferrer">{t.preview}</a>
       </div>
       <nav className="cms-tabs" aria-label={t.eyebrow}>
         {canViewGlobalContent ? <button className={tab === "global" ? "active" : ""} onClick={() => setTab("global")}>{t.global}</button> : null}
+        {canViewCanadaContent ? <button className={tab === "canada" ? "active" : ""} onClick={() => setTab("canada")}>{t.canada}</button> : null}
         {canViewMarketContent ? <button className={tab === "market" ? "active" : ""} onClick={() => setTab("market")}>{t.market}</button> : null}
         {role === "owner" ? <button className={tab === "users" ? "active" : ""} onClick={() => setTab("users")}>{t.users}</button> : null}
         {resources.some((resource) => can(resource.key, "canViewLeads")) ? <a href="/tools">{t.leads}</a> : null}
@@ -397,7 +401,7 @@ export default function AdminClient({
             <label>{t.contentLanguage}<select value={locale} onChange={(event) => setLocale(event.target.value)}>{contentLocaleOptions.map((option) => <option key={option.code} value={option.code}>{option.label}</option>)}</select></label>
             <span>{t.languageNote}</span>
           </div>
-          {tab === "market" ? <div className="cms-market-tools">
+          {tab === "market" || tab === "canada" ? <div className="cms-market-tools">
             <input type="search" value={contentSearch} onChange={(event) => setContentSearch(event.target.value)} placeholder={t.searchContent} aria-label={t.searchContent} />
             <strong>{visibleMarketEntries.length} {t.fields}</strong>
             {can(resourceKey, "canEditContent") ? <button className={savingAction === "content:all" ? "is-loading" : ""} type="button" disabled={contentLoading || !marketDraftCount || Boolean(savingAction)} onClick={() => void saveAllMarketChanges()}>{savingAction === "content:all" ? <><i className="cms-spinner" aria-hidden="true" />{t.saving}</> : <>{t.saveAll}{marketDraftCount ? ` (${marketDraftCount})` : ""}</>}</button> : null}
@@ -415,7 +419,7 @@ export default function AdminClient({
               })}
             </div>;
             const heading = <h2>{group.label} <small>{group.fields.length}</small></h2>;
-            return tab === "market"
+            return tab === "market" || tab === "canada"
               ? <details className="cms-card cms-copy-group" key={`${group.section}-${group.label}`} open={Boolean(normalizedSearch) || index === 0}><summary>{heading}</summary>{fields}</details>
               : <div className="cms-card" key={`${group.section}-${group.label}`}>{heading}{fields}</div>;
           })}

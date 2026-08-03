@@ -449,7 +449,7 @@ test("management permissions fail closed and leads are scoped by market", async 
   assert.match(usersRoute, /validResourceKey/);
   assert.match(submissionsRoute, /inArray\(formSubmissions\.resourceKey, resources\)/);
   assert.match(submissionsRoute, /manageLeads/);
-  assert.match(marketRoute, /resourceKey: "market:ca:on"/);
+  assert.match(marketRoute, /resourceKey: market\.resourceKey \|\| "market:ca:on"/);
   assert.match(migration, /INSERT INTO `cms_permissions`/);
   assert.match(worker, /const assetResponse = await env\.ASSETS\.fetch\(request\)/);
   assert.match(worker, /assetResponse\.status !== 404/);
@@ -788,7 +788,7 @@ test("Ontario management exposes the complete bilingual page copy", async () => 
   assert.match(admin, /type="search"/);
   assert.match(admin, /contentRequestId/);
   assert.match(admin, /requestId !== contentRequestId\.current/);
-  assert.match(admin, /disabled=\{contentLoading \|\| !marketDraftCount\}/);
+  assert.match(admin, /disabled=\{contentLoading \|\| !marketDraftCount \|\| Boolean\(savingAction\)\}/);
   assert.match(client, /marketCopyFieldKey/);
   assert.match(client, /dynamicCopy/);
   assert.match(client, /managed\("seoTitle"/);

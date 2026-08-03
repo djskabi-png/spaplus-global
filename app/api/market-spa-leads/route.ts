@@ -112,9 +112,7 @@ export async function GET(request: Request) {
   };
   const emailContext = {
     marketName: market.marketName,
-    pageUrl: sample.locale.toLowerCase().startsWith("fr")
-      ? `https://app.spaplus.co/fr-ca/ontario/${sample.area ? `${sample.area}/` : ""}`
-      : `https://app.spaplus.co/en-ca/ontario/${sample.area ? `${sample.area}/` : ""}`,
+    pageUrl: market.pageUrl,
     reviewWindowHours: market.reviewWindowHours,
     languageTag: sample.locale,
   };
@@ -190,14 +188,14 @@ export async function POST(request: Request) {
       .where(
         and(
           eq(cmsContent.locale, acceptedLocale),
-          eq(cmsContent.section, "market.ca-on"),
+          eq(cmsContent.section, market.cmsSection || "market.ca-on"),
         ),
       );
     const marketContent = Object.fromEntries(
       marketContentRows.map((row) => [row.field, row.value]),
     );
     const requestedArea = clean(body.area, 100);
-    const acceptedArea = ontarioAreas.some(
+    const acceptedArea = marketSlug === "ontario" && ontarioAreas.some(
       (area) => area.slug === requestedArea,
     )
       ? requestedArea
@@ -259,7 +257,7 @@ export async function POST(request: Request) {
       `Phone: ${data.phone}`,
       `Website: ${data.website}`,
       `Location: ${data.city}, ${market.marketName} ${data.postalCode}`,
-      `Campaign area: ${data.area || "Ontario general"}`,
+      `Campaign area: ${data.area || `${market.marketName} general`}`,
       `Spa type: ${data.spaType}`,
       `Locations: ${data.locations}`,
       `Services: ${data.services.join(", ")}`,
@@ -287,7 +285,7 @@ export async function POST(request: Request) {
           message: messageSummary,
           locale: data.locale,
           source: data.source,
-          resourceKey: "market:ca:on",
+          resourceKey: market.resourceKey || "market:ca:on",
           status: "new",
           createdAt: new Date().toISOString(),
         })
@@ -325,10 +323,11 @@ export async function POST(request: Request) {
 
     const emailContext = {
       marketName: market.marketName,
-      pageUrl:
-        data.locale.toLowerCase().startsWith("fr")
-          ? `https://app.spaplus.co/fr-ca/ontario/${data.area ? `${data.area}/` : ""}`
-          : `https://app.spaplus.co/en-ca/ontario/${data.area ? `${data.area}/` : ""}`,
+      pageUrl: data.area && marketSlug === "ontario"
+        ? `https://app.spaplus.co/${data.locale.toLowerCase().startsWith("fr") ? "fr-ca" : "en-ca"}/ontario/${data.area}/`
+        : data.locale.toLowerCase().startsWith("fr")
+          ? market.pageUrl.replace("/en-ca/", "/fr-ca/")
+          : market.pageUrl,
       reviewWindowHours: market.reviewWindowHours,
       languageTag: data.locale,
       copy: marketContent,

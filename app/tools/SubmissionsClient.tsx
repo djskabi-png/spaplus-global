@@ -182,7 +182,7 @@ function activityLabels(locale: string) {
 }
 
 function receivedAt(item: Submission, locale: string) {
-  const isOntario = item.resourceKey === "market:ca:on";
+  const isOntario = item.resourceKey === "market:ca:on" || item.resourceKey === "market:ca:national";
   const timeZone = isOntario ? "America/Toronto" : "Asia/Jerusalem";
   const zoneLabel = locale === "he"
     ? (isOntario ? "שעון טורונטו" : "שעון ישראל")
@@ -254,7 +254,7 @@ export default function SubmissionsClient({
     () => Array.from(new Set(submissions.map((item) => item.resourceKey))),
     [submissions],
   );
-  const resourceLabel = (key: string) => key.startsWith("business:vila4u:") ? businessLabels(locale).vila4u : key === "market:ca:on" ? t.ontario : t.global;
+  const resourceLabel = (key: string) => key.startsWith("business:vila4u:") ? businessLabels(locale).vila4u : key === "market:ca:on" ? t.ontario : key === "market:ca:national" ? (locale === "he" ? "קנדה" : "Canada") : t.global;
   const statusLabel = (status: DashboardStatus) => t[status];
   const selectedBusinessLeads = business === "all"
     ? submissions
