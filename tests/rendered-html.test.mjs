@@ -455,6 +455,8 @@ test("management permissions fail closed and leads are scoped by market", async 
   assert.match(worker, /const assetResponse = await env\.ASSETS\.fetch\(request\)/);
   assert.match(worker, /assetResponse\.status !== 404/);
   assert.match(worker, /async function proxyPrivateAsset/);
+  assert.match(worker, /replaceAll\("index-MnjarlW8\.js", "index-Dq2-pwm2\.js"\)/);
+  assert.match(worker, /localAssetUrl\.pathname = "\/assets\/index-Dq2-pwm2\.js"/);
   assert.match(worker, /url\.pathname\.startsWith\("\/assets\/"\)/);
 });
 
