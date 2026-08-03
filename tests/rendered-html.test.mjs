@@ -454,6 +454,8 @@ test("management permissions fail closed and leads are scoped by market", async 
   assert.match(migration, /INSERT INTO `cms_permissions`/);
   assert.match(worker, /const assetResponse = await env\.ASSETS\.fetch\(request\)/);
   assert.match(worker, /assetResponse\.status !== 404/);
+  assert.match(worker, /async function proxyPrivateAsset/);
+  assert.match(worker, /url\.pathname\.startsWith\("\/assets\/"\)/);
 });
 
 test("lead management provides a localized four-state operational dashboard", async () => {

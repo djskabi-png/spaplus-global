@@ -274,6 +274,43 @@ async function proxyProtectedRequest(request: Request, env: Env, session: Signed
   return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers });
 }
 
+/**
+ * The public edge serves the private administration shell after Google sign-in.
+ * Its HTML and client assets must always be taken from the same release. If a
+ * hashed asset is not present in the edge asset bundle yet, retrieve that exact
+ * asset from the private release instead of letting the browser render an
+ * unstyled administration page.
+ */
+async function proxyPrivateAsset(request: Request, env: Env): Promise<Response | null> {
+  if (!env.PRIVATE_BACKEND_ORIGIN || !env.SITES_BYPASS_TOKEN) return null;
+
+  const publicUrl = new URL(request.url);
+  const upstreamUrl = new URL(
+    `${publicUrl.pathname}${publicUrl.search}`,
+    env.PRIVATE_BACKEND_ORIGIN,
+  );
+  const upstream = await fetch(upstreamUrl, {
+    method: request.method,
+    headers: {
+      [PRIVATE_AUTHORIZATION_HEADER]: `Bearer ${env.SITES_BYPASS_TOKEN}`,
+    },
+    redirect: "manual",
+  });
+
+  if (!upstream.ok) return null;
+
+  const headers = new Headers(upstream.headers);
+  headers.delete("set-cookie");
+  headers.delete("server");
+  headers.delete("x-powered-by");
+  headers.set("cache-control", "public, max-age=31536000, immutable");
+  return new Response(upstream.body, {
+    status: upstream.status,
+    statusText: upstream.statusText,
+    headers,
+  });
+}
+
 async function applyManagedOntarioMetadata(
   request: Request,
   response: Response,
@@ -475,6 +512,11 @@ const worker = {
           });
         }
         return renderedResponse;
+      }
+
+      if (url.pathname.startsWith("/assets/")) {
+        const privateAsset = await proxyPrivateAsset(request, env);
+        if (privateAsset) return privateAsset;
       }
     }
 
