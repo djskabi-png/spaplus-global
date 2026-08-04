@@ -196,6 +196,7 @@ export default function MarketLaunchPage({
   const [headerHidden, setHeaderHidden] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [videoPlaying, setVideoPlaying] = useState(false);
   const [cmsCopy, setCmsCopy] = useState<Record<string, string>>({});
   const managed = (field: string, fallback: string) =>
     selectedArea ? fallback : cmsCopy[field] || fallback;
@@ -517,6 +518,30 @@ export default function MarketLaunchPage({
         } as CSSProperties
       }
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "VideoObject",
+            name: "Grow Your Spa Business in Ontario | Join SpaPlus",
+            description: isFrench
+              ? "Découvrez comment SpaPlus aide les spas de l’Ontario à gagner en visibilité et à rejoindre la liste des partenaires fondateurs."
+              : "See how SpaPlus can help Ontario spas gain visibility and join the founding partner list.",
+            thumbnailUrl: [
+              "https://app.spaplus.co/ontario/ontario-youtube-cover.jpg",
+            ],
+            contentUrl: "https://www.youtube.com/watch?v=Z5U0XPkouQ4",
+            embedUrl: "https://www.youtube-nocookie.com/embed/Z5U0XPkouQ4",
+            inLanguage: languageTag,
+            publisher: {
+              "@type": "Organization",
+              name: "SpaPlus Canada",
+              url: "https://spaplus.ca/",
+            },
+          }),
+        }}
+      />
       <a className={styles.skipLink} href="#main-content">
         {tr("Skip to main content", "Aller au contenu principal")}
       </a>
@@ -747,6 +772,91 @@ export default function MarketLaunchPage({
                 : marketName,
             )}
           </strong>
+        </div>
+      </section>
+
+      <section className={styles.videoSection} aria-labelledby="ontario-video-title">
+        <div className={styles.videoCopy}>
+          <p className={styles.eyebrowDark}>
+            {dynamicCopy(
+              "videoEyebrow",
+              "SEE SPAPLUS IN ACTION",
+              "DÉCOUVREZ SPAPLUS EN ACTION",
+            )}
+          </p>
+          <h2 id="ontario-video-title">
+            {dynamicCopy(
+              "videoTitle",
+              "A better way for Ontario spas to be discovered.",
+              "Une meilleure façon de faire découvrir les spas de l’Ontario.",
+            )}
+          </h2>
+          <p>
+            {dynamicCopy(
+              "videoDescription",
+              "Watch how SpaPlus brings spa discovery and booking together, then introduce your spa for early consideration in Ontario.",
+              "Voyez comment SpaPlus réunit la découverte et la réservation de spas, puis présentez votre établissement pour faire partie des premiers partenaires considérés en Ontario.",
+            )}
+          </p>
+          <a className={styles.videoJoinLink} href="#join">
+            {dynamicCopy(
+              "videoJoinLink",
+              "Introduce your spa",
+              "Présenter votre spa",
+            )}
+          </a>
+        </div>
+        <div className={styles.videoFrame}>
+          {videoPlaying ? (
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/Z5U0XPkouQ4?autoplay=1&rel=0&hl=${isFrench ? "fr-CA" : "en-CA"}`}
+              title={tr(
+                "Grow Your Spa Business in Ontario | Join SpaPlus",
+                "Développez votre spa en Ontario | Joignez SpaPlus",
+              )}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
+          ) : (
+            <button
+              className={styles.videoPoster}
+              type="button"
+              aria-label={tr(
+                "Play the SpaPlus Ontario video",
+                "Lire la vidéo de SpaPlus Ontario",
+              )}
+              onClick={() => {
+                setVideoPlaying(true);
+                track("play_ontario_video", {
+                  area: selectedArea?.slug || "ontario",
+                  language: languageTag,
+                });
+              }}
+            >
+              <img
+                src="/ontario/ontario-youtube-cover.jpg"
+                alt={tr(
+                  "Preview of the SpaPlus Ontario partner video",
+                  "Aperçu de la vidéo destinée aux partenaires SpaPlus Ontario",
+                )}
+                width="1280"
+                height="720"
+                loading="lazy"
+              />
+              <span className={styles.videoOverlay} aria-hidden="true" />
+              <span className={styles.playButton} aria-hidden="true">
+                <i />
+              </span>
+              <span className={styles.videoButtonLabel}>
+                {dynamicCopy(
+                  "videoPlayButton",
+                  "Watch the video",
+                  "Voir la vidéo",
+                )}
+              </span>
+            </button>
+          )}
         </div>
       </section>
 
