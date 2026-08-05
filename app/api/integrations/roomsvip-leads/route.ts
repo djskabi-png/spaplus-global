@@ -90,11 +90,17 @@ export async function POST(request: Request) {
       topic: propertyType,
       message: [
         lead.isTest && "Lead type: Test lead",
+        "Company group: Vila4U Group",
+        "Brand: RoomsVIP",
+        "Source channel: Meta lead ads",
+        "Lead purpose: property owners",
+        "World: hourly",
         propertyType && `Property type: ${propertyType}`,
         propertyLocation && `Property and city: ${propertyLocation}`,
         platform && `Platform: ${platform}`,
-        campaignName && `Campaign: ${campaignName}`,
-        adName && `Ad: ${adName}`,
+        campaignName && `Campaign name: ${campaignName}`,
+        adName && `Ad name: ${adName}`,
+        `Campaign: utm_source=meta, utm_medium=paid_social, utm_campaign=${encodeURIComponent(campaignName || "roomsvip_property_owners")}, utm_content=${encodeURIComponent(adName || "lead_form")}`,
       ]
         .filter(Boolean)
         .join("\n"),

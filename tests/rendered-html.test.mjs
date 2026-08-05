@@ -460,6 +460,29 @@ test("management permissions fail closed and leads are scoped by market", async 
   assert.match(worker, /url\.pathname\.startsWith\("\/assets\/"\)/);
 });
 
+test("VII leads are validated, tagged and filterable without changing the shared business permissions", async () => {
+  const [route, roomsVipRoute, dashboard] = await Promise.all([
+    read("app/api/integrations/vii-leads/route.ts"),
+    read("app/api/integrations/roomsvip-leads/route.ts"),
+    read("app/tools/SubmissionsClient.tsx"),
+  ]);
+  assert.match(route, /allowedOrigins/);
+  assert.match(route, /isSubmissionId/);
+  assert.match(route, /privacyAccepted/);
+  assert.match(route, /onConflictDoNothing/);
+  assert.match(route, /resourceKey: "business:vila4u:leads"/);
+  assert.match(route, /formType: acceptedPurpose === "join" \? "vii-site-join" : "vii-site-contact"/);
+  assert.match(route, /Brand: VII/);
+  assert.match(route, /utm_source=vii\.co\.il/);
+  assert.match(roomsVipRoute, /Brand: RoomsVIP/);
+  assert.match(roomsVipRoute, /World: hourly/);
+  assert.match(dashboard, /function leadBrand/);
+  assert.match(dashboard, /function leadWorld/);
+  assert.match(dashboard, /lead-brand-tabs/);
+  assert.match(dashboard, /setBrandFilter/);
+  assert.match(dashboard, /setWorldFilter/);
+});
+
 test("the static export never shadows the authenticated management route", async () => {
   const staticPreparation = await read("scripts/prepare-production-static.mjs");
   assert.doesNotMatch(staticPreparation, /"admin",/);
