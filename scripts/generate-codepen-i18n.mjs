@@ -517,10 +517,10 @@ const applyLocale = (locale) => {
   mobileMenu.setAttribute("aria-label", t.mobileNavigation);
   document.querySelector(".footer-main nav").setAttribute("aria-label", t.footerNavigation);
   setAllText(".desktop-nav a", [
-    t.navVision, t.navCountries, t.productsEyebrow, enhancement.navPartners, t.aboutEyebrow, t.contact, t.chooseCountry,
+    t.navVision, t.navCountries, t.productsEyebrow, enhancement.navPartners, t.aboutEyebrow, t.contact, t.accessibilityTitle, t.chooseCountry,
   ]);
   setAllText(".mobile-menu a", [
-    t.navVision, t.navCountries, t.productsEyebrow, enhancement.navPartners, t.aboutEyebrow, t.contact, t.chooseCountry,
+    t.navVision, t.navCountries, t.productsEyebrow, enhancement.navPartners, t.aboutEyebrow, t.contact, t.accessibilityTitle, t.chooseCountry,
   ]);
   const siteRoot = location.hostname.endsWith("github.io") ? "/spaplus-global/" : "/";
   const partnerHref = siteRoot + "country-partners/?lang=" + (locale === "he" ? "he" : "en");

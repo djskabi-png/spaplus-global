@@ -598,6 +598,12 @@ export default function Home() {
             <a href="#story">{t.navStory}</a>
             <a href="#about">{t.aboutEyebrow}</a>
             <a href="#contact">{t.contact}</a>
+            <a
+              href="#accessibility"
+              onClick={() => openLegalSection("accessibility")}
+            >
+              {t.accessibilityTitle}
+            </a>
             <a className="button button-outline button-small" href="#countries">
               {t.chooseCountry}
             </a>
@@ -667,6 +673,15 @@ export default function Home() {
         </a>
         <a href="#contact" onClick={closeMenu}>
           {t.contact}
+        </a>
+        <a
+          href="#accessibility"
+          onClick={() => {
+            closeMenu();
+            openLegalSection("accessibility");
+          }}
+        >
+          {t.accessibilityTitle}
         </a>
         <a
           className="button button-primary"

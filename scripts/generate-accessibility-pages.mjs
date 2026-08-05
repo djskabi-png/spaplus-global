@@ -132,6 +132,7 @@ for (const file of await walk(output)) {
     .replace(/\sclass="global-accessibility-link"/g, "")
     .replace(/<link rel="stylesheet" href="\/spaplus-global\/accessibility\.css[^"]*">\s*/g, "")
     .replace(/<script src="\/spaplus-global\/accessibility\.js[^"]*" defer><\/script>\s*/g, "")
+    .replace(/href="\/(?:spaplus-global\/)?(?:en|he|fr-ca|ru|el|it|hu|pl|es)\/accessibility\/"/gi, `href="${href}"`)
     .replace(/href="(?:[^"]*\/)?#accessibility"/g, `href="${href}"`)
     .replace(/href="\/spaplus-global\/[^"]+\/#accessibility"/g, `href="${href}"`);
   html = html.replace("</head>", `  <link rel="stylesheet" href="/spaplus-global/accessibility.css?v=20260727-1">\n</head>`);

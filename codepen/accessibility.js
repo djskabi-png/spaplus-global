@@ -28,10 +28,15 @@
   const copy = text[language] || text.en;
   const pathLocale = location.pathname.split("/").filter(Boolean)[1];
   const statementLocale = localeMap[pathLocale] || localeMap[documentLanguage] || (["he", "ru", "el", "it", "hu", "pl", "es"].includes(language) ? language : language === "fr" ? "fr-ca" : "en");
-  const statementHref = `/spaplus-global/${statementLocale}/accessibility/`;
+  const siteRoot = location.hostname.endsWith("github.io") ? "/spaplus-global/" : "/";
+  const statementHref = `${siteRoot}${statementLocale}/accessibility/`;
   document.querySelectorAll(".global-accessibility-link").forEach((link) => {
     link.href = statementHref;
   });
+
+  // SpaPlus keeps accessibility information in the site navigation and footer.
+  // The floating toolbar is opt-in so it cannot cover content or other controls.
+  if (document.documentElement.dataset.accessibilityWidget !== "true") return;
 
   const stateKey = "spaplus-accessibility-v1";
   let state = { textSize: 0, contrast: false, links: false, motion: false };
