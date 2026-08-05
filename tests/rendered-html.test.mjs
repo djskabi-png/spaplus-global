@@ -461,10 +461,11 @@ test("management permissions fail closed and leads are scoped by market", async 
 });
 
 test("VII leads are validated, tagged and filterable without changing the shared business permissions", async () => {
-  const [route, roomsVipRoute, dashboard] = await Promise.all([
+  const [route, roomsVipRoute, dashboard, worker] = await Promise.all([
     read("app/api/integrations/vii-leads/route.ts"),
     read("app/api/integrations/roomsvip-leads/route.ts"),
     read("app/tools/SubmissionsClient.tsx"),
+    read("worker/index.ts"),
   ]);
   assert.match(route, /allowedOrigins/);
   assert.match(route, /isSubmissionId/);
@@ -481,6 +482,7 @@ test("VII leads are validated, tagged and filterable without changing the shared
   assert.match(dashboard, /lead-brand-tabs/);
   assert.match(dashboard, /setBrandFilter/);
   assert.match(dashboard, /setWorldFilter/);
+  assert.match(worker, /url\.pathname === "\/api\/integrations\/vii-leads"/);
 });
 
 test("the static export never shadows the authenticated management route", async () => {

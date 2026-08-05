@@ -522,7 +522,8 @@ const worker = {
         url.pathname === "/api/market-spa-leads" ||
         url.pathname === "/api/contact" ||
         url.pathname === "/api/cms/public" ||
-        url.pathname === "/api/integrations/roomsvip-leads"
+        url.pathname === "/api/integrations/roomsvip-leads" ||
+        url.pathname === "/api/integrations/vii-leads"
       ) &&
       env.PRIVATE_BACKEND_ORIGIN &&
       env.SITES_BYPASS_TOKEN
