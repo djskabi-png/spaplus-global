@@ -5,6 +5,7 @@ import { normalizeSystemLocale } from "../system-locale";
 import "./status.css";
 import "./business-tabs.css";
 import "./lead-activity.css";
+import "./lead-origin.css";
 
 type StoredStatus = "new" | "in_progress" | "closed" | "won" | "irrelevant" | "deleted";
 type DashboardStatus = "new" | "in_progress" | "won" | "irrelevant" | "deleted";
@@ -113,9 +114,11 @@ function normalizeStatus(status: StoredStatus): DashboardStatus {
   return status;
 }
 
-type SourceGroup = "meta_paid" | "google_paid" | "direct" | "other";
+type SourceGroup = "meta_paid" | "google_paid" | "organic" | "direct" | "other";
 type DatePeriod = "all" | "today" | "week" | "month" | "custom";
 type BusinessFilter = "all" | "spaplus" | "vila4u";
+type BrandFilter = "all" | "spaplus" | "vii" | "roomsvip" | "vila4u" | "zimmercard";
+type WorldFilter = "all" | "vacation" | "events" | "spa" | "hourly" | "providers" | "activities" | "general" | "owners";
 
 function leadBusiness(item: Pick<Submission, "resourceKey">): Exclude<BusinessFilter, "all"> {
   return item.resourceKey.startsWith("business:vila4u:") ? "vila4u" : "spaplus";
@@ -125,6 +128,45 @@ function businessLabels(locale: string) {
   if (locale === "he") return { all: "כל העסקים", spaplus: "ספא פלוס", vila4u: "וילה פור יו" };
   if (locale === "fr-CA") return { all: "Toutes les entreprises", spaplus: "SpaPlus", vila4u: "Vila4U" };
   return { all: "All businesses", spaplus: "SpaPlus", vila4u: "Vila4U" };
+}
+
+function taggedValue(item: Pick<Submission, "message">, label: string) {
+  return item.message.match(new RegExp(`^${label}:\\s*([^\\n]+)`, "im"))?.[1]?.trim() || "";
+}
+
+function leadBrand(item: Pick<Submission, "formType" | "message" | "resourceKey">): Exclude<BrandFilter, "all"> {
+  const explicit = taggedValue(item, "Brand").toLowerCase();
+  if (explicit === "vii") return "vii";
+  if (explicit === "roomsvip") return "roomsvip";
+  if (explicit === "zimmercard") return "zimmercard";
+  const formType = item.formType.toLowerCase();
+  if (formType.includes("room") && formType.includes("vip")) return "roomsvip";
+  if (formType.startsWith("vii-")) return "vii";
+  if (formType.includes("zimmer")) return "zimmercard";
+  if (item.resourceKey.startsWith("business:vila4u:")) return "vila4u";
+  return "spaplus";
+}
+
+function leadWorld(item: Pick<Submission, "formType" | "message" | "resourceKey">): Exclude<WorldFilter, "all"> {
+  const explicit = taggedValue(item, "World").toLowerCase() as Exclude<WorldFilter, "all">;
+  if (["vacation", "events", "spa", "hourly", "providers", "activities", "general", "owners"].includes(explicit)) return explicit;
+  const formType = item.formType.toLowerCase();
+  if (formType.includes("room") && formType.includes("vip")) return "hourly";
+  if (formType.includes("spa")) return "spa";
+  if (formType.includes("contact")) return "general";
+  return item.resourceKey.startsWith("business:vila4u:") ? "owners" : "spa";
+}
+
+function brandLabels(locale: string) {
+  if (locale === "he") return { title: "מותג", all: "כל המותגים", spaplus: "ספא פלוס", vii: "VII", roomsvip: "RoomsVIP", vila4u: "וילה פור יו", zimmercard: "צימר קארד" };
+  if (locale === "fr-CA") return { title: "Marque", all: "Toutes les marques", spaplus: "SpaPlus", vii: "VII", roomsvip: "RoomsVIP", vila4u: "Vila4U", zimmercard: "ZimmerCard" };
+  return { title: "Brand", all: "All brands", spaplus: "SpaPlus", vii: "VII", roomsvip: "RoomsVIP", vila4u: "Vila4U", zimmercard: "ZimmerCard" };
+}
+
+function worldLabels(locale: string) {
+  if (locale === "he") return { title: "עולם", all: "כל העולמות", vacation: "נופש", events: "אירועים", spa: "ספא", hourly: "חדרים לפי שעה", providers: "ספקים", activities: "אטרקציות", general: "כללי", owners: "בעלי מקומות" };
+  if (locale === "fr-CA") return { title: "Univers", all: "Tous les univers", vacation: "Séjours", events: "Événements", spa: "Spa", hourly: "Chambres à l’heure", providers: "Fournisseurs", activities: "Activités", general: "Général", owners: "Propriétaires" };
+  return { title: "World", all: "All worlds", vacation: "Vacation", events: "Events", spa: "Spa", hourly: "Hourly rooms", providers: "Providers", activities: "Activities", general: "General", owners: "Property owners" };
 }
 
 function periodLabels(locale: string) {
@@ -142,6 +184,8 @@ function attribution(item: Submission) {
     ? "meta_paid"
     : /google|gclid/.test(normalized)
       ? "google_paid"
+      : /organic|vii\.co\.il/.test(normalized)
+        ? "organic"
       : !campaign || /direct or untagged/i.test(campaign)
         ? "direct"
         : "other";
@@ -155,9 +199,9 @@ function attribution(item: Submission) {
 }
 
 function sourceLabels(locale: string) {
-  if (locale === "he") return { title: "מקורות לידים", all: "כל מקורות הלידים", meta_paid: "קמפיין פייסבוק ואינסטגרם ממומן", google_paid: "קמפיין גוגל ממומן", direct: "הגעה ישירה", other: "מקור אחר" };
-  if (locale === "fr-CA") return { title: "Sources des prospects", all: "Toutes les sources", meta_paid: "Campagne Facebook et Instagram", google_paid: "Campagne Google", direct: "Accès direct", other: "Autre source" };
-  return { title: "Lead sources", all: "All lead sources", meta_paid: "Paid Facebook and Instagram campaign", google_paid: "Paid Google campaign", direct: "Direct visit", other: "Other source" };
+  if (locale === "he") return { title: "מקורות לידים", all: "כל מקורות הלידים", meta_paid: "קמפיין פייסבוק ואינסטגרם ממומן", google_paid: "קמפיין גוגל ממומן", organic: "אתר אורגני", direct: "הגעה ישירה", other: "מקור אחר" };
+  if (locale === "fr-CA") return { title: "Sources des prospects", all: "Toutes les sources", meta_paid: "Campagne Facebook et Instagram", google_paid: "Campagne Google", organic: "Site organique", direct: "Accès direct", other: "Autre source" };
+  return { title: "Lead sources", all: "All lead sources", meta_paid: "Paid Facebook and Instagram campaign", google_paid: "Paid Google campaign", organic: "Organic website", direct: "Direct visit", other: "Other source" };
 }
 
 function activityLabels(locale: string) {
@@ -217,6 +261,8 @@ export default function SubmissionsClient({
   const [error, setError] = useState("");
   const [resource, setResource] = useState("all");
   const [business, setBusiness] = useState<BusinessFilter>(initialBusiness);
+  const [brandFilter, setBrandFilter] = useState<BrandFilter>("all");
+  const [worldFilter, setWorldFilter] = useState<WorldFilter>("all");
   const [sourceFilter, setSourceFilter] = useState<SourceGroup | "all">("all");
   const [statusFilter, setStatusFilter] = useState<DashboardStatus | "all">("new");
   const [datePeriod, setDatePeriod] = useState<DatePeriod>("all");
@@ -259,23 +305,29 @@ export default function SubmissionsClient({
   const selectedBusinessLeads = business === "all"
     ? submissions
     : submissions.filter((item) => leadBusiness(item) === business);
-  const resourceLeads = resource === "all"
+  const brandLeads = brandFilter === "all"
     ? selectedBusinessLeads
-    : selectedBusinessLeads.filter((item) => item.resourceKey === resource);
+    : selectedBusinessLeads.filter((item) => leadBrand(item) === brandFilter);
+  const resourceLeads = resource === "all"
+    ? brandLeads
+    : brandLeads.filter((item) => item.resourceKey === resource);
+  const worldLeads = worldFilter === "all"
+    ? resourceLeads
+    : resourceLeads.filter((item) => leadWorld(item) === worldFilter);
   const periodLeads = useMemo(() => {
-    if (datePeriod === "all") return resourceLeads;
+    if (datePeriod === "all") return worldLeads;
     if (datePeriod === "custom") {
       const start = customFrom ? new Date(`${customFrom}T00:00:00`).getTime() : Number.NEGATIVE_INFINITY;
       const end = customTo ? new Date(`${customTo}T23:59:59.999`).getTime() : Number.POSITIVE_INFINITY;
-      return resourceLeads.filter((item) => {
+      return worldLeads.filter((item) => {
         const createdAt = new Date(item.createdAt).getTime();
         return createdAt >= start && createdAt <= end;
       });
     }
     const now = Date.now();
     const duration = datePeriod === "today" ? 24 * 60 * 60 * 1000 : datePeriod === "week" ? 7 * 24 * 60 * 60 * 1000 : 30 * 24 * 60 * 60 * 1000;
-    return resourceLeads.filter((item) => now - new Date(item.createdAt).getTime() <= duration);
-  }, [customFrom, customTo, datePeriod, resourceLeads]);
+    return worldLeads.filter((item) => now - new Date(item.createdAt).getTime() <= duration);
+  }, [customFrom, customTo, datePeriod, worldLeads]);
   const counts = Object.fromEntries(
     dashboardStatuses.map((status) => [
       status,
@@ -285,8 +337,14 @@ export default function SubmissionsClient({
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const sources = sourceLabels(locale);
   const businesses = businessLabels(locale);
+  const brands = brandLabels(locale);
+  const leadWorlds = worldLabels(locale);
   const periods = periodLabels(locale);
   const activity = activityLabels(locale);
+  const availableBrands = (["spaplus", "vii", "roomsvip", "vila4u", "zimmercard"] as Exclude<BrandFilter, "all">[])
+    .filter((brand) => selectedBusinessLeads.some((item) => leadBrand(item) === brand));
+  const availableWorlds = (["vacation", "events", "spa", "hourly", "providers", "activities", "general", "owners"] as Exclude<WorldFilter, "all">[])
+    .filter((world) => brandLeads.some((item) => leadWorld(item) === world));
   const periodSummary = datePeriod === "all"
     ? periods.all
     : datePeriod === "today"
@@ -297,7 +355,7 @@ export default function SubmissionsClient({
           ? periods.month
           : [customFrom || periods.from, customTo || periods.to].join(" / ");
   const sourceCounts = Object.fromEntries(
-    (["meta_paid", "google_paid", "direct", "other"] as SourceGroup[]).map((source) => [
+    (["meta_paid", "google_paid", "organic", "direct", "other"] as SourceGroup[]).map((source) => [
       source,
       periodLeads.filter((item) => attribution(item).group === source).length,
     ]),
@@ -372,10 +430,17 @@ export default function SubmissionsClient({
       </div>
 
       <nav className="lead-business-tabs" aria-label={businesses.all}>
-        {allowedBusinesses.length > 1 ? <button className={business === "all" ? "is-active" : ""} type="button" onClick={() => { setBusiness("all"); setResource("all"); }}>{businesses.all} ({submissions.length})</button> : null}
-        {allowedBusinesses.includes("spaplus") ? <button className={business === "spaplus" ? "is-active" : ""} type="button" onClick={() => { setBusiness("spaplus"); setResource("all"); }}>{businesses.spaplus} ({submissions.filter((item) => leadBusiness(item) === "spaplus").length})</button> : null}
-        {allowedBusinesses.includes("vila4u") ? <button className={business === "vila4u" ? "is-active" : ""} type="button" onClick={() => { setBusiness("vila4u"); setResource("all"); }}>{businesses.vila4u} ({submissions.filter((item) => leadBusiness(item) === "vila4u").length})</button> : null}
+        {allowedBusinesses.length > 1 ? <button className={business === "all" ? "is-active" : ""} type="button" onClick={() => { setBusiness("all"); setBrandFilter("all"); setWorldFilter("all"); setResource("all"); }}>{businesses.all} ({submissions.length})</button> : null}
+        {allowedBusinesses.includes("spaplus") ? <button className={business === "spaplus" ? "is-active" : ""} type="button" onClick={() => { setBusiness("spaplus"); setBrandFilter("all"); setWorldFilter("all"); setResource("all"); }}>{businesses.spaplus} ({submissions.filter((item) => leadBusiness(item) === "spaplus").length})</button> : null}
+        {allowedBusinesses.includes("vila4u") ? <button className={business === "vila4u" ? "is-active" : ""} type="button" onClick={() => { setBusiness("vila4u"); setBrandFilter("all"); setWorldFilter("all"); setResource("all"); }}>{businesses.vila4u} ({submissions.filter((item) => leadBusiness(item) === "vila4u").length})</button> : null}
       </nav>
+
+      {availableBrands.length > 1 ? (
+        <nav className="lead-brand-tabs" aria-label={brands.title}>
+          <button className={brandFilter === "all" ? "is-active" : ""} type="button" onClick={() => { setBrandFilter("all"); setWorldFilter("all"); }}>{brands.all} ({selectedBusinessLeads.length})</button>
+          {availableBrands.map((brand) => <button className={brandFilter === brand ? "is-active" : ""} key={brand} type="button" onClick={() => { setBrandFilter(brand); setWorldFilter("all"); }}>{brands[brand]} ({selectedBusinessLeads.filter((item) => leadBrand(item) === brand).length})</button>)}
+        </nav>
+      ) : null}
 
       <section className="lead-status-overview" aria-label={t.update}>
         <div className="lead-status-heading">
@@ -437,6 +502,13 @@ export default function SubmissionsClient({
             {resources.filter((key) => business === "all" || leadBusiness({ resourceKey: key }) === business).map((key) => <option key={key} value={key}>{resourceLabel(key)}</option>)}
           </select>
         </label>
+        <label>
+          <span>{leadWorlds.title}</span>
+          <select value={worldFilter} onChange={(event) => setWorldFilter(event.target.value as WorldFilter)}>
+            <option value="all">{leadWorlds.all}</option>
+            {availableWorlds.map((world) => <option key={world} value={world}>{leadWorlds[world]}</option>)}
+          </select>
+        </label>
         <label className="lead-search">
           <span>{t.search}</span>
           <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t.search} />
@@ -446,13 +518,13 @@ export default function SubmissionsClient({
 
       <nav className="lead-source-tabs" aria-label={sources.title}>
         <button className={sourceFilter === "all" ? "is-active" : ""} type="button" onClick={() => setSourceFilter("all")}>{sources.all} ({periodLeads.length})</button>
-        {(["meta_paid", "google_paid", "direct", "other"] as SourceGroup[]).map((source) => (
+        {(["meta_paid", "google_paid", "organic", "direct", "other"] as SourceGroup[]).map((source) => (
           <button className={sourceFilter === source ? "is-active" : ""} key={source} type="button" onClick={() => setSourceFilter(source)}>{sources[source]} ({sourceCounts[source]})</button>
         ))}
       </nav>
 
       <section className="lead-source-dashboard" aria-label={sources.title}>
-        {(["meta_paid", "google_paid", "direct", "other"] as SourceGroup[]).map((source) => {
+        {(["meta_paid", "google_paid", "organic", "direct", "other"] as SourceGroup[]).map((source) => {
           const sourceLeads = periodLeads.filter((item) => attribution(item).group === source);
           const sourceStatus = Object.fromEntries(
             dashboardStatuses.map((status) => [status, sourceLeads.filter((item) => normalizeStatus(item.status) === status).length]),
@@ -483,6 +555,8 @@ export default function SubmissionsClient({
                 <div>
                   <span className={`lead-status-badge is-${currentStatus}`}>{statusLabel(currentStatus)}</span>
                   <small>{resourceLabel(item.resourceKey)}</small>
+                  <span className={`lead-brand-badge is-${leadBrand(item)}`}>{brands[leadBrand(item)]}</span>
+                  <span className="lead-world-badge">{leadWorlds[leadWorld(item)]}</span>
                   <span className={`lead-source-badge is-${leadAttribution.group}`}>{sources[leadAttribution.group]}</span>
                 </div>
                 <time dateTime={item.createdAt}>{t.received}: {received.formatted} <span className="lead-time-zone">{received.zoneLabel}</span></time>
