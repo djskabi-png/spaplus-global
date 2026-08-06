@@ -275,9 +275,13 @@ export async function POST(request: Request) {
       leadCount: values.length,
     });
   });
-  const executionContext = getRequestExecutionContext();
-  if (executionContext) executionContext.waitUntil(processing);
-  else await processing;
+  try {
+    getRequestExecutionContext()?.waitUntil(processing);
+  } catch (error: unknown) {
+    console.error("Meta lead webhook background registration failed", {
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
 
   return Response.json({ success: true, accepted: values.length });
 }
