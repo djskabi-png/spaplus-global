@@ -37,13 +37,8 @@ const RESOURCE_KEY = "market:ca:on";
 const runtimeEnv = env as unknown as Record<string, string | undefined>;
 const setting = (name: string) => runtimeEnv[name] || process.env[name] || "";
 const GRAPH_VERSION = setting("META_GRAPH_VERSION") || "v26.0";
-const META_PAGE_ID = setting("META_PAGE_ID") || "1065026380020011";
-const META_FORM_IDS = new Set(
-  (setting("META_FORM_IDS") || "2595979447504156")
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean),
-);
+const META_PAGE_ID = "1065026380020011";
+const META_FORM_IDS = new Set(["2595979447504156"]);
 
 function clean(value: unknown) {
   return String(value ?? "").trim();
@@ -252,7 +247,15 @@ export async function POST(request: Request) {
   }
 
   const values = (body.entry || [])
-    .flatMap((entry) => entry.changes || [])
+    .flatMap((entry) =>
+      (entry.changes || []).map((change) => ({
+        ...change,
+        value: {
+          ...change.value,
+          page_id: change.value?.page_id || entry.id,
+        },
+      })),
+    )
     .filter((change) => change.field === "leadgen")
     .map((change) => change.value || {});
   if (values.length > 100) {
