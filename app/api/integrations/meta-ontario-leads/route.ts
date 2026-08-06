@@ -74,11 +74,11 @@ function inferLocale(fields: Map<string, string>, formName: string) {
     : "en-CA";
 }
 
-async function hmacHex(secret: string, payload: string) {
+async function hmacHex(secret: string, payload: string, hash: "SHA-1" | "SHA-256") {
   const key = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
+    { name: "HMAC", hash },
     false,
     ["sign"],
   );
@@ -97,10 +97,21 @@ function constantTimeEqual(left: string, right: string) {
 
 async function validMetaSignature(request: Request, rawBody: string) {
   const appSecret = setting("META_APP_SECRET");
-  const received = request.headers.get("x-hub-signature-256") || "";
-  if (appSecret.length < 24 || !received.startsWith("sha256=")) return false;
-  const expected = `sha256=${await hmacHex(appSecret, rawBody)}`;
-  return constantTimeEqual(received, expected);
+  if (appSecret.length < 24) return false;
+
+  const receivedSha256 = request.headers.get("x-hub-signature-256") || "";
+  if (receivedSha256.startsWith("sha256=")) {
+    const expectedSha256 = `sha256=${await hmacHex(appSecret, rawBody, "SHA-256")}`;
+    if (constantTimeEqual(receivedSha256, expectedSha256)) return true;
+  }
+
+  const receivedSha1 = request.headers.get("x-hub-signature") || "";
+  if (receivedSha1.startsWith("sha1=")) {
+    const expectedSha1 = `sha1=${await hmacHex(appSecret, rawBody, "SHA-1")}`;
+    if (constantTimeEqual(receivedSha1, expectedSha1)) return true;
+  }
+
+  return false;
 }
 
 async function fetchLead(leadgenId: string) {
