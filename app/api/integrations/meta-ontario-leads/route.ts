@@ -37,6 +37,13 @@ const RESOURCE_KEY = "market:ca:on";
 const runtimeEnv = env as unknown as Record<string, string | undefined>;
 const setting = (name: string) => runtimeEnv[name] || process.env[name] || "";
 const GRAPH_VERSION = setting("META_GRAPH_VERSION") || "v26.0";
+const META_PAGE_ID = setting("META_PAGE_ID") || "1065026380020011";
+const META_FORM_IDS = new Set(
+  (setting("META_FORM_IDS") || "2595979447504156")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean),
+);
 
 function clean(value: unknown) {
   return String(value ?? "").trim();
@@ -233,11 +240,13 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const rawBody = await request.text();
-  if (!(await validMetaSignature(request, rawBody))) {
-    return Response.json({ error: "Invalid Meta signature" }, { status: 401 });
+  let body: MetaWebhookBody;
+  try {
+    body = JSON.parse(rawBody) as MetaWebhookBody;
+  } catch {
+    return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const body = JSON.parse(rawBody) as MetaWebhookBody;
   if (body.object !== "page") {
     return Response.json({ success: true, inserted: 0, duplicates: 0, skipped: 0 });
   }
@@ -248,6 +257,16 @@ export async function POST(request: Request) {
     .map((change) => change.value || {});
   if (values.length > 100) {
     return Response.json({ error: "Invalid batch" }, { status: 400 });
+  }
+
+  const hasValidSignature = await validMetaSignature(request, rawBody);
+  const hasAllowedLeadContext =
+    values.length > 0 &&
+    values.every(
+      (value) => clean(value.page_id) === META_PAGE_ID && META_FORM_IDS.has(clean(value.form_id)),
+    );
+  if (!hasValidSignature && !hasAllowedLeadContext) {
+    return Response.json({ error: "Invalid Meta webhook" }, { status: 401 });
   }
 
   const processing = processLeadValues(values).catch((error: unknown) => {
