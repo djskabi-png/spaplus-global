@@ -36,6 +36,12 @@ test("Ontario Meta leads send an English LTR owner notification", async () => {
   assert.match(route, /\(Toronto time\)/);
 });
 
+test("Ontario owner recipients prefer the production market setting", async () => {
+  const route = await read("app/api/market-spa-leads/route.ts");
+  assert.match(route, /setting\(marketOwnerEmailsKey\)\s*\|\|\s*marketContent\.notificationRecipients/);
+  assert.match(route, /setting\("CONTACT_FROM_EMAIL"\)/);
+});
+
 test("static pages use the official SpaPlus mark instead of the retired heart icon", async () => {
   const [home, favicon] = await Promise.all([
     read("codepen/index.html"),

@@ -1,4 +1,5 @@
 import { and, eq } from "drizzle-orm";
+import { env } from "cloudflare:workers";
 import { getDb } from "../../../db";
 import { cmsContent, formSubmissions } from "../../../db/schema";
 import {
@@ -13,6 +14,9 @@ import {
 } from "../../market-launch/markets";
 
 type MarketSlug = keyof typeof markets;
+
+const runtimeEnv = env as unknown as Record<string, string | undefined>;
+const setting = (name: string) => runtimeEnv[name] || process.env[name] || "";
 
 const allowedOrigins = new Set([
   "https://spaplus.co",
@@ -312,20 +316,20 @@ export async function POST(request: Request) {
       );
     }
 
-    const apiKey = process.env.RESEND_API_KEY;
+    const apiKey = setting("RESEND_API_KEY");
     const marketOwnerEmailsKey = `${marketSlug.toUpperCase()}_CONTACT_TO_EMAILS`;
     const ownerEmails = (
-      process.env[marketOwnerEmailsKey] ||
+      setting(marketOwnerEmailsKey) ||
       marketContent.notificationRecipients ||
-      process.env.CONTACT_TO_EMAILS ||
-      process.env.CONTACT_TO_EMAIL ||
+      setting("CONTACT_TO_EMAILS") ||
+      setting("CONTACT_TO_EMAIL") ||
       "djskabi@gmail.com"
     )
       .split(",")
       .map((email) => email.trim().toLowerCase())
       .filter(isEmail);
     const fromEmail =
-      process.env.CONTACT_FROM_EMAIL?.trim() ||
+      setting("CONTACT_FROM_EMAIL").trim() ||
       "SpaPlus <hello@mail.spaplus.co>";
 
     if (!apiKey || ownerEmails.length === 0) {
