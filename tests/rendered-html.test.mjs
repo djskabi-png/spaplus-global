@@ -28,6 +28,14 @@ test("RoomsVIP test leads are retained and clearly marked", async () => {
   assert.match(route, /Lead type: Test lead/);
 });
 
+test("Ontario Meta leads send an English LTR owner notification", async () => {
+  const route = await read("app/api/integrations/meta-ontario-leads/route.ts");
+  assert.match(route, /ONTARIO_CONTACT_TO_EMAILS/);
+  assert.match(route, /api\.resend\.com\/emails/);
+  assert.match(route, /languageTag: "en-CA"/);
+  assert.match(route, /\(Toronto time\)/);
+});
+
 test("static pages use the official SpaPlus mark instead of the retired heart icon", async () => {
   const [home, favicon] = await Promise.all([
     read("codepen/index.html"),

@@ -315,8 +315,8 @@ export async function POST(request: Request) {
     const apiKey = process.env.RESEND_API_KEY;
     const marketOwnerEmailsKey = `${marketSlug.toUpperCase()}_CONTACT_TO_EMAILS`;
     const ownerEmails = (
-      marketContent.notificationRecipients ||
       process.env[marketOwnerEmailsKey] ||
+      marketContent.notificationRecipients ||
       process.env.CONTACT_TO_EMAILS ||
       process.env.CONTACT_TO_EMAIL ||
       "djskabi@gmail.com"

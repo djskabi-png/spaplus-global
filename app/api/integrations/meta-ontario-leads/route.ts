@@ -3,6 +3,10 @@ import { env } from "cloudflare:workers";
 import { getRequestExecutionContext } from "vinext/shims/request-context";
 import { getDb } from "../../../../db";
 import { formSubmissions } from "../../../../db/schema";
+import {
+  buildMarketOwnerEmail,
+  type MarketLeadEmailData,
+} from "../../../market-email-templates";
 
 type MetaField = { name?: string; values?: unknown[] };
 type MetaLead = {
@@ -74,6 +78,80 @@ function inferLocale(fields: Map<string, string>, formName: string) {
   return signal.includes("fr") || signal.includes("french") || signal.includes("français")
     ? "fr-CA"
     : "en-CA";
+}
+
+function isEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(value);
+}
+
+function torontoTime(value: string) {
+  return new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZone: "America/Toronto",
+    timeZoneName: "short",
+  }).format(new Date(value));
+}
+
+async function sendOntarioOwnerNotification(
+  data: MarketLeadEmailData,
+  leadId: string,
+) {
+  const apiKey = setting("RESEND_API_KEY");
+  const recipients = setting("ONTARIO_CONTACT_TO_EMAILS")
+    .split(",")
+    .map((value) => value.trim().toLowerCase())
+    .filter(isEmail);
+  if (!apiKey || recipients.length === 0) {
+    console.error("Ontario Meta lead email is not configured", {
+      hasApiKey: Boolean(apiKey),
+      recipientCount: recipients.length,
+    });
+    return;
+  }
+
+  const from = setting("CONTACT_FROM_EMAIL") || "SpaPlus <hello@mail.spaplus.co>";
+  const owner = buildMarketOwnerEmail(data, {
+    marketName: "Ontario",
+    pageUrl: "https://app.spaplus.co/en-ca/ontario/",
+    reviewWindowHours: 72,
+    languageTag: "en-CA",
+  });
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      "Idempotency-Key": `spaplus-ontario-meta-owner-${leadId}`,
+      "User-Agent": "SpaPlus-Meta-Ontario-Leads/1.0",
+    },
+    body: JSON.stringify({
+      from,
+      to: recipients,
+      reply_to: data.email || undefined,
+      subject: owner.subject,
+      html: owner.html,
+      text: owner.text,
+      tags: [
+        { name: "email_type", value: "ontario_meta_spa_owner" },
+        { name: "market", value: "ontario" },
+      ],
+    }),
+  });
+  const result = (await response.json()) as { id?: string; message?: string };
+  if (!response.ok || !result.id) {
+    throw new Error(
+      `Ontario Meta lead email failed (${response.status}): ${result.message || "No provider message"}`,
+    );
+  }
+  console.log("Ontario Meta lead email accepted", {
+    deliveryId: result.id,
+    recipientCount: recipients.length,
+  });
 }
 
 async function hmacHex(secret: string, payload: string, hash: "SHA-1" | "SHA-256") {
@@ -179,6 +257,21 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
   const spaType = firstField(fields, ["spa_type", "type_of_spa"]);
   const platform = clean(lead.platform) || "Facebook and Instagram";
   const createdAt = normalizeCreatedAt(lead.created_time || webhookValue.created_time);
+  const website = firstField(fields, [
+    "website",
+    "website_url",
+    "website_or_social_profile",
+    "social_profile",
+  ]);
+  const postalCode = firstField(fields, ["postal_code", "postcode", "zip_code"]);
+  const locations = firstField(fields, ["locations", "number_of_locations"]);
+  const services = firstField(fields, ["services", "spa_services"])
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const preferredContact = firstField(fields, ["preferred_contact", "contact_method"]);
+  const bookingSystem = firstField(fields, ["booking_system", "reservation_system"]);
+  const additionalMessage = firstField(fields, ["message", "comments", "tell_us_more"]);
 
   await db.insert(formSubmissions).values({
     submissionId,
@@ -216,6 +309,44 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
     resourceKey: RESOURCE_KEY,
     status: "new",
     createdAt,
+  });
+
+  const notificationData: MarketLeadEmailData = {
+    name,
+    role,
+    email,
+    phone,
+    organization,
+    website,
+    city,
+    region: "",
+    postalCode,
+    spaType,
+    locations,
+    services,
+    bookingSystem,
+    preferredContact,
+    message: additionalMessage,
+    area: city || "Ontario general",
+    locale,
+    source: `Meta paid lead form | ${platform}`,
+    campaign: {
+      ...(campaignName ? { campaign_name: campaignName } : {}),
+      ...(campaignId ? { campaign_id: campaignId } : {}),
+      ...(adsetName ? { ad_set_name: adsetName } : {}),
+      ...(adsetId ? { ad_set_id: adsetId } : {}),
+      ...(adName ? { ad_name: adName } : {}),
+      ...(adId ? { ad_id: adId } : {}),
+      form_id: formId,
+      lead_id: leadId,
+    },
+    submittedAt: `${torontoTime(createdAt)} (Toronto time)`,
+  };
+  await sendOntarioOwnerNotification(notificationData, leadId).catch((error: unknown) => {
+    console.error("Ontario Meta lead email delivery failed", {
+      message: error instanceof Error ? error.message : "Unknown error",
+      leadId,
+    });
   });
   return "inserted" as const;
 }
