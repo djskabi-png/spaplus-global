@@ -27,7 +27,4 @@ declare module "cloudflare:workers" {
   export const env: {
     DB: D1Database;
   };
-  export const ctx: {
-    waitUntil(promise: Promise<unknown>): void;
-  };
 }

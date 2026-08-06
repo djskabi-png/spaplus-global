@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
-import { ctx, env } from "cloudflare:workers";
+import { env } from "cloudflare:workers";
+import { getRequestExecutionContext } from "vinext/shims/request-context";
 import { getDb } from "../../../../db";
 import { formSubmissions } from "../../../../db/schema";
 
@@ -238,14 +239,15 @@ export async function POST(request: Request) {
     return Response.json({ error: "Invalid batch" }, { status: 400 });
   }
 
-  ctx.waitUntil(
-    processLeadValues(values).catch((error: unknown) => {
-      console.error("Meta lead webhook processing failed", {
-        message: error instanceof Error ? error.message : "Unknown error",
-        leadCount: values.length,
-      });
-    }),
-  );
+  const processing = processLeadValues(values).catch((error: unknown) => {
+    console.error("Meta lead webhook processing failed", {
+      message: error instanceof Error ? error.message : "Unknown error",
+      leadCount: values.length,
+    });
+  });
+  const executionContext = getRequestExecutionContext();
+  if (executionContext) executionContext.waitUntil(processing);
+  else await processing;
 
   return Response.json({ success: true, accepted: values.length });
 }
