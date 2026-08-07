@@ -40,6 +40,7 @@ export default async function ToolsPage() {
           <img src="/spaplus-mark.png" alt="" />
           <span>{centreName}</span>
         </a>
+        {admin.role === "owner" ? <a className="cms-preview" href="/admin/projects">{isHebrew ? "הפרויקטים של אדיר" : systemLocale === "fr-CA" ? "Projets d’Adir" : "Adir’s projects"}</a> : null}
         <a className="cms-preview" href={backHref}>{backLabel}</a>
       </header>
       <SubmissionsClient systemLocale={systemLocale} allowedResourceKeys={allowedLeadResourceKeys} />
