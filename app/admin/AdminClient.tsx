@@ -405,6 +405,7 @@ export default function AdminClient({
         {resources.some((resource) => can(resource.key, "canViewLeads")) ? <a href="/tools">{t.leads}</a> : null}
         {role === "owner" || canReportBugs ? <a href="/admin/bugs">{t.bugs}</a> : null}
         {role === "owner" ? <a href="/admin/projects">{uiLocale === "he" ? "הפרויקטים של אדיר" : uiLocale === "fr-CA" ? "Projets d’Adir" : "Adir’s projects"}</a> : null}
+        {role === "owner" || resources.some((resource) => resource.type === "operations" && can(resource.key, "canViewContent")) ? <a className="cms-operations-link" href="/admin/operations">{uiLocale === "he" ? "ניהול בתי ספא" : uiLocale === "fr-CA" ? "Gestion des spas" : "Spa operations"}</a> : null}
       </nav>
       {status ? <div className={`cms-status${savingAction ? " is-saving" : ""}`} role="status" aria-live="polite">{savingAction ? <i className="cms-spinner" aria-hidden="true" /> : null}{status}</div> : null}
 
@@ -467,7 +468,7 @@ export default function AdminClient({
                   const leadLevel = permission.canManageLeads ? "manage" : permission.canViewLeads ? "view" : "none";
                   return <div className="cms-permission-row" key={resource.key}>
                     <strong>{resource.labels[uiLocale]}</strong>
-                    {resource.type === "site" || resource.type === "market" ? <label>{t.contentAccess}<select disabled={Boolean(savingAction)} value={contentLevel} onChange={(event) => setUserPermission(user, resource.key, "content", event.target.value)}><option value="none">{t.none}</option><option value="view">{t.view}</option><option value="edit">{t.edit}</option></select></label> : null}
+                    {resource.type === "site" || resource.type === "market" || resource.type === "operations" ? <label>{resource.type === "operations" ? (uiLocale === "he" ? "הרשאת דשבורד" : uiLocale === "fr-CA" ? "Accès au tableau" : "Dashboard access") : t.contentAccess}<select disabled={Boolean(savingAction)} value={contentLevel} onChange={(event) => setUserPermission(user, resource.key, "content", event.target.value)}><option value="none">{t.none}</option><option value="view">{t.view}</option><option value="edit">{t.edit}</option></select></label> : null}
                     <label>{t.leadAccess}<select disabled={Boolean(savingAction)} value={leadLevel} onChange={(event) => setUserPermission(user, resource.key, "leads", event.target.value)}><option value="none">{t.none}</option><option value="view">{t.view}</option><option value="manage">{t.manage}</option></select></label>
                   </div>;
                 })}</section>)}

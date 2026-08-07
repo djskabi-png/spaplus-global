@@ -100,7 +100,7 @@ const text = {
   },
 } as const;
 
-export default function NewSpaDemo() {
+export default function NewSpaDemo({ homeHref = "/demo/new-spa/" }: { homeHref?: string }) {
   const [locale, setLocale] = useState<Locale>("en");
   const [view, setView] = useState<View>("overview");
   const [bookingOpen, setBookingOpen] = useState(false);
@@ -113,7 +113,7 @@ export default function NewSpaDemo() {
   return (
     <main className="ops-demo" lang={locale === "fr" ? "fr-CA" : "en-CA"}>
       <aside className="ops-sidebar">
-        <a className="ops-brand" href="/demo/new-spa/" aria-label="SpaPlus home">
+        <a className="ops-brand" href={homeHref} aria-label="SpaPlus home">
           <img src="/spaplus-mark.png" alt="SpaPlus" /><span>SpaPlus</span>
         </a>
         <div className="ops-market"><small>{t.market}</small><strong>{t.spa}</strong><span>{t.demo}</span></div>
