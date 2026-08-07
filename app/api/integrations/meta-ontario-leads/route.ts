@@ -1,6 +1,5 @@
 import { eq } from "drizzle-orm";
 import { env } from "cloudflare:workers";
-import { getRequestExecutionContext } from "vinext/shims/request-context";
 import { getDb } from "../../../../db";
 import { formSubmissions } from "../../../../db/schema";
 import {
@@ -72,6 +71,17 @@ function firstField(fields: Map<string, string>, names: string[]) {
   return "";
 }
 
+function normalizedField(fields: Map<string, string>, names: string[]) {
+  const normalizedNames = names.map((name) => name.replace(/[^a-z0-9]+/g, "_"));
+  for (const [key, value] of fields) {
+    const normalizedKey = key.replace(/[^a-z0-9]+/g, "_");
+    if (normalizedNames.some((name) => normalizedKey === name || normalizedKey.includes(name))) {
+      return value;
+    }
+  }
+  return "";
+}
+
 function inferLocale(fields: Map<string, string>, formName: string) {
   const explicit = firstField(fields, ["language", "locale", "preferred_language"]);
   const signal = `${explicit} ${formName}`.toLowerCase();
@@ -102,16 +112,16 @@ async function sendOntarioOwnerNotification(
   leadId: string,
 ) {
   const apiKey = setting("RESEND_API_KEY");
-  const recipients = setting("ONTARIO_CONTACT_TO_EMAILS")
+  const recipients = (
+    setting("META_ONTARIO_CONTACT_TO_EMAILS") ||
+    setting("ONTARIO_CONTACT_TO_EMAILS") ||
+    "adir@spaplus.co.il,galia@spaplus.ca"
+  )
     .split(",")
     .map((value) => value.trim().toLowerCase())
     .filter(isEmail);
   if (!apiKey || recipients.length === 0) {
-    console.error("Ontario Meta lead email is not configured", {
-      hasApiKey: Boolean(apiKey),
-      recipientCount: recipients.length,
-    });
-    return;
+    throw new Error("Ontario Meta lead email is not configured");
   }
 
   const from = setting("CONTACT_FROM_EMAIL") || "SpaPlus <hello@mail.spaplus.co>";
@@ -248,21 +258,36 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
     .from(formSubmissions)
     .where(eq(formSubmissions.submissionId, submissionId))
     .limit(1);
-  if (existing) return "duplicate" as const;
-
   const locale = inferLocale(fields, formName);
-  const organization = firstField(fields, ["company_name", "spa_name", "business_name"]);
-  const city = firstField(fields, ["city", "location", "business_location"]);
+  const organization =
+    firstField(fields, ["company_name", "spa_name", "business_name"]) ||
+    normalizedField(fields, [
+      "name_of_your_spa_or_business",
+      "spa_or_business_name",
+      "nom_de_votre_spa_ou_entreprise",
+    ]);
+  const city =
+    firstField(fields, ["city", "location", "business_location"]) ||
+    normalizedField(fields, [
+      "your_city_or_region",
+      "city_or_region",
+      "votre_ville_ou_region",
+    ]);
   const role = firstField(fields, ["job_title", "role"]);
   const spaType = firstField(fields, ["spa_type", "type_of_spa"]);
   const platform = clean(lead.platform) || "Facebook and Instagram";
   const createdAt = normalizeCreatedAt(lead.created_time || webhookValue.created_time);
-  const website = firstField(fields, [
-    "website",
-    "website_url",
-    "website_or_social_profile",
-    "social_profile",
-  ]);
+  const website =
+    firstField(fields, [
+      "website",
+      "website_url",
+      "website_or_social_profile",
+      "social_profile",
+    ]) ||
+    normalizedField(fields, [
+      "website_or_social_media_page",
+      "site_web_ou_page_de_reseau_social",
+    ]);
   const postalCode = firstField(fields, ["postal_code", "postcode", "zip_code"]);
   const locations = firstField(fields, ["locations", "number_of_locations"]);
   const services = firstField(fields, ["services", "spa_services"])
@@ -273,15 +298,7 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
   const bookingSystem = firstField(fields, ["booking_system", "reservation_system"]);
   const additionalMessage = firstField(fields, ["message", "comments", "tell_us_more"]);
 
-  await db.insert(formSubmissions).values({
-    submissionId,
-    formType: "ontario-meta-instant-form",
-    name,
-    email: email.toLowerCase(),
-    phone,
-    organization,
-    topic: spaType || "Ontario spa partner",
-    message: [
+  const message = [
       "Company group: SpaPlus",
       "Brand: SpaPlus Canada",
       "Lead purpose: Ontario spa partner registration",
@@ -302,14 +319,26 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
       `Meta lead ID: ${leadId}`,
       `Submitted at: ${createdAt}`,
     ]
-      .filter(Boolean)
-      .join("\n"),
-    locale,
-    source: "Meta paid lead form | Ontario",
-    resourceKey: RESOURCE_KEY,
-    status: "new",
-    createdAt,
-  });
+    .filter(Boolean)
+    .join("\n");
+
+  if (!existing) {
+    await db.insert(formSubmissions).values({
+      submissionId,
+      formType: "ontario-meta-instant-form",
+      name,
+      email: email.toLowerCase(),
+      phone,
+      organization,
+      topic: spaType || "Ontario spa partner",
+      message,
+      locale,
+      source: "Meta paid lead form | Ontario",
+      resourceKey: RESOURCE_KEY,
+      status: "new",
+      createdAt,
+    });
+  }
 
   const notificationData: MarketLeadEmailData = {
     name,
@@ -342,13 +371,8 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
     },
     submittedAt: `${torontoTime(createdAt)} (Toronto time)`,
   };
-  await sendOntarioOwnerNotification(notificationData, leadId).catch((error: unknown) => {
-    console.error("Ontario Meta lead email delivery failed", {
-      message: error instanceof Error ? error.message : "Unknown error",
-      leadId,
-    });
-  });
-  return "inserted" as const;
+  await sendOntarioOwnerNotification(notificationData, leadId);
+  return existing ? ("duplicate" as const) : ("inserted" as const);
 }
 
 export async function GET(request: Request) {
@@ -403,21 +427,16 @@ export async function POST(request: Request) {
     return Response.json({ error: "Invalid Meta webhook" }, { status: 401 });
   }
 
-  const processing = processLeadValues(values).catch((error: unknown) => {
+  try {
+    const result = await processLeadValues(values);
+    return Response.json({ success: true, accepted: values.length, ...result });
+  } catch (error: unknown) {
     console.error("Meta lead webhook processing failed", {
       message: error instanceof Error ? error.message : "Unknown error",
       leadCount: values.length,
     });
-  });
-  try {
-    getRequestExecutionContext()?.waitUntil(processing);
-  } catch (error: unknown) {
-    console.error("Meta lead webhook background registration failed", {
-      message: error instanceof Error ? error.message : "Unknown error",
-    });
+    return Response.json({ error: "Meta lead processing failed" }, { status: 503 });
   }
-
-  return Response.json({ success: true, accepted: values.length });
 }
 
 async function processLeadValues(values: MetaLeadgenValue[]) {
@@ -437,4 +456,5 @@ async function processLeadValues(values: MetaLeadgenValue[]) {
   }
 
   console.log("Meta lead webhook processed", { inserted, duplicates, skipped });
+  return { inserted, duplicates, skipped };
 }
