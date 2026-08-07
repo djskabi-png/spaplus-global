@@ -15,6 +15,7 @@ export type AuthorizedAdmin = AuthenticatedUser & {
   role: AdminRole;
   defaultLocale: string;
   systemLocale: string;
+  canReportBugs: boolean;
   permissions: CmsPermissionRecord[];
 };
 
@@ -39,6 +40,7 @@ export async function getAuthorizedAdmin(): Promise<AuthorizedAdmin | null> {
       role: "owner",
       defaultLocale: owner.defaultLocale,
       systemLocale: owner.systemLocale,
+      canReportBugs: true,
       permissions: [],
     };
   }
@@ -65,6 +67,7 @@ export async function getAuthorizedAdmin(): Promise<AuthorizedAdmin | null> {
     role: record.role,
     defaultLocale: record.defaultLocale,
     systemLocale: record.systemLocale,
+    canReportBugs: record.canReportBugs,
     permissions,
   };
 }
@@ -93,6 +96,7 @@ async function ensureOwner(identity: AuthenticatedUser) {
       status: "active",
       defaultLocale: "he",
       systemLocale: "he",
+      canReportBugs: true,
       lastLoginAt: now,
       createdAt: now,
       updatedAt: now,
@@ -103,6 +107,7 @@ async function ensureOwner(identity: AuthenticatedUser) {
         displayName: identity.fullName || identity.displayName || "",
         role: "owner",
         status: "active",
+        canReportBugs: true,
         lastLoginAt: now,
         updatedAt: now,
       },

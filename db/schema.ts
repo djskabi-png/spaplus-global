@@ -14,6 +14,9 @@ export const cmsUsers = sqliteTable(
       .default("active"),
     defaultLocale: text("default_locale").notNull().default("en"),
     systemLocale: text("system_locale").notNull().default("en"),
+    canReportBugs: integer("can_report_bugs", { mode: "boolean" })
+      .notNull()
+      .default(false),
     lastLoginAt: text("last_login_at"),
     createdAt: text("created_at").notNull(),
     updatedAt: text("updated_at").notNull(),
@@ -167,6 +170,47 @@ export const projectTasks = sqliteTable("project_tasks", {
   progress: integer("progress"),
   owner: text("owner").notNull().default("אדיר"),
   sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const projectNotes = sqliteTable("project_notes", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  projectId: integer("project_id")
+    .notNull()
+    .references(() => projectItems.id, { onDelete: "cascade" }),
+  body: text("body").notNull(),
+  state: text("state", { enum: ["open", "important", "handled"] })
+    .notNull()
+    .default("open"),
+  actorEmail: text("actor_email").notNull(),
+  actorName: text("actor_name").notNull().default(""),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const bugReports = sqliteTable("bug_reports", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  projectId: integer("project_id").references(() => projectItems.id, { onDelete: "set null" }),
+  title: text("title").notNull(),
+  description: text("description").notNull().default(""),
+  severity: text("severity", { enum: ["low", "medium", "high", "critical"] })
+    .notNull()
+    .default("medium"),
+  status: text("status", { enum: ["new", "in_progress", "fixed", "closed"] })
+    .notNull()
+    .default("new"),
+  pageUrl: text("page_url").notNull().default(""),
+  steps: text("steps").notNull().default(""),
+  expected: text("expected").notNull().default(""),
+  actual: text("actual").notNull().default(""),
+  reporterEmail: text("reporter_email").notNull(),
+  reporterName: text("reporter_name").notNull().default(""),
+  driveSyncStatus: text("drive_sync_status", { enum: ["not_configured", "pending", "synced", "failed"] })
+    .notNull()
+    .default("not_configured"),
+  driveRowId: text("drive_row_id").notNull().default(""),
+  driveError: text("drive_error").notNull().default(""),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });

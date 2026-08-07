@@ -44,6 +44,7 @@ export default async function AdminPage() {
         role={admin.role}
         defaultLocale={admin.defaultLocale}
         systemLocale={admin.systemLocale}
+        canReportBugs={admin.canReportBugs}
         permissions={admin.permissions}
         resources={[...cmsResources]}
       />
