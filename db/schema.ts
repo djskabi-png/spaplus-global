@@ -127,3 +127,46 @@ export const leadNotes = sqliteTable("lead_notes", {
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
+
+export const projectItems = sqliteTable("project_items", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  description: text("description").notNull().default(""),
+  area: text("area").notNull().default("development"),
+  status: text("status", { enum: ["planned", "in_progress", "waiting", "review", "nearly_done", "done", "archived"] })
+    .notNull()
+    .default("planned"),
+  progress: integer("progress"),
+  progressSource: text("progress_source", { enum: ["confirmed", "estimated", "unknown"] })
+    .notNull()
+    .default("unknown"),
+  priority: text("priority", { enum: ["critical", "high", "medium", "low"] })
+    .notNull()
+    .default("medium"),
+  owner: text("owner").notNull().default("אדיר"),
+  collaborators: text("collaborators").notNull().default("[]"),
+  currentPhase: text("current_phase").notNull().default(""),
+  nextAction: text("next_action").notNull().default(""),
+  blockers: text("blockers").notNull().default(""),
+  targetDate: text("target_date"),
+  sourceThreads: text("source_threads").notNull().default("[]"),
+  tags: text("tags").notNull().default("[]"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const projectTasks = sqliteTable("project_tasks", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  projectId: integer("project_id")
+    .notNull()
+    .references(() => projectItems.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  status: text("status", { enum: ["planned", "in_progress", "waiting", "done"] })
+    .notNull()
+    .default("planned"),
+  progress: integer("progress"),
+  owner: text("owner").notNull().default("אדיר"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});

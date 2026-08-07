@@ -1,0 +1,157 @@
+import { env } from "cloudflare:workers";
+import { asc, eq } from "drizzle-orm";
+import { getDb } from "../../../../db";
+import { cmsAuditLog, projectItems, projectTasks } from "../../../../db/schema";
+import { getAuthorizedAdmin } from "../../../admin-auth";
+
+type JsonRecord = Record<string, unknown>;
+
+const projectFields = new Set([
+  "name", "description", "area", "status", "progress", "progressSource", "priority", "owner",
+  "collaborators", "currentPhase", "nextAction", "blockers", "targetDate", "sourceThreads", "tags",
+]);
+const taskFields = new Set(["title", "status", "progress", "owner", "sortOrder"]);
+
+const initialProjects = [
+  {
+    name: "BizOnline, האתר והמרקטפלייס",
+    description: "האתר החדש, מערכת הניהול, BizPop והכנת המסירה להטמעה בדומיין הראשי.",
+    area: "website", status: "nearly_done", progress: 90, progressSource: "confirmed", priority: "critical",
+    owner: "אדיר", collaborators: ["מאור", "שלומי"], currentPhase: "השלמת סרטוני המחלקות ופוליש אחרון לאתר",
+    nextAction: "לסיים את סרטון האירועים, להכין את סרטון הקליניקות ולהשלים עוד כשעה עד שעתיים באתר.",
+    blockers: "העברת מסך הכניסה ו-BizPop לדומיין הראשי דורשת הטמעה של מאור ושלומי.",
+    tags: ["אתר", "מרקטפלייס", "וידאו", "מסירה"],
+    sourceThreads: ["019fc764-cd8a-7063-a14f-02167207831d", "019fd38a-dfdc-71e1-9e27-d453f2c47e03"],
+    tasks: [
+      ["סרטון למחלקת הספא", "done", 100, "אדיר"],
+      ["סרטון למחלקת הלינה", "done", 100, "אדיר"],
+      ["סרטון למחלקת האירועים", "in_progress", null, "אדיר"],
+      ["סרטון למחלקת הקליניקות", "planned", null, "אדיר"],
+      ["פוליש אחרון לאתר", "planned", null, "אדיר"],
+      ["הטמעה בדומיין bsonline.co.il", "waiting", null, "מאור ושלומי"],
+    ],
+  },
+  {
+    name: "Biz Spa, מערכת הניהול הבינלאומית", description: "בניית תשתית הממשק המלאה והעברתה להטמעה במערכת הקיימת.",
+    area: "product", status: "in_progress", progress: null, progressSource: "unknown", priority: "high", owner: "אדיר",
+    collaborators: ["מקסים", "שרגאי"], currentPhase: "HTML, CSS ו-JavaScript", nextAction: "לאמת היקף, אבני דרך ואחוז התקדמות מול משימת המקור.",
+    blockers: "ההטמעה הסופית תלויה במקסים ובשרגאי.", tags: ["מערכת ניהול", "ממשק", "מסירה"],
+    sourceThreads: ["019fce52-d599-7200-8cd0-cab203670242", "019fd3dc-7b8b-7b01-bf59-74f9bda942a0"], tasks: [],
+  },
+  {
+    name: "האתר החדש של Masu", description: "חוויית האתר וההזמנה החדשה של מאסו.", area: "website", status: "in_progress",
+    progress: null, progressSource: "unknown", priority: "high", owner: "אדיר", collaborators: [], currentPhase: "פיתוח ושדרוג",
+    nextAction: "לסקור את המשימה האחרונה ולהגדיר רשימת השלמה.", blockers: "אחוז ההתקדמות טרם אומת.", tags: ["אתר", "הזמנות"],
+    sourceThreads: ["019fab63-9b92-78f0-aa6d-36a8ac38e474", "019fb82a-15dd-7682-88f5-6cf16c47fdd9"], tasks: [],
+  },
+  {
+    name: "האתר החדש של VII", description: "אתר חופשות, אירועים וחוויות, כולל עורך תוכן וחיבור לידים.", area: "website",
+    status: "in_progress", progress: null, progressSource: "unknown", priority: "high", owner: "אדיר", collaborators: [],
+    currentPhase: "פיתוח וחיבורי מערכת", nextAction: "לאמת מה הושלם בגרסה האחרונה ומה נשאר למסירה.", blockers: "אחוז ההתקדמות טרם אומת.",
+    tags: ["אתר", "עורך תוכן", "לידים"], sourceThreads: ["019fab38-299b-7943-9e01-c9c4e3c97c4a"], tasks: [],
+  },
+  {
+    name: "פלמנגו ספא, אתר", description: "השלמת האתר הרב לשוני ומערכת הניהול של פלמנגו ספא.", area: "website",
+    status: "in_progress", progress: null, progressSource: "unknown", priority: "high", owner: "אדיר", collaborators: [],
+    currentPhase: "השלמות ופוליש", nextAction: "לרכז את כל הדברים הפתוחים ולסיים לפי סדר עדיפות.", blockers: "נדרש מיפוי השלמות.",
+    tags: ["אתר", "ספא", "מערכת ניהול"], sourceThreads: ["019fb193-5b46-79b1-858e-ea458d4c98a1", "019f9a34-acd0-7742-b91f-edb59e1afb8d"], tasks: [],
+  },
+  {
+    name: "מערך הצ׳אטים העסקיים", description: "הצ׳אטים של וילה פור יו, פלמנגו ספא, ספא פלוס, קנדה ופרויקטים נוספים.", area: "automation",
+    status: "in_progress", progress: null, progressSource: "unknown", priority: "medium", owner: "אדיר", collaborators: [],
+    currentPhase: "פיתוח ושיפור צ׳אטים", nextAction: "לפצל כל צ׳אט לזרם עבודה עם סטטוס, סביבת יעד ובדיקת קבלה.", blockers: "נדרש לזהות את משימת צימרקארד המדויקת.",
+    tags: ["צ׳אט", "אוטומציה"], sourceThreads: ["019fb177-0c74-73c2-a9fd-8411cb04a789", "019f4e84-1212-75b3-b48e-226f4e9914cb", "019fc167-1a70-77e2-8e3f-6f25bfbd432e", "019fbffb-94ba-79d2-8e36-8b600bae57b7"], tasks: [],
+  },
+  {
+    name: "SpaPlus Global וקנדה", description: "האתר העולמי, דפי קנדה ואונטריו, קמפיינים, לידים ותשתיות ההשקה.", area: "website",
+    status: "in_progress", progress: null, progressSource: "unknown", priority: "medium", owner: "אדיר", collaborators: [],
+    currentPhase: "השקה ושיפור שוטף", nextAction: "למפות את הפעילות האחרונה לפרויקטי משנה נפרדים.", blockers: "יש כמה זרמי עבודה פעילים שדורשים איחוד.",
+    tags: ["אתר", "קנדה", "קמפיינים", "לידים"], sourceThreads: ["019f91b4-79c8-7151-a9d8-c7cec8146ccf", "019fdac7-0ebb-7b61-92c5-01a668029636"], tasks: [],
+  },
+  {
+    name: "iEvent", description: "פיתוח האתר, מנועי הכנסה וקמפיינים.", area: "growth", status: "in_progress", progress: null,
+    progressSource: "unknown", priority: "medium", owner: "אדיר", collaborators: [], currentPhase: "פיתוח ושיווק",
+    nextAction: "לאמת סטטוס מול משימות האתר והקמפיין.", blockers: "אחוז ההתקדמות טרם אומת.", tags: ["אתר", "קמפיינים"],
+    sourceThreads: ["019fc72b-5fe8-7bd0-8500-5295f68f3c3d", "019fac19-a29c-7630-83e4-993ce0e65035"], tasks: [],
+  },
+];
+
+function json(value: unknown) { return JSON.stringify(value ?? []); }
+function clampProgress(value: unknown) {
+  if (value === null || value === "" || value === undefined) return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.max(0, Math.min(100, Math.round(number))) : null;
+}
+function parseList(value: string) { try { return JSON.parse(value) as string[]; } catch { return []; } }
+
+async function ensureTables() {
+  await env.DB.exec(`
+    CREATE TABLE IF NOT EXISTS project_items (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, description TEXT NOT NULL DEFAULT '', area TEXT NOT NULL DEFAULT 'development', status TEXT NOT NULL DEFAULT 'planned', progress INTEGER, progress_source TEXT NOT NULL DEFAULT 'unknown', priority TEXT NOT NULL DEFAULT 'medium', owner TEXT NOT NULL DEFAULT 'אדיר', collaborators TEXT NOT NULL DEFAULT '[]', current_phase TEXT NOT NULL DEFAULT '', next_action TEXT NOT NULL DEFAULT '', blockers TEXT NOT NULL DEFAULT '', target_date TEXT, source_threads TEXT NOT NULL DEFAULT '[]', tags TEXT NOT NULL DEFAULT '[]', created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS project_tasks (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, project_id INTEGER NOT NULL REFERENCES project_items(id) ON DELETE CASCADE, title TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'planned', progress INTEGER, owner TEXT NOT NULL DEFAULT 'אדיר', sort_order INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
+    CREATE INDEX IF NOT EXISTS project_tasks_project_idx ON project_tasks(project_id);
+  `);
+}
+
+async function seedIfEmpty() {
+  const count = await env.DB.prepare("SELECT COUNT(*) AS total FROM project_items").first<{ total: number }>();
+  if (Number(count?.total || 0) > 0) return;
+  const now = new Date().toISOString();
+  for (const project of initialProjects) {
+    const result = await env.DB.prepare("INSERT INTO project_items (name, description, area, status, progress, progress_source, priority, owner, collaborators, current_phase, next_action, blockers, source_threads, tags, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+      .bind(project.name, project.description, project.area, project.status, project.progress, project.progressSource, project.priority, project.owner, json(project.collaborators), project.currentPhase, project.nextAction, project.blockers, json(project.sourceThreads), json(project.tags), now, now).run();
+    const projectId = Number(result.meta.last_row_id);
+    for (let index = 0; index < project.tasks.length; index += 1) {
+      const [title, status, progress, owner] = project.tasks[index];
+      await env.DB.prepare("INSERT INTO project_tasks (project_id, title, status, progress, owner, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+        .bind(projectId, title, status, progress, owner, index, now, now).run();
+    }
+  }
+}
+
+async function authorize() {
+  const admin = await getAuthorizedAdmin();
+  if (!admin) return { response: Response.json({ error: "Unauthorized" }, { status: 401 }) };
+  if (admin.role !== "owner") return { response: Response.json({ error: "Forbidden" }, { status: 403 }) };
+  return { admin };
+}
+
+export async function GET() {
+  const access = await authorize(); if (access.response) return access.response;
+  await ensureTables(); await seedIfEmpty();
+  const [projects, tasks] = await Promise.all([
+    getDb().select().from(projectItems).orderBy(asc(projectItems.id)),
+    getDb().select().from(projectTasks).orderBy(asc(projectTasks.sortOrder), asc(projectTasks.id)),
+  ]);
+  return Response.json({ projects: projects.map((project) => ({ ...project, collaborators: parseList(project.collaborators), sourceThreads: parseList(project.sourceThreads), tags: parseList(project.tags), tasks: tasks.filter((task) => task.projectId === project.id) })) });
+}
+
+export async function POST(request: Request) {
+  const access = await authorize(); if (access.response) return access.response;
+  await ensureTables();
+  const body = await request.json() as JsonRecord; const now = new Date().toISOString();
+  if (body.kind === "task") {
+    const projectId = Number(body.projectId); const title = String(body.title || "").trim();
+    if (!Number.isInteger(projectId) || !title) return Response.json({ error: "Invalid task" }, { status: 400 });
+    const [created] = await getDb().insert(projectTasks).values({ projectId, title, owner: String(body.owner || "אדיר"), status: "planned", createdAt: now, updatedAt: now }).returning();
+    return Response.json({ task: created }, { status: 201 });
+  }
+  const name = String(body.name || "").trim();
+  if (!name) return Response.json({ error: "Project name is required" }, { status: 400 });
+  const [created] = await getDb().insert(projectItems).values({ name, description: String(body.description || ""), area: String(body.area || "development"), status: "planned", progress: null, progressSource: "unknown", priority: String(body.priority || "medium") as "critical" | "high" | "medium" | "low", owner: String(body.owner || "אדיר"), collaborators: "[]", currentPhase: "תכנון", nextAction: String(body.nextAction || "להגדיר את הצעד הראשון"), blockers: "", sourceThreads: "[]", tags: "[]", createdAt: now, updatedAt: now }).returning();
+  return Response.json({ project: created }, { status: 201 });
+}
+
+export async function PATCH(request: Request) {
+  const access = await authorize(); if (access.response) return access.response;
+  await ensureTables(); const body = await request.json() as JsonRecord; const id = Number(body.id); const kind = body.kind === "task" ? "task" : "project";
+  if (!Number.isInteger(id)) return Response.json({ error: "Invalid id" }, { status: 400 });
+  const allowed = kind === "task" ? taskFields : projectFields; const update: JsonRecord = { updatedAt: new Date().toISOString() };
+  for (const [key, value] of Object.entries(body.changes as JsonRecord || {})) {
+    if (!allowed.has(key)) continue;
+    update[key] = key === "progress" ? clampProgress(value) : ["collaborators", "sourceThreads", "tags"].includes(key) ? json(value) : value;
+  }
+  if (kind === "task") await getDb().update(projectTasks).set(update).where(eq(projectTasks.id, id));
+  else await getDb().update(projectItems).set(update).where(eq(projectItems.id, id));
+  await getDb().insert(cmsAuditLog).values({ actorEmail: access.admin!.email, action: `project.${kind}.updated`, entityType: kind, entityId: String(id), details: JSON.stringify(update), createdAt: new Date().toISOString() });
+  return Response.json({ success: true });
+}

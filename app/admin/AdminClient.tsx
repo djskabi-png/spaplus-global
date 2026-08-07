@@ -397,6 +397,7 @@ export default function AdminClient({
         {canViewMarketContent ? <button className={tab === "market" ? "active" : ""} onClick={() => setTab("market")}>{t.market}</button> : null}
         {role === "owner" ? <button className={tab === "users" ? "active" : ""} onClick={() => setTab("users")}>{t.users}</button> : null}
         {resources.some((resource) => can(resource.key, "canViewLeads")) ? <a href="/tools">{t.leads}</a> : null}
+        {role === "owner" ? <a href="/admin/projects">{uiLocale === "he" ? "הפרויקטים של אדיר" : uiLocale === "fr-CA" ? "Projets d’Adir" : "Adir’s projects"}</a> : null}
       </nav>
       {status ? <div className={`cms-status${savingAction ? " is-saving" : ""}`} role="status" aria-live="polite">{savingAction ? <i className="cms-spinner" aria-hidden="true" /> : null}{status}</div> : null}
 
