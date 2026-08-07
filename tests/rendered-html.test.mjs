@@ -537,6 +537,18 @@ test("management access starts on a branded page before Google sign-in", async (
   assert.match(worker, /url\.pathname === "\/auth\/google\/start"\)[\s\S]*googleLoginLanding/);
 });
 
+test("every Hebrew management surface is locked to the modern Heebo stack", async () => {
+  const [globalStyles, adminStyles, demoStyles] = await Promise.all([
+    read("app/globals.css"),
+    read("app/admin/admin.css"),
+    read("app/demo/new-spa/new-spa-demo.css"),
+  ]);
+
+  assert.match(globalStyles, /font-family: var\(--font-heebo, "Heebo"\), Arial, sans-serif !important/);
+  assert.match(adminStyles, /\.cms-shell,\.cms-shell \*\{font-family:var\(--font-heebo,"Heebo"\),Arial,sans-serif!important\}/);
+  assert.doesNotMatch(`${globalStyles}\n${adminStyles}\n${demoStyles}`, /font-family:(?:serif|cursive|fantasy)/i);
+});
+
 test("lead management provides a localized four-state operational dashboard", async () => {
   const [dashboard, admin, page, systemLocale, route, schema, styles] = await Promise.all([
     read("app/tools/SubmissionsClient.tsx"),
