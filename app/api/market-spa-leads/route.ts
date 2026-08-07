@@ -46,6 +46,15 @@ const cleanMultiline = (value: unknown, max: number) =>
     .replace(/\r\n/g, "\n")
     .slice(0, max);
 
+const constantTimeEqual = (left: string, right: string) => {
+  if (left.length !== right.length) return false;
+  let mismatch = 0;
+  for (let index = 0; index < left.length; index += 1) {
+    mismatch |= left.charCodeAt(index) ^ right.charCodeAt(index);
+  }
+  return mismatch === 0;
+};
+
 const isEmail = (value: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(value);
 
@@ -161,6 +170,10 @@ export async function POST(request: Request) {
     }
 
     const body = (await request.json()) as Record<string, unknown>;
+    const relaySecret = setting("META_RELAY_SECRET");
+    const receivedRelaySecret = request.headers.get("x-spaplus-meta-relay") || "";
+    const isTrustedMetaRelay =
+      relaySecret.length >= 32 && constantTimeEqual(receivedRelaySecret, relaySecret);
     if (clean(body.honey, 200)) {
       return Response.json({ success: true }, { headers });
     }
@@ -245,6 +258,8 @@ export async function POST(request: Request) {
     };
 
     if (
+      !isTrustedMetaRelay &&
+      (
       !isSubmissionId(submissionId) ||
       body.privacyAccepted !== true ||
       body.acknowledgementAccepted !== true ||
@@ -263,6 +278,7 @@ export async function POST(request: Request) {
       (isFieldRequired(marketContent, "Locations") && data.locations.length < 1) ||
       (isFieldRequired(marketContent, "PreferredContact") && data.preferredContact.length < 2) ||
       (isFieldRequired(marketContent, "Services") && data.services.length < 1)
+      )
     ) {
       return Response.json(
         { success: false, error: "Please complete all required fields" },
