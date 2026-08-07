@@ -3,6 +3,7 @@ import { requireAuthorizedAdmin } from "../../../../admin-auth";
 import { hasPermission } from "../../../../cms-access";
 import NewSpaDemo from "../../../../demo/new-spa/NewSpaDemo";
 import "../../../../demo/new-spa/new-spa-demo.css";
+import "../../../../demo/new-spa/new-spa-typography.css";
 
 export const dynamic = "force-dynamic";
 
