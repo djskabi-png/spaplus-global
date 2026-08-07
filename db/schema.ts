@@ -192,6 +192,8 @@ export const projectNotes = sqliteTable("project_notes", {
 export const bugReports = sqliteTable("bug_reports", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   projectId: integer("project_id").references(() => projectItems.id, { onDelete: "set null" }),
+  customProject: text("custom_project").notNull().default(""),
+  targetKey: text("target_key").notNull().default("adir"),
   title: text("title").notNull(),
   description: text("description").notNull().default(""),
   severity: text("severity", { enum: ["low", "medium", "high", "critical"] })
@@ -211,6 +213,8 @@ export const bugReports = sqliteTable("bug_reports", {
     .default("not_configured"),
   driveRowId: text("drive_row_id").notNull().default(""),
   driveError: text("drive_error").notNull().default(""),
+  attachmentName: text("attachment_name").notNull().default(""),
+  attachmentUrl: text("attachment_url").notNull().default(""),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
