@@ -31,6 +31,7 @@ const SESSION_COOKIE = "spg_admin_session";
 const OAUTH_STATE_COOKIE = "spg_oauth_state";
 const GOOGLE_CALLBACK = "https://app.spaplus.co/auth/google/callback";
 const GOOGLE_DRIVE_CALLBACK = "https://app.spaplus.co/auth/google/drive/callback";
+const DEFAULT_PRIVATE_BACKEND_ORIGIN = "https://spaplus-global-brand.adir-naor-7510.chatgpt.site";
 const SESSION_SECONDS = 8 * 60 * 60;
 const DRIVE_CREDENTIAL_KEY = "bugs_google_refresh_token";
 const privateName = (encoded: string) => atob(encoded);
@@ -40,6 +41,19 @@ const PRIVATE_AUTHORIZATION_HEADER = privateName(
 const LEGACY_SIGN_IN_PATH = privateName("L3NpZ25pbi13aXRoLWNoYXRncHQ=");
 const LEGACY_SIGN_OUT_PATH = privateName("L3NpZ25vdXQtd2l0aC1jaGF0Z3B0");
 const LEGACY_BRAND_TERMS = [privateName("Y2hhdGdwdA=="), privateName("b3BlbmFp")];
+
+function configuredPrivateBackendOrigin(env: Env): string {
+  const candidate = String(env.PRIVATE_BACKEND_ORIGIN || "")
+    .trim()
+    .replace(/^["']|["']$/g, "");
+  try {
+    const parsed = new URL(candidate || DEFAULT_PRIVATE_BACKEND_ORIGIN);
+    if (parsed.protocol === "https:") return parsed.origin;
+  } catch {
+    // Fall through to the verified private Sites origin.
+  }
+  return DEFAULT_PRIVATE_BACKEND_ORIGIN;
+}
 
 function configuredOwnerEmails(env: Env): string[] {
   return (env.ADMIN_ALLOWED_EMAILS || "").split(",").map((email) => email.trim().toLowerCase()).filter(Boolean);
@@ -394,9 +408,10 @@ async function finishDriveConnection(request: Request, env: Env): Promise<Respon
 }
 
 async function proxyProtectedRequest(request: Request, env: Env, session: SignedPayload): Promise<Response> {
-  if (!env.PRIVATE_BACKEND_ORIGIN || !env.SITES_BYPASS_TOKEN) return textResponse("מערכת הניהול אינה זמינה כרגע.", 503);
+  if (!env.SITES_BYPASS_TOKEN) return textResponse("מערכת הניהול אינה זמינה כרגע.", 503);
   const publicUrl = new URL(request.url);
-  const upstreamUrl = new URL(publicUrl.pathname + publicUrl.search, env.PRIVATE_BACKEND_ORIGIN);
+  const backendOrigin = configuredPrivateBackendOrigin(env);
+  const upstreamUrl = new URL(publicUrl.pathname + publicUrl.search, backendOrigin);
   const upstreamHeaders = new Headers(request.headers);
   upstreamHeaders.set(PRIVATE_AUTHORIZATION_HEADER, `Bearer ${env.SITES_BYPASS_TOKEN}`);
   upstreamHeaders.set("x-spaplus-user-email", String(session.email || ""));
@@ -432,8 +447,8 @@ async function proxyProtectedRequest(request: Request, env: Env, session: Signed
 
   const location = headers.get("location");
   if (location) {
-    const redirected = new URL(location, env.PRIVATE_BACKEND_ORIGIN);
-    if (redirected.origin === new URL(env.PRIVATE_BACKEND_ORIGIN).origin) {
+    const redirected = new URL(location, backendOrigin);
+    if (redirected.origin === backendOrigin) {
       if (redirected.pathname === LEGACY_SIGN_IN_PATH) {
         redirected.pathname = "/auth/google/start";
       } else if (redirected.pathname === LEGACY_SIGN_OUT_PATH) {
@@ -450,7 +465,7 @@ async function proxyProtectedRequest(request: Request, env: Env, session: Signed
       return brandedAdministrationUnavailable();
     }
     body = body
-      .replaceAll(env.PRIVATE_BACKEND_ORIGIN, publicUrl.origin)
+      .replaceAll(backendOrigin, publicUrl.origin)
       .replaceAll(LEGACY_SIGN_IN_PATH, "/auth/google/start")
       .replaceAll(LEGACY_SIGN_OUT_PATH, "/auth/logout")
       .replaceAll("index-MnjarlW8.js", "index-Dq2-pwm2.js")
@@ -474,12 +489,12 @@ async function proxyProtectedRequest(request: Request, env: Env, session: Signed
  * unstyled administration page.
  */
 async function proxyPrivateAsset(request: Request, env: Env): Promise<Response | null> {
-  if (!env.PRIVATE_BACKEND_ORIGIN || !env.SITES_BYPASS_TOKEN) return null;
+  if (!env.SITES_BYPASS_TOKEN) return null;
 
   const publicUrl = new URL(request.url);
   const upstreamUrl = new URL(
     `${publicUrl.pathname}${publicUrl.search}`,
-    env.PRIVATE_BACKEND_ORIGIN,
+    configuredPrivateBackendOrigin(env),
   );
   const upstream = await fetch(upstreamUrl, {
     method: request.method,
@@ -510,7 +525,6 @@ async function applyManagedOntarioMetadata(
 ): Promise<Response> {
   if (
     request.method !== "GET" ||
-    !env.PRIVATE_BACKEND_ORIGIN ||
     !env.SITES_BYPASS_TOKEN ||
     !(response.headers.get("content-type") || "").includes("text/html")
   ) {
@@ -524,7 +538,7 @@ async function applyManagedOntarioMetadata(
   try {
     const contentUrl = new URL(
       `/api/cms/public?locale=${encodeURIComponent(locale)}`,
-      env.PRIVATE_BACKEND_ORIGIN,
+      configuredPrivateBackendOrigin(env),
     );
     const contentResponse = await fetch(contentUrl, {
       headers: {
@@ -679,10 +693,9 @@ const worker = {
         url.pathname === "/api/integrations/roomsvip-leads" ||
         url.pathname === "/api/integrations/vii-leads"
       ) &&
-      env.PRIVATE_BACKEND_ORIGIN &&
       env.SITES_BYPASS_TOKEN
     ) {
-      const upstreamUrl = new URL(url.pathname + url.search, env.PRIVATE_BACKEND_ORIGIN);
+      const upstreamUrl = new URL(url.pathname + url.search, configuredPrivateBackendOrigin(env));
       const upstreamHeaders = new Headers(request.headers);
       upstreamHeaders.set(
         PRIVATE_AUTHORIZATION_HEADER,
