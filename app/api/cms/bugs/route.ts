@@ -19,28 +19,87 @@ async function ensureTable() {
 }
 
 const validTargets = ["gal_website", "gal_system", "sergey_maxim", "maxim_roy", "maor_shlomi", "roy", "adir", "galia", "review"];
+const spreadsheetId = "1T1QdjANrGtNj6UVszpIpQiVaidH6AHBlm349vUU4AKI";
+const spreadsheetUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`;
+const driveTargets: Record<string, { sheetId: number; sheet: string; owner: string }> = {
+  gal_website: { sheetId: 766005021, sheet: "גל אתר", owner: "גל" },
+  gal_system: { sheetId: 1651016373, sheet: "גל מערכת", owner: "גל" },
+  sergey_maxim: { sheetId: 1879753622, sheet: "סרגיי+מקסים", owner: "סרגיי ומקסים" },
+  maxim_roy: { sheetId: 1078804983, sheet: "מקסים+רועי", owner: "מקסים ורועי" },
+  maor_shlomi: { sheetId: 872281591, sheet: "מאור+שלומי", owner: "מאור ושלומי" },
+  roy: { sheetId: 1183475353, sheet: "רועי", owner: "רועי" },
+  adir: { sheetId: 1701284227, sheet: "אדיר", owner: "אדיר" },
+  galia: { sheetId: 1846718249, sheet: "גליה", owner: "גליה" },
+  review: { sheetId: 498174555, sheet: "לבדיקה", owner: "אדיר" },
+};
 
 type AttachmentPayload = { name: string; mimeType: string; base64: string } | null;
 
-async function callDrive(payload: JsonRecord) {
-  const webhook = process.env.BUGS_WEBHOOK_URL || "";
-  if (!webhook) return { ok: false, notConfigured: true, error: "" };
+function sheetsHeaders(accessToken: string) {
+  return { authorization: `Bearer ${accessToken}`, "content-type": "application/json" };
+}
+
+async function findTaskRow(accessToken: string, targetKey: string, taskId: string) {
+  const target = driveTargets[targetKey];
+  if (!target) return null;
+  const range = encodeURIComponent(`'${target.sheet}'!A2:A1000`);
+  const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}`, { headers: sheetsHeaders(accessToken) });
+  if (!response.ok) return null;
+  const payload = await response.json() as { values?: string[][] };
+  const index = (payload.values || []).findIndex((row) => row[0] === taskId);
+  return index < 0 ? null : index + 2;
+}
+
+function sheetStatus(status: string) {
+  return ({ new: "חדש", in_progress: "בטיפול", fixed: "תוקן", closed: "נסגר" } as Record<string, string>)[status] || "חדש";
+}
+
+function sheetSeverity(severity: string) {
+  return ({ low: "נמוכה", medium: "בינונית", high: "גבוהה", critical: "קריטית" } as Record<string, string>)[severity] || "בינונית";
+}
+
+async function callDrive(payload: JsonRecord, accessToken: string) {
+  if (!accessToken) return { ok: false, notConfigured: true, error: "" };
+  const targetKey = String(payload.targetKey || "");
+  const target = driveTargets[targetKey];
+  if (!target) return { ok: false, error: "Unknown target" };
   try {
-    const response = await fetch(webhook, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ secret: process.env.BUGS_WEBHOOK_SECRET || "", ...payload }),
-    });
-    if (!response.ok) return { ok: false, error: `HTTP ${response.status}` };
-    const result = await response.json().catch(() => ({})) as Record<string, unknown>;
-    if (result.ok !== true) return { ok: false, error: String(result.error || "Drive sync failed") };
-    return { ok: true, result };
+    const action = String(payload.action || "");
+    const taskId = String(payload.taskId || "");
+    if (action === "create") {
+      const notes = [String(payload.pageUrl || ""), String(payload.steps || "") && `שלבי שחזור:\n${payload.steps}`, String(payload.actual || "") && `מה קרה בפועל:\n${payload.actual}`, payload.attachment ? "צורף צילום מסך לדיווח במערכת" : ""].filter(Boolean).join("\n\n");
+      const values = [[taskId, sheetSeverity(String(payload.severity)), sheetStatus(String(payload.status)), String(payload.title || ""), `${String(payload.project || "")}\n\n${String(payload.description || "")}`.trim(), String(payload.expected || ""), target.owner, notes, ""]];
+      const range = encodeURIComponent(`'${target.sheet}'!A:I`);
+      const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`, { method: "POST", headers: sheetsHeaders(accessToken), body: JSON.stringify({ values }) });
+      if (!response.ok) return { ok: false, error: `Google Sheets HTTP ${response.status}` };
+      const result = await response.json() as { updates?: { updatedRange?: string } };
+      const updatedRange = result.updates?.updatedRange || "";
+      const row = Number(updatedRange.match(/!(?:[A-Z]+)(\d+):/)?.[1] || 0);
+      if (row > 0) {
+        await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
+          method: "POST", headers: sheetsHeaders(accessToken), body: JSON.stringify({ requests: [{ repeatCell: { range: { sheetId: target.sheetId, startRowIndex: row - 1, endRowIndex: row, startColumnIndex: 0, endColumnIndex: 9 }, cell: { userEnteredFormat: { verticalAlignment: "MIDDLE", wrapStrategy: "WRAP", textFormat: { fontFamily: "Heebo", fontSize: 14 } } }, fields: "userEnteredFormat(verticalAlignment,wrapStrategy,textFormat)" } }] }),
+        });
+      }
+      return { ok: true, result: { ok: true, taskId, sheet: target.sheet, row, spreadsheetUrl: `${spreadsheetUrl}?gid=${target.sheetId}#gid=${target.sheetId}` } };
+    }
+    const row = await findTaskRow(accessToken, targetKey, taskId);
+    if (!row) return { ok: false, error: "Task row not found" };
+    if (action === "status") {
+      const range = encodeURIComponent(`'${target.sheet}'!C${row}`);
+      const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?valueInputOption=USER_ENTERED`, { method: "PUT", headers: sheetsHeaders(accessToken), body: JSON.stringify({ values: [[sheetStatus(String(payload.status || ""))]] }) });
+      return response.ok ? { ok: true, result: { ok: true } } : { ok: false, error: `Google Sheets HTTP ${response.status}` };
+    }
+    if (action === "delete") {
+      const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, { method: "POST", headers: sheetsHeaders(accessToken), body: JSON.stringify({ requests: [{ deleteDimension: { range: { sheetId: target.sheetId, dimension: "ROWS", startIndex: row - 1, endIndex: row } } }] }) });
+      return response.ok ? { ok: true, result: { ok: true } } : { ok: false, error: `Google Sheets HTTP ${response.status}` };
+    }
+    return { ok: false, error: "Unknown action" };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message.slice(0, 300) : "Unknown sync error" };
   }
 }
 
-async function syncToDrive(bug: typeof bugReports.$inferSelect, projectName: string, attachment: AttachmentPayload) {
+async function syncToDrive(bug: typeof bugReports.$inferSelect, projectName: string, attachment: AttachmentPayload, accessToken: string) {
   const drive = await callDrive({
     action: "create",
     localId: bug.id,
@@ -58,7 +117,7 @@ async function syncToDrive(bug: typeof bugReports.$inferSelect, projectName: str
     actual: bug.actual,
     reporter: bug.reporterName || bug.reporterEmail,
     attachment,
-  });
+  }, accessToken);
   if (drive.notConfigured) return { status: "not_configured" as const, rowId: "", attachmentUrl: "", error: "" };
   if (!drive.ok) return { status: "failed" as const, rowId: "", attachmentUrl: "", error: drive.error || "Drive sync failed" };
   const result = drive.result!;
@@ -70,19 +129,36 @@ async function syncToDrive(bug: typeof bugReports.$inferSelect, projectName: str
   };
 }
 
-export async function GET() {
+async function driveMetrics(accessToken: string) {
+  if (!accessToken) return null;
+  const closed = new Set(["טופל", "בוצע", "תוקן", "נסגר", "הושלם", "resolved", "closed", "done", "released"]);
+  const ranges = Object.values(driveTargets).map(async (target) => {
+    const range = encodeURIComponent(`'${target.sheet}'!A2:C1000`);
+    const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}`, { headers: sheetsHeaders(accessToken) });
+    if (!response.ok) return [] as string[][];
+    const payload = await response.json() as { values?: string[][] };
+    return payload.values || [];
+  });
+  const rows = (await Promise.all(ranges)).flat().filter((row) => String(row[0] || "").trim());
+  const open = rows.filter((row) => !closed.has(String(row[2] || "").trim().toLowerCase()));
+  return { open: open.length, critical: open.filter((row) => String(row[1] || "").includes("קריטי")).length, total: rows.length };
+}
+
+export async function GET(request: Request) {
   const access = await authorize(); if (access.response) return access.response;
   await ensureTable();
+  const sheetsToken = request.headers.get("x-spaplus-google-sheets-token") || "";
   const allBugs = await getDb().select().from(bugReports).orderBy(desc(bugReports.createdAt), desc(bugReports.id));
   const projects = await getDb().select({ id: projectItems.id, name: projectItems.name }).from(projectItems).orderBy(projectItems.name);
   const bugs = access.admin!.role === "owner" ? allBugs : allBugs.filter((bug) => bug.reporterEmail === access.admin!.email);
-  return Response.json({ bugs, projects });
+  return Response.json({ bugs, projects, syncConfigured: Boolean(sheetsToken), sheetUrl: spreadsheetUrl, driveMetrics: await driveMetrics(sheetsToken) });
 }
 
 export async function POST(request: Request) {
   const access = await authorize(); if (access.response) return access.response;
   await ensureTable();
   const body = await request.json() as JsonRecord;
+  const sheetsToken = request.headers.get("x-spaplus-google-sheets-token") || "";
   const title = String(body.title || "").trim();
   const description = String(body.description || "").trim();
   const severity = ["low", "medium", "high", "critical"].includes(String(body.severity)) ? String(body.severity) : "medium";
@@ -114,13 +190,13 @@ export async function POST(request: Request) {
     actual: String(body.actual || "").trim().slice(0, 3000),
     reporterEmail: access.admin!.email,
     reporterName: access.admin!.displayName || "",
-    driveSyncStatus: process.env.BUGS_WEBHOOK_URL ? "pending" : "not_configured",
+    driveSyncStatus: sheetsToken ? "pending" : "not_configured",
     attachmentName: attachment?.name || "",
     createdAt: now,
     updatedAt: now,
   }).returning();
   const project = projectId ? await env.DB.prepare("SELECT name FROM project_items WHERE id = ?").bind(projectId).first<{ name: string }>() : null;
-  const sync = await syncToDrive(created, project?.name || customProject, attachment);
+  const sync = await syncToDrive(created, project?.name || customProject, attachment, sheetsToken);
   await getDb().update(bugReports).set({ driveSyncStatus: sync.status, driveRowId: sync.rowId, driveError: sync.error, attachmentUrl: sync.attachmentUrl, updatedAt: new Date().toISOString() }).where(eq(bugReports.id, created.id));
   await getDb().insert(cmsAuditLog).values({ actorEmail: access.admin!.email, action: "bug.created", entityType: "bug", entityId: String(created.id), details: JSON.stringify({ projectId, customProject, targetKey, severity, driveSyncStatus: sync.status }), createdAt: now });
   return Response.json({ id: created.id, driveSyncStatus: sync.status }, { status: 201 });
@@ -131,6 +207,7 @@ export async function PATCH(request: Request) {
   if (access.admin!.role !== "owner") return Response.json({ error: "Forbidden" }, { status: 403 });
   await ensureTable();
   const body = await request.json() as JsonRecord;
+  const sheetsToken = request.headers.get("x-spaplus-google-sheets-token") || "";
   const id = Number(body.id);
   const status = String(body.status || "");
   if (!Number.isInteger(id) || !["new", "in_progress", "fixed", "closed"].includes(status)) return Response.json({ error: "Invalid update" }, { status: 400 });
@@ -138,7 +215,7 @@ export async function PATCH(request: Request) {
   if (!bug) return Response.json({ error: "Not found" }, { status: 404 });
   if (bug.driveSyncStatus === "synced") {
     const metadata = JSON.parse(bug.driveRowId || "{}") as { taskId?: string; targetKey?: string };
-    const drive = await callDrive({ action: "status", taskId: metadata.taskId, targetKey: metadata.targetKey, status });
+    const drive = await callDrive({ action: "status", taskId: metadata.taskId, targetKey: metadata.targetKey, status }, sheetsToken);
     if (!drive.ok) return Response.json({ error: "Drive update failed" }, { status: 502 });
   }
   await getDb().update(bugReports).set({ status: status as "new" | "in_progress" | "fixed" | "closed", updatedAt: new Date().toISOString() }).where(eq(bugReports.id, id));
@@ -150,16 +227,16 @@ export async function DELETE(request: Request) {
   if (access.admin!.role !== "owner") return Response.json({ error: "Forbidden" }, { status: 403 });
   await ensureTable();
   const body = await request.json() as JsonRecord;
+  const sheetsToken = request.headers.get("x-spaplus-google-sheets-token") || "";
   const id = Number(body.id);
   if (!Number.isInteger(id) || id < 1) return Response.json({ error: "Invalid id" }, { status: 400 });
 
   const [bug] = await getDb().select().from(bugReports).where(eq(bugReports.id, id)).limit(1);
   if (!bug) return Response.json({ error: "Not found" }, { status: 404 });
 
-  const webhook = process.env.BUGS_WEBHOOK_URL || "";
-  if (webhook && bug.driveSyncStatus === "synced") {
+  if (sheetsToken && bug.driveSyncStatus === "synced") {
     const metadata = JSON.parse(bug.driveRowId || "{}") as { taskId?: string; targetKey?: string };
-    const drive = await callDrive({ action: "delete", taskId: metadata.taskId, targetKey: metadata.targetKey });
+    const drive = await callDrive({ action: "delete", taskId: metadata.taskId, targetKey: metadata.targetKey }, sheetsToken);
     if (!drive.ok) return Response.json({ error: "Drive deletion failed" }, { status: 502 });
   }
 

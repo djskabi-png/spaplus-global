@@ -12,8 +12,7 @@ export default async function BugsPage() {
   return (
     <BugsClient
       isOwner={admin.role === "owner"}
-      sheetUrl={process.env.BUGS_SHEET_URL || ""}
-      syncConfigured={Boolean(process.env.BUGS_WEBHOOK_URL)}
+      sheetUrl="https://docs.google.com/spreadsheets/d/1T1QdjANrGtNj6UVszpIpQiVaidH6AHBlm349vUU4AKI/edit"
     />
   );
 }

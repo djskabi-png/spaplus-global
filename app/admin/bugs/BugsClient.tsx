@@ -59,7 +59,9 @@ async function attachmentPayload(file: File | null) {
   return { name: file.name, mimeType: file.type, base64: dataUrl.split(",")[1] || "" };
 }
 
-export default function BugsClient({ isOwner, sheetUrl, syncConfigured }: { isOwner: boolean; sheetUrl: string; syncConfigured: boolean }) {
+type DriveMetrics = { open: number; critical: number; total: number };
+
+export default function BugsClient({ isOwner, sheetUrl }: { isOwner: boolean; sheetUrl: string }) {
   const [bugs, setBugs] = useState<Bug[]>([]);
   const [projects, setProjects] = useState<ProjectOption[]>([]);
   const [selectedProject, setSelectedProject] = useState("");
@@ -69,6 +71,8 @@ export default function BugsClient({ isOwner, sheetUrl, syncConfigured }: { isOw
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [syncConfigured, setSyncConfigured] = useState(false);
+  const [driveMetrics, setDriveMetrics] = useState<DriveMetrics | null>(null);
 
   async function load() {
     setLoading(true);
@@ -78,9 +82,11 @@ export default function BugsClient({ isOwner, sheetUrl, syncConfigured }: { isOw
       setLoading(false);
       return;
     }
-    const data = await response.json() as { bugs: Bug[]; projects: ProjectOption[] };
+    const data = await response.json() as { bugs: Bug[]; projects: ProjectOption[]; syncConfigured?: boolean; driveMetrics?: DriveMetrics | null };
     setBugs(data.bugs);
     setProjects(data.projects);
+    setSyncConfigured(Boolean(data.syncConfigured));
+    setDriveMetrics(data.driveMetrics || null);
     setLoading(false);
   }
 
@@ -132,8 +138,10 @@ export default function BugsClient({ isOwner, sheetUrl, syncConfigured }: { isOw
     else await load();
   }
 
-  const openBugs = bugs.filter((bug) => !["fixed", "closed"].includes(bug.status)).length;
-  const critical = bugs.filter((bug) => bug.severity === "critical" && !["fixed", "closed"].includes(bug.status)).length;
+  const localOpenBugs = bugs.filter((bug) => !["fixed", "closed"].includes(bug.status)).length;
+  const localCritical = bugs.filter((bug) => bug.severity === "critical" && !["fixed", "closed"].includes(bug.status)).length;
+  const openBugs = driveMetrics?.open ?? localOpenBugs;
+  const critical = driveMetrics?.critical ?? localCritical;
   const synced = bugs.filter((bug) => bug.driveSyncStatus === "synced").length;
 
   return (
@@ -146,14 +154,17 @@ export default function BugsClient({ isOwner, sheetUrl, syncConfigured }: { isOw
 
       <section className="bugs-hero">
         <div><p>דיווח מסודר שמגיע לאדם הנכון</p><h1>דיווחי באגים</h1><span>הדיווח נשמר כאן, והתוכן המלא עובר אוטומטית ללשונית שבחרתם בקובץ המשימות.</span></div>
-        <div className={syncConfigured && sheetUrl ? "sync-state is-ready" : "sync-state"}><i />{syncConfigured && sheetUrl ? "מחובר לקובץ המשימות" : "החיבור לקובץ עדיין לא פעיל"}</div>
+        <div className="sync-actions">
+          <div className={syncConfigured ? "sync-state is-ready" : "sync-state"}><i />{syncConfigured ? "מחובר לקובץ המשימות" : "נדרש חיבור חד פעמי לדרייב"}</div>
+          {!syncConfigured && isOwner ? <a className="connect-drive" href="/auth/google/drive/authorize">חיבור קובץ המשימות</a> : null}
+        </div>
       </section>
 
       <section className="bugs-metrics" aria-label="סיכום באגים">
         <article><span>פתוחים</span><strong>{openBugs}</strong></article>
         <article><span>קריטיים</span><strong>{critical}</strong></article>
-        <article><span>נשמרו בדרייב</span><strong>{synced}</strong></article>
-        <article><span>כל הדיווחים</span><strong>{bugs.length}</strong></article>
+        <article><span>נשמרו מהמערכת בדרייב</span><strong>{synced}</strong></article>
+        <article><span>כל המשימות בקובץ</span><strong>{driveMetrics?.total ?? bugs.length}</strong></article>
       </section>
 
       <section className="bugs-layout">

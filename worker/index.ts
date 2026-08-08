@@ -10,6 +10,7 @@ interface Env {
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
   ADMIN_SESSION_SECRET?: string;
+  ADMIN_ALLOWED_EMAILS?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -29,7 +30,9 @@ type SignedPayload = Record<string, unknown> & { exp: number };
 const SESSION_COOKIE = "spg_admin_session";
 const OAUTH_STATE_COOKIE = "spg_oauth_state";
 const GOOGLE_CALLBACK = "https://app.spaplus.co/auth/google/callback";
+const GOOGLE_DRIVE_CALLBACK = "https://app.spaplus.co/auth/google/drive/callback";
 const SESSION_SECONDS = 8 * 60 * 60;
+const DRIVE_CREDENTIAL_KEY = "bugs_google_refresh_token";
 const privateName = (encoded: string) => atob(encoded);
 const PRIVATE_AUTHORIZATION_HEADER = privateName(
   "T0FJLVNpdGVzLUF1dGhvcml6YXRpb24=",
@@ -37,6 +40,61 @@ const PRIVATE_AUTHORIZATION_HEADER = privateName(
 const LEGACY_SIGN_IN_PATH = privateName("L3NpZ25pbi13aXRoLWNoYXRncHQ=");
 const LEGACY_SIGN_OUT_PATH = privateName("L3NpZ25vdXQtd2l0aC1jaGF0Z3B0");
 const LEGACY_BRAND_TERMS = [privateName("Y2hhdGdwdA=="), privateName("b3BlbmFp")];
+
+function configuredOwnerEmails(env: Env): string[] {
+  return (env.ADMIN_ALLOWED_EMAILS || "").split(",").map((email) => email.trim().toLowerCase()).filter(Boolean);
+}
+
+async function credentialKey(secret: string): Promise<CryptoKey> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(secret));
+  return crypto.subtle.importKey("raw", digest, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
+}
+
+async function encryptCredential(value: string, secret: string): Promise<string> {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const encrypted = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, await credentialKey(secret), new TextEncoder().encode(value)));
+  return `${base64UrlEncode(iv)}.${base64UrlEncode(encrypted)}`;
+}
+
+async function decryptCredential(value: string, secret: string): Promise<string | null> {
+  try {
+    const [encodedIv, encodedPayload] = value.split(".");
+    if (!encodedIv || !encodedPayload) return null;
+    const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv: base64UrlDecode(encodedIv) }, await credentialKey(secret), base64UrlDecode(encodedPayload));
+    return new TextDecoder().decode(decrypted);
+  } catch {
+    return null;
+  }
+}
+
+async function ensureIntegrationCredentialsTable(env: Env) {
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS integration_credentials (key TEXT PRIMARY KEY NOT NULL, encrypted_value TEXT NOT NULL, owner_email TEXT NOT NULL, updated_at TEXT NOT NULL)").run();
+}
+
+async function storeDriveRefreshToken(env: Env, refreshToken: string, ownerEmail: string) {
+  if (!env.ADMIN_SESSION_SECRET) throw new Error("Missing credential encryption key");
+  await ensureIntegrationCredentialsTable(env);
+  const encrypted = await encryptCredential(refreshToken, env.ADMIN_SESSION_SECRET);
+  await env.DB.prepare("INSERT INTO integration_credentials (key, encrypted_value, owner_email, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(key) DO UPDATE SET encrypted_value = excluded.encrypted_value, owner_email = excluded.owner_email, updated_at = excluded.updated_at")
+    .bind(DRIVE_CREDENTIAL_KEY, encrypted, ownerEmail, new Date().toISOString()).run();
+}
+
+async function getDriveAccessToken(env: Env): Promise<string | null> {
+  if (!env.ADMIN_SESSION_SECRET || !env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) return null;
+  await ensureIntegrationCredentialsTable(env);
+  const stored = await env.DB.prepare("SELECT encrypted_value FROM integration_credentials WHERE key = ? LIMIT 1").bind(DRIVE_CREDENTIAL_KEY).first<{ encrypted_value: string }>();
+  if (!stored?.encrypted_value) return null;
+  const refreshToken = await decryptCredential(stored.encrypted_value, env.ADMIN_SESSION_SECRET);
+  if (!refreshToken) return null;
+  const response = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ client_id: env.GOOGLE_CLIENT_ID, client_secret: env.GOOGLE_CLIENT_SECRET, refresh_token: refreshToken, grant_type: "refresh_token" }),
+  });
+  if (!response.ok) return null;
+  const payload = await response.json() as { access_token?: string };
+  return payload.access_token || null;
+}
 
 function textResponse(message: string, status = 400): Response {
   return new Response(
@@ -276,6 +334,55 @@ async function finishGoogleLogin(request: Request, env: Env): Promise<Response> 
   return response;
 }
 
+async function startDriveConnection(request: Request, env: Env, session: SignedPayload): Promise<Response> {
+  const email = String(session.email || "").toLowerCase();
+  if (!configuredOwnerEmails(env).includes(email)) return textResponse("רק בעל המערכת יכול לחבר את קובץ המשימות.", 403);
+  if (!env.GOOGLE_CLIENT_ID || !env.ADMIN_SESSION_SECRET) return textResponse("חיבור גוגל אינו זמין כרגע.", 503);
+  const state = await signPayload({ kind: "drive", email, exp: Math.floor(Date.now() / 1000) + 10 * 60 }, env.ADMIN_SESSION_SECRET);
+  const googleUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+  googleUrl.search = new URLSearchParams({
+    client_id: env.GOOGLE_CLIENT_ID,
+    redirect_uri: GOOGLE_DRIVE_CALLBACK,
+    response_type: "code",
+    scope: "openid email profile https://www.googleapis.com/auth/spreadsheets",
+    access_type: "offline",
+    include_granted_scopes: "true",
+    prompt: "consent",
+    state,
+  }).toString();
+  const response = Response.redirect(googleUrl.toString(), 302);
+  response.headers.append("set-cookie", `${OAUTH_STATE_COOKIE}=${state}; Path=/auth/google/drive; HttpOnly; Secure; SameSite=Lax; Max-Age=600`);
+  return response;
+}
+
+async function finishDriveConnection(request: Request, env: Env): Promise<Response> {
+  if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET || !env.ADMIN_SESSION_SECRET) return textResponse("חיבור גוגל אינו זמין כרגע.", 503);
+  const url = new URL(request.url);
+  const state = url.searchParams.get("state") || "";
+  if (!state || parseCookies(request).get(OAUTH_STATE_COOKIE) !== state) return textResponse("בקשת החיבור אינה תקינה.", 400);
+  const statePayload = await verifyPayload(state, env.ADMIN_SESSION_SECRET);
+  if (!statePayload || statePayload.kind !== "drive" || typeof statePayload.email !== "string") return textResponse("תוקף בקשת החיבור הסתיים.", 400);
+  const code = url.searchParams.get("code") || "";
+  if (!code) return textResponse("החיבור לדרייב בוטל.", 400);
+  const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ code, client_id: env.GOOGLE_CLIENT_ID, client_secret: env.GOOGLE_CLIENT_SECRET, redirect_uri: GOOGLE_DRIVE_CALLBACK, grant_type: "authorization_code" }),
+  });
+  if (!tokenResponse.ok) return textResponse("גוגל לא אישרה את החיבור לקובץ המשימות.", 401);
+  const tokens = await tokenResponse.json() as { id_token?: string; refresh_token?: string };
+  if (!tokens.id_token || !tokens.refresh_token) return textResponse("לא התקבלה הרשאת כתיבה קבועה. נסו לחבר שוב.", 401);
+  const identityResponse = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(tokens.id_token)}`);
+  if (!identityResponse.ok) return textResponse("לא ניתן היה לאמת את חשבון גוגל.", 401);
+  const identity = await identityResponse.json() as Record<string, string>;
+  const email = (identity.email || "").trim().toLowerCase();
+  if (email !== statePayload.email || !configuredOwnerEmails(env).includes(email)) return textResponse("חשבון הגוגל אינו בעל המערכת.", 403);
+  await storeDriveRefreshToken(env, tokens.refresh_token, email);
+  const response = Response.redirect(new URL("/admin/bugs?drive=connected", url.origin).toString(), 302);
+  response.headers.append("set-cookie", `${OAUTH_STATE_COOKIE}=; Path=/auth/google/drive; HttpOnly; Secure; SameSite=Lax; Max-Age=0`);
+  return response;
+}
+
 async function proxyProtectedRequest(request: Request, env: Env, session: SignedPayload): Promise<Response> {
   if (!env.PRIVATE_BACKEND_ORIGIN || !env.SITES_BYPASS_TOKEN) return textResponse("מערכת הניהול אינה זמינה כרגע.", 503);
   const publicUrl = new URL(request.url);
@@ -284,6 +391,13 @@ async function proxyProtectedRequest(request: Request, env: Env, session: Signed
   upstreamHeaders.set(PRIVATE_AUTHORIZATION_HEADER, `Bearer ${env.SITES_BYPASS_TOKEN}`);
   upstreamHeaders.set("x-spaplus-user-email", String(session.email || ""));
   upstreamHeaders.set("x-spaplus-user-name", encodeURIComponent(String(session.name || session.email || "")));
+  if (publicUrl.pathname === "/api/cms/bugs") {
+    const accessToken = await getDriveAccessToken(env);
+    if (accessToken) {
+      upstreamHeaders.set("x-spaplus-google-sheets-token", accessToken);
+      upstreamHeaders.set("x-spaplus-bugs-drive-connected", "1");
+    }
+  }
   upstreamHeaders.delete("host");
   upstreamHeaders.delete("content-length");
   upstreamHeaders.delete("cookie");
@@ -491,6 +605,21 @@ const worker = {
 
     if (hostname === "app.spaplus.co" && url.pathname === "/auth/google/callback") {
       return finishGoogleLogin(request, env);
+    }
+
+    if (hostname === "app.spaplus.co" && url.pathname === "/auth/google/drive/callback") {
+      return finishDriveConnection(request, env);
+    }
+
+    if (hostname === "app.spaplus.co" && url.pathname === "/auth/google/drive/authorize") {
+      if (!env.ADMIN_SESSION_SECRET) return textResponse("מערכת ההתחברות עדיין אינה זמינה.", 503);
+      const session = await verifyPayload(parseCookies(request).get(SESSION_COOKIE), env.ADMIN_SESSION_SECRET);
+      if (!session || typeof session.email !== "string") {
+        const loginUrl = new URL("/auth/google/start", url.origin);
+        loginUrl.searchParams.set("return_to", "/admin/bugs");
+        return Response.redirect(loginUrl.toString(), 302);
+      }
+      return startDriveConnection(request, env, session);
     }
 
     if (hostname === "app.spaplus.co" && url.pathname === "/auth/logout") {
