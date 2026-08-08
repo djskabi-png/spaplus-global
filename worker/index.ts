@@ -7,6 +7,7 @@ interface Env {
   DB: D1Database;
   PRIVATE_BACKEND_ORIGIN?: string;
   SITES_BYPASS_TOKEN?: string;
+  META_WEBHOOK_VERIFY_TOKEN?: string;
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
   ADMIN_SESSION_SECRET?: string;
@@ -33,6 +34,44 @@ const GOOGLE_CALLBACK = "https://app.spaplus.co/auth/google/callback";
 const GOOGLE_DRIVE_CALLBACK = "https://app.spaplus.co/auth/google/drive/callback";
 const SESSION_SECONDS = 8 * 60 * 60;
 const DRIVE_CREDENTIAL_KEY = "bugs_google_refresh_token";
+
+function constantTimeEqual(left: string, right: string): boolean {
+  const encoder = new TextEncoder();
+  const leftBytes = encoder.encode(left);
+  const rightBytes = encoder.encode(right);
+  const length = Math.max(leftBytes.length, rightBytes.length);
+  let difference = leftBytes.length ^ rightBytes.length;
+
+  for (let index = 0; index < length; index += 1) {
+    difference |= (leftBytes[index] || 0) ^ (rightBytes[index] || 0);
+  }
+
+  return difference === 0;
+}
+
+function verifyMetaWebhookRequest(request: Request, env: Env): Response {
+  const expectedToken = env.META_WEBHOOK_VERIFY_TOKEN?.trim() || "";
+  if (expectedToken.length < 16) {
+    return Response.json({ error: "Webhook is not configured" }, { status: 503 });
+  }
+
+  const url = new URL(request.url);
+  const mode = url.searchParams.get("hub.mode") || "";
+  const token = url.searchParams.get("hub.verify_token") || "";
+  const challenge = url.searchParams.get("hub.challenge") || "";
+
+  if (mode !== "subscribe" || !constantTimeEqual(token, expectedToken)) {
+    return Response.json({ error: "Verification token mismatch" }, { status: 403 });
+  }
+
+  return new Response(challenge, {
+    status: 200,
+    headers: {
+      "content-type": "text/plain; charset=utf-8",
+      "cache-control": "no-store",
+    },
+  });
+}
 const privateName = (encoded: string) => atob(encoded);
 const PRIVATE_AUTHORIZATION_HEADER = privateName(
   "T0FJLVNpdGVzLUF1dGhvcml6YXRpb24=",
@@ -642,6 +681,14 @@ const worker = {
       });
       response.headers.append("set-cookie", `${SESSION_COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`);
       return response;
+    }
+
+    if (
+      hostname === "app.spaplus.co" &&
+      request.method === "GET" &&
+      url.pathname === "/api/integrations/meta-ontario-leads"
+    ) {
+      return verifyMetaWebhookRequest(request, env);
     }
 
     if (hostname === "app.spaplus.co" && isProtectedPath(url.pathname)) {

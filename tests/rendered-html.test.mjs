@@ -36,6 +36,16 @@ test("Ontario Meta leads send an English LTR owner notification", async () => {
   assert.match(route, /\(Toronto time\)/);
 });
 
+test("the public app worker verifies Meta lead webhooks at the edge and proxies delivery", async () => {
+  const worker = await read("worker/index.ts");
+
+  assert.match(worker, /META_WEBHOOK_VERIFY_TOKEN\?: string/);
+  assert.match(worker, /function constantTimeEqual/);
+  assert.match(worker, /function verifyMetaWebhookRequest/);
+  assert.match(worker, /request\.method === "GET"[\s\S]*?\/api\/integrations\/meta-ontario-leads/);
+  assert.match(worker, /return verifyMetaWebhookRequest\(request, env\)/);
+});
+
 test("Ontario owner recipients prefer the production market setting", async () => {
   const route = await read("app/api/market-spa-leads/route.ts");
   assert.match(route, /setting\(marketOwnerEmailsKey\)\s*\|\|\s*marketContent\.notificationRecipients/);
