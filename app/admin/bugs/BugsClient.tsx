@@ -41,6 +41,14 @@ const targetLabels: Record<string, string> = {
   adir: "אדיר",
   galia: "גליה",
   review: "לבדיקה של אדיר",
+  future: "עתידי",
+  future_roy: "עתידי רועי",
+  future_adir: "עתידי אדיר",
+  future_gal: "עתידי גל",
+  future_maxim: "עתידי מקסים",
+  future_sergey: "עתידי סרגיי",
+  future_maor: "עתידי מאור",
+  future_shlomi: "עתידי שלומי",
 };
 
 function driveRowUrl(raw: string) {

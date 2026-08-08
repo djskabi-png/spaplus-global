@@ -553,9 +553,9 @@ test("every Hebrew management surface is locked to the modern Heebo stack", asyn
   ]);
 
   assert.match(globalStyles, /font-family: var\(--font-heebo, "Heebo"\), Arial, sans-serif !important/);
-  assert.match(adminStyles, /\.cms-shell,\.cms-shell \*\{font-family:var\(--font-heebo,"Heebo"\),Arial,sans-serif!important\}/);
-  assert.match(projectStyles, /\.projects-shell,\.projects-shell \*\{font-family:var\(--font-heebo,"Heebo"\),Arial,sans-serif!important\}/);
-  assert.match(bugStyles, /\.bugs-shell,\.bugs-shell \*\{font-family:var\(--font-heebo,"Heebo"\),Arial,sans-serif!important\}/);
+  assert.match(adminStyles, /\.cms-shell,\.cms-shell \*\{font-family:"SpaPlus Heebo",Arial,sans-serif!important/);
+  assert.match(projectStyles, /\.projects-shell,\.projects-shell \*\{font-family:"SpaPlus Heebo",Arial,sans-serif!important/);
+  assert.match(bugStyles, /\.bugs-shell,\.bugs-shell \*\{font-family:"SpaPlus Heebo",Arial,sans-serif!important/);
   assert.match(demoTypography, /font-family: var\(--font-heebo, "Heebo"\), Arial, sans-serif !important/);
   assert.match(demoPage, /new-spa-typography\.css/);
   assert.match(protectedDemoPage, /new-spa-typography\.css/);
@@ -565,6 +565,28 @@ test("every Hebrew management surface is locked to the modern Heebo stack", asyn
   assert.match(worker, /function textResponse[\s\S]*?background:#fff8fb;color:#172d4f;font-family:"Heebo",Arial,sans-serif/);
   assert.doesNotMatch(`${layout}\n${projectStyles}\n${bugStyles}`, /Assistant|font-assistant/);
   assert.doesNotMatch(`${globalStyles}\n${adminStyles}\n${projectStyles}\n${bugStyles}\n${demoStyles}\n${demoTypography}`, /font-family:(?:serif|cursive|fantasy)/i);
+});
+
+test("bug routing includes every verified future work sheet", async () => {
+  const [client, route] = await Promise.all([
+    read("app/admin/bugs/BugsClient.tsx"),
+    read("app/api/cms/bugs/route.ts"),
+  ]);
+  const futureTargets = [
+    ["future", "עתידי", "318326031"],
+    ["future_roy", "עתידי רועי", "2026080801"],
+    ["future_adir", "עתידי אדיר", "2026080802"],
+    ["future_gal", "עתידי גל", "2026080803"],
+    ["future_maxim", "עתידי מקסים", "2026080804"],
+    ["future_sergey", "עתידי סרגיי", "2026080805"],
+    ["future_maor", "עתידי מאור", "2026080806"],
+    ["future_shlomi", "עתידי שלומי", "2026080807"],
+  ];
+  for (const [key, label, sheetId] of futureTargets) {
+    assert.match(client, new RegExp(`${key}: "${label}"`));
+    assert.match(route, new RegExp(`${key}: \\{ sheetId: ${sheetId}, sheet: "${label}"`));
+  }
+  assert.match(route, /const validTargets = Object\.keys\(driveTargets\)/);
 });
 
 test("lead management provides a localized four-state operational dashboard", async () => {

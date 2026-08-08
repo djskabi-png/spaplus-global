@@ -1,6 +1,6 @@
 :root{--p-navy:#172d4f;--p-pink:#ed1766;--p-bg:#f4f7fb;--p-muted:#64748b;--p-line:#e2e8f0}
 *{box-sizing:border-box}
-.projects-shell,.projects-shell *{font-family:var(--font-heebo,"Heebo"),Arial,sans-serif!important}
+.projects-shell,.projects-shell *{font-family:"SpaPlus Heebo",Arial,sans-serif!important;font-synthesis:none}
 .projects-shell{min-height:100vh;background:var(--p-bg);color:var(--p-navy)}
 .projects-topbar{min-height:72px;padding:0 clamp(18px,4vw,56px);display:flex;align-items:center;gap:28px;background:#fff;border-bottom:1px solid var(--p-line);position:sticky;top:0;z-index:20}
 .projects-brand{display:flex;align-items:center;gap:10px;color:var(--p-navy);text-decoration:none;font-weight:800;white-space:nowrap}.projects-brand img{width:38px;height:38px;object-fit:contain}

@@ -350,9 +350,14 @@ async function startDriveConnection(request: Request, env: Env, session: SignedP
     prompt: "consent",
     state,
   }).toString();
-  const response = Response.redirect(googleUrl.toString(), 302);
-  response.headers.append("set-cookie", `${OAUTH_STATE_COOKIE}=${state}; Path=/auth/google/drive; HttpOnly; Secure; SameSite=Lax; Max-Age=600`);
-  return response;
+  return new Response(null, {
+    status: 302,
+    headers: {
+      location: googleUrl.toString(),
+      "cache-control": "no-store",
+      "set-cookie": `${OAUTH_STATE_COOKIE}=${state}; Path=/auth/google/drive; HttpOnly; Secure; SameSite=Lax; Max-Age=600`,
+    },
+  });
 }
 
 async function finishDriveConnection(request: Request, env: Env): Promise<Response> {
@@ -378,9 +383,14 @@ async function finishDriveConnection(request: Request, env: Env): Promise<Respon
   const email = (identity.email || "").trim().toLowerCase();
   if (email !== statePayload.email || !configuredOwnerEmails(env).includes(email)) return textResponse("חשבון הגוגל אינו בעל המערכת.", 403);
   await storeDriveRefreshToken(env, tokens.refresh_token, email);
-  const response = Response.redirect(new URL("/admin/bugs?drive=connected", url.origin).toString(), 302);
-  response.headers.append("set-cookie", `${OAUTH_STATE_COOKIE}=; Path=/auth/google/drive; HttpOnly; Secure; SameSite=Lax; Max-Age=0`);
-  return response;
+  return new Response(null, {
+    status: 302,
+    headers: {
+      location: new URL("/admin/bugs?drive=connected", url.origin).toString(),
+      "cache-control": "no-store",
+      "set-cookie": `${OAUTH_STATE_COOKIE}=; Path=/auth/google/drive; HttpOnly; Secure; SameSite=Lax; Max-Age=0`,
+    },
+  });
 }
 
 async function proxyProtectedRequest(request: Request, env: Env, session: SignedPayload): Promise<Response> {

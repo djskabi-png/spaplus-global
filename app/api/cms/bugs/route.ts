@@ -18,7 +18,6 @@ async function ensureTable() {
   await env.DB.prepare("CREATE INDEX IF NOT EXISTS bug_reports_project_idx ON bug_reports(project_id)").run();
 }
 
-const validTargets = ["gal_website", "gal_system", "sergey_maxim", "maxim_roy", "maor_shlomi", "roy", "adir", "galia", "review"];
 const spreadsheetId = "1T1QdjANrGtNj6UVszpIpQiVaidH6AHBlm349vUU4AKI";
 const spreadsheetUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`;
 const driveTargets: Record<string, { sheetId: number; sheet: string; owner: string }> = {
@@ -31,7 +30,16 @@ const driveTargets: Record<string, { sheetId: number; sheet: string; owner: stri
   adir: { sheetId: 1701284227, sheet: "אדיר", owner: "אדיר" },
   galia: { sheetId: 1846718249, sheet: "גליה", owner: "גליה" },
   review: { sheetId: 498174555, sheet: "לבדיקה", owner: "אדיר" },
+  future: { sheetId: 318326031, sheet: "עתידי", owner: "לא הוקצה" },
+  future_roy: { sheetId: 2026080801, sheet: "עתידי רועי", owner: "רועי" },
+  future_adir: { sheetId: 2026080802, sheet: "עתידי אדיר", owner: "אדיר" },
+  future_gal: { sheetId: 2026080803, sheet: "עתידי גל", owner: "גל" },
+  future_maxim: { sheetId: 2026080804, sheet: "עתידי מקסים", owner: "מקסים" },
+  future_sergey: { sheetId: 2026080805, sheet: "עתידי סרגיי", owner: "סרגיי" },
+  future_maor: { sheetId: 2026080806, sheet: "עתידי מאור", owner: "מאור" },
+  future_shlomi: { sheetId: 2026080807, sheet: "עתידי שלומי", owner: "שלומי" },
 };
+const validTargets = Object.keys(driveTargets);
 
 type AttachmentPayload = { name: string; mimeType: string; base64: string } | null;
 
