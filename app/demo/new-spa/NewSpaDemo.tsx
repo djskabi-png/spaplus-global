@@ -2,227 +2,172 @@
 
 import { useMemo, useState } from "react";
 
-type Locale = "en" | "he";
+type Locale = "en" | "fr";
+type View = "overview" | "onboarding" | "bookings" | "reports" | "profile" | "help";
 
-const copy = {
+const text = {
   en: {
     demo: "DEMO WORKSPACE",
-    spaName: "New Spa Demo",
-    welcome: "Welcome to SpaPlus.",
-    intro: "Let’s prepare your spa for its first booking.",
-    preview: "This is exactly how a new spa sees the workspace before adding any content.",
-    progress: "Setup progress",
-    progressValue: "0 of 6 completed",
-    start: "Start setup",
-    reset: "Reset demo",
-    nav: ["Home", "Bookings", "Calendar", "Services", "Customers", "Spa profile", "Help centre"],
-    stats: ["Bookings", "Revenue", "Customers", "Live offers"],
-    zeroRevenue: "$0",
-    checklistTitle: "Your launch checklist",
-    checklistText: "Complete these steps so guests can discover and book your spa.",
-    tasks: [
-      ["Complete your spa profile", "Add your address, contact details and a short introduction."],
-      ["Add photos", "Upload approved photos of the spa, facilities and treatment rooms."],
-      ["Create your first service", "Add a treatment, package or day-pass experience."],
-      ["Set opening hours", "Tell guests when your spa is available."],
-      ["Choose booking settings", "Decide how bookings are confirmed and managed."],
-      ["Review and publish", "Send the profile to the SpaPlus team for a final review."],
+    spa: "New Spa Demo",
+    market: "Canada",
+    nav: ["Overview", "Onboarding", "Bookings", "Reports", "Spa profile", "Help centre"],
+    heading: "Everything your spa needs to launch, manage bookings and grow.",
+    intro: "This is the empty first-day workspace. Nothing is published and no booking can arrive until the setup is reviewed and approved.",
+    sample: "Illustrative demo. No live business data is shown.",
+    resume: "Continue setup",
+    progress: "Launch progress",
+    progressValue: "0 of 7 steps complete",
+    cards: ["Bookings", "Gross sales", "Guests", "Live experiences"],
+    checklist: "Your launch journey",
+    checklistIntro: "A guided path from registration to a bookable SpaPlus profile.",
+    steps: [
+      ["Business details", "Legal name, location, contacts and booking notification email."],
+      ["Treatments and packages", "Choose approved services from your website or add them manually."],
+      ["Capacity and facilities", "Add group capacity, amenities, accessibility and opening hours."],
+      ["Photos and permissions", "Approve website media or upload verified spa photography."],
+      ["Policies", "Confirm cancellation, no-show, content and review permissions."],
+      ["Partner agreement", "Review and sign the approved Canadian partner agreement."],
+      ["SpaPlus review", "Our team verifies the profile before it can go live."],
     ],
-    continue: "Open step",
-    emptyTitle: "No bookings yet",
-    emptyText: "New bookings will appear here with the guest details, selected service, date and confirmation status.",
-    bookingPreview: "See a booking example",
-    previewTitle: "What your first booking will look like",
-    previewBody: "This is only a preview. It does not change the dashboard totals.",
-    previewRows: ["Guest and contact details", "Selected treatment or package", "Date, time and participants", "Payment and confirmation status"],
-    close: "Close preview",
-    helpTitle: "Need help getting started?",
-    helpText: "Book a short onboarding call or watch the setup guide.",
-    call: "Book an onboarding call",
-    guide: "Watch the setup guide",
-    panelTitle: "First step: complete your spa profile",
-    panelText: "In the real workspace, this opens a guided form for the spa name, address, contact details, description and approved media.",
-    panelNote: "The demo remains at zero until a real spa saves its first item.",
-    back: "Back to dashboard",
-    language: "עברית",
-    signed: "Demo account",
+    open: "Open step",
+    noBookings: "No bookings yet",
+    noBookingsText: "When your spa is live, every request, approval, change and cancellation will appear here with a complete activity history.",
+    example: "View booking example",
+    lifecycle: "How a booking moves",
+    lifecycleSteps: ["New request", "Awaiting spa", "Confirmed", "Modified", "Completed"],
+    payments: "Simple payment reconciliation",
+    paymentsText: "Track pay-at-spa and prepaid bookings, commission, balances and the monthly settlement in one place.",
+    operations: "Canada operations view",
+    operationsText: "Country managers see onboarding, active and paused spas, booking health, documents and alerts across the market.",
+    integration: "Data connection",
+    integrationText: "Gal booking data is not connected in this demo. The production connector will be added only after field mapping, permissions and reconciliation tests.",
+    close: "Close",
+    modalTitle: "Illustrative booking record",
+    modalText: "This preview shows the structure only. It does not create a booking or change the zero totals.",
+    bookingRows: ["Guest and contact details", "Experience, date and participants", "Approval and change timeline", "Payment, commission and settlement"],
+    setupTitle: "Business details",
+    setupText: "The real onboarding saves each step, sends a continuation link and records every email, document and approval in the audit trail.",
+    fields: ["Spa or company name", "Website", "Booking requests email", "Customer reviews email", "Main contact", "Province and time zone"],
+    save: "Save draft",
+    notConnected: "Demo only. Saving is disabled.",
+    language: "FR CA",
   },
-  he: {
-    demo: "סביבת הדגמה",
-    spaName: "ספא חדש לדוגמה",
-    welcome: "ברוכים הבאים לספא פלוס.",
-    intro: "בואו נכין את הספא שלכם להזמנה הראשונה.",
-    preview: "כך בדיוק ספא חדש רואה את סביבת העבודה לפני שהוסיף תוכן.",
-    progress: "התקדמות בהקמה",
-    progressValue: "0 מתוך 6 הושלמו",
-    start: "התחלת ההקמה",
-    reset: "איפוס ההדגמה",
-    nav: ["בית", "הזמנות", "יומן", "שירותים", "לקוחות", "פרופיל הספא", "מרכז עזרה"],
-    stats: ["הזמנות", "הכנסות", "לקוחות", "הצעות פעילות"],
-    zeroRevenue: "0 דולר",
-    checklistTitle: "רשימת ההכנה שלכם",
-    checklistText: "השלימו את השלבים כדי שאורחים יוכלו למצוא ולהזמין את הספא.",
-    tasks: [
-      ["השלמת פרופיל הספא", "הוסיפו כתובת, פרטי קשר ותיאור קצר."],
-      ["הוספת תמונות", "העלו תמונות מאושרות של הספא, המתקנים וחדרי הטיפול."],
-      ["יצירת השירות הראשון", "הוסיפו טיפול, חבילה או חוויית יום ספא."],
-      ["הגדרת שעות פעילות", "ספרו לאורחים מתי הספא זמין."],
-      ["בחירת הגדרות הזמנה", "קבעו כיצד הזמנות יאושרו וינוהלו."],
-      ["בדיקה ופרסום", "שלחו את הפרופיל לצוות ספא פלוס לבדיקה סופית."],
+  fr: {
+    demo: "ESPACE DE DÉMONSTRATION",
+    spa: "Nouveau spa, démo",
+    market: "Canada",
+    nav: ["Aperçu", "Intégration", "Réservations", "Rapports", "Profil du spa", "Centre d’aide"],
+    heading: "Tout ce qu’il faut à votre spa pour se lancer, gérer ses réservations et grandir.",
+    intro: "Voici l’espace de travail vide du premier jour. Rien n’est publié et aucune réservation ne peut arriver avant la vérification et l’approbation.",
+    sample: "Démonstration illustrative. Aucune donnée commerciale réelle.",
+    resume: "Continuer l’intégration",
+    progress: "Progression du lancement",
+    progressValue: "0 étape sur 7 terminée",
+    cards: ["Réservations", "Ventes brutes", "Clients", "Expériences actives"],
+    checklist: "Votre parcours de lancement",
+    checklistIntro: "Un parcours guidé de l’inscription jusqu’à la mise en ligne sur SpaPlus.",
+    steps: [
+      ["Renseignements sur l’entreprise", "Nom légal, adresse, contacts et courriel de réservation."],
+      ["Soins et forfaits", "Sélectionnez les services approuvés ou ajoutez-les manuellement."],
+      ["Capacité et installations", "Ajoutez la capacité, les commodités, l’accessibilité et les heures."],
+      ["Photos et autorisations", "Approuvez les médias du site ou téléversez des photos vérifiées."],
+      ["Politiques", "Confirmez les politiques d’annulation et les autorisations de contenu."],
+      ["Entente de partenariat", "Lisez et signez l’entente canadienne approuvée."],
+      ["Vérification SpaPlus", "Notre équipe vérifie le profil avant sa mise en ligne."],
     ],
-    continue: "פתיחת השלב",
-    emptyTitle: "עדיין אין הזמנות",
-    emptyText: "הזמנות חדשות יופיעו כאן עם פרטי האורח, השירות שנבחר, התאריך ומצב האישור.",
-    bookingPreview: "הצגת הזמנה לדוגמה",
-    previewTitle: "כך תיראה ההזמנה הראשונה",
-    previewBody: "זוהי המחשה בלבד. היא אינה משנה את נתוני הדשבורד.",
-    previewRows: ["פרטי האורח ופרטי הקשר", "הטיפול או החבילה שנבחרו", "תאריך, שעה ומספר משתתפים", "מצב התשלום והאישור"],
-    close: "סגירת ההמחשה",
-    helpTitle: "צריכים עזרה בהתחלה?",
-    helpText: "אפשר לקבוע שיחת הכנה קצרה או לצפות במדריך ההקמה.",
-    call: "קביעת שיחת הכנה",
-    guide: "צפייה במדריך ההקמה",
-    panelTitle: "השלב הראשון: השלמת פרופיל הספא",
-    panelText: "במערכת האמיתית ייפתח כאן טופס מודרך עם שם הספא, הכתובת, פרטי הקשר, התיאור והמדיה המאושרת.",
-    panelNote: "ההדגמה נשארת על אפס עד שספא אמיתי שומר את הפריט הראשון.",
-    back: "חזרה לדשבורד",
-    language: "English",
-    signed: "חשבון הדגמה",
+    open: "Ouvrir l’étape",
+    noBookings: "Aucune réservation pour le moment",
+    noBookingsText: "Une fois votre spa actif, chaque demande, approbation, modification et annulation apparaîtra ici avec son historique.",
+    example: "Voir un exemple",
+    lifecycle: "Parcours d’une réservation",
+    lifecycleSteps: ["Nouvelle demande", "En attente du spa", "Confirmée", "Modifiée", "Terminée"],
+    payments: "Rapprochement des paiements simplifié",
+    paymentsText: "Suivez les paiements sur place et prépayés, les commissions, les soldes et le règlement mensuel.",
+    operations: "Vue des opérations au Canada",
+    operationsText: "Les responsables suivent l’intégration, les spas actifs ou en pause, les documents, les réservations et les alertes.",
+    integration: "Connexion des données",
+    integrationText: "Les données de réservation de Gal ne sont pas connectées à cette démo. Le connecteur de production suivra la validation des champs, droits et rapprochements.",
+    close: "Fermer",
+    modalTitle: "Exemple de réservation",
+    modalText: "Cet aperçu montre seulement la structure. Il ne crée aucune réservation et ne modifie pas les totaux.",
+    bookingRows: ["Client et coordonnées", "Expérience, date et participants", "Historique des approbations", "Paiement, commission et règlement"],
+    setupTitle: "Renseignements sur l’entreprise",
+    setupText: "Le véritable parcours enregistre chaque étape, envoie un lien de reprise et conserve les courriels, documents et approbations dans l’historique.",
+    fields: ["Nom du spa ou de l’entreprise", "Site Web", "Courriel des réservations", "Courriel des avis clients", "Personne-ressource", "Province et fuseau horaire"],
+    save: "Enregistrer le brouillon",
+    notConnected: "Démonstration seulement. L’enregistrement est désactivé.",
+    language: "EN CA",
   },
 } as const;
 
-export default function NewSpaDemo() {
+export default function NewSpaDemo({ homeHref = "/demo/new-spa/" }: { homeHref?: string }) {
   const [locale, setLocale] = useState<Locale>("en");
-  const [activeNav, setActiveNav] = useState(0);
-  const [showBooking, setShowBooking] = useState(false);
-  const [showSetup, setShowSetup] = useState(false);
-  const t = copy[locale];
-  const direction = locale === "he" ? "rtl" : "ltr";
-  const statValues = useMemo(() => ["0", t.zeroRevenue, "0", "0"], [t.zeroRevenue]);
-
-  const resetDemo = () => {
-    setActiveNav(0);
-    setShowBooking(false);
-    setShowSetup(false);
-  };
+  const [view, setView] = useState<View>("overview");
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const [setupOpen, setSetupOpen] = useState(false);
+  const t = text[locale];
+  const views: View[] = ["overview", "onboarding", "bookings", "reports", "profile", "help"];
+  const money = locale === "fr" ? "0 $ CA" : "CA$0";
+  const values = useMemo(() => ["0", money, "0", "0"], [money]);
 
   return (
-    <main className="new-spa-demo" dir={direction} lang={locale}>
-      <aside className="demo-sidebar" aria-label={locale === "he" ? "ניווט בסביבת ההדגמה" : "Demo workspace navigation"}>
-        <a className="demo-brand" href="/demo/new-spa/" aria-label="SpaPlus demo home">
-          <img src="/spaplus-mark.png" alt="" />
-          <span>SpaPlus</span>
+    <main className="ops-demo" lang={locale === "fr" ? "fr-CA" : "en-CA"}>
+      <aside className="ops-sidebar">
+        <a className="ops-brand" href={homeHref} aria-label="SpaPlus home">
+          <img src="/spaplus-mark.png" alt="SpaPlus" /><span>SpaPlus</span>
         </a>
-        <div className="demo-spa-identity">
-          <span>{t.demo}</span>
-          <strong>{t.spaName}</strong>
-        </div>
-        <nav>
+        <div className="ops-market"><small>{t.market}</small><strong>{t.spa}</strong><span>{t.demo}</span></div>
+        <nav aria-label="Workspace navigation">
           {t.nav.map((label, index) => (
-            <button className={activeNav === index ? "is-active" : ""} key={label} type="button" onClick={() => setActiveNav(index)}>
-              <span className="demo-nav-dot" aria-hidden="true" />
-              {label}
-              {index > 0 && index < 5 ? <b>0</b> : null}
+            <button key={label} className={view === views[index] ? "active" : ""} onClick={() => setView(views[index])}>
+              <i aria-hidden="true" /> <span>{label}</span>{index === 2 ? <b>0</b> : null}
             </button>
           ))}
         </nav>
-        <div className="demo-account">
-          <span className="demo-avatar">NS</span>
-          <div><strong>{t.spaName}</strong><span>{t.signed}</span></div>
-        </div>
+        <div className="ops-user"><span>NS</span><div><strong>{t.spa}</strong><small>Partner workspace</small></div></div>
       </aside>
 
-      <section className="demo-workspace">
-        <header className="demo-topbar">
-          <div>
-            <span className="demo-mobile-brand">SpaPlus</span>
-            <span className="demo-status"><i /> {t.demo}</span>
-          </div>
-          <div className="demo-top-actions">
-            <button type="button" onClick={() => setLocale(locale === "en" ? "he" : "en")}>{t.language}</button>
-            <button className="demo-reset" type="button" onClick={resetDemo}>{t.reset}</button>
-          </div>
+      <section className="ops-shell">
+        <header className="ops-topbar">
+          <div><strong>SpaPlus</strong><span>{t.demo}</span></div>
+          <button onClick={() => setLocale(locale === "en" ? "fr" : "en")}>{t.language}</button>
         </header>
-
-        <nav className="demo-mobile-nav" aria-label={locale === "he" ? "ניווט בסביבת ההדגמה" : "Demo workspace navigation"}>
-          {t.nav.slice(0, 5).map((label, index) => (
-            <button className={activeNav === index ? "is-active" : ""} key={label} type="button" onClick={() => setActiveNav(index)}>
-              <span className="demo-nav-dot" aria-hidden="true" />
-              <b>{label}</b>
-              {index > 0 ? <small>0</small> : null}
-            </button>
-          ))}
+        <nav className="ops-mobile-nav" aria-label="Mobile workspace navigation">
+          {t.nav.slice(0, 4).map((label, index) => <button key={label} className={view === views[index] ? "active" : ""} onClick={() => setView(views[index])}>{label}</button>)}
         </nav>
 
-        <div className="demo-content">
-          <section className="demo-hero">
-            <div>
-              <span className="demo-eyebrow">{t.spaName}</span>
-              <h1>{t.welcome}<br />{t.intro}</h1>
-              <p>{t.preview}</p>
-            </div>
-            <div className="demo-progress-card">
-              <div className="demo-progress-copy"><span>{t.progress}</span><strong>{t.progressValue}</strong></div>
-              <div className="demo-progress-track"><span /></div>
-              <button type="button" onClick={() => setShowSetup(true)}>{t.start}</button>
+        <div className="ops-content">
+          <div className="ops-notice"><span>i</span><p>{t.sample}</p></div>
+          <section className="ops-hero">
+            <div><small>{t.market} partner workspace</small><h1>{t.heading}</h1><p>{t.intro}</p></div>
+            <article className="ops-progress"><div><span>{t.progress}</span><strong>{t.progressValue}</strong></div><i><b /></i><button onClick={() => setSetupOpen(true)}>{t.resume}</button></article>
+          </section>
+
+          <section className="ops-stats" aria-label="Workspace totals">
+            {t.cards.map((label, index) => <article key={label}><span>{label}</span><strong>{values[index]}</strong><small>No data yet</small></article>)}
+          </section>
+
+          <section className="ops-grid">
+            <article className="ops-card ops-journey">
+              <header><div><small>0%</small><h2>{t.checklist}</h2><p>{t.checklistIntro}</p></div><strong>0 / 7</strong></header>
+              <div className="ops-steps">{t.steps.map(([title, body], index) => <div key={title}><span>{index + 1}</span><div><h3>{title}</h3><p>{body}</p></div><button onClick={() => setSetupOpen(true)}>{t.open}</button></div>)}</div>
+            </article>
+            <div className="ops-side">
+              <article className="ops-card ops-empty"><span className="ops-empty-icon">0</span><h2>{t.noBookings}</h2><p>{t.noBookingsText}</p><button onClick={() => setBookingOpen(true)}>{t.example}</button></article>
+              <article className="ops-dark"><small>{t.lifecycle}</small><div>{t.lifecycleSteps.map((step, index) => <span key={step}><b>{index + 1}</b>{step}</span>)}</div></article>
             </div>
           </section>
 
-          <section className="demo-stats" aria-label={locale === "he" ? "נתוני דשבורד" : "Dashboard totals"}>
-            {t.stats.map((label, index) => <article key={label}><span>{label}</span><strong>{statValues[index]}</strong><small>0%</small></article>)}
+          <section className="ops-feature-grid">
+            <article><span>01</span><h2>{t.payments}</h2><p>{t.paymentsText}</p></article>
+            <article><span>02</span><h2>{t.operations}</h2><p>{t.operationsText}</p></article>
+            <article className="warning"><span>03</span><h2>{t.integration}</h2><p>{t.integrationText}</p></article>
           </section>
-
-          <div className="demo-main-grid">
-            <section className="demo-card demo-checklist">
-              <header><div><span className="demo-section-label">0%</span><h2>{t.checklistTitle}</h2><p>{t.checklistText}</p></div><strong>0/6</strong></header>
-              <div className="demo-task-list">
-                {t.tasks.map(([title, description], index) => (
-                  <article key={title}>
-                    <span className="demo-task-number">{index + 1}</span>
-                    <div><h3>{title}</h3><p>{description}</p></div>
-                    <button type="button" onClick={() => setShowSetup(true)}>{t.continue}</button>
-                  </article>
-                ))}
-              </div>
-            </section>
-
-            <div className="demo-side-column">
-              <section className="demo-card demo-empty-bookings">
-                <div className="demo-calendar-icon" aria-hidden="true"><span>0</span></div>
-                <h2>{t.emptyTitle}</h2>
-                <p>{t.emptyText}</p>
-                <button type="button" onClick={() => setShowBooking(true)}>{t.bookingPreview}</button>
-              </section>
-              <section className="demo-help-card">
-                <span>?</span><div><h2>{t.helpTitle}</h2><p>{t.helpText}</p><div><button type="button">{t.call}</button><button type="button">{t.guide}</button></div></div>
-              </section>
-            </div>
-          </div>
         </div>
       </section>
 
-      {showBooking ? (
-        <div className="demo-modal-backdrop" role="presentation" onClick={() => setShowBooking(false)}>
-          <section className="demo-modal" role="dialog" aria-modal="true" aria-labelledby="booking-preview-title" onClick={(event) => event.stopPropagation()}>
-            <button className="demo-modal-close" type="button" aria-label={t.close} onClick={() => setShowBooking(false)}>×</button>
-            <span className="demo-section-label">{t.demo}</span><h2 id="booking-preview-title">{t.previewTitle}</h2><p>{t.previewBody}</p>
-            <div className="demo-preview-rows">{t.previewRows.map((row) => <div key={row}><span>✓</span>{row}</div>)}</div>
-            <button className="demo-primary" type="button" onClick={() => setShowBooking(false)}>{t.close}</button>
-          </section>
-        </div>
-      ) : null}
-
-      {showSetup ? (
-        <div className="demo-drawer-backdrop" role="presentation" onClick={() => setShowSetup(false)}>
-          <aside className="demo-drawer" role="dialog" aria-modal="true" aria-labelledby="setup-title" onClick={(event) => event.stopPropagation()}>
-            <button className="demo-modal-close" type="button" aria-label={t.back} onClick={() => setShowSetup(false)}>×</button>
-            <span className="demo-section-label">1 / 6</span><h2 id="setup-title">{t.panelTitle}</h2><p>{t.panelText}</p>
-            <div className="demo-form-skeleton" aria-hidden="true"><span /><span /><span /><span /></div>
-            <div className="demo-info-note">{t.panelNote}</div>
-            <button className="demo-primary" type="button" onClick={() => setShowSetup(false)}>{t.back}</button>
-          </aside>
-        </div>
-      ) : null}
+      {bookingOpen ? <div className="ops-overlay" onClick={() => setBookingOpen(false)}><section className="ops-modal" role="dialog" aria-modal="true" onClick={event => event.stopPropagation()}><button className="ops-x" onClick={() => setBookingOpen(false)}>×</button><small>{t.demo}</small><h2>{t.modalTitle}</h2><p>{t.modalText}</p><div>{t.bookingRows.map((row, index) => <span key={row}><b>{index + 1}</b>{row}</span>)}</div><button className="ops-primary" onClick={() => setBookingOpen(false)}>{t.close}</button></section></div> : null}
+      {setupOpen ? <div className="ops-overlay drawer" onClick={() => setSetupOpen(false)}><aside className="ops-drawer" role="dialog" aria-modal="true" onClick={event => event.stopPropagation()}><button className="ops-x" onClick={() => setSetupOpen(false)}>×</button><small>STEP 1 OF 7</small><h2>{t.setupTitle}</h2><p>{t.setupText}</p><div className="ops-fields">{t.fields.map(field => <label key={field}><span>{field}</span><input disabled aria-label={field} /></label>)}</div><p className="ops-info">{t.notConnected}</p><button className="ops-primary" disabled>{t.save}</button></aside></div> : null}
     </main>
   );
 }

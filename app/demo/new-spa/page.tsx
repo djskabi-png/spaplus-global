@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import NewSpaDemo from "./NewSpaDemo";
 import "./new-spa-demo.css";
+import "./new-spa-typography.css";
 
 export const metadata: Metadata = {
-  title: "New spa workspace demo | SpaPlus",
-  description: "A private demonstration of the first-day SpaPlus partner workspace.",
+  title: "SpaPlus Canada operations workspace demo",
+  description: "An illustrative first-day workspace for a new SpaPlus Canada partner.",
   robots: { index: false, follow: false },
 };
 

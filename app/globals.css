@@ -3588,6 +3588,10 @@ body:has(.cookie-banner:not([hidden])) .share-page {
   }
 }
 
+[lang="he"] :is(h1, h2, h3, h4, p, a, button, input, select, textarea, label, span, strong, small, legend, summary) {
+  font-family: var(--font-heebo, "Heebo"), Arial, sans-serif !important;
+}
+
 [lang="he"] :is(h1, h2, h3, h4) {
   font-weight: 700;
   letter-spacing: 0;
