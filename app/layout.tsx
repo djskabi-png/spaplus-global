@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { Assistant, Heebo, Noto_Sans } from "next/font/google";
+import { Heebo, Noto_Sans } from "next/font/google";
 import "./globals.css";
 
 const notoSans = Noto_Sans({
@@ -12,13 +12,6 @@ const notoSans = Noto_Sans({
 
 const heebo = Heebo({
   variable: "--font-heebo",
-  subsets: ["hebrew", "latin"],
-  weight: "variable",
-  display: "swap",
-});
-
-const assistant = Assistant({
-  variable: "--font-assistant",
   subsets: ["hebrew", "latin"],
   weight: "variable",
   display: "swap",
@@ -61,7 +54,7 @@ export default async function RootLayout({
 
   return (
     <html lang={documentLanguage} dir={documentLanguage === "he" ? "rtl" : "ltr"}>
-      <body className={`${notoSans.variable} ${heebo.variable} ${assistant.variable}`}>
+      <body className={`${notoSans.variable} ${heebo.variable}`}>
         {children}
       </body>
     </html>
