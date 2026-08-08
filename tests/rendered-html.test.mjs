@@ -580,6 +580,22 @@ test("every Hebrew management surface is locked to the modern Heebo stack", asyn
   assert.doesNotMatch(`${globalStyles}\n${adminStyles}\n${projectStyles}\n${bugStyles}\n${demoStyles}\n${demoTypography}`, /font-family:(?:serif|cursive|fantasy)/i);
 });
 
+test("project cards and compact list are distinct, persistent and acknowledge view changes", async () => {
+  const [client, styles] = await Promise.all([
+    read("app/admin/projects/ProjectsClient.tsx"),
+    read("app/admin/projects/projects.css"),
+  ]);
+  assert.match(client, /projects-view-mode/);
+  assert.match(client, /aria-pressed=\{viewMode === "grid"\}/);
+  assert.match(client, /aria-pressed=\{viewMode === "list"\}/);
+  assert.match(client, /עברנו לתצוגת רשימה קומפקטית/);
+  assert.match(client, /project-list-expand/);
+  assert.match(client, /aria-expanded=\{expandedProjectId === project\.id\}/);
+  assert.match(styles, /\.projects-grid\.is-list \.project-card:not\(\.is-list-expanded\)/);
+  assert.match(styles, /\.project-card\.is-list-expanded/);
+  assert.match(styles, /\.view-mode-status/);
+});
+
 test("bug routing includes every verified future work sheet", async () => {
   const [client, route] = await Promise.all([
     read("app/admin/bugs/BugsClient.tsx"),

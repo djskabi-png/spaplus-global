@@ -88,6 +88,8 @@ export default function ProjectsClient() {
   const [busyKey, setBusyKey] = useState("");
   const [savedKey, setSavedKey] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [expandedProjectId, setExpandedProjectId] = useState<number | null>(null);
+  const [viewAnnouncement, setViewAnnouncement] = useState("");
 
   async function load() {
     setLoading(true);
@@ -112,6 +114,8 @@ export default function ProjectsClient() {
 
   function changeView(mode: "grid" | "list") {
     setViewMode(mode);
+    setExpandedProjectId(null);
+    setViewAnnouncement(mode === "list" ? "עברנו לתצוגת רשימה קומפקטית" : "עברנו לתצוגת כרטיסים מלאה");
     window.localStorage.setItem("projects-view-mode", mode);
   }
 
@@ -296,9 +300,10 @@ export default function ProjectsClient() {
           {filters.map(([value, label]) => <button className={filter === value ? "is-active" : ""} key={value} type="button" onClick={() => setFilter(value)}>{label}</button>)}
         </div>
         <div className="view-switch" role="group" aria-label="סוג תצוגה">
-          <button className={viewMode === "grid" ? "is-active" : ""} type="button" onClick={() => changeView("grid")}>כרטיסים</button>
-          <button className={viewMode === "list" ? "is-active" : ""} type="button" onClick={() => changeView("list")}>רשימה</button>
+          <button className={viewMode === "grid" ? "is-active" : ""} aria-pressed={viewMode === "grid"} type="button" onClick={() => changeView("grid")}>כרטיסים</button>
+          <button className={viewMode === "list" ? "is-active" : ""} aria-pressed={viewMode === "list"} type="button" onClick={() => changeView("list")}>רשימה</button>
         </div>
+        <span className="view-mode-status" aria-live="polite">{viewAnnouncement || (viewMode === "list" ? "תצוגת רשימה פעילה" : "תצוגת כרטיסים פעילה")}</span>
       </section>
 
       {error ? <p className="projects-message is-error" role="alert">{error}</p> : null}
@@ -310,7 +315,7 @@ export default function ProjectsClient() {
           const doneTasks = project.tasks.filter((task) => task.status === "done").length;
           const projectKey = `project:${project.id}`;
           return (
-            <article className={`project-card priority-${project.priority}`} key={project.id}>
+            <article className={`project-card priority-${project.priority} ${viewMode === "list" && expandedProjectId === project.id ? "is-list-expanded" : ""}`} key={project.id}>
               <div className={`project-save-state ${busyKey === projectKey ? "is-saving" : savedKey === projectKey ? "is-saved" : ""}`} role="status" aria-live="polite">
                 {busyKey === projectKey ? <><i />שומר...</> : savedKey === projectKey ? "נשמר" : null}
               </div>
@@ -331,6 +336,10 @@ export default function ProjectsClient() {
               </div>
 
               <div className="progress-track"><i style={{ width: `${project.progress || 0}%` }} /></div>
+
+              <button className="project-list-expand" type="button" aria-expanded={expandedProjectId === project.id} onClick={() => setExpandedProjectId((current) => current === project.id ? null : project.id)}>
+                {expandedProjectId === project.id ? "סגירת פרטי הפרויקט" : "פתיחת פרטי הפרויקט"}
+              </button>
 
               <div className="project-detail-grid">
                 <label><span>השלב הנוכחי</span><textarea defaultValue={project.currentPhase} onBlur={(event) => { if (event.target.value !== project.currentPhase) void update("project", project.id, { currentPhase: event.target.value }); }} /></label>
