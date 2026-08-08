@@ -12,7 +12,6 @@ interface Env {
   GOOGLE_CLIENT_SECRET?: string;
   ADMIN_SESSION_SECRET?: string;
   ADMIN_ALLOWED_EMAILS?: string;
-  PROJECT_PORTAL_BACKEND_SECRET?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -274,33 +273,22 @@ function randomToken(): string {
 }
 
 async function callProjectPortalBackend(env: Env) {
-  if (!env.SITES_BYPASS_TOKEN || !env.PROJECT_PORTAL_BACKEND_SECRET) return Response.json({ error: "Portal is unavailable" }, { status: 503 });
+  if (!env.SITES_BYPASS_TOKEN) return Response.json({ error: "Portal is unavailable" }, { status: 503 });
   const upstreamUrl = new URL("/api/cms/projects-public", configuredPrivateBackendOrigin(env));
   return fetch(upstreamUrl, {
     method: "GET",
     headers: {
       [PRIVATE_AUTHORIZATION_HEADER]: `Bearer ${env.SITES_BYPASS_TOKEN}`,
-      "x-spaplus-portal-backend-token": env.PROJECT_PORTAL_BACKEND_SECRET,
     },
   });
 }
 
 async function projectShowcaseData(env: Env): Promise<Response> {
-  await env.DB.prepare("CREATE TABLE IF NOT EXISTS project_workspace_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at TEXT NOT NULL)").run();
-  const projectColumns = await env.DB.prepare("PRAGMA table_info(project_items)").all<{ name: string }>();
-  const columnNames = new Set(projectColumns.results.map((column) => column.name));
-  if (!columnNames.has("site_url")) await env.DB.prepare("ALTER TABLE project_items ADD COLUMN site_url TEXT NOT NULL DEFAULT ''").run();
-  if (!columnNames.has("public_visible")) await env.DB.prepare("ALTER TABLE project_items ADD COLUMN public_visible INTEGER NOT NULL DEFAULT 1").run();
-  const [projectResult, orderRow] = await Promise.all([
-    env.DB.prepare("SELECT id, name, progress, site_url AS siteUrl, updated_at AS updatedAt FROM project_items WHERE public_visible = 1 ORDER BY id").all<{ id: number; name: string; progress: number | null; siteUrl: string; updatedAt: string }>(),
-    env.DB.prepare("SELECT value FROM project_workspace_meta WHERE key = ?").bind("project_showcase_order").first<{ value: string }>(),
-  ]);
-  let order: number[] = [];
-  try { order = (JSON.parse(orderRow?.value || "[]") as unknown[]).map(Number).filter((id) => Number.isInteger(id)); } catch { order = []; }
-  const position = new Map(order.map((id, index) => [id, index]));
-  const projects = [...projectResult.results].sort((left, right) => (position.get(left.id) ?? order.length + left.id) - (position.get(right.id) ?? order.length + right.id));
-  const updatedAt = projects.reduce((latest, project) => project.updatedAt > latest ? project.updatedAt : latest, "");
-  return Response.json({ projects: projects.map(({ updatedAt: _updatedAt, ...project }) => project), updatedAt }, { headers: { "cache-control": "public, max-age=30, stale-while-revalidate=60" } });
+  const upstream = await callProjectPortalBackend(env);
+  const headers = new Headers(upstream.headers);
+  headers.set("cache-control", "public, max-age=15, stale-while-revalidate=30");
+  headers.delete("set-cookie");
+  return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers });
 }
 
 function projectShowcaseResponse(response: Response) {

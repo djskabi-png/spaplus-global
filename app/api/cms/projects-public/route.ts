@@ -14,20 +14,7 @@ function privateResponse(payload: unknown, init?: ResponseInit) {
   return response;
 }
 
-async function isInternalRequest(request: Request) {
-  const expected = env.PROJECT_PORTAL_BACKEND_SECRET || "";
-  const provided = request.headers.get("x-spaplus-portal-backend-token") || "";
-  if (expected.length < 32 || provided.length < 32) return false;
-  const [expectedHash, providedHash] = await Promise.all([
-    crypto.subtle.digest("SHA-256", new TextEncoder().encode(expected)),
-    crypto.subtle.digest("SHA-256", new TextEncoder().encode(provided)),
-  ]);
-  const subtle = crypto.subtle as SubtleCrypto & { timingSafeEqual(a: ArrayBufferView, b: ArrayBufferView): boolean };
-  return subtle.timingSafeEqual(new Uint8Array(expectedHash), new Uint8Array(providedHash));
-}
-
-export async function GET(request: Request) {
-  if (!(await isInternalRequest(request))) return privateResponse({ error: "Forbidden" }, { status: 403 });
+export async function GET() {
   await env.DB.prepare(`CREATE TABLE IF NOT EXISTS project_workspace_meta (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL,

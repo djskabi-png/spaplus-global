@@ -1016,8 +1016,8 @@ test("Adir project showcase is public, branded and managed from the main adminis
   assert.match(projectsRoute, /kind === "showcase_order"/);
   assert.match(projectsRoute, /project_showcase_order/);
   assert.match(publicRoute, /publicVisible/);
-  assert.match(publicRoute, /PROJECT_PORTAL_BACKEND_SECRET/);
-  assert.match(publicRoute, /timingSafeEqual/);
+  assert.doesNotMatch(publicRoute, /PROJECT_PORTAL_BACKEND_SECRET/);
+  assert.match(worker, /SITES_BYPASS_TOKEN/);
   assert.doesNotMatch(publicRoute, /blockers: project\.blockers/);
   assert.match(portal, /הפרויקטים של אדיר/);
   assert.match(portal, /adir-ai-empire-icon\.png/);
