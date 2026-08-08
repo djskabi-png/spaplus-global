@@ -1,6 +1,6 @@
 "use client";
 
-import { type CSSProperties, FormEvent, useEffect, useMemo, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useState } from "react";
 
 type Project = {
   id: number;
@@ -10,131 +10,176 @@ type Project = {
   status: string;
   progress: number | null;
   progressSource: string;
-  priority: string;
-  owner: string;
-  collaborators: string[];
   currentPhase: string;
   nextAction: string;
-  blockers: string;
   targetDate: string | null;
   tags: string[];
   siteUrl: string;
-  tasks: Array<{ id: number; title: string; status: string }>;
+  totalTasks: number;
+  completedTasks: number;
 };
 
 const statusLabels: Record<string, string> = {
-  planned: "מתוכנן", in_progress: "בעבודה", waiting: "ממתין", review: "בבדיקה",
-  nearly_done: "לקראת סיום", done: "הושלם", archived: "בארכיון",
+  planned: "הבא בתור",
+  in_progress: "בבנייה עכשיו",
+  waiting: "ממתין לשלב הבא",
+  review: "בבדיקה ושיפור",
+  nearly_done: "ממש לקראת סיום",
+  done: "הושלם",
+  archived: "מהארכיון",
 };
 
-const filters = [["all", "כל הפרויקטים"], ["active", "פעילים"], ["nearly_done", "לקראת סיום"], ["planned", "עתידיים"], ["done", "הושלמו"]] as const;
+const areaLabels: Record<string, string> = {
+  website: "אתרים",
+  product: "מוצרים",
+  automation: "אוטומציה",
+  growth: "צמיחה",
+  development: "פיתוח",
+};
+
+const filters = [
+  ["all", "כל הפרויקטים"],
+  ["active", "בבנייה"],
+  ["nearly_done", "לקראת סיום"],
+  ["done", "הושלמו"],
+  ["planned", "הבא בתור"],
+] as const;
 
 export default function AdirProjectsClient() {
-  const [authenticated, setAuthenticated] = useState<boolean | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [updatedAt, setUpdatedAt] = useState("");
   const [filter, setFilter] = useState("all");
-  const [search, setSearch] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   async function loadProjects() {
-    const response = await fetch("/api/projects", { cache: "no-store" });
-    if (response.status === 401) { setAuthenticated(false); return; }
-    if (!response.ok) throw new Error("load");
-    const payload = await response.json() as { projects: Project[]; updatedAt: string };
-    setProjects(payload.projects);
-    setUpdatedAt(payload.updatedAt);
-    setAuthenticated(true);
-  }
-
-  useEffect(() => { void loadProjects().catch(() => { setAuthenticated(false); setError("לא ניתן לטעון את הפרויקטים כרגע."); }); }, []);
-
-  async function login(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); setBusy(true); setError("");
-    const form = event.currentTarget;
-    const password = String(new FormData(form).get("password") || "");
+    setLoading(true);
+    setError(false);
     try {
-      const response = await fetch("/api/session", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ password }) });
-      if (!response.ok) throw new Error("login");
-      form.reset(); await loadProjects();
-    } catch { setError("קוד הגישה אינו נכון. נסו שוב."); }
-    finally { setBusy(false); }
+      const response = await fetch("/api/projects", { cache: "no-store" });
+      if (!response.ok) throw new Error("load");
+      const payload = await response.json() as { projects: Project[]; updatedAt: string };
+      setProjects(payload.projects);
+      setUpdatedAt(payload.updatedAt);
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  async function logout() {
-    await fetch("/api/session", { method: "DELETE" });
-    setProjects([]); setAuthenticated(false);
-  }
+  useEffect(() => { void loadProjects(); }, []);
 
   const visible = useMemo(() => projects.filter((project) => {
-    const active = !["planned", "done", "archived"].includes(project.status);
-    const matchesFilter = filter === "all" || (filter === "active" ? active : project.status === filter);
-    const text = `${project.name} ${project.description} ${project.currentPhase} ${project.tags.join(" ")}`.toLocaleLowerCase("he");
-    return matchesFilter && text.includes(search.trim().toLocaleLowerCase("he"));
-  }), [projects, filter, search]);
+    if (filter === "all") return true;
+    if (filter === "active") return !["planned", "done", "archived"].includes(project.status);
+    return project.status === filter;
+  }), [projects, filter]);
 
   const counts = useMemo(() => ({
     active: projects.filter((project) => !["planned", "done", "archived"].includes(project.status)).length,
-    nearlyDone: projects.filter((project) => project.status === "nearly_done").length,
-    planned: projects.filter((project) => project.status === "planned").length,
     done: projects.filter((project) => project.status === "done").length,
+    planned: projects.filter((project) => project.status === "planned").length,
   }), [projects]);
 
-  if (authenticated === null) return <main className="adir-portal adir-state" dir="rtl" lang="he"><div className="adir-spinner" /><p>טוען את תמונת המצב...</p></main>;
-
-  if (!authenticated) return (
-    <main className="adir-portal adir-login" dir="rtl" lang="he">
-      <section className="adir-login-card">
-        <img src="/spaplus-mark.png" alt="" />
-        <p className="adir-kicker">אזור פרטי</p>
-        <h1>הפרויקטים של אדיר</h1>
-        <p>תמונת מצב אחת של כל הפרויקטים, האחוזים והשלב הבא.</p>
-        <form onSubmit={login}>
-          <label htmlFor="project-password">קוד גישה</label>
-          <input id="project-password" name="password" type="password" autoComplete="current-password" required autoFocus />
-          <button disabled={busy}>{busy ? "בודק..." : "כניסה לפרויקטים"}</button>
-        </form>
-        {error ? <p className="adir-error" role="alert">{error}</p> : null}
-        <small>הגישה מיועדת לאדיר ולרועי בלבד.</small>
-      </section>
-    </main>
-  );
-
   return (
-    <main className="adir-portal" dir="rtl" lang="he">
-      <header className="adir-header">
-        <a href="/" className="adir-brand"><img src="/spaplus-mark.png" alt="" /><span>הפרויקטים של אדיר</span></a>
-        <button type="button" onClick={logout}>יציאה</button>
+    <main className="adir-showcase" dir="rtl" lang="he">
+      <a className="adir-skip" href="#projects">דילוג לפרויקטים</a>
+      <header className="adir-nav">
+        <a className="adir-identity" href="#top" aria-label="חזרה לראש העמוד">
+          <img src="/adir-ai-empire-icon.png" alt="" />
+          <span><strong>אדיר נאור</strong><small>פרויקטים, מוצרים ומהלכים</small></span>
+        </a>
+        <nav aria-label="ניווט ראשי">
+          <a href="#projects">הפרויקטים</a>
+          <a href="#about">איך אני בונה</a>
+          <a className="adir-empire-link" href="https://adir-ai-empire.adir-naor-7510.chatgpt.site" target="_blank" rel="noreferrer">אימפריית אדיר</a>
+        </nav>
       </header>
-      <section className="adir-hero">
-        <div><p className="adir-kicker">תמונת מצב חיה</p><h1>כל הפרויקטים, בעמוד אחד.</h1><p>מה פעיל, מה לקראת סיום, מה מתוכנן ומה הצעד הבא בכל פרויקט.</p></div>
-        <div className="adir-total"><strong>{projects.length}</strong><span>פרויקטים במערכת</span>{updatedAt ? <small>עודכן {new Date(updatedAt).toLocaleDateString("he-IL")}</small> : null}</div>
+
+      <section className="adir-hero" id="top">
+        <div className="adir-hero-copy">
+          <p className="adir-eyebrow"><i />בונה עסקים, מוצרים ומערכות</p>
+          <h1>מה כבר בניתי.<br />מה אני בונה עכשיו.<br /><em>ומה מגיע אחר כך.</em></h1>
+          <p className="adir-intro">זה המקום שבו אני מרכז את הפרויקטים שמעסיקים אותי באמת. אתרים, מערכות ניהול, אוטומציות, מותגים ורעיונות שהופכים מתכנון למוצר עובד.</p>
+          <div className="adir-hero-actions">
+            <a href="#projects">לראות על מה אני עובד</a>
+            <a href="https://adir-ai-empire.adir-naor-7510.chatgpt.site" target="_blank" rel="noreferrer">להכיר את האימפריה</a>
+          </div>
+        </div>
+        <div className="adir-emblem" aria-label="הסמל של אימפריית אדיר">
+          <span className="adir-orbit orbit-one" />
+          <span className="adir-orbit orbit-two" />
+          <img src="/adir-ai-empire-icon.png" alt="הסמל של אימפריית אדיר" />
+          <p>חזון. בנייה. תנועה.</p>
+        </div>
       </section>
-      <section className="adir-metrics" aria-label="סיכום פרויקטים">
-        <button onClick={() => setFilter("active")}><span>פעילים</span><strong>{counts.active}</strong></button>
-        <button onClick={() => setFilter("nearly_done")}><span>לקראת סיום</span><strong>{counts.nearlyDone}</strong></button>
-        <button onClick={() => setFilter("planned")}><span>עתידיים</span><strong>{counts.planned}</strong></button>
-        <button onClick={() => setFilter("done")}><span>הושלמו</span><strong>{counts.done}</strong></button>
+
+      <section className="adir-numbers" aria-label="תמונת מצב">
+        <article><strong>{projects.length || "—"}</strong><span>פרויקטים בתצוגה</span></article>
+        <article><strong>{counts.active || "—"}</strong><span>נבנים עכשיו</span></article>
+        <article><strong>{counts.done || "—"}</strong><span>כבר הושלמו</span></article>
+        <article><strong>{counts.planned || "—"}</strong><span>מחכים לתורם</span></article>
       </section>
-      <section className="adir-toolbar">
-        <label><span>חיפוש</span><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="שם פרויקט או שלב" /></label>
-        <div role="group" aria-label="סינון פרויקטים">{filters.map(([value, label]) => <button className={filter === value ? "is-active" : ""} key={value} onClick={() => setFilter(value)}>{label}</button>)}</div>
+
+      <section className="adir-projects-section" id="projects">
+        <div className="adir-section-head">
+          <div><p className="adir-eyebrow"><i />תיק העבודות החי שלי</p><h2>הפרויקטים</h2><p>הרשימה משתנה יחד איתי. מה שמופיע ראשון הוא מה שאני רוצה לשים עליו את הזרקור עכשיו.</p></div>
+          {updatedAt ? <time dateTime={updatedAt}>עודכן לאחרונה {new Date(updatedAt).toLocaleDateString("he-IL")}</time> : null}
+        </div>
+
+        <div className="adir-filters" role="group" aria-label="סינון פרויקטים">
+          {filters.map(([value, label]) => <button type="button" className={filter === value ? "is-active" : ""} key={value} onClick={() => setFilter(value)}>{label}</button>)}
+        </div>
+
+        {loading ? <div className="adir-loading" role="status"><i /><span>טוען את הפרויקטים...</span></div> : null}
+        {error ? <div className="adir-error" role="alert"><h2>הפרויקטים לא נטענו כרגע</h2><p>אפשר לנסות שוב בעוד רגע.</p><button type="button" onClick={() => void loadProjects()}>ניסיון נוסף</button></div> : null}
+        {!loading && !error && visible.length === 0 ? <div className="adir-empty">אין כרגע פרויקטים בקטגוריה הזאת.</div> : null}
+
+        <div className="adir-project-list" aria-live="polite">
+          {visible.map((project, index) => {
+            const progress = project.progress ?? 0;
+            return (
+              <article className={`adir-project ${index === 0 && filter === "all" ? "is-featured" : ""}`} key={project.id}>
+                <div className="adir-project-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</div>
+                <div className="adir-project-main">
+                  <div className="adir-project-meta">
+                    <span className={`status-${project.status}`}>{statusLabels[project.status] || project.status}</span>
+                    <span>{areaLabels[project.area] || project.area}</span>
+                  </div>
+                  <h3>{project.name}</h3>
+                  <p className="adir-project-description">{project.description}</p>
+                  <div className="adir-project-details">
+                    <div><span>איפה זה עומד</span><strong>{project.currentPhase || "הפרויקט בתכנון"}</strong></div>
+                    <div><span>הצעד הבא</span><strong>{project.nextAction || "השלב הבא יוגדר בקרוב"}</strong></div>
+                  </div>
+                  <footer>
+                    <div className="adir-tags">{project.tags.slice(0, 4).map((tag) => <span key={tag}>{tag}</span>)}</div>
+                    {project.siteUrl ? <a href={project.siteUrl} target="_blank" rel="noreferrer">לצפייה בפרויקט <span aria-hidden="true">↗</span></a> : null}
+                  </footer>
+                </div>
+                <aside className="adir-project-progress">
+                  <div className="adir-progress-ring" style={{ "--progress": `${progress * 3.6}deg` } as CSSProperties}>
+                    <strong>{project.progress === null ? "?" : `${project.progress}%`}</strong>
+                  </div>
+                  <span>{project.progress === null ? "המצב מתעדכן" : project.progressSource === "confirmed" ? "התקדמות מעודכנת" : "הערכת התקדמות"}</span>
+                  {project.totalTasks ? <small>{project.completedTasks} מתוך {project.totalTasks} אבני דרך הושלמו</small> : null}
+                </aside>
+              </article>
+            );
+          })}
+        </div>
       </section>
-      {visible.length === 0 ? <p className="adir-empty">לא נמצאו פרויקטים שמתאימים לחיפוש.</p> : null}
-      <section className="adir-grid" aria-live="polite">
-        {visible.map((project) => {
-          const doneTasks = project.tasks.filter((task) => task.status === "done").length;
-          const progress = project.progress ?? 0;
-          return <article className={`adir-card priority-${project.priority}`} key={project.id}>
-            <div className="adir-card-head"><div><span className={`adir-status status-${project.status}`}>{statusLabels[project.status] || project.status}</span><h2>{project.name}</h2><p>{project.description}</p></div><div className="adir-progress" style={{ "--progress": `${progress * 3.6}deg` } as CSSProperties}><strong>{project.progress === null ? "?" : `${project.progress}%`}</strong><span>{project.progressSource === "confirmed" ? "מאומת" : project.progress === null ? "טרם אומת" : "הערכה"}</span></div></div>
-            <div className="adir-phase"><span>השלב הנוכחי</span><strong>{project.currentPhase || "טרם עודכן"}</strong></div>
-            <div className="adir-next"><span>הצעד הבא</span><p>{project.nextAction || "טרם הוגדר"}</p></div>
-            {project.blockers ? <div className="adir-blocker"><span>חסם או תלות</span><p>{project.blockers}</p></div> : null}
-            <footer><div><span>משימות {doneTasks}/{project.tasks.length}</span><span>אחריות: {project.owner}</span></div>{project.siteUrl ? <a href={project.siteUrl} target="_blank" rel="noreferrer">כניסה לאתר</a> : <span className="adir-no-link">הקישור טרם הוגדר</span>}</footer>
-          </article>;
-        })}
+
+      <section className="adir-manifesto" id="about">
+        <div><img src="/adir-ai-empire-icon.png" alt="" /><p className="adir-eyebrow"><i />איך אני עובד</p><h2>אני אוהב לקחת רעיון גדול ולבנות לו את כל הדרך.</h2></div>
+        <p>לא רק מסך יפה ולא רק קוד. אני מחבר בין המוצר, העסק, השיווק, התפעול והאנשים שצריכים לגרום לדבר הזה לעבוד בעולם האמיתי. הרשימה כאן היא תיעוד חי של הדרך הזאת.</p>
       </section>
+
+      <footer className="adir-footer">
+        <a href="#top"><img src="/adir-ai-empire-icon.png" alt="" /><span><strong>הפרויקטים של אדיר</strong><small>נבנה ומנוהל מתוך אימפריית אדיר</small></span></a>
+        <p>© {new Date().getFullYear()} אדיר נאור</p>
+      </footer>
     </main>
   );
 }

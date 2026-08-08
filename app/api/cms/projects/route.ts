@@ -3,7 +3,7 @@ import { asc, desc, eq } from "drizzle-orm";
 import { getDb } from "../../../../db";
 import { cmsAuditLog, projectItems, projectNotes, projectTasks } from "../../../../db/schema";
 import { getAuthorizedAdmin } from "../../../admin-auth";
-import { isProjectPasswordConfigured, normalizeProjectUrl, setProjectPassword } from "../../../project-access";
+import { normalizeProjectUrl } from "../../../project-access";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -13,6 +13,7 @@ const projectFields = new Set([
 ]);
 const taskFields = new Set(["title", "status", "progress", "owner", "sortOrder"]);
 const noteFields = new Set(["body", "state"]);
+const SHOWCASE_ORDER_KEY = "project_showcase_order";
 
 const initialProjects = [
   {
@@ -239,6 +240,22 @@ function clampProgress(value: unknown) {
 }
 function parseList(value: string) { try { return JSON.parse(value) as string[]; } catch { return []; } }
 
+async function getShowcaseOrder() {
+  const row = await env.DB.prepare("SELECT value FROM project_workspace_meta WHERE key = ?").bind(SHOWCASE_ORDER_KEY).first<{ value: string }>();
+  try {
+    const ids = JSON.parse(row?.value || "[]") as unknown[];
+    return ids.map(Number).filter(Number.isInteger);
+  } catch {
+    return [];
+  }
+}
+
+async function saveShowcaseOrder(ids: number[]) {
+  const now = new Date().toISOString();
+  await env.DB.prepare("INSERT INTO project_workspace_meta (key, value, updated_at) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at")
+    .bind(SHOWCASE_ORDER_KEY, JSON.stringify(ids), now).run();
+}
+
 let tablesPromise: Promise<void> | null = null;
 let bootstrapPromise: Promise<void> | null = null;
 
@@ -303,7 +320,7 @@ async function seedIfEmpty() {
 }
 
 async function syncProjectKnowledge() {
-  const version = "2026-08-08-v4";
+  const version = "2026-08-08-v5";
   const current = await env.DB.prepare("SELECT value FROM project_workspace_meta WHERE key = 'knowledge_version'").first<{ value: string }>();
   if (current?.value === version) return;
   const now = new Date().toISOString();
@@ -328,6 +345,17 @@ async function syncProjectKnowledge() {
     const verifiedUrl = verifiedProjectUrls[project.name];
     if (verifiedUrl) await env.DB.prepare("UPDATE project_items SET site_url = ? WHERE id = ? AND site_url = ''").bind(verifiedUrl, existing.id).run();
   }
+  await env.DB.prepare("UPDATE project_items SET description = ?, current_phase = ?, next_action = ?, blockers = '', updated_at = ? WHERE name = ? AND current_phase = ?")
+    .bind(
+      "דשבורד הפרויקטים, תתי המשימות, ההערות, דיווחי הבאגים ועמוד התדמית הציבורי של העשייה.",
+      "עמוד התדמית הציבורי מחובר למערכת הניהול",
+      "להמשיך לעדכן את סדר הפרויקטים ואת ההתקדמות מתוך מרכז הניהול.",
+      now,
+      "מרכז הפרויקטים והבאגים של אדיר",
+      "הוספת הדף הפרטי המוגן וחיבורו לניהול",
+    ).run();
+  await env.DB.prepare("UPDATE project_tasks SET title = ?, updated_at = ? WHERE title = ?")
+    .bind("עמוד תדמית ציבורי לפרויקטים של אדיר", now, "דף פרטי לאדיר ולרועי").run();
   await env.DB.prepare("INSERT INTO project_workspace_meta (key, value, updated_at) VALUES ('knowledge_version', ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at")
     .bind(version, now).run();
 }
@@ -342,29 +370,33 @@ async function authorize() {
 export async function GET() {
   const access = await authorize(); if (access.response) return access.response;
   await ensureBootstrap();
-  const [projects, tasks, notes, accessConfigured] = await Promise.all([
+  const [projects, tasks, notes, showcaseOrder] = await Promise.all([
     getDb().select().from(projectItems).orderBy(asc(projectItems.id)),
     getDb().select().from(projectTasks).orderBy(asc(projectTasks.sortOrder), asc(projectTasks.id)),
     getDb().select().from(projectNotes).orderBy(desc(projectNotes.createdAt), desc(projectNotes.id)),
-    isProjectPasswordConfigured(),
+    getShowcaseOrder(),
   ]);
   const tasksByProject = new Map<number, typeof tasks>();
   const notesByProject = new Map<number, typeof notes>();
   for (const task of tasks) tasksByProject.set(task.projectId, [...(tasksByProject.get(task.projectId) || []), task]);
   for (const note of notes) notesByProject.set(note.projectId, [...(notesByProject.get(note.projectId) || []), note]);
-  return Response.json({ accessConfigured, projects: projects.map((project) => ({ ...project, collaborators: parseList(project.collaborators), sourceThreads: parseList(project.sourceThreads), tags: parseList(project.tags), tasks: tasksByProject.get(project.id) || [], notes: notesByProject.get(project.id) || [] })) });
+  const order = showcaseOrder.length ? showcaseOrder : projects.map((project) => project.id);
+  const position = new Map(order.map((id, index) => [id, index + 1]));
+  return Response.json({ projects: projects.map((project) => ({ ...project, publicSortOrder: position.get(project.id) || order.length + project.id, collaborators: parseList(project.collaborators), sourceThreads: parseList(project.sourceThreads), tags: parseList(project.tags), tasks: tasksByProject.get(project.id) || [], notes: notesByProject.get(project.id) || [] })) });
 }
 
 export async function POST(request: Request) {
   const access = await authorize(); if (access.response) return access.response;
   await ensureTables();
   const body = await request.json() as JsonRecord; const now = new Date().toISOString();
-  if (body.kind === "access_password") {
-    const password = String(body.password || "");
-    if (password.length < 8 || password.length > 128) return Response.json({ error: "Password must contain 8 to 128 characters" }, { status: 400 });
-    await setProjectPassword(password);
-    await getDb().insert(cmsAuditLog).values({ actorEmail: access.admin!.email, action: "project.portal.password.updated", entityType: "project_portal", entityId: "shared", details: "{}", createdAt: now });
-    return Response.json({ success: true, accessConfigured: true });
+  if (body.kind === "showcase_order") {
+    const currentIds = (await getDb().select({ id: projectItems.id }).from(projectItems)).map((item) => item.id);
+    const requested = Array.isArray(body.orderedIds) ? body.orderedIds.map(Number).filter(Number.isInteger) : [];
+    const allowed = new Set(currentIds);
+    const orderedIds = [...new Set(requested.filter((id) => allowed.has(id))), ...currentIds.filter((id) => !requested.includes(id))];
+    await saveShowcaseOrder(orderedIds);
+    await getDb().insert(cmsAuditLog).values({ actorEmail: access.admin!.email, action: "project.showcase.order.updated", entityType: "project_showcase", entityId: "public", details: JSON.stringify({ orderedIds }), createdAt: now });
+    return Response.json({ success: true, orderedIds });
   }
   if (body.kind === "task") {
     const projectId = Number(body.projectId); const title = String(body.title || "").trim();

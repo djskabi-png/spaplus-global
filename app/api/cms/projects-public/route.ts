@@ -2,7 +2,7 @@ import { env } from "cloudflare:workers";
 import { asc, eq } from "drizzle-orm";
 import { getDb } from "../../../../db";
 import { projectItems, projectTasks } from "../../../../db/schema";
-import { verifyProjectPassword } from "../../../project-access";
+const SHOWCASE_ORDER_KEY = "project_showcase_order";
 
 function parseList(value: string) {
   try { return JSON.parse(value) as string[]; } catch { return []; }
@@ -10,8 +10,7 @@ function parseList(value: string) {
 
 function privateResponse(payload: unknown, init?: ResponseInit) {
   const response = Response.json(payload, init);
-  response.headers.set("cache-control", "private, no-store");
-  response.headers.set("x-robots-tag", "noindex, nofollow");
+  response.headers.set("cache-control", "public, max-age=30, stale-while-revalidate=60");
   return response;
 }
 
@@ -27,17 +26,22 @@ async function isInternalRequest(request: Request) {
   return subtle.timingSafeEqual(new Uint8Array(expectedHash), new Uint8Array(providedHash));
 }
 
-export async function POST(request: Request) {
-  if (!(await isInternalRequest(request))) return privateResponse({ error: "Forbidden" }, { status: 403 });
-  const body = await request.json().catch(() => ({})) as { password?: string };
-  const valid = await verifyProjectPassword(String(body.password || ""));
-  return valid ? privateResponse({ valid: true }) : privateResponse({ valid: false }, { status: 401 });
-}
-
 export async function GET(request: Request) {
   if (!(await isInternalRequest(request))) return privateResponse({ error: "Forbidden" }, { status: 403 });
-  const projects = await getDb().select().from(projectItems).where(eq(projectItems.publicVisible, true)).orderBy(asc(projectItems.id));
-  const tasks = await getDb().select().from(projectTasks).orderBy(asc(projectTasks.sortOrder), asc(projectTasks.id));
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS project_workspace_meta (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  )`).run();
+  const [projects, tasks, orderRow] = await Promise.all([
+    getDb().select().from(projectItems).where(eq(projectItems.publicVisible, true)).orderBy(asc(projectItems.id)),
+    getDb().select().from(projectTasks).orderBy(asc(projectTasks.sortOrder), asc(projectTasks.id)),
+    env.DB.prepare("SELECT value FROM project_workspace_meta WHERE key = ?").bind(SHOWCASE_ORDER_KEY).first<{ value: string }>(),
+  ]);
+  let order: number[] = [];
+  try { order = (JSON.parse(orderRow?.value || "[]") as unknown[]).map(Number).filter(Number.isInteger); } catch { order = []; }
+  const position = new Map(order.map((id, index) => [id, index]));
+  projects.sort((left, right) => (position.get(left.id) ?? order.length + left.id) - (position.get(right.id) ?? order.length + right.id));
   const tasksByProject = new Map<number, typeof tasks>();
   for (const task of tasks) tasksByProject.set(task.projectId, [...(tasksByProject.get(task.projectId) || []), task]);
   return privateResponse({
@@ -50,16 +54,13 @@ export async function GET(request: Request) {
       status: project.status,
       progress: project.progress,
       progressSource: project.progressSource,
-      priority: project.priority,
-      owner: project.owner,
-      collaborators: parseList(project.collaborators),
       currentPhase: project.currentPhase,
       nextAction: project.nextAction,
-      blockers: project.blockers,
       targetDate: project.targetDate,
       tags: parseList(project.tags),
       siteUrl: project.siteUrl,
-      tasks: tasksByProject.get(project.id) || [],
+      totalTasks: (tasksByProject.get(project.id) || []).length,
+      completedTasks: (tasksByProject.get(project.id) || []).filter((task) => task.status === "done").length,
     })),
   });
 }
