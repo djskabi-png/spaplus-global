@@ -40,7 +40,7 @@ const LEGACY_BRAND_TERMS = [privateName("Y2hhdGdwdA=="), privateName("b3BlbmFp")
 
 function textResponse(message: string, status = 400): Response {
   return new Response(
-    `<!doctype html><html lang="he" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SpaPlus</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#fff8fb;color:#172d4f;font-family:Arial,sans-serif}.card{width:min(520px,calc(100% - 40px));padding:40px;border:1px solid #e3dce2;border-radius:24px;background:#fff;box-shadow:0 20px 60px #172d4f18;text-align:center}a{display:inline-block;margin-top:18px;color:#ed1766;font-weight:700}</style><main class="card"><h1>הגישה לא אושרה</h1><p>${escapeHtml(message)}</p><a href="/">חזרה לאתר</a></main></html>`,
+    `<!doctype html><html lang="he" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SpaPlus</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;800&display=swap" rel="stylesheet"><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#fff8fb;color:#172d4f;font-family:"Heebo",Arial,sans-serif}.card{width:min(520px,calc(100% - 40px));padding:40px;border:1px solid #e3dce2;border-radius:24px;background:#fff;box-shadow:0 20px 60px #172d4f18;text-align:center}a{display:inline-block;margin-top:18px;color:#ed1766;font-weight:700}</style><main class="card"><h1>הגישה לא אושרה</h1><p>${escapeHtml(message)}</p><a href="/">חזרה לאתר</a></main></html>`,
     {
       status,
       headers: {

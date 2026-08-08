@@ -562,6 +562,7 @@ test("every Hebrew management surface is locked to the modern Heebo stack", asyn
   assert.match(accessDenied, /dir="rtl" lang="he"/);
   assert.match(worker, /fonts\.googleapis\.com\/css2\?family=Heebo/);
   assert.match(worker, /font-family:"Heebo",Arial,sans-serif/);
+  assert.match(worker, /function textResponse[\s\S]*?background:#fff8fb;color:#172d4f;font-family:"Heebo",Arial,sans-serif/);
   assert.doesNotMatch(`${layout}\n${projectStyles}\n${bugStyles}`, /Assistant|font-assistant/);
   assert.doesNotMatch(`${globalStyles}\n${adminStyles}\n${projectStyles}\n${bugStyles}\n${demoStyles}\n${demoTypography}`, /font-family:(?:serif|cursive|fantasy)/i);
 });
