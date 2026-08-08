@@ -72,6 +72,14 @@ function verifyMetaWebhookRequest(request: Request, env: Env): Response {
     },
   });
 }
+
+function privateBackendOrigin(env: Env): string {
+  return (env.PRIVATE_BACKEND_ORIGIN || "").trim().replace(/^["']|["']$/g, "");
+}
+
+function sitesBypassToken(env: Env): string {
+  return (env.SITES_BYPASS_TOKEN || "").trim();
+}
 const privateName = (encoded: string) => atob(encoded);
 const PRIVATE_AUTHORIZATION_HEADER = privateName(
   "T0FJLVNpdGVzLUF1dGhvcml6YXRpb24=",
@@ -433,11 +441,13 @@ async function finishDriveConnection(request: Request, env: Env): Promise<Respon
 }
 
 async function proxyProtectedRequest(request: Request, env: Env, session: SignedPayload): Promise<Response> {
-  if (!env.PRIVATE_BACKEND_ORIGIN || !env.SITES_BYPASS_TOKEN) return textResponse("מערכת הניהול אינה זמינה כרגע.", 503);
+  const backendOrigin = privateBackendOrigin(env);
+  const bypassToken = sitesBypassToken(env);
+  if (!backendOrigin || !bypassToken) return textResponse("מערכת הניהול אינה זמינה כרגע.", 503);
   const publicUrl = new URL(request.url);
-  const upstreamUrl = new URL(publicUrl.pathname + publicUrl.search, env.PRIVATE_BACKEND_ORIGIN);
+  const upstreamUrl = new URL(publicUrl.pathname + publicUrl.search, backendOrigin);
   const upstreamHeaders = new Headers(request.headers);
-  upstreamHeaders.set(PRIVATE_AUTHORIZATION_HEADER, `Bearer ${env.SITES_BYPASS_TOKEN}`);
+  upstreamHeaders.set(PRIVATE_AUTHORIZATION_HEADER, `Bearer ${bypassToken}`);
   upstreamHeaders.set("x-spaplus-user-email", String(session.email || ""));
   upstreamHeaders.set("x-spaplus-user-name", encodeURIComponent(String(session.name || session.email || "")));
   if (publicUrl.pathname === "/api/cms/bugs") {
@@ -466,8 +476,8 @@ async function proxyProtectedRequest(request: Request, env: Env, session: Signed
 
   const location = headers.get("location");
   if (location) {
-    const redirected = new URL(location, env.PRIVATE_BACKEND_ORIGIN);
-    if (redirected.origin === new URL(env.PRIVATE_BACKEND_ORIGIN).origin) {
+    const redirected = new URL(location, backendOrigin);
+    if (redirected.origin === new URL(backendOrigin).origin) {
       if (redirected.pathname === LEGACY_SIGN_IN_PATH) {
         redirected.pathname = "/auth/google/start";
       } else if (redirected.pathname === LEGACY_SIGN_OUT_PATH) {
@@ -484,7 +494,7 @@ async function proxyProtectedRequest(request: Request, env: Env, session: Signed
       return brandedAdministrationUnavailable();
     }
     body = body
-      .replaceAll(env.PRIVATE_BACKEND_ORIGIN, publicUrl.origin)
+      .replaceAll(backendOrigin, publicUrl.origin)
       .replaceAll(LEGACY_SIGN_IN_PATH, "/auth/google/start")
       .replaceAll(LEGACY_SIGN_OUT_PATH, "/auth/logout")
       .replaceAll("index-MnjarlW8.js", "index-Dq2-pwm2.js");
@@ -504,17 +514,19 @@ async function proxyProtectedRequest(request: Request, env: Env, session: Signed
  * unstyled administration page.
  */
 async function proxyPrivateAsset(request: Request, env: Env): Promise<Response | null> {
-  if (!env.PRIVATE_BACKEND_ORIGIN || !env.SITES_BYPASS_TOKEN) return null;
+  const backendOrigin = privateBackendOrigin(env);
+  const bypassToken = sitesBypassToken(env);
+  if (!backendOrigin || !bypassToken) return null;
 
   const publicUrl = new URL(request.url);
   const upstreamUrl = new URL(
     `${publicUrl.pathname}${publicUrl.search}`,
-    env.PRIVATE_BACKEND_ORIGIN,
+    backendOrigin,
   );
   const upstream = await fetch(upstreamUrl, {
     method: request.method,
     headers: {
-      [PRIVATE_AUTHORIZATION_HEADER]: `Bearer ${env.SITES_BYPASS_TOKEN}`,
+      [PRIVATE_AUTHORIZATION_HEADER]: `Bearer ${bypassToken}`,
     },
     redirect: "manual",
   });
@@ -540,8 +552,8 @@ async function applyManagedOntarioMetadata(
 ): Promise<Response> {
   if (
     request.method !== "GET" ||
-    !env.PRIVATE_BACKEND_ORIGIN ||
-    !env.SITES_BYPASS_TOKEN ||
+    !privateBackendOrigin(env) ||
+    !sitesBypassToken(env) ||
     !(response.headers.get("content-type") || "").includes("text/html")
   ) {
     return response;
@@ -552,13 +564,15 @@ async function applyManagedOntarioMetadata(
   if (!locale) return response;
 
   try {
+    const backendOrigin = privateBackendOrigin(env);
+    const bypassToken = sitesBypassToken(env);
     const contentUrl = new URL(
       `/api/cms/public?locale=${encodeURIComponent(locale)}`,
-      env.PRIVATE_BACKEND_ORIGIN,
+      backendOrigin,
     );
     const contentResponse = await fetch(contentUrl, {
       headers: {
-        [PRIVATE_AUTHORIZATION_HEADER]: `Bearer ${env.SITES_BYPASS_TOKEN}`,
+        [PRIVATE_AUTHORIZATION_HEADER]: `Bearer ${bypassToken}`,
       },
     });
     if (!contentResponse.ok) return response;
@@ -712,14 +726,14 @@ const worker = {
         url.pathname === "/api/integrations/roomsvip-leads" ||
         url.pathname === "/api/integrations/vii-leads"
       ) &&
-      env.PRIVATE_BACKEND_ORIGIN &&
-      env.SITES_BYPASS_TOKEN
+      privateBackendOrigin(env) &&
+      sitesBypassToken(env)
     ) {
-      const upstreamUrl = new URL(url.pathname + url.search, env.PRIVATE_BACKEND_ORIGIN);
+      const upstreamUrl = new URL(url.pathname + url.search, privateBackendOrigin(env));
       const upstreamHeaders = new Headers(request.headers);
       upstreamHeaders.set(
         PRIVATE_AUTHORIZATION_HEADER,
-        `Bearer ${env.SITES_BYPASS_TOKEN}`,
+        `Bearer ${sitesBypassToken(env)}`,
       );
       upstreamHeaders.delete("host");
       upstreamHeaders.delete("content-length");
