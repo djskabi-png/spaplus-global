@@ -35,5 +35,14 @@ test("Meta webhook reports failures so Meta can retry safely", async () => {
 
   assert.match(route, /const result = await processLeadValues\(values\)/);
   assert.match(route, /status: 503/);
-  assert.match(route, /return existing \? \("duplicate" as const\) : \("inserted" as const\)/);
+  assert.match(route, /if \(existing\) return "duplicate" as const/);
+  assert.match(route, /return "inserted" as const/);
+});
+
+test("Meta webhook requires a valid signature and accepts every form owned by the Canada page", async () => {
+  const route = await readFile(routeUrl, "utf8");
+
+  assert.match(route, /values\.every\(\(value\) => clean\(value\.page_id\) === META_PAGE_ID\)/);
+  assert.match(route, /if \(!hasValidSignature \|\| !hasAllowedLeadContext\)/);
+  assert.doesNotMatch(route, /META_FORM_IDS/);
 });
