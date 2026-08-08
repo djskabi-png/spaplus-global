@@ -116,6 +116,75 @@ const initialProjects = [
       ["מיפוי מצב האתר", "planned", null, "אדיר"],
       ["מיפוי מנועי ההכנסה", "planned", null, "אדיר"],
       ["מיפוי הקמפיינים", "planned", null, "אדיר"],
+      ["להקים קמפיין ממומן מלא ומדויק", "planned", null, "אדיר"],
+    ],
+  },
+  {
+    name: "ויספא, אתר הבית", description: "אתר הבית הציבורי של ויספא, בנפרד ממערכת הניהול.", area: "website",
+    status: "planned", progress: null, progressSource: "unknown", priority: "high", owner: "אדיר", collaborators: [],
+    currentPhase: "טרם התחיל", nextAction: "להגדיר את מבנה האתר, העמודים והתכולה של הגרסה הראשונה.", blockers: "",
+    tags: ["ויספא", "אתר הבית"], sourceThreads: [],
+    tasks: [
+      ["להגדיר מבנה ועמודי גרסה ראשונה", "planned", null, "אדיר"],
+      ["לרכז תוכן ונכסי מדיה", "planned", null, "אדיר"],
+      ["לבנות את אתר הבית", "planned", null, "אדיר"],
+    ],
+  },
+  {
+    name: "SpaPlus ישראל, שדרוגים ואוטומציות", description: "ריכוז השדרוגים, האוטומציות והעבודה השוטפת של ספא פלוס ישראל.", area: "product",
+    status: "planned", progress: null, progressSource: "unknown", priority: "high", owner: "אדיר", collaborators: [],
+    currentPhase: "איסוף ותכנון", nextAction: "לתעדף את השדרוגים ולבנות סדר ביצוע.", blockers: "",
+    tags: ["SpaPlus ישראל", "אוטומציה", "שדרוגים"], sourceThreads: [],
+    tasks: [
+      ["להטמיע בישראל שיפורים שכבר בוצעו בספא פלוס קנדה", "planned", null, "אדיר"],
+      ["לשפר את העבודה השוטפת מול Biz ולהפחית מגע אנושי", "planned", null, "אדיר"],
+      ["להקים עמוד חבילת לינה ועיסוי, עם בחירת תאריך לינה לפני העיסוי", "planned", null, "אדיר"],
+    ],
+  },
+  {
+    name: "SpaPlus ישראל, שוברי מתנה חכמים", description: "מערך חדש של שוברי מתנה חכמים, משלב הרכישה ועד המימוש והניהול.", area: "product",
+    status: "planned", progress: null, progressSource: "unknown", priority: "high", owner: "אדיר", collaborators: [],
+    currentPhase: "טרם התחיל", nextAction: "להגדיר את מסלול הרכישה, המימוש והניהול של השובר החכם.", blockers: "",
+    tags: ["SpaPlus ישראל", "שוברי מתנה"], sourceThreads: [],
+    tasks: [
+      ["להגדיר את מסלול רכישת השובר", "planned", null, "אדיר"],
+      ["להגדיר את מנגנון המימוש", "planned", null, "אדיר"],
+      ["להגדיר ניהול, מעקב ודיווח", "planned", null, "אדיר"],
+    ],
+  },
+  {
+    name: "SpaPlus ישראל, לקוח נוטש הזמנה", description: "טיפול אוטומטי ומדיד בלקוחות שמתחילים הזמנה ולא משלימים אותה.", area: "automation",
+    status: "planned", progress: null, progressSource: "unknown", priority: "high", owner: "אדיר", collaborators: ["האודרס", "סיימון"],
+    currentPhase: "טרם התחיל", nextAction: "למפות את נקודות הנטישה ואת רצף ההמשך מול האודרס וסיימון.", blockers: "",
+    tags: ["SpaPlus ישראל", "נטישת הזמנה", "אוטומציה"], sourceThreads: [],
+    tasks: [
+      ["למפות את נקודות הנטישה במסלול ההזמנה", "planned", null, "אדיר"],
+      ["להגדיר את רצף ההמשך מול האודרס וסיימון", "planned", null, "אדיר"],
+      ["לחבר מדידה ולבדוק המרות חוזרות", "planned", null, "אדיר"],
+    ],
+  },
+  {
+    name: "לידים לרשת האתרים", description: "שכפול מודל הלידים של Rooms VIP לווילה פור יו, צימר פור יו ולופט פור יו.", area: "growth",
+    status: "planned", progress: null, progressSource: "unknown", priority: "high", owner: "אדיר", collaborators: [],
+    currentPhase: "טרם התחיל", nextAction: "להעתיק את מודל Rooms VIP ולהגדיר התאמות לכל מותג.", blockers: "",
+    tags: ["לידים", "קמפיינים", "רשת האתרים"], sourceThreads: [],
+    tasks: [
+      ["להגדיר מודל לידים משותף על בסיס Rooms VIP", "planned", null, "אדיר"],
+      ["להקים קמפיין לידים ל-Villa4U", "planned", null, "אדיר"],
+      ["להקים קמפיין לידים ל-Zimmer4U", "planned", null, "אדיר"],
+      ["להקים קמפיין לידים ל-Loft4U", "planned", null, "אדיר"],
+      ["לחבר מדידה, ניתוב ומעקב לכל אתר", "planned", null, "אדיר"],
+    ],
+  },
+  {
+    name: "חתן כלה", description: "פרויקט גדול לחתן ולכלה, מהטיפוס הראשוני ועד מוצר מלא.", area: "product",
+    status: "in_progress", progress: 35, progressSource: "estimated", priority: "high", owner: "אדיר", collaborators: [],
+    currentPhase: "הטיפוס הראשוני נבנה", nextAction: "למפות את מה שכבר קיים ולהגדיר את שלבי ההשלמה לגרסה הבאה.", blockers: "",
+    tags: ["חתן כלה", "טיפוס ראשוני"], sourceThreads: [],
+    tasks: [
+      ["לסכם את הטיפוס הראשוני ואת מה שכבר הושלם", "done", 100, "אדיר"],
+      ["להגדיר את מסלול המוצר המלא", "in_progress", null, "אדיר"],
+      ["לבנות רשימת השלמות לגרסה הבאה", "planned", null, "אדיר"],
     ],
   },
 ];
@@ -171,17 +240,22 @@ async function seedIfEmpty() {
 }
 
 async function syncProjectKnowledge() {
-  const version = "2026-08-08-v2";
+  const version = "2026-08-08-v3";
   const current = await env.DB.prepare("SELECT value FROM project_workspace_meta WHERE key = 'knowledge_version'").first<{ value: string }>();
   if (current?.value === version) return;
   const now = new Date().toISOString();
   for (const project of initialProjects) {
-    const existing = await env.DB.prepare("SELECT id FROM project_items WHERE name = ? LIMIT 1").bind(project.name).first<{ id: number }>();
-    if (!existing) continue;
-    const taskCount = await env.DB.prepare("SELECT COUNT(*) AS total FROM project_tasks WHERE project_id = ?").bind(existing.id).first<{ total: number }>();
-    if (Number(taskCount?.total || 0) === 0) {
-      for (let index = 0; index < project.tasks.length; index += 1) {
-        const [title, status, progress, owner] = project.tasks[index];
+    let existing = await env.DB.prepare("SELECT id FROM project_items WHERE name = ? LIMIT 1").bind(project.name).first<{ id: number }>();
+    if (!existing) {
+      const result = await env.DB.prepare("INSERT INTO project_items (name, description, area, status, progress, progress_source, priority, owner, collaborators, current_phase, next_action, blockers, source_threads, tags, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+        .bind(project.name, project.description, project.area, project.status, project.progress, project.progressSource, project.priority, project.owner, json(project.collaborators), project.currentPhase, project.nextAction, project.blockers, json(project.sourceThreads), json(project.tags), now, now).run();
+      existing = { id: Number(result.meta.last_row_id) };
+    }
+    for (let index = 0; index < project.tasks.length; index += 1) {
+      const [title, status, progress, owner] = project.tasks[index];
+      const existingTask = await env.DB.prepare("SELECT id FROM project_tasks WHERE project_id = ? AND title = ? LIMIT 1")
+        .bind(existing.id, title).first<{ id: number }>();
+      if (!existingTask) {
         await env.DB.prepare("INSERT INTO project_tasks (project_id, title, status, progress, owner, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
           .bind(existing.id, title, status, progress, owner, index, now, now).run();
       }
