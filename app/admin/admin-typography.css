@@ -1,0 +1,8 @@
+.admin-font-lock,
+.admin-font-lock * {
+  font-family: var(--font-heebo, "Heebo"), Arial, sans-serif !important;
+}
+
+.admin-font-lock :is(button, input, select, textarea, option) {
+  font: inherit;
+}

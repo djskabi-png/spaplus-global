@@ -538,9 +538,13 @@ test("management access starts on a branded page before Google sign-in", async (
 });
 
 test("every Hebrew management surface is locked to the modern Heebo stack", async () => {
-  const [globalStyles, adminStyles, demoStyles, demoTypography, demoPage, protectedDemoPage] = await Promise.all([
+  const [globalStyles, adminStyles, adminTypography, adminLayout, projectsStyles, bugsStyles, demoStyles, demoTypography, demoPage, protectedDemoPage] = await Promise.all([
     read("app/globals.css"),
     read("app/admin/admin.css"),
+    read("app/admin/admin-typography.css"),
+    read("app/admin/layout.tsx"),
+    read("app/admin/projects/projects.css"),
+    read("app/admin/bugs/bugs.css"),
     read("app/demo/new-spa/new-spa-demo.css"),
     read("app/demo/new-spa/new-spa-typography.css"),
     read("app/demo/new-spa/page.tsx"),
@@ -549,10 +553,15 @@ test("every Hebrew management surface is locked to the modern Heebo stack", asyn
 
   assert.match(globalStyles, /font-family: var\(--font-heebo, "Heebo"\), Arial, sans-serif !important/);
   assert.match(adminStyles, /\.cms-shell,\.cms-shell \*\{font-family:var\(--font-heebo,"Heebo"\),Arial,sans-serif!important\}/);
+  assert.match(adminTypography, /\.admin-font-lock[\s\S]*font-family: var\(--font-heebo, "Heebo"\), Arial, sans-serif !important/);
+  assert.match(adminLayout, /admin-font-lock/);
+  assert.match(projectsStyles, /font-family:var\(--font-heebo,"Heebo"\),Arial,sans-serif!important/);
+  assert.match(bugsStyles, /font-family:var\(--font-heebo,"Heebo"\),Arial,sans-serif!important/);
   assert.match(demoTypography, /font-family: var\(--font-heebo, "Heebo"\), Arial, sans-serif/);
   assert.match(demoPage, /new-spa-typography\.css/);
   assert.match(protectedDemoPage, /new-spa-typography\.css/);
-  assert.doesNotMatch(`${globalStyles}\n${adminStyles}\n${demoStyles}\n${demoTypography}`, /font-family:(?:serif|cursive|fantasy)/i);
+  assert.doesNotMatch(`${globalStyles}\n${adminStyles}\n${adminTypography}\n${projectsStyles}\n${bugsStyles}\n${demoStyles}\n${demoTypography}`, /font-family:(?:serif|cursive|fantasy)/i);
+  assert.doesNotMatch(`${adminTypography}\n${projectsStyles}\n${bugsStyles}`, /var\(--font-(?:assistant|heebo)\)(?:,|\))/i);
 });
 
 test("lead management provides a localized four-state operational dashboard", async () => {
