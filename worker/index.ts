@@ -287,6 +287,10 @@ async function callProjectPortalBackend(env: Env) {
 
 async function projectShowcaseData(env: Env): Promise<Response> {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS project_workspace_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at TEXT NOT NULL)").run();
+  const projectColumns = await env.DB.prepare("PRAGMA table_info(project_items)").all<{ name: string }>();
+  const columnNames = new Set(projectColumns.results.map((column) => column.name));
+  if (!columnNames.has("site_url")) await env.DB.prepare("ALTER TABLE project_items ADD COLUMN site_url TEXT NOT NULL DEFAULT ''").run();
+  if (!columnNames.has("public_visible")) await env.DB.prepare("ALTER TABLE project_items ADD COLUMN public_visible INTEGER NOT NULL DEFAULT 1").run();
   const [projectResult, orderRow] = await Promise.all([
     env.DB.prepare("SELECT id, name, progress, site_url AS siteUrl, updated_at AS updatedAt FROM project_items WHERE public_visible = 1 ORDER BY id").all<{ id: number; name: string; progress: number | null; siteUrl: string; updatedAt: string }>(),
     env.DB.prepare("SELECT value FROM project_workspace_meta WHERE key = ?").bind("project_showcase_order").first<{ value: string }>(),
