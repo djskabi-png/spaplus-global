@@ -16,6 +16,12 @@ export const metadata: Metadata = {
     siteName: "אימפריית אדיר",
     type: "website",
   },
+  twitter: {
+    card: "summary",
+    title: "הפרויקטים של אדיר נאור",
+    description: "רשימת הפרויקטים של אדיר נאור ורמת ההתקדמות של כל פרויקט.",
+    images: ["https://adir.spaplus.co/adir-ai-empire-icon.png"],
+  },
 };
 
 export default function AdirProjectsPage() {

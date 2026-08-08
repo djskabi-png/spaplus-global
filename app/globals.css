@@ -10,6 +10,8 @@
 }
 
 :root {
+  --font-heebo: "SpaPlus Heebo";
+  --font-noto-sans: Arial, sans-serif;
   --pink: #cf0e5a;
   --pink-deep: #ad0848;
   --pink-soft: #fff0f6;

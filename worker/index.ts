@@ -286,11 +286,17 @@ async function callProjectPortalBackend(env: Env) {
 }
 
 async function projectShowcaseData(env: Env): Promise<Response> {
-  const upstream = await callProjectPortalBackend(env);
-  const headers = new Headers(upstream.headers);
-  headers.set("cache-control", "public, max-age=30, stale-while-revalidate=60");
-  headers.delete("set-cookie");
-  return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers });
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS project_workspace_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at TEXT NOT NULL)").run();
+  const [projectResult, orderRow] = await Promise.all([
+    env.DB.prepare("SELECT id, name, progress, site_url AS siteUrl, updated_at AS updatedAt FROM project_items WHERE public_visible = 1 ORDER BY id").all<{ id: number; name: string; progress: number | null; siteUrl: string; updatedAt: string }>(),
+    env.DB.prepare("SELECT value FROM project_workspace_meta WHERE key = ?").bind("project_showcase_order").first<{ value: string }>(),
+  ]);
+  let order: number[] = [];
+  try { order = (JSON.parse(orderRow?.value || "[]") as unknown[]).map(Number).filter((id) => Number.isInteger(id)); } catch { order = []; }
+  const position = new Map(order.map((id, index) => [id, index]));
+  const projects = [...projectResult.results].sort((left, right) => (position.get(left.id) ?? order.length + left.id) - (position.get(right.id) ?? order.length + right.id));
+  const updatedAt = projects.reduce((latest, project) => project.updatedAt > latest ? project.updatedAt : latest, "");
+  return Response.json({ projects: projects.map(({ updatedAt: _updatedAt, ...project }) => project), updatedAt }, { headers: { "cache-control": "public, max-age=30, stale-while-revalidate=60" } });
 }
 
 function projectShowcaseResponse(response: Response) {
