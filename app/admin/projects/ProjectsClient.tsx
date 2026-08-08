@@ -35,6 +35,8 @@ type Project = {
   blockers: string;
   targetDate: string | null;
   tags: string[];
+  siteUrl: string;
+  publicVisible: boolean;
   tasks: Task[];
   notes: Note[];
 };
@@ -85,6 +87,8 @@ export default function ProjectsClient() {
   const [busyKey, setBusyKey] = useState("");
   const [savedKey, setSavedKey] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [accessConfigured, setAccessConfigured] = useState(false);
+  const [accessMessage, setAccessMessage] = useState("");
 
   async function load() {
     setLoading(true);
@@ -92,8 +96,9 @@ export default function ProjectsClient() {
     try {
       const response = await fetch("/api/cms/projects", { cache: "no-store" });
       if (!response.ok) throw new Error("load");
-      const payload = await response.json() as { projects: Project[] };
+      const payload = await response.json() as { projects: Project[]; accessConfigured: boolean };
       setProjects(payload.projects);
+      setAccessConfigured(payload.accessConfigured);
     } catch {
       setError("לא ניתן לטעון כרגע את הפרויקטים. נסו לרענן את העמוד.");
     } finally {
@@ -158,6 +163,19 @@ export default function ProjectsClient() {
       setProjects((items) => [...items, project]);
       setShowAdd(false);
       form.reset();
+    }
+  }
+
+  async function saveAccessPassword(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const password = String(new FormData(form).get("password") || "");
+    const saved = await request("POST", { kind: "access_password", password }, "access:password");
+    if (saved) {
+      setAccessConfigured(true);
+      setAccessMessage("קוד הגישה נשמר. הדף הפרטי מוכן לאדיר ולרועי.");
+      form.reset();
+      window.setTimeout(() => setAccessMessage(""), 4000);
     }
   }
 
@@ -250,7 +268,7 @@ export default function ProjectsClient() {
           <h1>הפרויקטים של אדיר</h1>
           <p>פרויקטים, משימות, הערות, חסמים ותכנון עתידי במקום אחד.</p>
         </div>
-        <button type="button" onClick={() => setShowAdd(true)}>פרויקט חדש</button>
+        <div className="projects-hero-actions"><a href="https://adir.spaplus.co" target="_blank" rel="noreferrer">צפייה בדף הפרטי</a><button type="button" onClick={() => setShowAdd(true)}>פרויקט חדש</button></div>
       </section>
 
       <section className="projects-metrics" aria-label="סיכום פרויקטים">
@@ -260,6 +278,12 @@ export default function ProjectsClient() {
         <button type="button" onClick={() => setFilter("waiting")}><span>ממתינים</span><strong>{counts.waiting}</strong><small>חסומים או תלויים</small></button>
         <article><span>משימות שהושלמו</span><strong>{counts.doneTasks}/{counts.totalTasks}</strong><small>בכל הפרויקטים</small></article>
         <article><span>התקדמות מאומתת</span><strong>{counts.knownAverage}%</strong><small>רק מפרויקטים עם אחוז</small></article>
+      </section>
+
+      <section className="projects-access-panel" aria-labelledby="projects-access-title">
+        <div><p>גישה משותפת</p><h2 id="projects-access-title">הדף הפרטי של אדיר ורועי</h2><span>{accessConfigured ? "קוד גישה פעיל. אפשר להחליף אותו בכל עת." : "עדיין לא הוגדר קוד גישה לדף."}</span></div>
+        <form onSubmit={saveAccessPassword}><label><span>{accessConfigured ? "קוד גישה חדש" : "הגדרת קוד גישה"}</span><input name="password" type="password" minLength={8} maxLength={128} autoComplete="new-password" required placeholder="לפחות שמונה תווים" /></label><button disabled={busyKey === "access:password"}>{busyKey === "access:password" ? "שומר..." : accessConfigured ? "החלפת הקוד" : "שמירת הקוד"}</button></form>
+        {accessMessage ? <p className="projects-access-message" role="status">{accessMessage}</p> : null}
       </section>
 
       <section className="portfolio-line" aria-label="מצב תיק הפרויקטים">
@@ -326,6 +350,11 @@ export default function ProjectsClient() {
                 {project.collaborators.length ? <span>שותפים: {project.collaborators.join(", ")}</span> : null}
               </div>
 
+              <div className="project-public-settings">
+                <label><span>קישור כניסה לאתר</span><input type="url" defaultValue={project.siteUrl} placeholder="https://" onBlur={(event) => { if (event.target.value !== project.siteUrl) void update("project", project.id, { siteUrl: event.target.value }); }} /></label>
+                <label className="project-visible-toggle"><input type="checkbox" checked={project.publicVisible} onChange={(event) => void update("project", project.id, { publicVisible: event.target.checked })} /><span>הצגה בדף הפרטי</span></label>
+              </div>
+
               <details className="project-section" open={project.name.startsWith("BizOnline")}>
                 <summary>משימות <b>{doneTasks}/{project.tasks.length}</b></summary>
                 <div className="task-list">
@@ -385,6 +414,7 @@ export default function ProjectsClient() {
               <label><span>עדיפות</span><select name="priority"><option value="medium">בינונית</option><option value="high">גבוהה</option><option value="critical">קריטית</option><option value="low">נמוכה</option></select></label>
             </div>
             <label><span>הצעד הראשון</span><input name="nextAction" /></label>
+            <label><span>קישור כניסה לאתר</span><input name="siteUrl" type="url" placeholder="https://" /></label>
             <button className="modal-submit" type="submit" disabled={busyKey === "project:new"}>{busyKey === "project:new" ? "מוסיף..." : "הוספת הפרויקט"}</button>
           </form>
         </div>

@@ -12,6 +12,7 @@ interface Env {
   GOOGLE_CLIENT_SECRET?: string;
   ADMIN_SESSION_SECRET?: string;
   ADMIN_ALLOWED_EMAILS?: string;
+  PROJECT_PORTAL_BACKEND_SECRET?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -29,11 +30,13 @@ interface ExecutionContext {
 type SignedPayload = Record<string, unknown> & { exp: number };
 
 const SESSION_COOKIE = "spg_admin_session";
+const PROJECT_PORTAL_COOKIE = "spg_project_portal";
 const OAUTH_STATE_COOKIE = "spg_oauth_state";
 const GOOGLE_CALLBACK = "https://app.spaplus.co/auth/google/callback";
 const GOOGLE_DRIVE_CALLBACK = "https://app.spaplus.co/auth/google/drive/callback";
 const DEFAULT_PRIVATE_BACKEND_ORIGIN = "https://spaplus-global-brand.adir-naor-7510.chatgpt.site";
 const SESSION_SECONDS = 8 * 60 * 60;
+const PROJECT_PORTAL_SECONDS = 12 * 60 * 60;
 const DRIVE_CREDENTIAL_KEY = "bugs_google_refresh_token";
 
 function constantTimeEqual(left: string, right: string): boolean {
@@ -270,6 +273,92 @@ function safeReturnTo(value: string | null): string {
 
 function randomToken(): string {
   return base64UrlEncode(crypto.getRandomValues(new Uint8Array(24)));
+}
+
+async function projectPortalFingerprint(request: Request) {
+  const source = `${request.headers.get("cf-connecting-ip") || "unknown"}|${request.headers.get("user-agent") || "unknown"}`;
+  return base64UrlEncode(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(source))));
+}
+
+async function projectPortalRateLimit(request: Request, env: Env) {
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS project_portal_login_attempts (fingerprint TEXT PRIMARY KEY NOT NULL, window_start INTEGER NOT NULL, attempts INTEGER NOT NULL)").run();
+  const fingerprint = await projectPortalFingerprint(request);
+  const now = Math.floor(Date.now() / 1000);
+  const row = await env.DB.prepare("SELECT window_start, attempts FROM project_portal_login_attempts WHERE fingerprint = ?").bind(fingerprint).first<{ window_start: number; attempts: number }>();
+  if (!row || now - row.window_start >= 15 * 60) return { allowed: true, fingerprint, attempts: 0, windowStart: now };
+  return { allowed: row.attempts < 5, fingerprint, attempts: row.attempts, windowStart: row.window_start };
+}
+
+async function recordProjectPortalAttempt(env: Env, state: { fingerprint: string; attempts: number; windowStart: number }, success: boolean) {
+  if (success) {
+    await env.DB.prepare("DELETE FROM project_portal_login_attempts WHERE fingerprint = ?").bind(state.fingerprint).run();
+    return;
+  }
+  await env.DB.prepare("INSERT INTO project_portal_login_attempts (fingerprint, window_start, attempts) VALUES (?, ?, ?) ON CONFLICT(fingerprint) DO UPDATE SET window_start = excluded.window_start, attempts = excluded.attempts")
+    .bind(state.fingerprint, state.windowStart, state.attempts + 1).run();
+}
+
+async function callProjectPortalBackend(env: Env, method: "GET" | "POST", body?: string) {
+  if (!env.SITES_BYPASS_TOKEN || !env.PROJECT_PORTAL_BACKEND_SECRET) return Response.json({ error: "Portal is unavailable" }, { status: 503 });
+  const upstreamUrl = new URL("/api/cms/projects-public", configuredPrivateBackendOrigin(env));
+  return fetch(upstreamUrl, {
+    method,
+    headers: {
+      [PRIVATE_AUTHORIZATION_HEADER]: `Bearer ${env.SITES_BYPASS_TOKEN}`,
+      "x-spaplus-portal-backend-token": env.PROJECT_PORTAL_BACKEND_SECRET,
+      ...(body ? { "content-type": "application/json" } : {}),
+    },
+    body,
+  });
+}
+
+async function projectPortalSession(request: Request, env: Env): Promise<Response> {
+  if (!env.ADMIN_SESSION_SECRET) return Response.json({ error: "Portal is unavailable" }, { status: 503 });
+  if (request.method === "DELETE") {
+    return new Response(null, { status: 204, headers: { "set-cookie": `${PROJECT_PORTAL_COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0`, "cache-control": "no-store" } });
+  }
+  if (request.method === "GET") {
+    const session = await verifyPayload(parseCookies(request).get(PROJECT_PORTAL_COOKIE), env.ADMIN_SESSION_SECRET);
+    return Response.json({ authenticated: session?.kind === "project-portal" }, { headers: { "cache-control": "no-store" } });
+  }
+  if (request.method !== "POST") return Response.json({ error: "Method not allowed" }, { status: 405 });
+  if (Number(request.headers.get("content-length") || 0) > 1024) return Response.json({ error: "Request is too large" }, { status: 413 });
+  const rate = await projectPortalRateLimit(request, env);
+  if (!rate.allowed) return Response.json({ error: "Too many attempts" }, { status: 429, headers: { "retry-after": "900", "cache-control": "no-store" } });
+  const payload = await request.json().catch(() => ({})) as { password?: string };
+  const password = String(payload.password || "");
+  const upstream = await callProjectPortalBackend(env, "POST", JSON.stringify({ password }));
+  const valid = upstream.ok;
+  await recordProjectPortalAttempt(env, rate, valid);
+  if (!valid) return Response.json({ error: "Invalid credentials" }, { status: 401, headers: { "cache-control": "no-store" } });
+  const token = await signPayload({ kind: "project-portal", exp: Math.floor(Date.now() / 1000) + PROJECT_PORTAL_SECONDS }, env.ADMIN_SESSION_SECRET);
+  return Response.json({ authenticated: true }, { headers: { "set-cookie": `${PROJECT_PORTAL_COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${PROJECT_PORTAL_SECONDS}`, "cache-control": "no-store" } });
+}
+
+async function projectPortalData(request: Request, env: Env): Promise<Response> {
+  if (!env.ADMIN_SESSION_SECRET) return Response.json({ error: "Portal is unavailable" }, { status: 503 });
+  const session = await verifyPayload(parseCookies(request).get(PROJECT_PORTAL_COOKIE), env.ADMIN_SESSION_SECRET);
+  if (session?.kind !== "project-portal") return Response.json({ error: "Unauthorized" }, { status: 401, headers: { "cache-control": "no-store" } });
+  const upstream = await callProjectPortalBackend(env, "GET");
+  const headers = new Headers(upstream.headers);
+  headers.set("cache-control", "private, no-store");
+  headers.set("x-robots-tag", "noindex, nofollow");
+  headers.delete("set-cookie");
+  return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers });
+}
+
+function secureProjectPortalResponse(response: Response) {
+  const headers = new Headers(response.headers);
+  headers.set("cache-control", "private, no-store");
+  headers.set("x-robots-tag", "noindex, nofollow");
+  headers.set("x-frame-options", "DENY");
+  headers.set("referrer-policy", "no-referrer");
+  headers.set("permissions-policy", "camera=(), microphone=(), geolocation=()");
+  const secured = new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+  if (!(headers.get("content-type") || "").includes("text/html")) return secured;
+  return new HTMLRewriter()
+    .on("html", { element(element) { element.setAttribute("lang", "he"); element.setAttribute("dir", "rtl"); } })
+    .transform(secured);
 }
 
 function isProtectedPath(pathname: string): boolean {
@@ -624,6 +713,18 @@ const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     const hostname = url.hostname.toLowerCase();
+
+    if (hostname === "adir.spaplus.co") {
+      if (url.pathname === "/api/session") return secureProjectPortalResponse(await projectPortalSession(request, env));
+      if (url.pathname === "/api/projects" && request.method === "GET") return secureProjectPortalResponse(await projectPortalData(request, env));
+      if (url.pathname === "/robots.txt") return new Response("User-agent: *\nDisallow: /\n", { headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } });
+      if (url.pathname.startsWith("/assets/") || url.pathname.startsWith("/_next/") || /\.[a-z0-9]{2,6}$/i.test(url.pathname)) return env.ASSETS.fetch(request);
+      if (request.method !== "GET" && request.method !== "HEAD") return Response.json({ error: "Not found" }, { status: 404 });
+      const pageUrl = new URL(request.url);
+      pageUrl.pathname = "/adir";
+      const pageRequest = new Request(pageUrl, request);
+      return secureProjectPortalResponse(await handler.fetch(pageRequest, env, ctx));
+    }
 
     if (hostname === "www.spaplus.co") {
       url.hostname = "spaplus.co";

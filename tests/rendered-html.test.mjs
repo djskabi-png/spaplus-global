@@ -990,3 +990,37 @@ test("Canada partner funnel excludes Ontario and requires another Canadian regio
   assert.match(analytics, /site === "ontario"/);
   assert.match(analytics, /AnalyticsSite = "global" \| "ontario" \| "canada"/);
 });
+
+test("Adir project portal is password protected and managed from the main administration", async () => {
+  const [portal, portalCss, projectsClient, projectsRoute, publicRoute, access, worker, config] = await Promise.all([
+    read("app/adir/AdirProjectsClient.tsx"),
+    read("app/adir/adir-projects.css"),
+    read("app/admin/projects/ProjectsClient.tsx"),
+    read("app/api/cms/projects/route.ts"),
+    read("app/api/cms/projects-public/route.ts"),
+    read("app/project-access.ts"),
+    read("worker/index.ts"),
+    read("wrangler.public.jsonc"),
+  ]);
+  assert.match(config, /"pattern": "adir\.spaplus\.co"/);
+  assert.match(config, /"custom_domain": true/);
+  assert.match(worker, /PROJECT_PORTAL_COOKIE/);
+  assert.match(worker, /projectPortalRateLimit/);
+  assert.match(worker, /SameSite=Strict/);
+  assert.match(worker, /x-frame-options/);
+  assert.match(access, /PBKDF2_ITERATIONS = 210_000/);
+  assert.match(access, /crypto\.getRandomValues/);
+  assert.doesNotMatch(access, /password\s*===/);
+  assert.match(projectsClient, /הדף הפרטי של אדיר ורועי/);
+  assert.match(projectsClient, /קישור כניסה לאתר/);
+  assert.match(projectsClient, /הצגה בדף הפרטי/);
+  assert.match(projectsRoute, /kind === "access_password"/);
+  assert.match(publicRoute, /publicVisible/);
+  assert.match(publicRoute, /PROJECT_PORTAL_BACKEND_SECRET/);
+  assert.match(publicRoute, /timingSafeEqual/);
+  assert.match(portal, /כניסה לפרויקטים/);
+  assert.match(portal, /השלב הנוכחי/);
+  assert.match(portal, /הצעד הבא/);
+  assert.match(portalCss, /var\(--font-heebo,"Heebo"\),Arial,sans-serif!important/);
+  assert.match(portalCss, /@media\(max-width:390px\)/);
+});

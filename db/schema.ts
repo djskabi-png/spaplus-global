@@ -154,6 +154,8 @@ export const projectItems = sqliteTable("project_items", {
   targetDate: text("target_date"),
   sourceThreads: text("source_threads").notNull().default("[]"),
   tags: text("tags").notNull().default("[]"),
+  siteUrl: text("site_url").notNull().default(""),
+  publicVisible: integer("public_visible", { mode: "boolean" }).notNull().default(true),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });

@@ -3,12 +3,13 @@ import { asc, desc, eq } from "drizzle-orm";
 import { getDb } from "../../../../db";
 import { cmsAuditLog, projectItems, projectNotes, projectTasks } from "../../../../db/schema";
 import { getAuthorizedAdmin } from "../../../admin-auth";
+import { isProjectPasswordConfigured, normalizeProjectUrl, setProjectPassword } from "../../../project-access";
 
 type JsonRecord = Record<string, unknown>;
 
 const projectFields = new Set([
   "name", "description", "area", "status", "progress", "progressSource", "priority", "owner",
-  "collaborators", "currentPhase", "nextAction", "blockers", "targetDate", "sourceThreads", "tags",
+  "collaborators", "currentPhase", "nextAction", "blockers", "targetDate", "sourceThreads", "tags", "siteUrl", "publicVisible",
 ]);
 const taskFields = new Set(["title", "status", "progress", "owner", "sortOrder"]);
 const noteFields = new Set(["body", "state"]);
@@ -187,7 +188,48 @@ const initialProjects = [
       ["לבנות רשימת השלמות לגרסה הבאה", "planned", null, "אדיר"],
     ],
   },
+  {
+    name: "Villa4U, אתר, לידים וצ׳אט", description: "ריכוז העבודה על האתר, קליטת הלידים והצ׳אט העסקי של וילה פור יו.", area: "website",
+    status: "review", progress: null, progressSource: "unknown", priority: "high", owner: "אדיר", collaborators: [],
+    currentPhase: "נמצא בהיסטוריית החשבון ודורש אימות מצב", nextAction: "לעבור על העבודה האחרונה ולאשר מה הושלם ומה פתוח.", blockers: "אחוז ההתקדמות טרם אומת.",
+    tags: ["Villa4U", "אתר", "לידים", "צ׳אט", "היסטוריית החשבון"], sourceThreads: [],
+    tasks: [["אימות מצב האתר", "planned", null, "אדיר"], ["אימות חיבור הלידים", "planned", null, "אדיר"], ["אימות מצב הצ׳אט", "planned", null, "אדיר"]],
+  },
+  {
+    name: "Rooms VIP וחדרים לפי שעה", description: "אתר חדרים לפי שעה, מודל הלידים, מדידה וקמפיינים.", area: "growth",
+    status: "review", progress: null, progressSource: "unknown", priority: "medium", owner: "אדיר", collaborators: [],
+    currentPhase: "המערכת ומודל הלידים קיימים, המצב הכולל דורש אימות", nextAction: "לאשר את מצב האתר, הלידים והקמפיינים.", blockers: "אחוז ההתקדמות טרם אומת.",
+    tags: ["Rooms VIP", "חדרים לפי שעה", "לידים", "היסטוריית החשבון"], sourceThreads: [],
+    tasks: [["אימות מצב האתר", "planned", null, "אדיר"], ["אימות ניתוב הלידים", "planned", null, "אדיר"], ["אימות מצב הקמפיינים", "planned", null, "אדיר"]],
+  },
+  {
+    name: "קידום אורגני וניהול SEO", description: "מחקר, ביקורות, תוכן וקידום אורגני לאתרי הרשת.", area: "growth",
+    status: "review", progress: null, progressSource: "unknown", priority: "medium", owner: "אדיר", collaborators: [],
+    currentPhase: "קיימת פעילות היסטורית בכמה אתרים", nextAction: "לפצל לפי אתר ולאשר יעדים, מצב ותוכנית עבודה.", blockers: "נדרש מיפוי לפי אתר.",
+    tags: ["SEO", "קידום אורגני", "היסטוריית החשבון"], sourceThreads: [],
+    tasks: [["מיפוי האתרים הפעילים", "planned", null, "אדיר"], ["אימות ביקורות ותוכניות עבודה", "planned", null, "אדיר"]],
+  },
+  {
+    name: "פרופסור ווב וערוץ העבודה בוואטסאפ", description: "מערך קבלת משימות, ביצוע בענן והחזרת תוצאות דרך ערוץ העבודה העסקי.", area: "automation",
+    status: "in_progress", progress: null, progressSource: "unknown", priority: "high", owner: "אדיר", collaborators: [],
+    currentPhase: "ערוץ הענן פעיל וממשיך להשתפר", nextAction: "להמשיך לבדוק תהליכים, מניעת כפילויות ומסירת תוצאות.", blockers: "אין אחוז התקדמות מאומת לפרויקט המתמשך.",
+    tags: ["פרופסור ווב", "וואטסאפ", "אוטומציה", "היסטוריית החשבון"], sourceThreads: [],
+    tasks: [["קליטת משימות בענן", "done", 100, "אדיר"], ["מניעת ביצוע כפול", "done", 100, "אדיר"], ["שיפור תהליכי המסירה", "in_progress", null, "אדיר"]],
+  },
+  {
+    name: "מרכז הפרויקטים והבאגים של אדיר", description: "דשבורד הפרויקטים, תתי המשימות, ההערות, דיווחי הבאגים והחיבור לקובץ המשימות.", area: "product",
+    status: "nearly_done", progress: 95, progressSource: "confirmed", priority: "high", owner: "אדיר", collaborators: ["רועי"],
+    currentPhase: "הוספת הדף הפרטי המוגן וחיבורו לניהול", nextAction: "להגדיר קוד גישה ולאשר את רשימת הפרויקטים והקישורים.", blockers: "הפעלת הגישה מחייבת הגדרת קוד במרכז הניהול.",
+    tags: ["דשבורד", "פרויקטים", "באגים", "ניהול"], sourceThreads: [],
+    tasks: [["דשבורד ניהול פרויקטים", "done", 100, "אדיר"], ["דיווחי באגים לקובץ המשימות", "done", 100, "אדיר"], ["דף פרטי לאדיר ולרועי", "in_progress", null, "אדיר"]],
+  },
 ];
+
+const verifiedProjectUrls: Record<string, string> = {
+  "BizOnline, האתר והמרקטפלייס": "https://bsonline.spaplus.co/",
+  "האתר החדש של VII": "https://vii.co.il/",
+  "SpaPlus Global וקנדה": "https://spaplus.co/",
+};
 
 function json(value: unknown) { return JSON.stringify(value ?? []); }
 function clampProgress(value: unknown) {
@@ -200,16 +242,37 @@ function parseList(value: string) { try { return JSON.parse(value) as string[]; 
 let tablesPromise: Promise<void> | null = null;
 let bootstrapPromise: Promise<void> | null = null;
 
+async function ensureProjectColumns() {
+  const info = await env.DB.prepare("PRAGMA table_info(project_items)").all<{ name: string }>();
+  const columns = new Set((info.results || []).map((column) => column.name));
+  const additions = [
+    ["site_url", "ALTER TABLE project_items ADD COLUMN site_url TEXT NOT NULL DEFAULT ''"],
+    ["public_visible", "ALTER TABLE project_items ADD COLUMN public_visible INTEGER NOT NULL DEFAULT 1"],
+  ] as const;
+  for (const [column, statement] of additions) {
+    if (columns.has(column)) continue;
+    try {
+      await env.DB.prepare(statement).run();
+    } catch (error) {
+      const refreshed = await env.DB.prepare("PRAGMA table_info(project_items)").all<{ name: string }>();
+      if (!(refreshed.results || []).some((item) => item.name === column)) throw error;
+    }
+  }
+}
+
 async function ensureTables() {
   if (!tablesPromise) {
-    tablesPromise = env.DB.batch([
-      env.DB.prepare("CREATE TABLE IF NOT EXISTS project_items (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, description TEXT NOT NULL DEFAULT '', area TEXT NOT NULL DEFAULT 'development', status TEXT NOT NULL DEFAULT 'planned', progress INTEGER, progress_source TEXT NOT NULL DEFAULT 'unknown', priority TEXT NOT NULL DEFAULT 'medium', owner TEXT NOT NULL DEFAULT 'אדיר', collaborators TEXT NOT NULL DEFAULT '[]', current_phase TEXT NOT NULL DEFAULT '', next_action TEXT NOT NULL DEFAULT '', blockers TEXT NOT NULL DEFAULT '', target_date TEXT, source_threads TEXT NOT NULL DEFAULT '[]', tags TEXT NOT NULL DEFAULT '[]', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)"),
-      env.DB.prepare("CREATE TABLE IF NOT EXISTS project_tasks (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, project_id INTEGER NOT NULL REFERENCES project_items(id) ON DELETE CASCADE, title TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'planned', progress INTEGER, owner TEXT NOT NULL DEFAULT 'אדיר', sort_order INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)"),
-      env.DB.prepare("CREATE INDEX IF NOT EXISTS project_tasks_project_idx ON project_tasks(project_id)"),
-      env.DB.prepare("CREATE TABLE IF NOT EXISTS project_notes (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, project_id INTEGER NOT NULL REFERENCES project_items(id) ON DELETE CASCADE, body TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'open', actor_email TEXT NOT NULL, actor_name TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)"),
-      env.DB.prepare("CREATE INDEX IF NOT EXISTS project_notes_project_idx ON project_notes(project_id)"),
-      env.DB.prepare("CREATE TABLE IF NOT EXISTS project_workspace_meta (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL, updated_at TEXT NOT NULL)"),
-    ]).then(() => undefined).catch((error) => { tablesPromise = null; throw error; });
+    tablesPromise = (async () => {
+      await env.DB.batch([
+        env.DB.prepare("CREATE TABLE IF NOT EXISTS project_items (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, description TEXT NOT NULL DEFAULT '', area TEXT NOT NULL DEFAULT 'development', status TEXT NOT NULL DEFAULT 'planned', progress INTEGER, progress_source TEXT NOT NULL DEFAULT 'unknown', priority TEXT NOT NULL DEFAULT 'medium', owner TEXT NOT NULL DEFAULT 'אדיר', collaborators TEXT NOT NULL DEFAULT '[]', current_phase TEXT NOT NULL DEFAULT '', next_action TEXT NOT NULL DEFAULT '', blockers TEXT NOT NULL DEFAULT '', target_date TEXT, source_threads TEXT NOT NULL DEFAULT '[]', tags TEXT NOT NULL DEFAULT '[]', site_url TEXT NOT NULL DEFAULT '', public_visible INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)"),
+        env.DB.prepare("CREATE TABLE IF NOT EXISTS project_tasks (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, project_id INTEGER NOT NULL REFERENCES project_items(id) ON DELETE CASCADE, title TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'planned', progress INTEGER, owner TEXT NOT NULL DEFAULT 'אדיר', sort_order INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)"),
+        env.DB.prepare("CREATE INDEX IF NOT EXISTS project_tasks_project_idx ON project_tasks(project_id)"),
+        env.DB.prepare("CREATE TABLE IF NOT EXISTS project_notes (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, project_id INTEGER NOT NULL REFERENCES project_items(id) ON DELETE CASCADE, body TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'open', actor_email TEXT NOT NULL, actor_name TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)"),
+        env.DB.prepare("CREATE INDEX IF NOT EXISTS project_notes_project_idx ON project_notes(project_id)"),
+        env.DB.prepare("CREATE TABLE IF NOT EXISTS project_workspace_meta (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL, updated_at TEXT NOT NULL)"),
+      ]);
+      await ensureProjectColumns();
+    })().catch((error) => { tablesPromise = null; throw error; });
   }
   await tablesPromise;
 }
@@ -228,8 +291,8 @@ async function seedIfEmpty() {
   if (Number(count?.total || 0) > 0) return;
   const now = new Date().toISOString();
   for (const project of initialProjects) {
-    const result = await env.DB.prepare("INSERT INTO project_items (name, description, area, status, progress, progress_source, priority, owner, collaborators, current_phase, next_action, blockers, source_threads, tags, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-      .bind(project.name, project.description, project.area, project.status, project.progress, project.progressSource, project.priority, project.owner, json(project.collaborators), project.currentPhase, project.nextAction, project.blockers, json(project.sourceThreads), json(project.tags), now, now).run();
+    const result = await env.DB.prepare("INSERT INTO project_items (name, description, area, status, progress, progress_source, priority, owner, collaborators, current_phase, next_action, blockers, source_threads, tags, site_url, public_visible, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)")
+      .bind(project.name, project.description, project.area, project.status, project.progress, project.progressSource, project.priority, project.owner, json(project.collaborators), project.currentPhase, project.nextAction, project.blockers, json(project.sourceThreads), json(project.tags), verifiedProjectUrls[project.name] || "", now, now).run();
     const projectId = Number(result.meta.last_row_id);
     for (let index = 0; index < project.tasks.length; index += 1) {
       const [title, status, progress, owner] = project.tasks[index];
@@ -240,18 +303,20 @@ async function seedIfEmpty() {
 }
 
 async function syncProjectKnowledge() {
-  const version = "2026-08-08-v3";
+  const version = "2026-08-08-v4";
   const current = await env.DB.prepare("SELECT value FROM project_workspace_meta WHERE key = 'knowledge_version'").first<{ value: string }>();
   if (current?.value === version) return;
   const now = new Date().toISOString();
   for (const project of initialProjects) {
     let existing = await env.DB.prepare("SELECT id FROM project_items WHERE name = ? LIMIT 1").bind(project.name).first<{ id: number }>();
+    let createdNow = false;
     if (!existing) {
-      const result = await env.DB.prepare("INSERT INTO project_items (name, description, area, status, progress, progress_source, priority, owner, collaborators, current_phase, next_action, blockers, source_threads, tags, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-        .bind(project.name, project.description, project.area, project.status, project.progress, project.progressSource, project.priority, project.owner, json(project.collaborators), project.currentPhase, project.nextAction, project.blockers, json(project.sourceThreads), json(project.tags), now, now).run();
+      const result = await env.DB.prepare("INSERT INTO project_items (name, description, area, status, progress, progress_source, priority, owner, collaborators, current_phase, next_action, blockers, source_threads, tags, site_url, public_visible, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)")
+        .bind(project.name, project.description, project.area, project.status, project.progress, project.progressSource, project.priority, project.owner, json(project.collaborators), project.currentPhase, project.nextAction, project.blockers, json(project.sourceThreads), json(project.tags), verifiedProjectUrls[project.name] || "", now, now).run();
       existing = { id: Number(result.meta.last_row_id) };
+      createdNow = true;
     }
-    for (let index = 0; index < project.tasks.length; index += 1) {
+    if (createdNow) for (let index = 0; index < project.tasks.length; index += 1) {
       const [title, status, progress, owner] = project.tasks[index];
       const existingTask = await env.DB.prepare("SELECT id FROM project_tasks WHERE project_id = ? AND title = ? LIMIT 1")
         .bind(existing.id, title).first<{ id: number }>();
@@ -260,8 +325,8 @@ async function syncProjectKnowledge() {
           .bind(existing.id, title, status, progress, owner, index, now, now).run();
       }
     }
-    await env.DB.prepare("UPDATE project_items SET current_phase = ?, next_action = ?, blockers = ?, tags = ?, updated_at = ? WHERE id = ?")
-      .bind(project.currentPhase, project.nextAction, project.blockers, json(project.tags), now, existing.id).run();
+    const verifiedUrl = verifiedProjectUrls[project.name];
+    if (verifiedUrl) await env.DB.prepare("UPDATE project_items SET site_url = ? WHERE id = ? AND site_url = ''").bind(verifiedUrl, existing.id).run();
   }
   await env.DB.prepare("INSERT INTO project_workspace_meta (key, value, updated_at) VALUES ('knowledge_version', ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at")
     .bind(version, now).run();
@@ -277,22 +342,30 @@ async function authorize() {
 export async function GET() {
   const access = await authorize(); if (access.response) return access.response;
   await ensureBootstrap();
-  const [projects, tasks, notes] = await Promise.all([
+  const [projects, tasks, notes, accessConfigured] = await Promise.all([
     getDb().select().from(projectItems).orderBy(asc(projectItems.id)),
     getDb().select().from(projectTasks).orderBy(asc(projectTasks.sortOrder), asc(projectTasks.id)),
     getDb().select().from(projectNotes).orderBy(desc(projectNotes.createdAt), desc(projectNotes.id)),
+    isProjectPasswordConfigured(),
   ]);
   const tasksByProject = new Map<number, typeof tasks>();
   const notesByProject = new Map<number, typeof notes>();
   for (const task of tasks) tasksByProject.set(task.projectId, [...(tasksByProject.get(task.projectId) || []), task]);
   for (const note of notes) notesByProject.set(note.projectId, [...(notesByProject.get(note.projectId) || []), note]);
-  return Response.json({ projects: projects.map((project) => ({ ...project, collaborators: parseList(project.collaborators), sourceThreads: parseList(project.sourceThreads), tags: parseList(project.tags), tasks: tasksByProject.get(project.id) || [], notes: notesByProject.get(project.id) || [] })) });
+  return Response.json({ accessConfigured, projects: projects.map((project) => ({ ...project, collaborators: parseList(project.collaborators), sourceThreads: parseList(project.sourceThreads), tags: parseList(project.tags), tasks: tasksByProject.get(project.id) || [], notes: notesByProject.get(project.id) || [] })) });
 }
 
 export async function POST(request: Request) {
   const access = await authorize(); if (access.response) return access.response;
   await ensureTables();
   const body = await request.json() as JsonRecord; const now = new Date().toISOString();
+  if (body.kind === "access_password") {
+    const password = String(body.password || "");
+    if (password.length < 8 || password.length > 128) return Response.json({ error: "Password must contain 8 to 128 characters" }, { status: 400 });
+    await setProjectPassword(password);
+    await getDb().insert(cmsAuditLog).values({ actorEmail: access.admin!.email, action: "project.portal.password.updated", entityType: "project_portal", entityId: "shared", details: "{}", createdAt: now });
+    return Response.json({ success: true, accessConfigured: true });
+  }
   if (body.kind === "task") {
     const projectId = Number(body.projectId); const title = String(body.title || "").trim();
     if (!Number.isInteger(projectId) || !title) return Response.json({ error: "Invalid task" }, { status: 400 });
@@ -307,7 +380,7 @@ export async function POST(request: Request) {
   }
   const name = String(body.name || "").trim();
   if (!name) return Response.json({ error: "Project name is required" }, { status: 400 });
-  const [created] = await getDb().insert(projectItems).values({ name, description: String(body.description || ""), area: String(body.area || "development"), status: "planned", progress: null, progressSource: "unknown", priority: String(body.priority || "medium") as "critical" | "high" | "medium" | "low", owner: String(body.owner || "אדיר"), collaborators: "[]", currentPhase: "תכנון", nextAction: String(body.nextAction || "להגדיר את הצעד הראשון"), blockers: "", sourceThreads: "[]", tags: "[]", createdAt: now, updatedAt: now }).returning();
+  const [created] = await getDb().insert(projectItems).values({ name, description: String(body.description || ""), area: String(body.area || "development"), status: "planned", progress: null, progressSource: "unknown", priority: String(body.priority || "medium") as "critical" | "high" | "medium" | "low", owner: String(body.owner || "אדיר"), collaborators: "[]", currentPhase: "תכנון", nextAction: String(body.nextAction || "להגדיר את הצעד הראשון"), blockers: "", sourceThreads: "[]", tags: "[]", siteUrl: normalizeProjectUrl(body.siteUrl), publicVisible: body.publicVisible !== false, createdAt: now, updatedAt: now }).returning();
   return Response.json({ project: { ...created, collaborators: [], sourceThreads: [], tags: [], tasks: [], notes: [] } }, { status: 201 });
 }
 
@@ -318,7 +391,7 @@ export async function PATCH(request: Request) {
   const allowed = kind === "task" ? taskFields : kind === "note" ? noteFields : projectFields; const update: JsonRecord = { updatedAt: new Date().toISOString() };
   for (const [key, value] of Object.entries(body.changes as JsonRecord || {})) {
     if (!allowed.has(key)) continue;
-    update[key] = key === "progress" ? clampProgress(value) : ["collaborators", "sourceThreads", "tags"].includes(key) ? json(value) : value;
+    update[key] = key === "progress" ? clampProgress(value) : key === "siteUrl" ? normalizeProjectUrl(value) : key === "publicVisible" ? Boolean(value) : ["collaborators", "sourceThreads", "tags"].includes(key) ? json(value) : value;
   }
   if (kind === "task") await getDb().update(projectTasks).set(update).where(eq(projectTasks.id, id));
   else if (kind === "note") await getDb().update(projectNotes).set(update).where(eq(projectNotes.id, id));

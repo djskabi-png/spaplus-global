@@ -8,6 +8,10 @@
     {
       "pattern": "app.spaplus.co/*",
       "zone_name": "spaplus.co"
+    },
+    {
+      "pattern": "adir.spaplus.co",
+      "custom_domain": true
     }
   ],
   "workers_dev": true,
