@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
@@ -561,6 +562,8 @@ test("every Hebrew management surface is locked to the modern Heebo stack", asyn
   assert.match(managementFonts, /\/fonts\/spaplus-heebo-latin\.woff2/);
   assert.ok(hebrewFont.length > 10_000);
   assert.ok(latinFont.length > 20_000);
+  assert.equal(createHash("sha256").update(hebrewFont).digest("hex"), "f1f7cfaef59431c7b391df81fb05520273303840bbe917213a2ab9f41b839675");
+  assert.equal(createHash("sha256").update(latinFont).digest("hex"), "50dae2e12dae22c920388023e35aaeBCD1e1d27bbe915c83d64210377e083e60".toLowerCase());
   assert.match(globalStyles, /font-family: var\(--font-heebo, "Heebo"\), Arial, sans-serif !important/);
   assert.match(adminStyles, /\.cms-shell,\.cms-shell \*\{font-family:"SpaPlus Heebo",Arial,sans-serif!important\}/);
   assert.match(adminTypography, /\.admin-font-lock[\s\S]*font-family: "SpaPlus Heebo", Arial, sans-serif !important/);
