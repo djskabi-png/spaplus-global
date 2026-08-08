@@ -41,7 +41,6 @@ const runtimeEnv = env as unknown as Record<string, string | undefined>;
 const setting = (name: string) => runtimeEnv[name] || process.env[name] || "";
 const GRAPH_VERSION = setting("META_GRAPH_VERSION") || "v26.0";
 const META_PAGE_ID = "1065026380020011";
-const META_FORM_IDS = new Set(["2595979447504156"]);
 
 function clean(value: unknown) {
   return String(value ?? "").trim();
@@ -258,6 +257,7 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
     .from(formSubmissions)
     .where(eq(formSubmissions.submissionId, submissionId))
     .limit(1);
+  if (existing) return "duplicate" as const;
   const locale = inferLocale(fields, formName);
   const organization =
     firstField(fields, ["company_name", "spa_name", "business_name"]) ||
@@ -322,23 +322,21 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
     .filter(Boolean)
     .join("\n");
 
-  if (!existing) {
-    await db.insert(formSubmissions).values({
-      submissionId,
-      formType: "ontario-meta-instant-form",
-      name,
-      email: email.toLowerCase(),
-      phone,
-      organization,
-      topic: spaType || "Ontario spa partner",
-      message,
-      locale,
-      source: "Meta paid lead form | Ontario",
-      resourceKey: RESOURCE_KEY,
-      status: "new",
-      createdAt,
-    });
-  }
+  await db.insert(formSubmissions).values({
+    submissionId,
+    formType: "ontario-meta-instant-form",
+    name,
+    email: email.toLowerCase(),
+    phone,
+    organization,
+    topic: spaType || "Ontario spa partner",
+    message,
+    locale,
+    source: "Meta paid lead form | Ontario",
+    resourceKey: RESOURCE_KEY,
+    status: "new",
+    createdAt,
+  });
 
   const notificationData: MarketLeadEmailData = {
     name,
@@ -372,7 +370,7 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
     submittedAt: `${torontoTime(createdAt)} (Toronto time)`,
   };
   await sendOntarioOwnerNotification(notificationData, leadId);
-  return existing ? ("duplicate" as const) : ("inserted" as const);
+  return "inserted" as const;
 }
 
 export async function GET(request: Request) {
@@ -419,11 +417,8 @@ export async function POST(request: Request) {
 
   const hasValidSignature = await validMetaSignature(request, rawBody);
   const hasAllowedLeadContext =
-    values.length > 0 &&
-    values.every(
-      (value) => clean(value.page_id) === META_PAGE_ID && META_FORM_IDS.has(clean(value.form_id)),
-    );
-  if (!hasValidSignature && !hasAllowedLeadContext) {
+    values.length > 0 && values.every((value) => clean(value.page_id) === META_PAGE_ID);
+  if (!hasValidSignature || !hasAllowedLeadContext) {
     return Response.json({ error: "Invalid Meta webhook" }, { status: 401 });
   }
 
