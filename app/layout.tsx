@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { Assistant, Heebo, Noto_Sans } from "next/font/google";
 import "./globals.css";
+import "./management-fonts.css";
 
 const notoSans = Noto_Sans({
   variable: "--font-noto-sans",

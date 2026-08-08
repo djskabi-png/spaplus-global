@@ -538,7 +538,9 @@ test("management access starts on a branded page before Google sign-in", async (
 });
 
 test("every Hebrew management surface is locked to the modern Heebo stack", async () => {
-  const [globalStyles, adminStyles, adminTypography, adminLayout, projectsStyles, bugsStyles, demoStyles, demoTypography, demoPage, protectedDemoPage] = await Promise.all([
+  const [rootLayout, managementFonts, globalStyles, adminStyles, adminTypography, adminLayout, projectsStyles, bugsStyles, demoStyles, demoTypography, demoPage, protectedDemoPage, hebrewFont, latinFont] = await Promise.all([
+    read("app/layout.tsx"),
+    read("app/management-fonts.css"),
     read("app/globals.css"),
     read("app/admin/admin.css"),
     read("app/admin/admin-typography.css"),
@@ -549,15 +551,23 @@ test("every Hebrew management surface is locked to the modern Heebo stack", asyn
     read("app/demo/new-spa/new-spa-typography.css"),
     read("app/demo/new-spa/page.tsx"),
     read("app/admin/operations/spas/new/page.tsx"),
+    readFile(new URL("public/fonts/spaplus-heebo-hebrew.woff2", root)),
+    readFile(new URL("public/fonts/spaplus-heebo-latin.woff2", root)),
   ]);
 
+  assert.match(rootLayout, /management-fonts\.css/);
+  assert.match(managementFonts, /font-family: "SpaPlus Heebo"/);
+  assert.match(managementFonts, /\/fonts\/spaplus-heebo-hebrew\.woff2/);
+  assert.match(managementFonts, /\/fonts\/spaplus-heebo-latin\.woff2/);
+  assert.ok(hebrewFont.length > 10_000);
+  assert.ok(latinFont.length > 20_000);
   assert.match(globalStyles, /font-family: var\(--font-heebo, "Heebo"\), Arial, sans-serif !important/);
-  assert.match(adminStyles, /\.cms-shell,\.cms-shell \*\{font-family:var\(--font-heebo,"Heebo"\),Arial,sans-serif!important\}/);
-  assert.match(adminTypography, /\.admin-font-lock[\s\S]*font-family: var\(--font-heebo, "Heebo"\), Arial, sans-serif !important/);
+  assert.match(adminStyles, /\.cms-shell,\.cms-shell \*\{font-family:"SpaPlus Heebo",Arial,sans-serif!important\}/);
+  assert.match(adminTypography, /\.admin-font-lock[\s\S]*font-family: "SpaPlus Heebo", Arial, sans-serif !important/);
   assert.match(adminLayout, /admin-font-lock/);
-  assert.match(projectsStyles, /font-family:var\(--font-heebo,"Heebo"\),Arial,sans-serif!important/);
-  assert.match(bugsStyles, /font-family:var\(--font-heebo,"Heebo"\),Arial,sans-serif!important/);
-  assert.match(demoTypography, /font-family: var\(--font-heebo, "Heebo"\), Arial, sans-serif/);
+  assert.match(projectsStyles, /font-family:"SpaPlus Heebo",Arial,sans-serif!important/);
+  assert.match(bugsStyles, /font-family:"SpaPlus Heebo",Arial,sans-serif!important/);
+  assert.match(demoTypography, /font-family: "SpaPlus Heebo", Arial, sans-serif/);
   assert.match(demoPage, /new-spa-typography\.css/);
   assert.match(protectedDemoPage, /new-spa-typography\.css/);
   assert.doesNotMatch(`${globalStyles}\n${adminStyles}\n${adminTypography}\n${projectsStyles}\n${bugsStyles}\n${demoStyles}\n${demoTypography}`, /font-family:(?:serif|cursive|fantasy)/i);
