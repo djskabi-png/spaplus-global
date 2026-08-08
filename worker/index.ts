@@ -411,6 +411,11 @@ async function proxyProtectedRequest(request: Request, env: Env, session: Signed
   upstreamHeaders.delete("host");
   upstreamHeaders.delete("content-length");
   upstreamHeaders.delete("cookie");
+  upstreamHeaders.delete("accept-encoding");
+  upstreamHeaders.delete("if-match");
+  upstreamHeaders.delete("if-none-match");
+  upstreamHeaders.delete("if-modified-since");
+  upstreamHeaders.delete("if-unmodified-since");
 
   const upstream = await fetch(upstreamUrl, {
     method: request.method,
@@ -448,13 +453,17 @@ async function proxyProtectedRequest(request: Request, env: Env, session: Signed
       .replaceAll(env.PRIVATE_BACKEND_ORIGIN, publicUrl.origin)
       .replaceAll(LEGACY_SIGN_IN_PATH, "/auth/google/start")
       .replaceAll(LEGACY_SIGN_OUT_PATH, "/auth/logout")
-      .replaceAll("index-MnjarlW8.js", "index-Dq2-pwm2.js");
+      .replaceAll("index-MnjarlW8.js", "index-Dq2-pwm2.js")
+      .replaceAll("index-fpqyGFwg.css", "index-CKyI5e50.css");
     body = body.replace(new RegExp(LEGACY_BRAND_TERMS[0], "gi"), "Google");
     body = body.replace(new RegExp(LEGACY_BRAND_TERMS[1], "gi"), "SpaPlus");
     headers.delete("content-length");
+    headers.delete("content-encoding");
+    headers.delete("transfer-encoding");
     return new Response(body, { status: upstream.status, statusText: upstream.statusText, headers });
   }
-  return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers });
+  const bodyless = request.method === "HEAD" || upstream.status === 204 || upstream.status === 205 || upstream.status === 304;
+  return new Response(bodyless ? null : upstream.body, { status: upstream.status, statusText: upstream.statusText, headers });
 }
 
 /**
@@ -652,7 +661,12 @@ const worker = {
         loginUrl.searchParams.set("return_to", `${url.pathname}${url.search}`);
         return Response.redirect(loginUrl.toString(), 302);
       }
-      return proxyProtectedRequest(request, env, session);
+      try {
+        return await proxyProtectedRequest(request, env, session);
+      } catch (error) {
+        console.error("Protected administration proxy failed", error);
+        return brandedAdministrationUnavailable();
+      }
     }
 
     if (

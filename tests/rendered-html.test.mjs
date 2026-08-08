@@ -470,6 +470,9 @@ test("management permissions fail closed and leads are scoped by market", async 
   assert.match(worker, /assetResponse\.status !== 404/);
   assert.match(worker, /async function proxyPrivateAsset/);
   assert.match(worker, /replaceAll\("index-MnjarlW8\.js", "index-Dq2-pwm2\.js"\)/);
+  assert.match(worker, /replaceAll\("index-fpqyGFwg\.css", "index-CKyI5e50\.css"\)/);
+  assert.match(worker, /upstreamHeaders\.delete\("accept-encoding"\)/);
+  assert.match(worker, /console\.error\("Protected administration proxy failed", error\)/);
   assert.match(worker, /localAssetUrl\.pathname = "\/assets\/index-Dq2-pwm2\.js"/);
   assert.match(worker, /url\.pathname\.startsWith\("\/assets\/"\)/);
 });
