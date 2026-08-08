@@ -553,9 +553,9 @@ test("every Hebrew management surface is locked to the modern Heebo stack", asyn
   ]);
 
   assert.match(globalStyles, /font-family: var\(--font-heebo, "Heebo"\), Arial, sans-serif !important/);
-  assert.match(adminStyles, /html\[lang="he"\] \.cms-shell,html\[lang="he"\] \.cms-shell \*\{font-family:Arial,sans-serif!important/);
-  assert.match(projectStyles, /html\[lang="he"\] \.projects-shell,html\[lang="he"\] \.projects-shell \*\{font-family:Arial,sans-serif!important/);
-  assert.match(bugStyles, /html\[lang="he"\] \.bugs-shell,html\[lang="he"\] \.bugs-shell \*\{font-family:Arial,sans-serif!important/);
+  assert.match(adminStyles, /\.cms-shell\[lang="he"\],\.cms-shell\[lang="he"\] \*\{font-family:Arial,sans-serif!important/);
+  assert.match(projectStyles, /\.projects-shell\[lang="he"\],\.projects-shell\[lang="he"\] \*\{font-family:Arial,sans-serif!important/);
+  assert.match(bugStyles, /\.bugs-shell\[lang="he"\],\.bugs-shell\[lang="he"\] \*\{font-family:Arial,sans-serif!important/);
   assert.match(demoTypography, /font-family: var\(--font-heebo, "Heebo"\), Arial, sans-serif !important/);
   assert.match(demoPage, /new-spa-typography\.css/);
   assert.match(protectedDemoPage, /new-spa-typography\.css/);
