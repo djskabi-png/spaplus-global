@@ -55,7 +55,30 @@ async function findTaskRow(accessToken: string, targetKey: string, taskId: strin
   if (!response.ok) return null;
   const payload = await response.json() as { values?: string[][] };
   const index = (payload.values || []).findIndex((row) => row[0] === taskId);
-  return index < 0 ? null : index + 2;
+  if (index >= 0) return index + 2;
+
+  // Recover task IDs written by the old append flow into a later column when
+  // a legacy sheet contained notes below its main table.
+  const legacyRange = encodeURIComponent(`'${target.sheet}'!A2:I1000`);
+  const legacyResponse = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${legacyRange}`, { headers: sheetsHeaders(accessToken) });
+  if (!legacyResponse.ok) return null;
+  const legacyPayload = await legacyResponse.json() as { values?: string[][] };
+  const legacyIndex = (legacyPayload.values || []).findIndex((row) => row.some((cell) => cell === taskId));
+  return legacyIndex < 0 ? null : legacyIndex + 2;
+}
+
+async function findNextTaskRow(accessToken: string, targetKey: string) {
+  const target = driveTargets[targetKey];
+  if (!target) return null;
+  const range = encodeURIComponent(`'${target.sheet}'!A2:A1000`);
+  const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}`, { headers: sheetsHeaders(accessToken) });
+  if (!response.ok) return null;
+  const payload = await response.json() as { values?: string[][] };
+  const values = payload.values || [];
+  for (let index = values.length - 1; index >= 0; index -= 1) {
+    if (String(values[index]?.[0] || "").trim()) return index + 3;
+  }
+  return 2;
 }
 
 function sheetStatus(status: string) {
@@ -77,12 +100,11 @@ async function callDrive(payload: JsonRecord, accessToken: string) {
     if (action === "create") {
       const notes = [String(payload.pageUrl || ""), String(payload.steps || "") && `שלבי שחזור:\n${payload.steps}`, String(payload.actual || "") && `מה קרה בפועל:\n${payload.actual}`, payload.attachment ? "צורף צילום מסך לדיווח במערכת" : ""].filter(Boolean).join("\n\n");
       const values = [[taskId, sheetSeverity(String(payload.severity)), sheetStatus(String(payload.status)), String(payload.title || ""), `${String(payload.project || "")}\n\n${String(payload.description || "")}`.trim(), String(payload.expected || ""), target.owner, notes, ""]];
-      const range = encodeURIComponent(`'${target.sheet}'!A:I`);
-      const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`, { method: "POST", headers: sheetsHeaders(accessToken), body: JSON.stringify({ values }) });
+      const row = await findNextTaskRow(accessToken, targetKey);
+      if (!row || row > 1000) return { ok: false, error: "No available task row" };
+      const range = encodeURIComponent(`'${target.sheet}'!A${row}:I${row}`);
+      const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?valueInputOption=USER_ENTERED`, { method: "PUT", headers: sheetsHeaders(accessToken), body: JSON.stringify({ values }) });
       if (!response.ok) return { ok: false, error: `Google Sheets HTTP ${response.status}` };
-      const result = await response.json() as { updates?: { updatedRange?: string } };
-      const updatedRange = result.updates?.updatedRange || "";
-      const row = Number(updatedRange.match(/!(?:[A-Z]+)(\d+):/)?.[1] || 0);
       if (row > 0) {
         await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
           method: "POST", headers: sheetsHeaders(accessToken), body: JSON.stringify({ requests: [{ repeatCell: { range: { sheetId: target.sheetId, startRowIndex: row - 1, endRowIndex: row, startColumnIndex: 0, endColumnIndex: 9 }, cell: { userEnteredFormat: { verticalAlignment: "MIDDLE", wrapStrategy: "WRAP", textFormat: { fontFamily: "Heebo", fontSize: 14 } } }, fields: "userEnteredFormat(verticalAlignment,wrapStrategy,textFormat)" } }] }),

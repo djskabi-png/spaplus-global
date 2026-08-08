@@ -590,6 +590,11 @@ test("bug routing includes every verified future work sheet", async () => {
     assert.match(route, new RegExp(`${key}: \\{ sheetId: ${sheetId}, sheet: "${label}"`));
   }
   assert.match(route, /const validTargets = Object\.keys\(driveTargets\)/);
+  assert.match(route, /async function findNextTaskRow/);
+  assert.match(route, /A\$\{row\}:I\$\{row\}/);
+  assert.match(route, /valueInputOption=USER_ENTERED`, \{ method: "PUT"/);
+  assert.doesNotMatch(route, /insertDataOption=INSERT_ROWS/);
+  assert.match(route, /row\.some\(\(cell\) => cell === taskId\)/);
 });
 
 test("lead management provides a localized four-state operational dashboard", async () => {
