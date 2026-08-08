@@ -4,6 +4,7 @@ import { hasPermission } from "../../cms-access";
 import OperationsClient, { type OperationsScope } from "./OperationsClient";
 import "../admin.css";
 import "./operations.css";
+import "./operations-actions.css";
 
 export const dynamic = "force-dynamic";
 

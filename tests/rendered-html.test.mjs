@@ -1029,3 +1029,22 @@ test("Adir project showcase is public, branded and managed from the main adminis
   assert.match(portalCss, /"SpaPlus Heebo",Arial,sans-serif!important/);
   assert.match(portalCss, /@media\(max-width:640px\)/);
 });
+
+test("operations includes a clearly labelled illustrative sales dashboard and downloadable reports", async () => {
+  const [page, client, css, operations] = await Promise.all([
+    read("app/admin/operations/dashboard-preview/page.tsx"),
+    read("app/admin/operations/dashboard-preview/DashboardPreviewClient.tsx"),
+    read("app/admin/operations/dashboard-preview/dashboard-preview.css"),
+    read("app/admin/operations/OperationsClient.tsx"),
+  ]);
+  assert.match(page, /requireAuthorizedAdmin/);
+  assert.match(client, /נתוני המחשה בלבד/);
+  assert.match(client, /מקור הנתונים המאומת של גל/);
+  assert.match(client, /הכנסה ברוטו/);
+  assert.match(client, /מרכז הדוחות/);
+  assert.match(client, /new Blob/);
+  assert.match(client, /text\/csv/);
+  assert.match(operations, /dashboard-preview/);
+  assert.match(css, /SpaPlus Heebo/);
+  assert.match(css, /@media\(max-width:650px\)/);
+});
