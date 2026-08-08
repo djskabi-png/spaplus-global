@@ -128,15 +128,30 @@ function clampProgress(value: unknown) {
 }
 function parseList(value: string) { try { return JSON.parse(value) as string[]; } catch { return []; } }
 
+let tablesPromise: Promise<void> | null = null;
+let bootstrapPromise: Promise<void> | null = null;
+
 async function ensureTables() {
-  await env.DB.exec(`
-    CREATE TABLE IF NOT EXISTS project_items (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, description TEXT NOT NULL DEFAULT '', area TEXT NOT NULL DEFAULT 'development', status TEXT NOT NULL DEFAULT 'planned', progress INTEGER, progress_source TEXT NOT NULL DEFAULT 'unknown', priority TEXT NOT NULL DEFAULT 'medium', owner TEXT NOT NULL DEFAULT 'אדיר', collaborators TEXT NOT NULL DEFAULT '[]', current_phase TEXT NOT NULL DEFAULT '', next_action TEXT NOT NULL DEFAULT '', blockers TEXT NOT NULL DEFAULT '', target_date TEXT, source_threads TEXT NOT NULL DEFAULT '[]', tags TEXT NOT NULL DEFAULT '[]', created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
-    CREATE TABLE IF NOT EXISTS project_tasks (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, project_id INTEGER NOT NULL REFERENCES project_items(id) ON DELETE CASCADE, title TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'planned', progress INTEGER, owner TEXT NOT NULL DEFAULT 'אדיר', sort_order INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
-    CREATE INDEX IF NOT EXISTS project_tasks_project_idx ON project_tasks(project_id);
-    CREATE TABLE IF NOT EXISTS project_notes (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, project_id INTEGER NOT NULL REFERENCES project_items(id) ON DELETE CASCADE, body TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'open', actor_email TEXT NOT NULL, actor_name TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
-    CREATE INDEX IF NOT EXISTS project_notes_project_idx ON project_notes(project_id);
-    CREATE TABLE IF NOT EXISTS project_workspace_meta (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL, updated_at TEXT NOT NULL);
-  `);
+  if (!tablesPromise) {
+    tablesPromise = env.DB.batch([
+      env.DB.prepare("CREATE TABLE IF NOT EXISTS project_items (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, description TEXT NOT NULL DEFAULT '', area TEXT NOT NULL DEFAULT 'development', status TEXT NOT NULL DEFAULT 'planned', progress INTEGER, progress_source TEXT NOT NULL DEFAULT 'unknown', priority TEXT NOT NULL DEFAULT 'medium', owner TEXT NOT NULL DEFAULT 'אדיר', collaborators TEXT NOT NULL DEFAULT '[]', current_phase TEXT NOT NULL DEFAULT '', next_action TEXT NOT NULL DEFAULT '', blockers TEXT NOT NULL DEFAULT '', target_date TEXT, source_threads TEXT NOT NULL DEFAULT '[]', tags TEXT NOT NULL DEFAULT '[]', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)"),
+      env.DB.prepare("CREATE TABLE IF NOT EXISTS project_tasks (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, project_id INTEGER NOT NULL REFERENCES project_items(id) ON DELETE CASCADE, title TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'planned', progress INTEGER, owner TEXT NOT NULL DEFAULT 'אדיר', sort_order INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)"),
+      env.DB.prepare("CREATE INDEX IF NOT EXISTS project_tasks_project_idx ON project_tasks(project_id)"),
+      env.DB.prepare("CREATE TABLE IF NOT EXISTS project_notes (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, project_id INTEGER NOT NULL REFERENCES project_items(id) ON DELETE CASCADE, body TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'open', actor_email TEXT NOT NULL, actor_name TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)"),
+      env.DB.prepare("CREATE INDEX IF NOT EXISTS project_notes_project_idx ON project_notes(project_id)"),
+      env.DB.prepare("CREATE TABLE IF NOT EXISTS project_workspace_meta (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL, updated_at TEXT NOT NULL)"),
+    ]).then(() => undefined).catch((error) => { tablesPromise = null; throw error; });
+  }
+  await tablesPromise;
+}
+
+async function ensureBootstrap() {
+  await ensureTables();
+  if (!bootstrapPromise) {
+    bootstrapPromise = (async () => { await seedIfEmpty(); await syncProjectKnowledge(); })()
+      .catch((error) => { bootstrapPromise = null; throw error; });
+  }
+  await bootstrapPromise;
 }
 
 async function seedIfEmpty() {
@@ -187,13 +202,17 @@ async function authorize() {
 
 export async function GET() {
   const access = await authorize(); if (access.response) return access.response;
-  await ensureTables(); await seedIfEmpty(); await syncProjectKnowledge();
+  await ensureBootstrap();
   const [projects, tasks, notes] = await Promise.all([
     getDb().select().from(projectItems).orderBy(asc(projectItems.id)),
     getDb().select().from(projectTasks).orderBy(asc(projectTasks.sortOrder), asc(projectTasks.id)),
     getDb().select().from(projectNotes).orderBy(desc(projectNotes.createdAt), desc(projectNotes.id)),
   ]);
-  return Response.json({ projects: projects.map((project) => ({ ...project, collaborators: parseList(project.collaborators), sourceThreads: parseList(project.sourceThreads), tags: parseList(project.tags), tasks: tasks.filter((task) => task.projectId === project.id), notes: notes.filter((note) => note.projectId === project.id) })) });
+  const tasksByProject = new Map<number, typeof tasks>();
+  const notesByProject = new Map<number, typeof notes>();
+  for (const task of tasks) tasksByProject.set(task.projectId, [...(tasksByProject.get(task.projectId) || []), task]);
+  for (const note of notes) notesByProject.set(note.projectId, [...(notesByProject.get(note.projectId) || []), note]);
+  return Response.json({ projects: projects.map((project) => ({ ...project, collaborators: parseList(project.collaborators), sourceThreads: parseList(project.sourceThreads), tags: parseList(project.tags), tasks: tasksByProject.get(project.id) || [], notes: notesByProject.get(project.id) || [] })) });
 }
 
 export async function POST(request: Request) {
@@ -215,7 +234,7 @@ export async function POST(request: Request) {
   const name = String(body.name || "").trim();
   if (!name) return Response.json({ error: "Project name is required" }, { status: 400 });
   const [created] = await getDb().insert(projectItems).values({ name, description: String(body.description || ""), area: String(body.area || "development"), status: "planned", progress: null, progressSource: "unknown", priority: String(body.priority || "medium") as "critical" | "high" | "medium" | "low", owner: String(body.owner || "אדיר"), collaborators: "[]", currentPhase: "תכנון", nextAction: String(body.nextAction || "להגדיר את הצעד הראשון"), blockers: "", sourceThreads: "[]", tags: "[]", createdAt: now, updatedAt: now }).returning();
-  return Response.json({ project: created }, { status: 201 });
+  return Response.json({ project: { ...created, collaborators: [], sourceThreads: [], tags: [], tasks: [], notes: [] } }, { status: 201 });
 }
 
 export async function PATCH(request: Request) {

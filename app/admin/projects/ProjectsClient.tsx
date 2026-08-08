@@ -79,11 +79,12 @@ export default function ProjectsClient() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("active");
   const [showAdd, setShowAdd] = useState(false);
   const [busyKey, setBusyKey] = useState("");
+  const [savedKey, setSavedKey] = useState("");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   async function load() {
     setLoading(true);
@@ -101,30 +102,50 @@ export default function ProjectsClient() {
   }
 
   useEffect(() => {
+    const savedView = window.localStorage.getItem("projects-view-mode");
+    if (savedView === "list" || savedView === "grid") setViewMode(savedView);
     void load();
   }, []);
 
+  function changeView(mode: "grid" | "list") {
+    setViewMode(mode);
+    window.localStorage.setItem("projects-view-mode", mode);
+  }
+
   async function request(method: "POST" | "PATCH" | "DELETE", body: Record<string, unknown>, key: string) {
     setBusyKey(key);
+    setSavedKey("");
     setError("");
-    setMessage("");
-    const response = await fetch("/api/cms/projects", {
-      method,
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    setBusyKey("");
-    if (!response.ok) {
+    try {
+      const response = await fetch("/api/cms/projects", {
+        method,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const payload = await response.json().catch(() => ({})) as Record<string, unknown>;
+      if (!response.ok) throw new Error("save");
+      setSavedKey(key);
+      window.setTimeout(() => setSavedKey((current) => current === key ? "" : current), 1800);
+      return payload;
+    } catch {
       setError("השינוי לא נשמר. נסו שוב.");
-      return false;
+      return null;
+    } finally {
+      setBusyKey("");
     }
-    setMessage("נשמר בהצלחה");
-    await load();
-    return true;
   }
 
   async function update(kind: "project" | "task" | "note", id: number, changes: Record<string, unknown>) {
-    return request("PATCH", { kind, id, changes }, `${kind}:${id}`);
+    const snapshot = projects;
+    setProjects((items) => items.map((project) => {
+      if (kind === "project" && project.id === id) return { ...project, ...changes } as Project;
+      if (kind === "task") return { ...project, tasks: project.tasks.map((task) => task.id === id ? { ...task, ...changes } : task) };
+      if (kind === "note") return { ...project, notes: project.notes.map((note) => note.id === id ? { ...note, ...changes } : note) };
+      return project;
+    }));
+    const result = await request("PATCH", { kind, id, changes }, `${kind}:${id}`);
+    if (!result) setProjects(snapshot);
+    return Boolean(result);
   }
 
   async function addProject(event: FormEvent<HTMLFormElement>) {
@@ -132,7 +153,9 @@ export default function ProjectsClient() {
     const form = event.currentTarget;
     const data = new FormData(form);
     const saved = await request("POST", Object.fromEntries(data), "project:new");
-    if (saved) {
+    const project = saved?.project as Project | undefined;
+    if (project) {
+      setProjects((items) => [...items, project]);
       setShowAdd(false);
       form.reset();
     }
@@ -148,7 +171,11 @@ export default function ProjectsClient() {
       title: data.get("title"),
       owner: data.get("owner") || "אדיר",
     }, `task:new:${projectId}`);
-    if (saved) form.reset();
+    const task = saved?.task as Task | undefined;
+    if (task) {
+      setProjects((items) => items.map((project) => project.id === projectId ? { ...project, tasks: [...project.tasks, task] } : project));
+      form.reset();
+    }
   }
 
   async function addNote(event: FormEvent<HTMLFormElement>, projectId: number) {
@@ -161,7 +188,20 @@ export default function ProjectsClient() {
       body: data.get("body"),
       state: data.get("state"),
     }, `note:new:${projectId}`);
-    if (saved) form.reset();
+    const note = saved?.note as Note | undefined;
+    if (note) {
+      setProjects((items) => items.map((project) => project.id === projectId ? { ...project, notes: [note, ...project.notes] } : project));
+      form.reset();
+    }
+  }
+
+  async function deleteItem(kind: "task" | "note", id: number) {
+    const snapshot = projects;
+    setProjects((items) => items.map((project) => kind === "task"
+      ? { ...project, tasks: project.tasks.filter((task) => task.id !== id) }
+      : { ...project, notes: project.notes.filter((note) => note.id !== id) }));
+    const result = await request("DELETE", { kind, id }, `${kind}:${id}`);
+    if (!result) setProjects(snapshot);
   }
 
   const visible = useMemo(() => projects.filter((project) => {
@@ -234,18 +274,25 @@ export default function ProjectsClient() {
         <div className="projects-filters" role="group" aria-label="סינון לפי מצב">
           {filters.map(([value, label]) => <button className={filter === value ? "is-active" : ""} key={value} type="button" onClick={() => setFilter(value)}>{label}</button>)}
         </div>
+        <div className="view-switch" role="group" aria-label="סוג תצוגה">
+          <button className={viewMode === "grid" ? "is-active" : ""} type="button" onClick={() => changeView("grid")}>כרטיסים</button>
+          <button className={viewMode === "list" ? "is-active" : ""} type="button" onClick={() => changeView("list")}>רשימה</button>
+        </div>
       </section>
 
-      {message ? <p className="projects-message is-success" role="status">{message}</p> : null}
       {error ? <p className="projects-message is-error" role="alert">{error}</p> : null}
-      {loading ? <p className="projects-message">טוען את תמונת המצב...</p> : null}
+      {loading ? <section className="projects-loading" aria-label="טוען את תמונת המצב" aria-busy="true"><article /><article /><article /><article /></section> : null}
       {!loading && visible.length === 0 ? <p className="projects-message">לא נמצאו פרויקטים שמתאימים לסינון.</p> : null}
 
-      <section className="projects-grid">
+      <section className={`projects-grid is-${viewMode}`} aria-busy={loading}>
         {visible.map((project) => {
           const doneTasks = project.tasks.filter((task) => task.status === "done").length;
+          const projectKey = `project:${project.id}`;
           return (
             <article className={`project-card priority-${project.priority}`} key={project.id}>
+              <div className={`project-save-state ${busyKey === projectKey ? "is-saving" : savedKey === projectKey ? "is-saved" : ""}`} role="status" aria-live="polite">
+                {busyKey === projectKey ? <><i />שומר...</> : savedKey === projectKey ? "נשמר" : null}
+              </div>
               <div className="project-card-head">
                 <div>
                   <div className="project-badges">
@@ -284,17 +331,17 @@ export default function ProjectsClient() {
                 <div className="task-list">
                   {project.tasks.map((task) => (
                     <div className="task-row" key={task.id}>
-                      <input aria-label={`סימון ${task.title}`} type="checkbox" checked={task.status === "done"} onChange={() => void update("task", task.id, { status: task.status === "done" ? "planned" : "done", progress: task.status === "done" ? null : 100 })} />
+                      <input aria-label={`סימון ${task.title}`} type="checkbox" disabled={busyKey === `task:${task.id}`} checked={task.status === "done"} onChange={() => void update("task", task.id, { status: task.status === "done" ? "planned" : "done", progress: task.status === "done" ? null : 100 })} />
                       <span className={task.status === "done" ? "is-done" : ""}>{task.title}</span>
                       <small>{task.owner}</small>
-                      <button type="button" disabled={busyKey === `task:${task.id}`} onClick={() => void request("DELETE", { kind: "task", id: task.id }, `task:${task.id}`)} aria-label={`מחיקת ${task.title}`}>מחיקה</button>
+                      <button type="button" disabled={busyKey === `task:${task.id}`} onClick={() => void deleteItem("task", task.id)} aria-label={`מחיקת ${task.title}`}>מחיקה</button>
                     </div>
                   ))}
                 </div>
                 <form className="inline-add" onSubmit={(event) => void addTask(event, project.id)}>
                   <input name="title" required placeholder="משימה חדשה" />
                   <input name="owner" placeholder="אחראי, ברירת מחדל אדיר" />
-                  <button disabled={busyKey === `task:new:${project.id}`}>הוספת משימה</button>
+                  <button disabled={busyKey === `task:new:${project.id}`}>{busyKey === `task:new:${project.id}` ? "מוסיף..." : "הוספת משימה"}</button>
                 </form>
               </details>
 
@@ -304,21 +351,21 @@ export default function ProjectsClient() {
                   {project.notes.length === 0 ? <p>עדיין אין הערות בפרויקט.</p> : project.notes.map((note) => (
                     <article className={note.state === "important" ? "is-important" : ""} key={note.id}>
                       <p>{note.body}</p>
-                      <footer><span>{note.actorName || note.actorEmail}</span><time>{new Date(note.createdAt).toLocaleString("he-IL")}</time><button type="button" onClick={() => void request("DELETE", { kind: "note", id: note.id }, `note:${note.id}`)}>מחיקה</button></footer>
+                      <footer><span>{note.actorName || note.actorEmail}</span><time>{new Date(note.createdAt).toLocaleString("he-IL")}</time><button type="button" disabled={busyKey === `note:${note.id}`} onClick={() => void deleteItem("note", note.id)}>מחיקה</button></footer>
                     </article>
                   ))}
                 </div>
                 <form className="note-add" onSubmit={(event) => void addNote(event, project.id)}>
                   <textarea name="body" required placeholder="כתיבת הערה לפרויקט" />
                   <label><input type="checkbox" name="state" value="important" />הערה חשובה</label>
-                  <button disabled={busyKey === `note:new:${project.id}`}>שמירת הערה</button>
+                  <button disabled={busyKey === `note:new:${project.id}`}>{busyKey === `note:new:${project.id}` ? "שומר..." : "שמירת הערה"}</button>
                 </form>
               </details>
 
               <div className="project-actions">
-                <label><span>מצב</span><select value={project.status} onChange={(event) => void update("project", project.id, { status: event.target.value })}>{Object.entries(statusLabels).filter(([key]) => key !== "archived").map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
-                <label><span>התקדמות</span><input min="0" max="100" type="number" value={project.progress ?? ""} placeholder="לא ידוע" onBlur={(event) => void update("project", project.id, { progress: event.target.value, progressSource: event.target.value ? "confirmed" : "unknown" })} onChange={(event) => setProjects((items) => items.map((item) => item.id === project.id ? { ...item, progress: event.target.value === "" ? null : Number(event.target.value) } : item))} /></label>
-                <label><span>תאריך יעד</span><input type="date" value={project.targetDate || ""} onChange={(event) => void update("project", project.id, { targetDate: event.target.value || null })} /></label>
+                <label><span>מצב</span><select disabled={busyKey === projectKey} value={project.status} onChange={(event) => void update("project", project.id, { status: event.target.value })}>{Object.entries(statusLabels).filter(([key]) => key !== "archived").map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
+                <label><span>התקדמות</span><input disabled={busyKey === projectKey} min="0" max="100" type="number" value={project.progress ?? ""} placeholder="לא ידוע" onBlur={(event) => void update("project", project.id, { progress: event.target.value, progressSource: event.target.value ? "confirmed" : "unknown" })} onChange={(event) => setProjects((items) => items.map((item) => item.id === project.id ? { ...item, progress: event.target.value === "" ? null : Number(event.target.value) } : item))} /></label>
+                <label><span>תאריך יעד</span><input disabled={busyKey === projectKey} type="date" value={project.targetDate || ""} onChange={(event) => void update("project", project.id, { targetDate: event.target.value || null })} /></label>
               </div>
             </article>
           );
@@ -338,7 +385,7 @@ export default function ProjectsClient() {
               <label><span>עדיפות</span><select name="priority"><option value="medium">בינונית</option><option value="high">גבוהה</option><option value="critical">קריטית</option><option value="low">נמוכה</option></select></label>
             </div>
             <label><span>הצעד הראשון</span><input name="nextAction" /></label>
-            <button className="modal-submit" type="submit" disabled={busyKey === "project:new"}>הוספת הפרויקט</button>
+            <button className="modal-submit" type="submit" disabled={busyKey === "project:new"}>{busyKey === "project:new" ? "מוסיף..." : "הוספת הפרויקט"}</button>
           </form>
         </div>
       ) : null}
