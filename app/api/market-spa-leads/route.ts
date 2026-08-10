@@ -1,4 +1,5 @@
 import { and, eq } from "drizzle-orm";
+import { env } from "cloudflare:workers";
 import { getDb } from "../../../db";
 import { cmsContent, formSubmissions } from "../../../db/schema";
 import {
@@ -14,6 +15,9 @@ import {
 } from "../../market-launch/markets";
 
 type MarketSlug = keyof typeof markets;
+
+const runtimeEnv = env as unknown as Record<string, string | undefined>;
+const setting = (name: string) => runtimeEnv[name] || process.env[name] || "";
 
 const allowedOrigins = new Set([
   "https://spaplus.co",
@@ -42,6 +46,15 @@ const cleanMultiline = (value: unknown, max: number) =>
     .trim()
     .replace(/\r\n/g, "\n")
     .slice(0, max);
+
+const constantTimeEqual = (left: string, right: string) => {
+  if (left.length !== right.length) return false;
+  let mismatch = 0;
+  for (let index = 0; index < left.length; index += 1) {
+    mismatch |= left.charCodeAt(index) ^ right.charCodeAt(index);
+  }
+  return mismatch === 0;
+};
 
 const isEmail = (value: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(value);
@@ -158,6 +171,10 @@ export async function POST(request: Request) {
     }
 
     const body = (await request.json()) as Record<string, unknown>;
+    const relaySecret = setting("META_RELAY_SECRET");
+    const receivedRelaySecret = request.headers.get("x-spaplus-meta-relay") || "";
+    const isTrustedMetaRelay =
+      relaySecret.length >= 32 && constantTimeEqual(receivedRelaySecret, relaySecret);
     if (clean(body.honey, 200)) {
       return Response.json({ success: true }, { headers });
     }
@@ -244,6 +261,8 @@ export async function POST(request: Request) {
     };
 
     if (
+      !isTrustedMetaRelay &&
+      (
       !isSubmissionId(submissionId) ||
       body.privacyAccepted !== true ||
       body.acknowledgementAccepted !== true ||
@@ -262,6 +281,7 @@ export async function POST(request: Request) {
       (isFieldRequired(marketContent, "Locations") && data.locations.length < 1) ||
       (isFieldRequired(marketContent, "PreferredContact") && data.preferredContact.length < 2) ||
       (isFieldRequired(marketContent, "Services") && data.services.length < 1)
+      )
     ) {
       return Response.json(
         { success: false, error: "Please complete all required fields" },
@@ -319,24 +339,24 @@ export async function POST(request: Request) {
       );
     }
 
-    const apiKey = process.env.RESEND_API_KEY;
+    const apiKey = setting("RESEND_API_KEY");
     const marketOwnerEmailsKey = `${marketSlug.toUpperCase()}_CONTACT_TO_EMAILS`;
     const marketDefaultOwnerEmails = marketSlug === "quebec"
       ? "adir@spaplus.co.il,galia@spaplus.ca"
       : "";
     const ownerEmails = (
+      setting(marketOwnerEmailsKey) ||
       marketContent.notificationRecipients ||
-      process.env[marketOwnerEmailsKey] ||
       marketDefaultOwnerEmails ||
-      process.env.CONTACT_TO_EMAILS ||
-      process.env.CONTACT_TO_EMAIL ||
+      setting("CONTACT_TO_EMAILS") ||
+      setting("CONTACT_TO_EMAIL") ||
       "djskabi@gmail.com"
     )
       .split(",")
       .map((email) => email.trim().toLowerCase())
       .filter(isEmail);
     const fromEmail =
-      process.env.CONTACT_FROM_EMAIL?.trim() ||
+      setting("CONTACT_FROM_EMAIL").trim() ||
       "SpaPlus <hello@mail.spaplus.co>";
 
     if (!apiKey || ownerEmails.length === 0) {

@@ -32,6 +32,34 @@ export const cmsResources = [
     labels: { en: "Canada partner page", he: "עמוד השותפים של קנדה", "fr-CA": "Page partenaires Canada" },
   },
   {
+    key: "ops:global",
+    type: "operations",
+    business: "spaplus-global",
+    topic: "global",
+    labels: { en: "Global spa operations", he: "ניהול בתי ספא עולמי", "fr-CA": "Opérations mondiales des spas" },
+  },
+  {
+    key: "ops:ca",
+    type: "operations",
+    business: "spaplus-global",
+    topic: "canada",
+    labels: { en: "Canada spa operations", he: "ניהול בתי ספא בקנדה", "fr-CA": "Opérations des spas au Canada" },
+  },
+  {
+    key: "ops:ca:on",
+    type: "operations",
+    business: "spaplus-global",
+    topic: "ontario",
+    labels: { en: "Ontario spa operations", he: "ניהול בתי ספא באונטריו", "fr-CA": "Opérations des spas en Ontario" },
+  },
+  {
+    key: "ops:il",
+    type: "operations",
+    business: "spaplus-global",
+    topic: "israel",
+    labels: { en: "Israel spa operations", he: "ניהול בתי ספא בישראל", "fr-CA": "Opérations des spas en Israël" },
+  },
+  {
     key: "business:vila4u:leads",
     type: "business",
     business: "vila4u",
@@ -56,6 +84,10 @@ export const cmsResources = [
 
 export const cmsContentResources = cmsResources.filter(
   (resource) => resource.type === "site" || resource.type === "market",
+);
+
+export const cmsOperationsResources = cmsResources.filter(
+  (resource) => resource.type === "operations",
 );
 
 export type CmsResourceKey = (typeof cmsResources)[number]["key"];

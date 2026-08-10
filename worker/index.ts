@@ -7,9 +7,11 @@ interface Env {
   DB: D1Database;
   PRIVATE_BACKEND_ORIGIN?: string;
   SITES_BYPASS_TOKEN?: string;
+  META_WEBHOOK_VERIFY_TOKEN?: string;
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
   ADMIN_SESSION_SECRET?: string;
+  ADMIN_ALLOWED_EMAILS?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -29,7 +31,48 @@ type SignedPayload = Record<string, unknown> & { exp: number };
 const SESSION_COOKIE = "spg_admin_session";
 const OAUTH_STATE_COOKIE = "spg_oauth_state";
 const GOOGLE_CALLBACK = "https://app.spaplus.co/auth/google/callback";
+const GOOGLE_DRIVE_CALLBACK = "https://app.spaplus.co/auth/google/drive/callback";
+const DEFAULT_PRIVATE_BACKEND_ORIGIN = "https://spaplus-global-brand.adir-naor-7510.chatgpt.site";
 const SESSION_SECONDS = 8 * 60 * 60;
+const DRIVE_CREDENTIAL_KEY = "bugs_google_refresh_token";
+
+function constantTimeEqual(left: string, right: string): boolean {
+  const encoder = new TextEncoder();
+  const leftBytes = encoder.encode(left);
+  const rightBytes = encoder.encode(right);
+  const length = Math.max(leftBytes.length, rightBytes.length);
+  let difference = leftBytes.length ^ rightBytes.length;
+
+  for (let index = 0; index < length; index += 1) {
+    difference |= (leftBytes[index] || 0) ^ (rightBytes[index] || 0);
+  }
+
+  return difference === 0;
+}
+
+function verifyMetaWebhookRequest(request: Request, env: Env): Response {
+  const expectedToken = env.META_WEBHOOK_VERIFY_TOKEN?.trim() || "";
+  if (expectedToken.length < 16) {
+    return Response.json({ error: "Webhook is not configured" }, { status: 503 });
+  }
+
+  const url = new URL(request.url);
+  const mode = url.searchParams.get("hub.mode") || "";
+  const token = url.searchParams.get("hub.verify_token") || "";
+  const challenge = url.searchParams.get("hub.challenge") || "";
+
+  if (mode !== "subscribe" || !constantTimeEqual(token, expectedToken)) {
+    return Response.json({ error: "Verification token mismatch" }, { status: 403 });
+  }
+
+  return new Response(challenge, {
+    status: 200,
+    headers: {
+      "content-type": "text/plain; charset=utf-8",
+      "cache-control": "no-store",
+    },
+  });
+}
 const privateName = (encoded: string) => atob(encoded);
 const PRIVATE_AUTHORIZATION_HEADER = privateName(
   "T0FJLVNpdGVzLUF1dGhvcml6YXRpb24=",
@@ -37,26 +80,82 @@ const PRIVATE_AUTHORIZATION_HEADER = privateName(
 const LEGACY_SIGN_IN_PATH = privateName("L3NpZ25pbi13aXRoLWNoYXRncHQ=");
 const LEGACY_SIGN_OUT_PATH = privateName("L3NpZ25vdXQtd2l0aC1jaGF0Z3B0");
 const LEGACY_BRAND_TERMS = [privateName("Y2hhdGdwdA=="), privateName("b3BlbmFp")];
-const PRIVATE_BACKEND_FALLBACK = privateName(
-  "aHR0cHM6Ly9zcGFwbHVzLWdsb2JhbC1icmFuZC5hZGlyLW5hb3ItNzUxMC5jaGF0Z3B0LnNpdGU=",
-);
 
-function privateBackendOrigin(env: Env): string {
-  const configured = String(env.PRIVATE_BACKEND_ORIGIN || "")
-    .replace(/^\uFEFF/, "")
+function configuredPrivateBackendOrigin(env: Env): string {
+  const candidate = String(env.PRIVATE_BACKEND_ORIGIN || "")
     .trim()
-    .replace(/^['\"]|['\"]$/g, "");
+    .replace(/^["']|["']$/g, "");
   try {
-    return new URL(configured || PRIVATE_BACKEND_FALLBACK).origin;
+    const parsed = new URL(candidate || DEFAULT_PRIVATE_BACKEND_ORIGIN);
+    if (parsed.protocol === "https:") return parsed.origin;
   } catch {
-    return new URL(PRIVATE_BACKEND_FALLBACK).origin;
+    // Fall through to the verified private Sites origin.
+  }
+  return DEFAULT_PRIVATE_BACKEND_ORIGIN;
+}
+
+function configuredOwnerEmails(env: Env): string[] {
+  return (env.ADMIN_ALLOWED_EMAILS || "").split(",").map((email) => email.trim().toLowerCase()).filter(Boolean);
+}
+
+async function credentialKey(secret: string): Promise<CryptoKey> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(secret));
+  return crypto.subtle.importKey("raw", digest, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
+}
+
+async function encryptCredential(value: string, secret: string): Promise<string> {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const encrypted = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, await credentialKey(secret), new TextEncoder().encode(value)));
+  return `${base64UrlEncode(iv)}.${base64UrlEncode(encrypted)}`;
+}
+
+async function decryptCredential(value: string, secret: string): Promise<string | null> {
+  try {
+    const [encodedIv, encodedPayload] = value.split(".");
+    if (!encodedIv || !encodedPayload) return null;
+    const decrypted = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: base64UrlDecode(encodedIv) as unknown as BufferSource },
+      await credentialKey(secret),
+      base64UrlDecode(encodedPayload) as unknown as BufferSource,
+    );
+    return new TextDecoder().decode(decrypted);
+  } catch {
+    return null;
   }
 }
 
+async function ensureIntegrationCredentialsTable(env: Env) {
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS integration_credentials (key TEXT PRIMARY KEY NOT NULL, encrypted_value TEXT NOT NULL, owner_email TEXT NOT NULL, updated_at TEXT NOT NULL)").run();
+}
+
+async function storeDriveRefreshToken(env: Env, refreshToken: string, ownerEmail: string) {
+  if (!env.ADMIN_SESSION_SECRET) throw new Error("Missing credential encryption key");
+  await ensureIntegrationCredentialsTable(env);
+  const encrypted = await encryptCredential(refreshToken, env.ADMIN_SESSION_SECRET);
+  await env.DB.prepare("INSERT INTO integration_credentials (key, encrypted_value, owner_email, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(key) DO UPDATE SET encrypted_value = excluded.encrypted_value, owner_email = excluded.owner_email, updated_at = excluded.updated_at")
+    .bind(DRIVE_CREDENTIAL_KEY, encrypted, ownerEmail, new Date().toISOString()).run();
+}
+
+async function getDriveAccessToken(env: Env): Promise<string | null> {
+  if (!env.ADMIN_SESSION_SECRET || !env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) return null;
+  await ensureIntegrationCredentialsTable(env);
+  const stored = await env.DB.prepare("SELECT encrypted_value FROM integration_credentials WHERE key = ? LIMIT 1").bind(DRIVE_CREDENTIAL_KEY).first<{ encrypted_value: string }>();
+  if (!stored?.encrypted_value) return null;
+  const refreshToken = await decryptCredential(stored.encrypted_value, env.ADMIN_SESSION_SECRET);
+  if (!refreshToken) return null;
+  const response = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ client_id: env.GOOGLE_CLIENT_ID, client_secret: env.GOOGLE_CLIENT_SECRET, refresh_token: refreshToken, grant_type: "refresh_token" }),
+  });
+  if (!response.ok) return null;
+  const payload = await response.json() as { access_token?: string };
+  return payload.access_token || null;
+}
 
 function textResponse(message: string, status = 400): Response {
   return new Response(
-    `<!doctype html><html lang="he" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SpaPlus</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#fff8fb;color:#172d4f;font-family:Arial,sans-serif}.card{width:min(520px,calc(100% - 40px));padding:40px;border:1px solid #e3dce2;border-radius:24px;background:#fff;box-shadow:0 20px 60px #172d4f18;text-align:center}a{display:inline-block;margin-top:18px;color:#ed1766;font-weight:700}</style><main class="card"><h1>הגישה לא אושרה</h1><p>${escapeHtml(message)}</p><a href="/">חזרה לאתר</a></main></html>`,
+    `<!doctype html><html lang="he" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SpaPlus</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;800&display=swap" rel="stylesheet"><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#fff8fb;color:#172d4f;font-family:"Heebo",Arial,sans-serif}.card{width:min(520px,calc(100% - 40px));padding:40px;border:1px solid #e3dce2;border-radius:24px;background:#fff;box-shadow:0 20px 60px #172d4f18;text-align:center}a{display:inline-block;margin-top:18px;color:#ed1766;font-weight:700}</style><main class="card"><h1>הגישה לא אושרה</h1><p>${escapeHtml(message)}</p><a href="/">חזרה לאתר</a></main></html>`,
     {
       status,
       headers: {
@@ -177,6 +276,45 @@ function randomToken(): string {
   return base64UrlEncode(crypto.getRandomValues(new Uint8Array(24)));
 }
 
+async function callProjectPortalBackend(env: Env) {
+  if (!env.SITES_BYPASS_TOKEN) return Response.json({ error: "Portal is unavailable" }, { status: 503 });
+  const upstreamUrl = new URL("/api/cms/projects-public", configuredPrivateBackendOrigin(env));
+  return fetch(upstreamUrl, {
+    method: "GET",
+    headers: {
+      [PRIVATE_AUTHORIZATION_HEADER]: `Bearer ${env.SITES_BYPASS_TOKEN}`,
+    },
+  });
+}
+
+async function projectShowcaseData(env: Env): Promise<Response> {
+  const upstream = await callProjectPortalBackend(env);
+  const headers = new Headers(upstream.headers);
+  headers.set("cache-control", "public, max-age=15, stale-while-revalidate=30");
+  headers.delete("set-cookie");
+  return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers });
+}
+
+function projectShowcaseResponse(response: Response) {
+  const headers = new Headers(response.headers);
+  if ((headers.get("content-type") || "").includes("text/html")) headers.set("cache-control", "public, max-age=0, must-revalidate");
+  headers.set("x-frame-options", "DENY");
+  headers.set("referrer-policy", "strict-origin-when-cross-origin");
+  headers.set("permissions-policy", "camera=(), microphone=(), geolocation=()");
+  const secured = new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+  if (!(headers.get("content-type") || "").includes("text/html")) return secured;
+  const Rewriter = (globalThis as unknown as {
+    HTMLRewriter: new () => {
+      on: (selector: string, handler: { element: (element: { setAttribute: (name: string, value: string) => void }) => void }) => {
+        transform: (input: Response) => Response;
+      };
+    };
+  }).HTMLRewriter;
+  return new Rewriter()
+    .on("html", { element(element) { element.setAttribute("lang", "he"); element.setAttribute("dir", "rtl"); } })
+    .transform(secured);
+}
+
 function isProtectedPath(pathname: string): boolean {
   if (pathname === "/api/cms/public") return false;
   return pathname === "/admin" || pathname.startsWith("/admin/") ||
@@ -215,14 +353,14 @@ function googleLoginLanding(request: Request): Response {
   const authorizeUrl = new URL("/auth/google/authorize", url.origin);
   authorizeUrl.searchParams.set("return_to", returnTo);
   return new Response(
-    `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>כניסה לניהול | SpaPlus</title><meta name="robots" content="noindex,nofollow"><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 85% 10%,#ffe3ef,transparent 30%),#f5f7fb;color:#172d4f;font-family:Arial,"Heebo",sans-serif}.card{width:min(530px,calc(100% - 32px));box-sizing:border-box;padding:44px 34px;border:1px solid #e6dfe5;border-radius:28px;background:#fff;box-shadow:0 22px 70px #172d4f1c;text-align:center}.brand{display:inline-flex;align-items:center;gap:12px;margin-bottom:26px;direction:ltr}.brand-mark{display:block;width:62px;height:62px;object-fit:contain}.brand-wordmark{display:block;width:112px;height:auto}.eyebrow{margin:0 0 10px;color:#ed1766;font-size:13px;font-weight:800;letter-spacing:.12em}h1{margin:0;font-size:34px;line-height:1.2}p{margin:16px auto 26px;max-width:340px;color:#526984;line-height:1.7}.button{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;box-sizing:border-box;padding:15px 20px;border-radius:999px;background:#172d4f;color:#fff;text-decoration:none;font-weight:800}.google{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#fff;color:#4285f4;font-weight:900;font-family:Arial}.note{margin:20px 0 0;font-size:13px;color:#6b7b92}</style></head><body><main class="card"><div class="brand" aria-label="SpaPlus"><img class="brand-mark" src="/spaplus-mark.png" alt=""><img class="brand-wordmark" src="/spaplus-wordmark.png" alt="SpaPlus"></div><p class="eyebrow">מערכת ניהול</p><h1>כניסה מאובטחת</h1><p>הכניסה למערכת הניהול מתבצעת באמצעות חשבון Google מורשה.</p><a class="button" href="${escapeHtml(authorizeUrl.pathname + authorizeUrl.search)}"><span class="google">G</span>המשך עם Google</a><p class="note">גישה ניתנת רק למשתמשים שהוגדרו במערכת.</p></main></body></html>`,
+    `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>כניסה לניהול | SpaPlus</title><meta name="robots" content="noindex,nofollow"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;800&display=swap" rel="stylesheet"><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 85% 10%,#ffe3ef,transparent 30%),#f5f7fb;color:#172d4f;font-family:"Heebo",Arial,sans-serif}.card{width:min(530px,calc(100% - 32px));box-sizing:border-box;padding:44px 34px;border:1px solid #e6dfe5;border-radius:28px;background:#fff;box-shadow:0 22px 70px #172d4f1c;text-align:center}.brand{display:inline-flex;align-items:center;gap:12px;margin-bottom:26px;direction:ltr}.brand-mark{display:block;width:62px;height:62px;object-fit:contain}.brand-wordmark{display:block;width:112px;height:auto}.eyebrow{margin:0 0 10px;color:#ed1766;font-size:13px;font-weight:800;letter-spacing:.12em}h1{margin:0;font-size:34px;line-height:1.2}p{margin:16px auto 26px;max-width:340px;color:#526984;line-height:1.7}.button{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;box-sizing:border-box;padding:15px 20px;border-radius:999px;background:#172d4f;color:#fff;text-decoration:none;font-weight:800}.google{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#fff;color:#4285f4;font-weight:900;font-family:Arial}.note{margin:20px 0 0;font-size:13px;color:#6b7b92}</style></head><body><main class="card"><div class="brand" aria-label="SpaPlus"><img class="brand-mark" src="/spaplus-mark.png" alt=""><img class="brand-wordmark" src="/spaplus-wordmark.png" alt="SpaPlus"></div><p class="eyebrow">מערכת ניהול</p><h1>כניסה מאובטחת</h1><p>הכניסה למערכת הניהול מתבצעת באמצעות חשבון Google מורשה.</p><a class="button" href="${escapeHtml(authorizeUrl.pathname + authorizeUrl.search)}"><span class="google">G</span>המשך עם Google</a><p class="note">גישה ניתנת רק למשתמשים שהוגדרו במערכת.</p></main></body></html>`,
     { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex, nofollow" } },
   );
 }
 
 function brandedAdministrationUnavailable(): Response {
   return new Response(
-    `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>מערכת הניהול מתעדכנת | SpaPlus</title><meta name="robots" content="noindex,nofollow"><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 85% 10%,#ffe3ef,transparent 30%),#f5f7fb;color:#172d4f;font-family:Arial,"Heebo",sans-serif}.card{width:min(570px,calc(100% - 32px));box-sizing:border-box;padding:44px 34px;border:1px solid #e6dfe5;border-radius:28px;background:#fff;box-shadow:0 22px 70px #172d4f1c;text-align:center}.brand{display:inline-flex;align-items:center;gap:12px;margin-bottom:26px;direction:ltr}.brand-mark{display:block;width:62px;height:62px;object-fit:contain}.brand-wordmark{display:block;width:112px;height:auto}.eyebrow{margin:0 0 10px;color:#ed1766;font-size:13px;font-weight:800;letter-spacing:.12em}h1{margin:0;font-size:34px;line-height:1.2}p{margin:16px auto 26px;max-width:380px;color:#526984;line-height:1.7}.button{display:inline-flex;align-items:center;justify-content:center;padding:14px 24px;border-radius:999px;background:#172d4f;color:#fff;text-decoration:none;font-weight:800}</style></head><body><main class="card"><div class="brand" aria-label="SpaPlus"><img class="brand-mark" src="/spaplus-mark.png" alt=""><img class="brand-wordmark" src="/spaplus-wordmark.png" alt="SpaPlus"></div><p class="eyebrow">מערכת ניהול</p><h1>המערכת מתעדכנת כרגע</h1><p>החיבור המאובטח מתחדש. אפשר לנסות שוב בעוד רגע. הנתונים נשמרים ולא נפגעו.</p><a class="button" href="/admin">ניסיון נוסף</a></main></body></html>`,
+    `<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>מערכת הניהול מתעדכנת | SpaPlus</title><meta name="robots" content="noindex,nofollow"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;800&display=swap" rel="stylesheet"><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 85% 10%,#ffe3ef,transparent 30%),#f5f7fb;color:#172d4f;font-family:"Heebo",Arial,sans-serif}.card{width:min(570px,calc(100% - 32px));box-sizing:border-box;padding:44px 34px;border:1px solid #e6dfe5;border-radius:28px;background:#fff;box-shadow:0 22px 70px #172d4f1c;text-align:center}.brand{display:inline-flex;align-items:center;gap:12px;margin-bottom:26px;direction:ltr}.brand-mark{display:block;width:62px;height:62px;object-fit:contain}.brand-wordmark{display:block;width:112px;height:auto}.eyebrow{margin:0 0 10px;color:#ed1766;font-size:13px;font-weight:800;letter-spacing:.12em}h1{margin:0;font-size:34px;line-height:1.2}p{margin:16px auto 26px;max-width:380px;color:#526984;line-height:1.7}.button{display:inline-flex;align-items:center;justify-content:center;padding:14px 24px;border-radius:999px;background:#172d4f;color:#fff;text-decoration:none;font-weight:800}</style></head><body><main class="card"><div class="brand" aria-label="SpaPlus"><img class="brand-mark" src="/spaplus-mark.png" alt=""><img class="brand-wordmark" src="/spaplus-wordmark.png" alt="SpaPlus"></div><p class="eyebrow">מערכת ניהול</p><h1>המערכת מתעדכנת כרגע</h1><p>החיבור המאובטח מתחדש. אפשר לנסות שוב בעוד רגע. הנתונים נשמרים ולא נפגעו.</p><a class="button" href="/admin">ניסיון נוסף</a></main></body></html>`,
     {
       status: 503,
       headers: {
@@ -292,18 +430,89 @@ async function finishGoogleLogin(request: Request, env: Env): Promise<Response> 
   return response;
 }
 
+async function startDriveConnection(request: Request, env: Env, session: SignedPayload): Promise<Response> {
+  const email = String(session.email || "").toLowerCase();
+  if (!configuredOwnerEmails(env).includes(email)) return textResponse("רק בעל המערכת יכול לחבר את קובץ המשימות.", 403);
+  if (!env.GOOGLE_CLIENT_ID || !env.ADMIN_SESSION_SECRET) return textResponse("חיבור גוגל אינו זמין כרגע.", 503);
+  const state = await signPayload({ kind: "drive", email, exp: Math.floor(Date.now() / 1000) + 10 * 60 }, env.ADMIN_SESSION_SECRET);
+  const googleUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+  googleUrl.search = new URLSearchParams({
+    client_id: env.GOOGLE_CLIENT_ID,
+    redirect_uri: GOOGLE_DRIVE_CALLBACK,
+    response_type: "code",
+    scope: "openid email profile https://www.googleapis.com/auth/spreadsheets",
+    access_type: "offline",
+    include_granted_scopes: "true",
+    prompt: "consent",
+    state,
+  }).toString();
+  return new Response(null, {
+    status: 302,
+    headers: {
+      location: googleUrl.toString(),
+      "cache-control": "no-store",
+      "set-cookie": `${OAUTH_STATE_COOKIE}=${state}; Path=/auth/google/drive; HttpOnly; Secure; SameSite=Lax; Max-Age=600`,
+    },
+  });
+}
+
+async function finishDriveConnection(request: Request, env: Env): Promise<Response> {
+  if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET || !env.ADMIN_SESSION_SECRET) return textResponse("חיבור גוגל אינו זמין כרגע.", 503);
+  const url = new URL(request.url);
+  const state = url.searchParams.get("state") || "";
+  if (!state || parseCookies(request).get(OAUTH_STATE_COOKIE) !== state) return textResponse("בקשת החיבור אינה תקינה.", 400);
+  const statePayload = await verifyPayload(state, env.ADMIN_SESSION_SECRET);
+  if (!statePayload || statePayload.kind !== "drive" || typeof statePayload.email !== "string") return textResponse("תוקף בקשת החיבור הסתיים.", 400);
+  const code = url.searchParams.get("code") || "";
+  if (!code) return textResponse("החיבור לדרייב בוטל.", 400);
+  const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ code, client_id: env.GOOGLE_CLIENT_ID, client_secret: env.GOOGLE_CLIENT_SECRET, redirect_uri: GOOGLE_DRIVE_CALLBACK, grant_type: "authorization_code" }),
+  });
+  if (!tokenResponse.ok) return textResponse("גוגל לא אישרה את החיבור לקובץ המשימות.", 401);
+  const tokens = await tokenResponse.json() as { id_token?: string; refresh_token?: string };
+  if (!tokens.id_token || !tokens.refresh_token) return textResponse("לא התקבלה הרשאת כתיבה קבועה. נסו לחבר שוב.", 401);
+  const identityResponse = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(tokens.id_token)}`);
+  if (!identityResponse.ok) return textResponse("לא ניתן היה לאמת את חשבון גוגל.", 401);
+  const identity = await identityResponse.json() as Record<string, string>;
+  const email = (identity.email || "").trim().toLowerCase();
+  if (email !== statePayload.email || !configuredOwnerEmails(env).includes(email)) return textResponse("חשבון הגוגל אינו בעל המערכת.", 403);
+  await storeDriveRefreshToken(env, tokens.refresh_token, email);
+  return new Response(null, {
+    status: 302,
+    headers: {
+      location: new URL("/admin/bugs?drive=connected", url.origin).toString(),
+      "cache-control": "no-store",
+      "set-cookie": `${OAUTH_STATE_COOKIE}=; Path=/auth/google/drive; HttpOnly; Secure; SameSite=Lax; Max-Age=0`,
+    },
+  });
+}
+
 async function proxyProtectedRequest(request: Request, env: Env, session: SignedPayload): Promise<Response> {
-  if (!env.PRIVATE_BACKEND_ORIGIN || !env.SITES_BYPASS_TOKEN) return textResponse("מערכת הניהול אינה זמינה כרגע.", 503);
-  const privateOrigin = privateBackendOrigin(env);
+  if (!env.SITES_BYPASS_TOKEN) return textResponse("מערכת הניהול אינה זמינה כרגע.", 503);
   const publicUrl = new URL(request.url);
-  const upstreamUrl = new URL(publicUrl.pathname + publicUrl.search, privateOrigin);
+  const backendOrigin = configuredPrivateBackendOrigin(env);
+  const upstreamUrl = new URL(publicUrl.pathname + publicUrl.search, backendOrigin);
   const upstreamHeaders = new Headers(request.headers);
   upstreamHeaders.set(PRIVATE_AUTHORIZATION_HEADER, `Bearer ${env.SITES_BYPASS_TOKEN}`);
   upstreamHeaders.set("x-spaplus-user-email", String(session.email || ""));
   upstreamHeaders.set("x-spaplus-user-name", encodeURIComponent(String(session.name || session.email || "")));
+  if (publicUrl.pathname === "/api/cms/bugs") {
+    const accessToken = await getDriveAccessToken(env);
+    if (accessToken) {
+      upstreamHeaders.set("x-spaplus-google-sheets-token", accessToken);
+      upstreamHeaders.set("x-spaplus-bugs-drive-connected", "1");
+    }
+  }
   upstreamHeaders.delete("host");
   upstreamHeaders.delete("content-length");
   upstreamHeaders.delete("cookie");
+  upstreamHeaders.delete("accept-encoding");
+  upstreamHeaders.delete("if-match");
+  upstreamHeaders.delete("if-none-match");
+  upstreamHeaders.delete("if-modified-since");
+  upstreamHeaders.delete("if-unmodified-since");
 
   const upstream = await fetch(upstreamUrl, {
     method: request.method,
@@ -320,8 +529,8 @@ async function proxyProtectedRequest(request: Request, env: Env, session: Signed
 
   const location = headers.get("location");
   if (location) {
-    const redirected = new URL(location, privateOrigin);
-    if (redirected.origin === privateOrigin) {
+    const redirected = new URL(location, backendOrigin);
+    if (redirected.origin === backendOrigin) {
       if (redirected.pathname === LEGACY_SIGN_IN_PATH) {
         redirected.pathname = "/auth/google/start";
       } else if (redirected.pathname === LEGACY_SIGN_OUT_PATH) {
@@ -338,16 +547,20 @@ async function proxyProtectedRequest(request: Request, env: Env, session: Signed
       return brandedAdministrationUnavailable();
     }
     body = body
-      .replaceAll(privateOrigin, publicUrl.origin)
+      .replaceAll(backendOrigin, publicUrl.origin)
       .replaceAll(LEGACY_SIGN_IN_PATH, "/auth/google/start")
       .replaceAll(LEGACY_SIGN_OUT_PATH, "/auth/logout")
-      .replaceAll("index-MnjarlW8.js", "index-Dq2-pwm2.js");
+      .replaceAll("index-MnjarlW8.js", "index-Dq2-pwm2.js")
+      .replaceAll("index-fpqyGFwg.css", "index-CKyI5e50.css");
     body = body.replace(new RegExp(LEGACY_BRAND_TERMS[0], "gi"), "Google");
     body = body.replace(new RegExp(LEGACY_BRAND_TERMS[1], "gi"), "SpaPlus");
     headers.delete("content-length");
+    headers.delete("content-encoding");
+    headers.delete("transfer-encoding");
     return new Response(body, { status: upstream.status, statusText: upstream.statusText, headers });
   }
-  return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers });
+  const bodyless = request.method === "HEAD" || upstream.status === 204 || upstream.status === 205 || upstream.status === 304;
+  return new Response(bodyless ? null : upstream.body, { status: upstream.status, statusText: upstream.statusText, headers });
 }
 
 /**
@@ -358,13 +571,12 @@ async function proxyProtectedRequest(request: Request, env: Env, session: Signed
  * unstyled administration page.
  */
 async function proxyPrivateAsset(request: Request, env: Env): Promise<Response | null> {
-  if (!env.PRIVATE_BACKEND_ORIGIN || !env.SITES_BYPASS_TOKEN) return null;
+  if (!env.SITES_BYPASS_TOKEN) return null;
 
-  const privateOrigin = privateBackendOrigin(env);
   const publicUrl = new URL(request.url);
   const upstreamUrl = new URL(
     `${publicUrl.pathname}${publicUrl.search}`,
-    privateOrigin,
+    configuredPrivateBackendOrigin(env),
   );
   const upstream = await fetch(upstreamUrl, {
     method: request.method,
@@ -395,7 +607,6 @@ async function applyManagedOntarioMetadata(
 ): Promise<Response> {
   if (
     request.method !== "GET" ||
-    !env.PRIVATE_BACKEND_ORIGIN ||
     !env.SITES_BYPASS_TOKEN ||
     !(response.headers.get("content-type") || "").includes("text/html")
   ) {
@@ -409,7 +620,7 @@ async function applyManagedOntarioMetadata(
   try {
     const contentUrl = new URL(
       `/api/cms/public?locale=${encodeURIComponent(locale)}`,
-      privateBackendOrigin(env),
+      configuredPrivateBackendOrigin(env),
     );
     const contentResponse = await fetch(contentUrl, {
       headers: {
@@ -456,6 +667,18 @@ const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     const hostname = url.hostname.toLowerCase();
+
+    if (hostname === "adir.spaplus.co") {
+      if (url.pathname === "/api/projects" && request.method === "GET") return projectShowcaseResponse(await projectShowcaseData(env));
+      if (url.pathname === "/robots.txt") return new Response("User-agent: *\nAllow: /\nSitemap: https://adir.spaplus.co/sitemap.xml\n", { headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } });
+      if (url.pathname === "/sitemap.xml") return new Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://adir.spaplus.co/</loc><changefreq>weekly</changefreq></url></urlset>', { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=3600" } });
+      if (url.pathname.startsWith("/assets/") || url.pathname.startsWith("/_next/") || /\.[a-z0-9]{2,6}$/i.test(url.pathname)) return env.ASSETS.fetch(request);
+      if (request.method !== "GET" && request.method !== "HEAD") return Response.json({ error: "Not found" }, { status: 404 });
+      const pageUrl = new URL(request.url);
+      pageUrl.pathname = "/adir";
+      const pageRequest = new Request(pageUrl, request);
+      return projectShowcaseResponse(await handler.fetch(pageRequest, env, ctx));
+    }
 
     if (hostname === "www.spaplus.co") {
       url.hostname = "spaplus.co";
@@ -511,6 +734,21 @@ const worker = {
       return finishGoogleLogin(request, env);
     }
 
+    if (hostname === "app.spaplus.co" && url.pathname === "/auth/google/drive/callback") {
+      return finishDriveConnection(request, env);
+    }
+
+    if (hostname === "app.spaplus.co" && url.pathname === "/auth/google/drive/authorize") {
+      if (!env.ADMIN_SESSION_SECRET) return textResponse("מערכת ההתחברות עדיין אינה זמינה.", 503);
+      const session = await verifyPayload(parseCookies(request).get(SESSION_COOKIE), env.ADMIN_SESSION_SECRET);
+      if (!session || typeof session.email !== "string") {
+        const loginUrl = new URL("/auth/google/start", url.origin);
+        loginUrl.searchParams.set("return_to", "/admin/bugs");
+        return Response.redirect(loginUrl.toString(), 302);
+      }
+      return startDriveConnection(request, env, session);
+    }
+
     if (hostname === "app.spaplus.co" && url.pathname === "/auth/logout") {
       const response = new Response(null, {
         status: 302,
@@ -523,6 +761,14 @@ const worker = {
       return response;
     }
 
+    if (
+      hostname === "app.spaplus.co" &&
+      request.method === "GET" &&
+      url.pathname === "/api/integrations/meta-ontario-leads"
+    ) {
+      return verifyMetaWebhookRequest(request, env);
+    }
+
     if (hostname === "app.spaplus.co" && isProtectedPath(url.pathname)) {
       if (!env.ADMIN_SESSION_SECRET) return textResponse("מערכת ההתחברות עדיין אינה זמינה.", 503);
       const session = await verifyPayload(parseCookies(request).get(SESSION_COOKIE), env.ADMIN_SESSION_SECRET);
@@ -531,7 +777,12 @@ const worker = {
         loginUrl.searchParams.set("return_to", `${url.pathname}${url.search}`);
         return Response.redirect(loginUrl.toString(), 302);
       }
-      return proxyProtectedRequest(request, env, session);
+      try {
+        return await proxyProtectedRequest(request, env, session);
+      } catch (error) {
+        console.error("Protected administration proxy failed", error);
+        return brandedAdministrationUnavailable();
+      }
     }
 
     if (
@@ -541,15 +792,12 @@ const worker = {
         url.pathname === "/api/contact" ||
         url.pathname === "/api/cms/public" ||
         url.pathname === "/api/integrations/meta-ontario-leads" ||
-        url.pathname === "/api/integrations/roomsvip-leads"
+        url.pathname === "/api/integrations/roomsvip-leads" ||
+        url.pathname === "/api/integrations/vii-leads"
       ) &&
-      env.PRIVATE_BACKEND_ORIGIN &&
       env.SITES_BYPASS_TOKEN
     ) {
-      const upstreamUrl = new URL(
-        url.pathname + url.search,
-        privateBackendOrigin(env),
-      );
+      const upstreamUrl = new URL(url.pathname + url.search, configuredPrivateBackendOrigin(env));
       const upstreamHeaders = new Headers(request.headers);
       upstreamHeaders.set(
         PRIVATE_AUTHORIZATION_HEADER,
@@ -557,7 +805,7 @@ const worker = {
       );
       upstreamHeaders.delete("host");
       upstreamHeaders.delete("content-length");
-      return fetch(upstreamUrl.toString(), {
+      return fetch(upstreamUrl, {
         method: request.method,
         headers: upstreamHeaders,
         body:

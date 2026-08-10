@@ -1,6 +1,5 @@
 import { eq } from "drizzle-orm";
 import { env } from "cloudflare:workers";
-import { getRequestExecutionContext } from "vinext/shims/request-context";
 import { getDb } from "../../../../db";
 import { formSubmissions } from "../../../../db/schema";
 import {
@@ -42,19 +41,7 @@ const RESOURCE_KEY = "market:ca:on";
 const runtimeEnv = env as unknown as Record<string, string | undefined>;
 const setting = (name: string) => runtimeEnv[name] || process.env[name] || "";
 const GRAPH_VERSION = setting("META_GRAPH_VERSION") || "v26.0";
-const META_PAGE_ID = setting("META_PAGE_ID") || "1065026380020011";
-const META_FORM_IDS = new Set(
-  (setting("META_FORM_IDS") || "2595979447504156,1542456153506372")
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean),
-);
-const META_FR_FORM_IDS = new Set(
-  (setting("META_FR_FORM_IDS") || "1542456153506372")
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean),
-);
+const META_PAGE_ID = "1065026380020011";
 
 function clean(value: unknown) {
   return String(value ?? "").trim();
@@ -84,23 +71,136 @@ function firstField(fields: Map<string, string>, names: string[]) {
   return "";
 }
 
-async function metaLeadSubmissionUuid(leadId: string) {
-  const digest = new Uint8Array(
-    await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`spaplus-ontario:${leadId}`)),
-  );
-  digest[6] = (digest[6] & 0x0f) | 0x40;
-  digest[8] = (digest[8] & 0x3f) | 0x80;
-  const hex = Array.from(digest.slice(0, 16), (byte) => byte.toString(16).padStart(2, "0")).join("");
-  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+function normalizedField(fields: Map<string, string>, names: string[]) {
+  const normalizedNames = names.map((name) => name.replace(/[^a-z0-9]+/g, "_"));
+  for (const [key, value] of fields) {
+    const normalizedKey = key.replace(/[^a-z0-9]+/g, "_");
+    if (normalizedNames.some((name) => normalizedKey === name || normalizedKey.includes(name))) {
+      return value;
+    }
+  }
+  return "";
 }
 
-function inferLocale(fields: Map<string, string>, formName: string, formId: string) {
-  if (META_FR_FORM_IDS.has(formId)) return "fr-CA";
+function inferLocale(fields: Map<string, string>, formName: string) {
   const explicit = firstField(fields, ["language", "locale", "preferred_language"]);
   const signal = `${explicit} ${formName}`.toLowerCase();
   return signal.includes("fr") || signal.includes("french") || signal.includes("français")
     ? "fr-CA"
     : "en-CA";
+}
+
+function isEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(value);
+}
+
+function torontoTime(value: string) {
+  return new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZone: "America/Toronto",
+    timeZoneName: "short",
+  }).format(new Date(value));
+}
+
+async function sendOntarioOwnerNotification(
+  data: MarketLeadEmailData,
+  leadId: string,
+) {
+  const apiKey = setting("RESEND_API_KEY");
+  const ownerEmails = (
+    setting("META_ONTARIO_CONTACT_TO_EMAILS") ||
+    setting("ONTARIO_CONTACT_TO_EMAILS") ||
+    "adir@spaplus.co.il,galia@spaplus.ca"
+  )
+    .split(",")
+    .map((value) => value.trim().toLowerCase())
+    .filter(isEmail);
+  if (!apiKey || ownerEmails.length === 0) {
+    throw new Error("Ontario Meta lead email is not configured");
+  }
+
+  const from = setting("CONTACT_FROM_EMAIL") || "SpaPlus <hello@mail.spaplus.co>";
+  const pageUrl = data.locale.toLowerCase().startsWith("fr")
+    ? "https://app.spaplus.co/fr-ca/ontario/"
+    : "https://app.spaplus.co/en-ca/ontario/";
+  const ownerContext = {
+    marketName: "Ontario",
+    pageUrl,
+    reviewWindowHours: 72,
+    languageTag: "en-CA",
+    copy: { emailCompanyName: "GLOBAL SPA MANAGEMENT LTD" },
+  };
+  const visitorContext = { ...ownerContext, languageTag: data.locale };
+  const owner = buildMarketOwnerEmail(data, ownerContext);
+  const visitor = buildMarketVisitorEmail(data, visitorContext);
+  const ownerResponse = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      "Idempotency-Key": `spaplus-ontario-meta-owner-${leadId}`,
+      "User-Agent": "SpaPlus-Meta-Ontario-Leads/1.0",
+    },
+    body: JSON.stringify({
+      from,
+      to: ownerEmails,
+      reply_to: data.email || undefined,
+      subject: owner.subject,
+      html: owner.html,
+      text: owner.text,
+      tags: [
+        { name: "email_type", value: "ontario_meta_spa_owner" },
+        { name: "market", value: "ontario" },
+      ],
+    }),
+  });
+  const ownerResult = (await ownerResponse.json()) as { id?: string; message?: string };
+  if (!ownerResponse.ok || !ownerResult.id) {
+    throw new Error(
+      `Ontario Meta owner email failed (${ownerResponse.status}): ${ownerResult.message || "No provider message"}`,
+    );
+  }
+
+  const deliveryIds = [ownerResult.id];
+  if (isEmail(data.email)) {
+    const visitorResponse = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "Idempotency-Key": `spaplus-meta-ontario-${leadId}`,
+        "User-Agent": "SpaPlus-Meta-Ontario-Leads/1.0",
+      },
+      body: JSON.stringify({
+        from,
+        to: [data.email],
+        reply_to: ownerEmails[0],
+        subject: visitor.subject,
+        html: visitor.html,
+        text: visitor.text,
+        tags: [
+          { name: "email_type", value: "ontario_meta_spa_confirmation" },
+          { name: "market", value: "ontario" },
+        ],
+      }),
+    });
+    const visitorResult = (await visitorResponse.json()) as { id?: string; message?: string };
+    if (!visitorResponse.ok || !visitorResult.id) {
+      throw new Error(
+        `Ontario Meta visitor email failed (${visitorResponse.status}): ${visitorResult.message || "No provider message"}`,
+      );
+    }
+    deliveryIds.push(visitorResult.id);
+  }
+  console.log("Ontario Meta lead email accepted", {
+    deliveryIds,
+    recipientCount: ownerEmails.length,
+  });
 }
 
 async function hmacHex(secret: string, payload: string, hash: "SHA-1" | "SHA-256") {
@@ -169,155 +269,6 @@ async function fetchName(objectId: string | undefined) {
   return clean(body.name);
 }
 
-async function sendLeadEmails({
-  leadId,
-  data,
-}: {
-  leadId: string;
-  data: MarketLeadEmailData;
-}) {
-  const apiKey = setting("RESEND_API_KEY");
-  const ownerEmails = (
-    setting("ONTARIO_CONTACT_TO_EMAILS") ||
-    setting("CONTACT_TO_EMAILS") ||
-    setting("CONTACT_TO_EMAIL") ||
-    "adir@spaplus.co.il,galia@spaplus.ca"
-  )
-    .split(",")
-    .map((email) => email.trim().toLowerCase())
-    .filter((email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
-  if (ownerEmails.length === 0) {
-    throw new Error("Ontario lead email service is not configured");
-  }
-
-  if (!apiKey) {
-    const privateOrigin = setting("PRIVATE_BACKEND_ORIGIN");
-    const bypassToken = setting("SITES_BYPASS_TOKEN");
-    const relaySecret = setting("META_RELAY_SECRET");
-    if (!privateOrigin || !bypassToken || relaySecret.length < 32) {
-      throw new Error("Ontario lead email relay is not configured");
-    }
-    const relayUrl = new URL("/api/market-spa-leads", privateOrigin);
-    const website = /^https?:\/\/\S+$/i.test(data.website) ? data.website : "";
-    const relayResponse = await fetch(relayUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Origin: "https://app.spaplus.co",
-        [atob("T0FJLVNpdGVzLUF1dGhvcml6YXRpb24=")]: `Bearer ${bypassToken}`,
-        "x-spaplus-meta-relay": relaySecret,
-      },
-      body: JSON.stringify({
-        submissionId: await metaLeadSubmissionUuid(leadId),
-        market: "ontario",
-        name: data.name,
-        role: data.role || "Spa representative",
-        email: data.email,
-        phone: data.phone,
-        organization: data.organization || "Ontario spa",
-        website,
-        city: data.city || "Ontario",
-        postalCode: data.postalCode,
-        spaType: data.spaType || "Established spa, hotel spa, resort spa or wellness destination",
-        locations: data.locations || "Not provided",
-        services: data.services.length > 0 ? data.services : ["Spa services"],
-        bookingSystem: data.bookingSystem,
-        preferredContact: data.preferredContact || "Email",
-        message: [
-          data.message,
-          data.campaign.form_id && `Meta form ID: ${data.campaign.form_id}`,
-          data.campaign.ad_id && `Meta ad ID: ${data.campaign.ad_id}`,
-          data.campaign.adset_id && `Meta ad set ID: ${data.campaign.adset_id}`,
-          data.campaign.campaign_id && `Meta campaign ID: ${data.campaign.campaign_id}`,
-        ].filter(Boolean).join("\n"),
-        area: "",
-        locale: data.locale,
-        source: "Meta paid lead form | Ontario",
-        campaign: {
-          utm_source: "meta",
-          utm_medium: "paid_lead_form",
-          utm_campaign: data.campaign.campaign_name || data.campaign.campaign_id || "ontario_meta_leads",
-          utm_content: data.campaign.ad_name || data.campaign.ad_id || "instant_form",
-          utm_term: data.campaign.form_name || data.campaign.form_id || "ontario_spa_form",
-        },
-        privacyAccepted: true,
-        acknowledgementAccepted: true,
-        honey: "",
-      }),
-    });
-    const relayResult = (await relayResponse.json().catch(() => ({}))) as {
-      success?: boolean;
-      deliveryIds?: string[];
-      error?: string;
-    };
-    if (!relayResponse.ok || !relayResult.success || relayResult.deliveryIds?.length !== 2) {
-      throw new Error(
-        `Ontario lead email relay failed (${relayResponse.status}): ${relayResult.error || "No provider message"}`,
-      );
-    }
-    return relayResult.deliveryIds;
-  }
-
-  const pageUrl = data.locale.toLowerCase().startsWith("fr")
-    ? "https://app.spaplus.co/fr-ca/ontario/"
-    : "https://app.spaplus.co/en-ca/ontario/";
-  const context = {
-    marketName: "Ontario",
-    pageUrl,
-    reviewWindowHours: 72,
-    languageTag: data.locale,
-    copy: { emailCompanyName: "GLOBAL SPA MANAGEMENT LTD" },
-  };
-  const owner = buildMarketOwnerEmail(data, context);
-  const visitor = buildMarketVisitorEmail(data, context);
-  const from = setting("CONTACT_FROM_EMAIL") || "SpaPlus <hello@mail.spaplus.co>";
-  const response = await fetch("https://api.resend.com/emails/batch", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      "Idempotency-Key": `spaplus-meta-ontario-${leadId}`,
-      "User-Agent": "SpaPlus-Meta-Ontario-Leads/1.0",
-    },
-    body: JSON.stringify([
-      {
-        from,
-        to: ownerEmails,
-        reply_to: data.email,
-        subject: owner.subject,
-        html: owner.html,
-        text: owner.text,
-        tags: [
-          { name: "email_type", value: "ontario_meta_spa_owner" },
-          { name: "market", value: "ontario" },
-        ],
-      },
-      {
-        from,
-        to: [data.email],
-        reply_to: ownerEmails[0],
-        subject: visitor.subject,
-        html: visitor.html,
-        text: visitor.text,
-        tags: [
-          { name: "email_type", value: "ontario_meta_spa_confirmation" },
-          { name: "market", value: "ontario" },
-        ],
-      },
-    ]),
-  });
-  const result = (await response.json()) as {
-    data?: Array<{ id: string }>;
-    message?: string;
-  };
-  if (!response.ok || !Array.isArray(result.data) || result.data.length !== 2) {
-    throw new Error(
-      `Ontario Meta lead email delivery failed (${response.status}): ${result.message || "No provider message"}`,
-    );
-  }
-  return result.data.map((item) => item.id);
-}
-
 async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
   const leadId = clean(lead.id || webhookValue.leadgen_id);
   if (!leadId) return "skipped" as const;
@@ -346,95 +297,120 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
     .from(formSubmissions)
     .where(eq(formSubmissions.submissionId, submissionId))
     .limit(1);
-  const isDuplicate = Boolean(existing);
-
-  const locale = inferLocale(fields, formName, formId);
-  const organization = firstField(fields, ["company_name", "spa_name", "business_name"]);
-  const city = firstField(fields, ["city", "location", "business_location"]);
+  if (existing) return "duplicate" as const;
+  const locale = inferLocale(fields, formName);
+  const organization =
+    firstField(fields, ["company_name", "spa_name", "business_name"]) ||
+    normalizedField(fields, [
+      "name_of_your_spa_or_business",
+      "spa_or_business_name",
+      "nom_de_votre_spa_ou_entreprise",
+    ]);
+  const city =
+    firstField(fields, ["city", "location", "business_location"]) ||
+    normalizedField(fields, [
+      "your_city_or_region",
+      "city_or_region",
+      "votre_ville_ou_region",
+    ]);
   const role = firstField(fields, ["job_title", "role"]);
   const spaType = firstField(fields, ["spa_type", "type_of_spa"]);
-  const website = firstField(fields, ["website", "website_or_social", "social_profile"]);
   const platform = clean(lead.platform) || "Facebook and Instagram";
   const createdAt = normalizeCreatedAt(lead.created_time || webhookValue.created_time);
-  const emailData: MarketLeadEmailData = {
+  const website =
+    firstField(fields, [
+      "website",
+      "website_url",
+      "website_or_social_profile",
+      "social_profile",
+    ]) ||
+    normalizedField(fields, [
+      "website_or_social_media_page",
+      "site_web_ou_page_de_reseau_social",
+    ]);
+  const postalCode = firstField(fields, ["postal_code", "postcode", "zip_code"]);
+  const locations = firstField(fields, ["locations", "number_of_locations"]);
+  const services = firstField(fields, ["services", "spa_services"])
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const preferredContact = firstField(fields, ["preferred_contact", "contact_method"]);
+  const bookingSystem = firstField(fields, ["booking_system", "reservation_system"]);
+  const additionalMessage = firstField(fields, ["message", "comments", "tell_us_more"]);
+
+  const message = [
+      "Company group: SpaPlus",
+      "Brand: SpaPlus Canada",
+      "Lead purpose: Ontario spa partner registration",
+      "Source channel: Meta paid lead form",
+      `Language: ${locale}`,
+      city && `City or region: ${city}`,
+      role && `Role: ${role}`,
+      spaType && `Spa type: ${spaType}`,
+      `Platform: ${platform}`,
+      formId && `Meta form ID: ${formId}`,
+      formName && `Meta form name: ${formName}`,
+      campaignId && `Meta campaign ID: ${campaignId}`,
+      campaignName && `Meta campaign name: ${campaignName}`,
+      adsetId && `Meta ad set ID: ${adsetId}`,
+      adsetName && `Meta ad set name: ${adsetName}`,
+      adId && `Meta ad ID: ${adId}`,
+      adName && `Meta ad name: ${adName}`,
+      `Meta lead ID: ${leadId}`,
+      `Submitted at: ${createdAt}`,
+    ]
+    .filter(Boolean)
+    .join("\n");
+
+  await db.insert(formSubmissions).values({
+    submissionId,
+    formType: "ontario-meta-instant-form",
+    name,
+    email: email.toLowerCase(),
+    phone,
+    organization,
+    topic: spaType || "Ontario spa partner",
+    message,
+    locale,
+    source: "Meta paid lead form | Ontario",
+    resourceKey: RESOURCE_KEY,
+    status: "new",
+    createdAt,
+  });
+
+  const notificationData: MarketLeadEmailData = {
     name,
     role,
-    email: email.toLowerCase(),
+    email,
     phone,
     organization,
     website,
     city,
-    region: "Ontario",
-    postalCode: "",
-    spaType: spaType || "Ontario spa partner",
-    locations: "Not provided",
-    services: [],
-    bookingSystem: "",
-    preferredContact: email ? "Email" : "Phone",
-    message: "Submitted through the SpaPlus Ontario Meta instant form.",
+    region: "",
+    postalCode,
+    spaType,
+    locations,
+    services,
+    bookingSystem,
+    preferredContact,
+    message: additionalMessage,
     area: city || "Ontario general",
     locale,
-    source: "Meta paid lead form | Ontario",
+    source: `Meta paid lead form | ${platform}`,
     campaign: {
-      campaign_id: campaignId,
-      campaign_name: campaignName,
-      adset_id: adsetId,
-      adset_name: adsetName,
-      ad_id: adId,
-      ad_name: adName,
+      ...(campaignName ? { campaign_name: campaignName } : {}),
+      ...(campaignId ? { campaign_id: campaignId } : {}),
+      ...(adsetName ? { ad_set_name: adsetName } : {}),
+      ...(adsetId ? { ad_set_id: adsetId } : {}),
+      ...(adName ? { ad_name: adName } : {}),
+      ...(adId ? { ad_id: adId } : {}),
       form_id: formId,
-      form_name: formName,
-      platform,
+      lead_id: leadId,
     },
-    submittedAt: createdAt,
+    submittedAt: `${torontoTime(createdAt)} (Toronto time)`,
   };
-
-  if (!isDuplicate) {
-    await db.insert(formSubmissions).values({
-      submissionId,
-      formType: "ontario-meta-instant-form",
-      name,
-      email: email.toLowerCase(),
-      phone,
-      organization,
-      topic: spaType || "Ontario spa partner",
-      message: [
-        "Company group: SpaPlus",
-        "Brand: SpaPlus Canada",
-        "Lead purpose: Ontario spa partner registration",
-        "Source channel: Meta paid lead form",
-        `Language: ${locale}`,
-        city && `City or region: ${city}`,
-        role && `Role: ${role}`,
-        spaType && `Spa type: ${spaType}`,
-        `Platform: ${platform}`,
-        formId && `Meta form ID: ${formId}`,
-        formName && `Meta form name: ${formName}`,
-        campaignId && `Meta campaign ID: ${campaignId}`,
-        campaignName && `Meta campaign name: ${campaignName}`,
-        adsetId && `Meta ad set ID: ${adsetId}`,
-        adsetName && `Meta ad set name: ${adsetName}`,
-        adId && `Meta ad ID: ${adId}`,
-        adName && `Meta ad name: ${adName}`,
-        `Meta lead ID: ${leadId}`,
-        `Submitted at: ${createdAt}`,
-      ]
-        .filter(Boolean)
-        .join("\n"),
-      locale,
-      source: "Meta paid lead form | Ontario",
-      resourceKey: RESOURCE_KEY,
-      status: "new",
-      createdAt,
-    });
-  }
-  const deliveryIds = await sendLeadEmails({ leadId, data: emailData });
-  console.log("Ontario Meta lead emails accepted", {
-    leadId,
-    recipientCount: 2,
-    deliveryIds,
-  });
-  return isDuplicate ? ("duplicate" as const) : ("inserted" as const);
+  await sendOntarioOwnerNotification(notificationData, leadId);
+  return "inserted" as const;
 }
 
 export async function GET(request: Request) {
@@ -464,7 +440,15 @@ export async function POST(request: Request) {
   }
 
   const values = (body.entry || [])
-    .flatMap((entry) => entry.changes || [])
+    .flatMap((entry) =>
+      (entry.changes || []).map((change) => ({
+        ...change,
+        value: {
+          ...change.value,
+          page_id: change.value?.page_id || entry.id,
+        },
+      })),
+    )
     .filter((change) => change.field === "leadgen")
     .map((change) => change.value || {});
   if (values.length > 100) {
@@ -473,29 +457,21 @@ export async function POST(request: Request) {
 
   const hasValidSignature = await validMetaSignature(request, rawBody);
   const hasAllowedLeadContext =
-    values.length > 0 &&
-    values.every(
-      (value) => clean(value.page_id) === META_PAGE_ID && META_FORM_IDS.has(clean(value.form_id)),
-    );
-  if (!hasValidSignature && !hasAllowedLeadContext) {
+    values.length > 0 && values.every((value) => clean(value.page_id) === META_PAGE_ID);
+  if (!hasValidSignature || !hasAllowedLeadContext) {
     return Response.json({ error: "Invalid Meta webhook" }, { status: 401 });
   }
 
-  const processing = processLeadValues(values).catch((error: unknown) => {
+  try {
+    const result = await processLeadValues(values);
+    return Response.json({ success: true, accepted: values.length, ...result });
+  } catch (error: unknown) {
     console.error("Meta lead webhook processing failed", {
       message: error instanceof Error ? error.message : "Unknown error",
       leadCount: values.length,
     });
-  });
-  try {
-    getRequestExecutionContext()?.waitUntil(processing);
-  } catch (error: unknown) {
-    console.error("Meta lead webhook background registration failed", {
-      message: error instanceof Error ? error.message : "Unknown error",
-    });
+    return Response.json({ error: "Meta lead processing failed" }, { status: 503 });
   }
-
-  return Response.json({ success: true, accepted: values.length });
 }
 
 async function processLeadValues(values: MetaLeadgenValue[]) {
@@ -515,4 +491,5 @@ async function processLeadValues(values: MetaLeadgenValue[]) {
   }
 
   console.log("Meta lead webhook processed", { inserted, duplicates, skipped });
+  return { inserted, duplicates, skipped };
 }

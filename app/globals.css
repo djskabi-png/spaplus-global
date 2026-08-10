@@ -1,6 +1,17 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "SpaPlus Heebo";
+  src: url("/fonts/heebo-hebrew.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+
 :root {
+  --font-heebo: "SpaPlus Heebo";
+  --font-noto-sans: Arial, sans-serif;
   --pink: #cf0e5a;
   --pink-deep: #ad0848;
   --pink-soft: #fff0f6;
@@ -3586,6 +3597,10 @@ body:has(.cookie-banner:not([hidden])) .share-page {
   .button:hover {
     transform: none;
   }
+}
+
+[lang="he"] :is(h1, h2, h3, h4, p, a, button, input, select, textarea, label, span, strong, small, legend, summary) {
+  font-family: var(--font-heebo, "Heebo"), Arial, sans-serif !important;
 }
 
 [lang="he"] :is(h1, h2, h3, h4) {

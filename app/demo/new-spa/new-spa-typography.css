@@ -1,0 +1,4 @@
+.ops-demo,
+.ops-demo * {
+  font-family: var(--font-heebo, "Heebo"), Arial, sans-serif !important;
+}

@@ -43,6 +43,20 @@
       "when": 1786150800000,
       "tag": "0005_adir_projects",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1786153500000,
+      "tag": "0006_projects_workspace",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1786163400000,
+      "tag": "0007_bug_routing_and_attachments",
+      "breakpoints": true
     }
   ]
 }

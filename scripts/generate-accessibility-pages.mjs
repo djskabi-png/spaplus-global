@@ -130,8 +130,8 @@ for (const file of await walk(output)) {
   const href = `/spaplus-global/${routeLocale}/accessibility/`;
   html = html
     .replace(/\sclass="global-accessibility-link"/g, "")
-    .replace(/<link rel="stylesheet" href="\/spaplus-global\/accessibility\.css[^"]*">\s*/g, "")
-    .replace(/<script src="\/spaplus-global\/accessibility\.js[^"]*" defer><\/script>\s*/g, "")
+    .replace(/\s*<link rel="stylesheet" href="\/spaplus-global\/accessibility\.css[^"]*">\s*/g, "\n")
+    .replace(/\s*<script src="\/spaplus-global\/accessibility\.js[^"]*" defer><\/script>\s*/g, "\n")
     .replace(/href="\/(?:spaplus-global\/)?(?:en|he|fr-ca|ru|el|it|hu|pl|es)\/accessibility\/"/gi, `href="${href}"`)
     .replace(/href="(?:[^"]*\/)?#accessibility"/g, `href="${href}"`)
     .replace(/href="\/spaplus-global\/[^"]+\/#accessibility"/g, `href="${href}"`);

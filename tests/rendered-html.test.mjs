@@ -56,6 +56,30 @@ test("Ontario Meta instant-form leads are authenticated, deduplicated, tagged an
   assert.match(templates, /dir="\$\{direction\}"/);
 });
 
+test("Ontario Meta leads send an English LTR owner notification", async () => {
+  const route = await read("app/api/integrations/meta-ontario-leads/route.ts");
+  assert.match(route, /ONTARIO_CONTACT_TO_EMAILS/);
+  assert.match(route, /api\.resend\.com\/emails/);
+  assert.match(route, /languageTag: "en-CA"/);
+  assert.match(route, /\(Toronto time\)/);
+});
+
+test("the public app worker verifies Meta lead webhooks at the edge and proxies delivery", async () => {
+  const worker = await read("worker/index.ts");
+
+  assert.match(worker, /META_WEBHOOK_VERIFY_TOKEN\?: string/);
+  assert.match(worker, /function constantTimeEqual/);
+  assert.match(worker, /function verifyMetaWebhookRequest/);
+  assert.match(worker, /request\.method === "GET"[\s\S]*?\/api\/integrations\/meta-ontario-leads/);
+  assert.match(worker, /return verifyMetaWebhookRequest\(request, env\)/);
+});
+
+test("Ontario owner recipients prefer the production market setting", async () => {
+  const route = await read("app/api/market-spa-leads/route.ts");
+  assert.match(route, /setting\(marketOwnerEmailsKey\)\s*\|\|\s*marketContent\.notificationRecipients/);
+  assert.match(route, /setting\("CONTACT_FROM_EMAIL"\)/);
+});
+
 test("static pages use the official SpaPlus mark instead of the retired heart icon", async () => {
   const [home, favicon] = await Promise.all([
     read("codepen/index.html"),
@@ -484,15 +508,19 @@ test("management permissions fail closed and leads are scoped by market", async 
   assert.match(worker, /assetResponse\.status !== 404/);
   assert.match(worker, /async function proxyPrivateAsset/);
   assert.match(worker, /replaceAll\("index-MnjarlW8\.js", "index-Dq2-pwm2\.js"\)/);
+  assert.match(worker, /replaceAll\("index-fpqyGFwg\.css", "index-CKyI5e50\.css"\)/);
+  assert.match(worker, /upstreamHeaders\.delete\("accept-encoding"\)/);
+  assert.match(worker, /console\.error\("Protected administration proxy failed", error\)/);
   assert.match(worker, /localAssetUrl\.pathname = "\/assets\/index-Dq2-pwm2\.js"/);
   assert.match(worker, /url\.pathname\.startsWith\("\/assets\/"\)/);
 });
 
 test("VII leads are validated, tagged and filterable without changing the shared business permissions", async () => {
-  const [route, roomsVipRoute, dashboard] = await Promise.all([
+  const [route, roomsVipRoute, dashboard, worker] = await Promise.all([
     read("app/api/integrations/vii-leads/route.ts"),
     read("app/api/integrations/roomsvip-leads/route.ts"),
     read("app/tools/SubmissionsClient.tsx"),
+    read("worker/index.ts"),
   ]);
   assert.match(route, /allowedOrigins/);
   assert.match(route, /isSubmissionId/);
@@ -509,6 +537,7 @@ test("VII leads are validated, tagged and filterable without changing the shared
   assert.match(dashboard, /lead-brand-tabs/);
   assert.match(dashboard, /setBrandFilter/);
   assert.match(dashboard, /setWorldFilter/);
+  assert.match(worker, /url\.pathname === "\/api\/integrations\/vii-leads"/);
 });
 
 test("the static export never shadows the authenticated management route", async () => {
@@ -547,6 +576,79 @@ test("management access starts on a branded page before Google sign-in", async (
   assert.match(worker, /כניסה מאובטחת/);
   assert.match(worker, /\/auth\/google\/authorize/);
   assert.match(worker, /url\.pathname === "\/auth\/google\/start"\)[\s\S]*googleLoginLanding/);
+});
+
+test("every Hebrew management surface is locked to the modern Heebo stack", async () => {
+  const [globalStyles, adminStyles, projectStyles, bugStyles, demoStyles, demoTypography, demoPage, protectedDemoPage, layout, accessDenied, worker] = await Promise.all([
+    read("app/globals.css"),
+    read("app/admin/admin.css"),
+    read("app/admin/projects/projects.css"),
+    read("app/admin/bugs/bugs.css"),
+    read("app/demo/new-spa/new-spa-demo.css"),
+    read("app/demo/new-spa/new-spa-typography.css"),
+    read("app/demo/new-spa/page.tsx"),
+    read("app/admin/operations/spas/new/page.tsx"),
+    read("app/layout.tsx"),
+    read("app/access-denied/page.tsx"),
+    read("worker/index.ts"),
+  ]);
+
+  assert.match(globalStyles, /font-family: var\(--font-heebo, "Heebo"\), Arial, sans-serif !important/);
+  assert.match(adminStyles, /\.cms-shell\[lang="he"\],\.cms-shell\[lang="he"\] \*\{font-family:var\(--font-heebo,"Heebo"\),Arial,sans-serif!important/);
+  assert.match(projectStyles, /\.projects-shell\[lang="he"\],\.projects-shell\[lang="he"\] \*\{font-family:var\(--font-heebo,"Heebo"\),Arial,sans-serif!important/);
+  assert.match(bugStyles, /\.bugs-shell\[lang="he"\],\.bugs-shell\[lang="he"\] \*\{font-family:var\(--font-heebo,"Heebo"\),Arial,sans-serif!important/);
+  assert.match(demoTypography, /font-family: var\(--font-heebo, "Heebo"\), Arial, sans-serif !important/);
+  assert.match(demoPage, /new-spa-typography\.css/);
+  assert.match(protectedDemoPage, /new-spa-typography\.css/);
+  assert.match(accessDenied, /dir="rtl" lang="he"/);
+  assert.match(worker, /fonts\.googleapis\.com\/css2\?family=Heebo/);
+  assert.match(worker, /font-family:"Heebo",Arial,sans-serif/);
+  assert.match(worker, /function textResponse[\s\S]*?background:#fff8fb;color:#172d4f;font-family:"Heebo",Arial,sans-serif/);
+  assert.doesNotMatch(`${layout}\n${projectStyles}\n${bugStyles}`, /Assistant|font-assistant/);
+  assert.doesNotMatch(`${globalStyles}\n${adminStyles}\n${projectStyles}\n${bugStyles}\n${demoStyles}\n${demoTypography}`, /font-family:(?:serif|cursive|fantasy)/i);
+});
+
+test("project cards and compact list are distinct, persistent and acknowledge view changes", async () => {
+  const [client, styles] = await Promise.all([
+    read("app/admin/projects/ProjectsClient.tsx"),
+    read("app/admin/projects/projects.css"),
+  ]);
+  assert.match(client, /projects-view-mode/);
+  assert.match(client, /aria-pressed=\{viewMode === "grid"\}/);
+  assert.match(client, /aria-pressed=\{viewMode === "list"\}/);
+  assert.match(client, /עברנו לתצוגת רשימה קומפקטית/);
+  assert.match(client, /project-list-expand/);
+  assert.match(client, /aria-expanded=\{expandedProjectId === project\.id\}/);
+  assert.match(styles, /\.projects-grid\.is-list \.project-card:not\(\.is-list-expanded\)/);
+  assert.match(styles, /\.project-card\.is-list-expanded/);
+  assert.match(styles, /\.view-mode-status/);
+});
+
+test("bug routing includes every verified future work sheet", async () => {
+  const [client, route] = await Promise.all([
+    read("app/admin/bugs/BugsClient.tsx"),
+    read("app/api/cms/bugs/route.ts"),
+  ]);
+  const futureTargets = [
+    ["future", "עתידי", "318326031"],
+    ["future_roy", "עתידי רועי", "2026080801"],
+    ["future_adir", "עתידי אדיר", "2026080802"],
+    ["future_gal", "עתידי גל", "2026080803"],
+    ["future_maxim", "עתידי מקסים", "2026080804"],
+    ["future_sergey", "עתידי סרגיי", "2026080805"],
+    ["future_maor", "עתידי מאור", "2026080806"],
+    ["future_shlomi", "עתידי שלומי", "2026080807"],
+  ];
+  for (const [key, label, sheetId] of futureTargets) {
+    assert.match(client, new RegExp(`${key}: "${label}"`));
+    assert.match(route, new RegExp(`${key}: \\{ sheetId: ${sheetId}, sheet: "${label}"`));
+  }
+  assert.match(route, /const validTargets = Object\.keys\(driveTargets\)/);
+  assert.match(route, /async function findNextTaskRow/);
+  assert.match(route, /A\$\{row\}:I\$\{row\}/);
+  assert.match(route, /valueInputOption=USER_ENTERED`, \{ method: "PUT"/);
+  assert.doesNotMatch(route, /insertDataOption=INSERT_ROWS/);
+  assert.match(route, /row\.some\(\(cell\) => cell === taskId\)/);
 });
 
 test("lead management provides a localized four-state operational dashboard", async () => {
@@ -965,4 +1067,62 @@ test("Canada partner funnel excludes Ontario and requires another Canadian regio
   assert.match(frenchPage, /hors Ontario/);
   assert.match(analytics, /site === "ontario"/);
   assert.match(analytics, /AnalyticsSite = "global" \| "ontario" \| "canada"/);
+});
+
+test("Adir project showcase is public, branded and managed from the main administration", async () => {
+  const [portal, portalCss, projectsClient, projectsRoute, publicRoute, page, worker, config] = await Promise.all([
+    read("app/adir/AdirProjectsClient.tsx"),
+    read("app/adir/adir-projects.css"),
+    read("app/admin/projects/ProjectsClient.tsx"),
+    read("app/api/cms/projects/route.ts"),
+    read("app/api/cms/projects-public/route.ts"),
+    read("app/adir/page.tsx"),
+    read("worker/index.ts"),
+    read("wrangler.public.jsonc"),
+  ]);
+  assert.match(config, /"pattern": "adir\.spaplus\.co"/);
+  assert.match(config, /"custom_domain": true/);
+  assert.doesNotMatch(worker, /PROJECT_PORTAL_COOKIE/);
+  assert.match(worker, /projectShowcaseData/);
+  assert.match(worker, /User-agent: \*\\nAllow: \//);
+  assert.match(worker, /sitemap\.xml/);
+  assert.match(worker, /x-frame-options/);
+  assert.match(projectsClient, /עמוד תדמית ציבורי/);
+  assert.match(projectsClient, /moveShowcaseProject/);
+  assert.match(projectsClient, /קישור כניסה לאתר/);
+  assert.match(projectsClient, /הצגה בעמוד הציבורי/);
+  assert.match(projectsRoute, /kind === "showcase_order"/);
+  assert.match(projectsRoute, /project_showcase_order/);
+  assert.match(publicRoute, /publicVisible/);
+  assert.doesNotMatch(publicRoute, /PROJECT_PORTAL_BACKEND_SECRET/);
+  assert.match(worker, /SITES_BYPASS_TOKEN/);
+  assert.doesNotMatch(publicRoute, /blockers: project\.blockers/);
+  assert.match(portal, /הפרויקטים של אדיר/);
+  assert.match(portal, /adir-ai-empire-icon\.png/);
+  assert.match(portal, /כניסה לפרויקט/);
+  assert.match(portal, /google\.com\/s2\/favicons/);
+  assert.doesNotMatch(portal, /adir-filters|adir-manifesto|adir-numbers/);
+  assert.match(page, /index: true/);
+  assert.match(page, /https:\/\/adir\.spaplus\.co\//);
+  assert.match(portalCss, /"SpaPlus Heebo",Arial,sans-serif!important/);
+  assert.match(portalCss, /@media\(max-width:640px\)/);
+});
+
+test("operations includes a clearly labelled illustrative sales dashboard and downloadable reports", async () => {
+  const [page, client, css, operations] = await Promise.all([
+    read("app/admin/operations/dashboard-preview/page.tsx"),
+    read("app/admin/operations/dashboard-preview/DashboardPreviewClient.tsx"),
+    read("app/admin/operations/dashboard-preview/dashboard-preview.css"),
+    read("app/admin/operations/OperationsClient.tsx"),
+  ]);
+  assert.match(page, /requireAuthorizedAdmin/);
+  assert.match(client, /נתוני המחשה בלבד/);
+  assert.match(client, /מקור הנתונים המאומת של גל/);
+  assert.match(client, /הכנסה ברוטו/);
+  assert.match(client, /מרכז הדוחות/);
+  assert.match(client, /new Blob/);
+  assert.match(client, /text\/csv/);
+  assert.match(operations, /dashboard-preview/);
+  assert.match(css, /SpaPlus Heebo/);
+  assert.match(css, /@media\(max-width:650px\)/);
 });

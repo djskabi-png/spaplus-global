@@ -38,6 +38,7 @@ type CmsUser = {
   status: "active" | "inactive";
   defaultLocale: Locale;
   systemLocale: "en" | "he" | "fr-CA";
+  canReportBugs: boolean;
   lastLoginAt: string | null;
   permissions: Permission[];
 };
@@ -75,7 +76,7 @@ const uiCopy = {
   en: {
     title: "Clear content. Precise access.", eyebrow: "SpaPlus management",
     preview: "View website", global: "Global website", market: "Ontario page", quebec: "Québec page", canada: "Canada page",
-    users: "Users and permissions", leads: "Leads and forms", contentLanguage: "Content language",
+    users: "Users and permissions", leads: "Leads and forms", bugs: "Bug reports", contentLanguage: "Content language",
     languageNote: "Changes apply only to the selected content language.", save: "Save",
     saving: "Saving...", saved: "Saved successfully", failed: "Unable to save",
     usersTitle: "Users and permissions", security: "Passwords are never stored here. Each user signs in with their own Google account.",
@@ -84,13 +85,14 @@ const uiCopy = {
     defaultContentLanguage: "Default content language", active: "Active", inactive: "Inactive",
     disable: "Disable", enable: "Enable", contentAccess: "Page access", leadAccess: "Lead access",
     none: "No access", view: "View", edit: "Edit", manage: "Manage", inherited: "Legacy access",
+    bugAccess: "Can report bugs", allowed: "Allowed", notAllowed: "Not allowed",
     homeSection: "Homepage", companySection: "About, team and contact", marketSection: "Ontario campaign page",
     searchContent: "Search page text", saveAll: "Save all changes", fields: "editable fields",
   },
   he: {
     title: "תוכן ברור. הרשאות מדויקות.", eyebrow: "מערכת הניהול של ספא פלוס",
     preview: "צפייה באתר", global: "האתר העולמי", market: "עמוד אונטריו", quebec: "עמוד קוויבק", canada: "עמוד קנדה",
-    users: "משתמשים והרשאות", leads: "פניות וטפסים", contentLanguage: "שפת התוכן",
+    users: "משתמשים והרשאות", leads: "פניות וטפסים", bugs: "דיווחי באגים", contentLanguage: "שפת התוכן",
     languageNote: "השינויים יחולו רק על שפת התוכן שנבחרה.", save: "שמירה",
     saving: "שומר...", saved: "נשמר בהצלחה", failed: "לא ניתן לשמור",
     usersTitle: "משתמשים והרשאות", security: "סיסמאות אינן נשמרות כאן. כל משתמש נכנס באמצעות חשבון גוגל האישי שלו.",
@@ -99,13 +101,14 @@ const uiCopy = {
     defaultContentLanguage: "שפת תוכן בברירת מחדל", active: "פעיל", inactive: "לא פעיל",
     disable: "השבתה", enable: "הפעלה", contentAccess: "הרשאת עמוד", leadAccess: "הרשאת פניות",
     none: "ללא גישה", view: "צפייה", edit: "עריכה", manage: "ניהול", inherited: "גישה קיימת",
+    bugAccess: "אפשרות לדווח על באגים", allowed: "מורשה", notAllowed: "ללא הרשאה",
     homeSection: "עמוד הבית", companySection: "אודות, צוות ויצירת קשר", marketSection: "עמוד הקמפיין של אונטריו",
     searchContent: "חיפוש טקסט בעמוד", saveAll: "שמירת כל השינויים", fields: "שדות לעריכה",
   },
   "fr-CA": {
     title: "Un contenu clair. Des accès précis.", eyebrow: "Gestion SpaPlus",
     preview: "Voir le site", global: "Site mondial", market: "Page Ontario", quebec: "Page Québec", canada: "Page Canada",
-    users: "Utilisateurs et autorisations", leads: "Demandes et formulaires", contentLanguage: "Langue du contenu",
+    users: "Utilisateurs et autorisations", leads: "Demandes et formulaires", bugs: "Signalements de bogues", contentLanguage: "Langue du contenu",
     languageNote: "Les changements s’appliquent uniquement à la langue de contenu choisie.", save: "Enregistrer",
     saving: "Enregistrement...", saved: "Enregistré", failed: "Enregistrement impossible",
     usersTitle: "Utilisateurs et autorisations", security: "Aucun mot de passe n’est conservé ici. Chaque personne se connecte avec son propre compte Google.",
@@ -114,6 +117,7 @@ const uiCopy = {
     defaultContentLanguage: "Langue de contenu par défaut", active: "Actif", inactive: "Inactif",
     disable: "Désactiver", enable: "Activer", contentAccess: "Accès à la page", leadAccess: "Accès aux demandes",
     none: "Aucun accès", view: "Consulter", edit: "Modifier", manage: "Gérer", inherited: "Accès existant",
+    bugAccess: "Peut signaler des bogues", allowed: "Autorisé", notAllowed: "Non autorisé",
     homeSection: "Page d’accueil", companySection: "À propos, équipe et contact", marketSection: "Page de campagne Ontario",
     searchContent: "Rechercher dans le contenu", saveAll: "Enregistrer toutes les modifications", fields: "champs modifiables",
   },
@@ -156,12 +160,14 @@ export default function AdminClient({
   role,
   defaultLocale,
   systemLocale,
+  canReportBugs,
   permissions,
   resources,
 }: {
   role: AdminRole;
   defaultLocale: string;
   systemLocale: string;
+  canReportBugs: boolean;
   permissions: Permission[];
   resources: Resource[];
 }) {
@@ -201,7 +207,7 @@ export default function AdminClient({
   }));
   const [newUser, setNewUser] = useState({
     email: "", displayName: "", role: "editor", defaultLocale: "en" as Locale,
-    systemLocale: "en" as "en" | "he" | "fr-CA", permissions: emptyPermissions,
+    systemLocale: "en" as "en" | "he" | "fr-CA", canReportBugs: false, permissions: emptyPermissions,
   });
   const resourceKey = tab === "market" ? "market:ca:on" : tab === "quebec" ? "market:ca:qc" : tab === "canada" ? "market:ca:national" : "site:global";
   const canViewSelectedContent = tab === "market" ? canViewMarketContent : tab === "quebec" ? canViewQuebecContent : tab === "canada" ? canViewCanadaContent : canViewGlobalContent;
@@ -316,7 +322,7 @@ export default function AdminClient({
     });
     setStatus(response.ok ? t.saved : t.failed);
     if (response.ok) {
-      setNewUser({ email: "", displayName: "", role: "editor", defaultLocale: "en", systemLocale: "en", permissions: emptyPermissions });
+      setNewUser({ email: "", displayName: "", role: "editor", defaultLocale: "en", systemLocale: "en", canReportBugs: false, permissions: emptyPermissions });
       await loadUsers();
     }
     setSavingAction(null);
@@ -404,7 +410,9 @@ export default function AdminClient({
         {canViewMarketContent ? <button className={tab === "market" ? "active" : ""} onClick={() => setTab("market")}>{t.market}</button> : null}
         {role === "owner" ? <button className={tab === "users" ? "active" : ""} onClick={() => setTab("users")}>{t.users}</button> : null}
         {resources.some((resource) => can(resource.key, "canViewLeads")) ? <a href="/tools">{t.leads}</a> : null}
+        {role === "owner" || canReportBugs ? <a href="/admin/bugs">{t.bugs}</a> : null}
         {role === "owner" ? <a href="/admin/projects">{uiLocale === "he" ? "הפרויקטים של אדיר" : uiLocale === "fr-CA" ? "Projets d’Adir" : "Adir’s projects"}</a> : null}
+        {role === "owner" || resources.some((resource) => resource.type === "operations" && can(resource.key, "canViewContent")) ? <a className="cms-operations-link" href="/admin/operations">{uiLocale === "he" ? "ניהול בתי ספא" : uiLocale === "fr-CA" ? "Gestion des spas" : "Spa operations"}</a> : null}
       </nav>
       {status ? <div className={`cms-status${savingAction ? " is-saving" : ""}`} role="status" aria-live="polite">{savingAction ? <i className="cms-spinner" aria-hidden="true" /> : null}{status}</div> : null}
 
@@ -446,6 +454,7 @@ export default function AdminClient({
             <select value={newUser.role} onChange={(event) => setNewUser({ ...newUser, role: event.target.value })}><option value="editor">{t.editor}</option><option value="viewer">{t.viewer}</option><option value="owner">{t.owner}</option></select>
             <select aria-label={t.systemLanguage} value={newUser.systemLocale} onChange={(event) => setNewUser({ ...newUser, systemLocale: event.target.value as "en" | "he" | "fr-CA" })}>{systemLanguageOptions.map((option) => <option key={option.code} value={option.code}>{option.label}</option>)}</select>
             <select aria-label={t.defaultContentLanguage} value={newUser.defaultLocale} onChange={(event) => setNewUser({ ...newUser, defaultLocale: event.target.value as Locale })}>{localeOptions.map((option) => <option key={option.code} value={option.code}>{option.label}</option>)}</select>
+            <label className="cms-bug-permission"><input type="checkbox" checked={newUser.canReportBugs} onChange={(event) => setNewUser({ ...newUser, canReportBugs: event.target.checked })} />{t.bugAccess}</label>
             <button className={savingAction === "user:new" ? "is-loading" : ""} disabled={Boolean(savingAction)} onClick={() => void addUser()}>{savingAction === "user:new" ? <><i className="cms-spinner" aria-hidden="true" />{t.saving}</> : t.add}</button>
           </div>
           <div className="cms-user-list">
@@ -455,6 +464,7 @@ export default function AdminClient({
                 <label>{t.systemLanguage}<select disabled={Boolean(savingAction)} value={user.systemLocale} onChange={(event) => void updateUser(user, { systemLocale: event.target.value as CmsUser["systemLocale"] }, "system-language")}>{systemLanguageOptions.map((option) => <option key={option.code} value={option.code}>{option.label}</option>)}</select></label>
                 <label>{t.defaultContentLanguage}<select disabled={Boolean(savingAction)} value={user.defaultLocale} onChange={(event) => void updateUser(user, { defaultLocale: event.target.value as Locale }, "content-language")}>{localeOptions.map((option) => <option key={option.code} value={option.code}>{option.label}</option>)}</select></label>
                 <label>{t.users}<select disabled={Boolean(savingAction)} value={user.role} onChange={(event) => void updateUser(user, { role: event.target.value as AdminRole }, "role") }><option value="owner">{t.owner}</option><option value="editor">{t.editor}</option><option value="viewer">{t.viewer}</option></select></label>
+                <label>{t.bugAccess}<select disabled={Boolean(savingAction)} value={user.canReportBugs ? "yes" : "no"} onChange={(event) => void updateUser(user, { canReportBugs: event.target.value === "yes" }, "bugs")}><option value="yes">{t.allowed}</option><option value="no">{t.notAllowed}</option></select></label>
               </div>
               <div className="cms-permission-grid">
                 {resourceBusinesses.map((business) => <section className="cms-business-permissions" key={business}>
@@ -465,7 +475,7 @@ export default function AdminClient({
                   const leadLevel = permission.canManageLeads ? "manage" : permission.canViewLeads ? "view" : "none";
                   return <div className="cms-permission-row" key={resource.key}>
                     <strong>{resource.labels[uiLocale]}</strong>
-                    {resource.type === "site" || resource.type === "market" ? <label>{t.contentAccess}<select disabled={Boolean(savingAction)} value={contentLevel} onChange={(event) => setUserPermission(user, resource.key, "content", event.target.value)}><option value="none">{t.none}</option><option value="view">{t.view}</option><option value="edit">{t.edit}</option></select></label> : null}
+                    {resource.type === "site" || resource.type === "market" || resource.type === "operations" ? <label>{resource.type === "operations" ? (uiLocale === "he" ? "הרשאת דשבורד" : uiLocale === "fr-CA" ? "Accès au tableau" : "Dashboard access") : t.contentAccess}<select disabled={Boolean(savingAction)} value={contentLevel} onChange={(event) => setUserPermission(user, resource.key, "content", event.target.value)}><option value="none">{t.none}</option><option value="view">{t.view}</option><option value="edit">{t.edit}</option></select></label> : null}
                     <label>{t.leadAccess}<select disabled={Boolean(savingAction)} value={leadLevel} onChange={(event) => setUserPermission(user, resource.key, "leads", event.target.value)}><option value="none">{t.none}</option><option value="view">{t.view}</option><option value="manage">{t.manage}</option></select></label>
                   </div>;
                 })}</section>)}

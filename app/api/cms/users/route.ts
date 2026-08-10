@@ -96,6 +96,7 @@ export async function POST(request: Request) {
     role?: string;
     defaultLocale?: string;
     systemLocale?: string;
+    canReportBugs?: boolean;
     permissions?: PermissionInput[];
   };
   const email = String(body.email || "").trim().toLowerCase();
@@ -103,6 +104,7 @@ export async function POST(request: Request) {
   const role = String(body.role || "viewer");
   const defaultLocale = String(body.defaultLocale || "en");
   const systemLocale = String(body.systemLocale || "en");
+  const canReportBugs = body.canReportBugs === true;
   const permissions = body.permissions === undefined ? [] : cleanPermissions(body.permissions);
   if (
     !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) ||
@@ -124,6 +126,7 @@ export async function POST(request: Request) {
       role: role as "owner" | "editor" | "viewer",
       defaultLocale,
       systemLocale,
+      canReportBugs,
       status: "active",
       createdAt: now,
       updatedAt: now,
@@ -135,6 +138,7 @@ export async function POST(request: Request) {
         role: role as "owner" | "editor" | "viewer",
         defaultLocale,
         systemLocale,
+        canReportBugs,
         status: "active",
         updatedAt: now,
       },
@@ -146,7 +150,7 @@ export async function POST(request: Request) {
     action: "user.saved",
     entityType: "user",
     entityId: email,
-    details: JSON.stringify({ role, defaultLocale, systemLocale, permissions }),
+    details: JSON.stringify({ role, defaultLocale, systemLocale, canReportBugs, permissions }),
     createdAt: now,
   });
   return Response.json({ success: true });
@@ -163,6 +167,7 @@ export async function PATCH(request: Request) {
     role?: string;
     defaultLocale?: string;
     systemLocale?: string;
+    canReportBugs?: boolean;
     permissions?: PermissionInput[];
   };
   const id = Number(body.id);
@@ -177,6 +182,7 @@ export async function PATCH(request: Request) {
   const role = body.role === undefined ? existing.role : String(body.role);
   const defaultLocale = body.defaultLocale === undefined ? existing.defaultLocale : String(body.defaultLocale);
   const systemLocale = body.systemLocale === undefined ? existing.systemLocale : String(body.systemLocale);
+  const canReportBugs = body.canReportBugs === undefined ? existing.canReportBugs : body.canReportBugs === true;
   const permissions = body.permissions === undefined ? undefined : cleanPermissions(body.permissions);
   if (
     !roles.has(role) ||
@@ -198,6 +204,7 @@ export async function PATCH(request: Request) {
       role: role as "owner" | "editor" | "viewer",
       defaultLocale,
       systemLocale,
+      canReportBugs,
       updatedAt: now,
     })
     .where(eq(cmsUsers.id, id));
@@ -207,7 +214,7 @@ export async function PATCH(request: Request) {
     action: "user.updated",
     entityType: "user",
     entityId: existing.email,
-    details: JSON.stringify({ status, role, defaultLocale, systemLocale, permissions }),
+    details: JSON.stringify({ status, role, defaultLocale, systemLocale, canReportBugs, permissions }),
     createdAt: now,
   });
   return Response.json({ success: true });

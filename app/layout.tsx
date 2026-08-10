@@ -1,21 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { Heebo, Noto_Sans } from "next/font/google";
 import "./globals.css";
-
-const notoSans = Noto_Sans({
-  variable: "--font-noto-sans",
-  subsets: ["latin", "latin-ext", "cyrillic", "greek"],
-  weight: "variable",
-  display: "swap",
-});
-
-const heebo = Heebo({
-  variable: "--font-heebo",
-  subsets: ["hebrew", "latin"],
-  weight: "variable",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://spaplus.co"),
@@ -54,9 +39,7 @@ export default async function RootLayout({
 
   return (
     <html lang={documentLanguage} dir={documentLanguage === "he" ? "rtl" : "ltr"}>
-      <body className={`${notoSans.variable} ${heebo.variable}`}>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
