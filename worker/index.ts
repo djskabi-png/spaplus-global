@@ -831,6 +831,21 @@ const worker = {
       hostname === "app.spaplus.co" &&
       (request.method === "GET" || request.method === "HEAD")
     ) {
+      const normalizedPath = url.pathname.replace(/\/+$/, "");
+      if (normalizedPath === "/en-ca/quebec" || normalizedPath === "/fr-ca/quebec") {
+        const renderUrl = new URL(request.url);
+        renderUrl.hostname = "spaplus-global-public.djskabi.workers.dev";
+        const renderedResponse = await handler.fetch(new Request(renderUrl, request), env, ctx);
+        const responseHeaders = new Headers(renderedResponse.headers);
+        responseHeaders.set("cache-control", "no-store, must-revalidate");
+        responseHeaders.delete("content-length");
+        return new Response(renderedResponse.body, {
+          status: renderedResponse.status,
+          statusText: renderedResponse.statusText,
+          headers: responseHeaders,
+        });
+      }
+
       const assetResponse = await env.ASSETS.fetch(request);
       if (assetResponse.status !== 404) {
         const renderedResponse = await applyManagedOntarioMetadata(request, assetResponse, env);
