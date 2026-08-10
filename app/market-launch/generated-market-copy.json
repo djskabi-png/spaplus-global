@@ -9,7 +9,7 @@
   {
     "field": "copysnrlox",
     "label": "We could not send your details right now. Please try again in a moment.",
-    "group": "Navigation and accessibility",
+    "group": "Hero and launch status",
     "en": "We could not send your details right now. Please try again in a moment.",
     "fr": "Nous n’avons pas pu transmettre vos renseignements. Veuillez réessayer dans un instant."
   },
@@ -331,14 +331,14 @@
   {
     "field": "copy1u96rta",
     "label": "Register free",
-    "group": "Proof and guest experiences",
+    "group": "Partner fit and launch areas",
     "en": "Register free",
     "fr": "Inscription gratuite"
   },
   {
     "field": "copy97warh",
     "label": "No payment or card",
-    "group": "Proof and guest experiences",
+    "group": "Partner fit and launch areas",
     "en": "No payment or card",
     "fr": "Aucun paiement ni carte"
   },
@@ -457,21 +457,21 @@
   {
     "field": "copy1cz9wro",
     "label": "More than a treatment",
-    "group": "Partner fit and launch areas",
+    "group": "Commercial model and process",
     "en": "More than a treatment",
     "fr": "Bien plus qu’un soin"
   },
   {
     "field": "copyvdumy9",
     "label": "SOLO RESET",
-    "group": "Partner fit and launch areas",
+    "group": "Commercial model and process",
     "en": "SOLO RESET",
     "fr": "PAUSE EN SOLO"
   },
   {
     "field": "copyboo9cb",
     "label": "Time that is entirely yours",
-    "group": "Partner fit and launch areas",
+    "group": "Commercial model and process",
     "en": "Time that is entirely yours",
     "fr": "Du temps rien que pour vous"
   },
@@ -863,14 +863,14 @@
   {
     "field": "copy101xvbe",
     "label": "SETTLEMENT",
-    "group": "Registration form",
+    "group": "Frequently asked questions",
     "en": "SETTLEMENT",
     "fr": "RÈGLEMENT"
   },
   {
     "field": "copy5qwc69",
     "label": "One clear monthly picture",
-    "group": "Registration form",
+    "group": "Frequently asked questions",
     "en": "One clear monthly picture",
     "fr": "Un portrait mensuel clair"
   },
@@ -933,14 +933,14 @@
   {
     "field": "copy13qp337",
     "label": "Have a real conversation",
-    "group": "Frequently asked questions",
+    "group": "Final call to action and footer",
     "en": "Have a real conversation",
     "fr": "Échangeons pour vrai"
   },
   {
     "field": "copyly2c5y",
     "label": "We explain the launch plan, answer questions and learn more.",
-    "group": "Frequently asked questions",
+    "group": "Final call to action and footer",
     "en": "We explain the launch plan, answer questions and learn more.",
     "fr": "Nous expliquons le plan de lancement, répondons à vos questions et apprenons à mieux vous connaître."
   },
@@ -1073,7 +1073,7 @@
   {
     "field": "copyjb5kb3",
     "label": "Main services offered",
-    "group": "Final call to action and footer",
+    "group": "Messages, cookies and page controls",
     "en": "Main services offered",
     "fr": "Principaux services offerts"
   },
@@ -1274,13 +1274,6 @@
     "fr": "Découvrir. Réserver. Décrocher."
   },
   {
-    "field": "copyeorvln",
-    "label": "Ontario page links",
-    "group": "Messages, cookies and page controls",
-    "en": "Ontario page links",
-    "fr": "Liens de la page Ontario"
-  },
-  {
     "field": "copyn8hgke",
     "label": "SpaPlus network links",
     "group": "Messages, cookies and page controls",
@@ -1309,6 +1302,13 @@
     "fr": "SpaPlus Canada"
   },
   {
+    "field": "copyrwa97r",
+    "label": "Join SpaPlus in Québec",
+    "group": "Messages, cookies and page controls",
+    "en": "Join SpaPlus in Québec",
+    "fr": "Joindre SpaPlus au Québec"
+  },
+  {
     "field": "copy113ssae",
     "label": "Ontario launch",
     "group": "Messages, cookies and page controls",
@@ -1321,13 +1321,6 @@
     "group": "Messages, cookies and page controls",
     "en": "Join SpaPlus across Canada outside Ontario",
     "fr": "Joindre SpaPlus partout au Canada hors Ontario"
-  },
-  {
-    "field": "copy163nd0c",
-    "label": "Ontario launch areas",
-    "group": "Messages, cookies and page controls",
-    "en": "Ontario launch areas",
-    "fr": "Zones de lancement"
   },
   {
     "field": "copyp8o9gu",

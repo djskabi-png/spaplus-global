@@ -27,6 +27,7 @@ export type MarketEmailContext = {
   reviewWindowHours: number;
   languageTag: string;
   copy?: Record<string, string>;
+  activeMarket?: boolean;
 };
 
 const message = (
@@ -162,6 +163,7 @@ export function buildMarketOwnerEmail(
   context: MarketEmailContext,
 ) {
   const { marketName, pageUrl } = context;
+  const leadLabel = context.activeMarket ? `${marketName} spa partner lead` : `${marketName} founding spa lead`;
   const values = { name: data.name, organization: data.organization, hours: context.reviewWindowHours, market: marketName };
   const campaign = Object.entries(data.campaign)
     .map(([key, value]) => `${key}: ${value}`)
@@ -180,7 +182,7 @@ export function buildMarketOwnerEmail(
   );
   const body = `
     <div style="margin:4px 0 20px;padding:16px 18px;border:1px solid #f4c8d9;border-radius:16px;background:#fff0f6;color:#192d4c;font-size:13px;line-height:1.6;">
-      <strong>${escapeHtml(marketName)} founding spa lead</strong><br>
+      <strong>${escapeHtml(leadLabel)}</strong><br>
       Replying to this email goes directly to ${escapeHtml(data.name)}. The reply button below opens a prepared email to the spa contact.
     </div>
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border:1px solid #e1e6ed;border-radius:16px;border-collapse:separate;overflow:hidden;">
@@ -191,7 +193,7 @@ export function buildMarketOwnerEmail(
       ${detailRow("Preferred contact", data.preferredContact)}
       ${detailRow("Website or social", data.website)}
       ${detailRow("Location", `${data.city}${data.region ? `, ${data.region}` : ""}, ${marketName} ${data.postalCode}`)}
-      ${detailRow("Campaign area", data.area || "Ontario general")}
+      ${detailRow("Campaign area", data.area || `${marketName} general`)}
       ${detailRow("Page language", data.locale)}
       ${detailRow("Spa type", data.spaType)}
       ${detailRow("Locations", data.locations)}
@@ -204,7 +206,7 @@ export function buildMarketOwnerEmail(
     </table>`;
   const subject = message(context, "emailOwnerSubject", `${marketName} spa lead: {{organization}} | SpaPlus`, values);
   const text = [
-    `New ${marketName} founding spa lead`,
+    `New ${leadLabel}`,
     "",
     `Spa: ${data.organization}`,
     `Contact: ${data.name}, ${data.role}`,
@@ -213,7 +215,7 @@ export function buildMarketOwnerEmail(
     `Preferred contact: ${data.preferredContact}`,
     `Website or social: ${data.website}`,
     `Location: ${data.city}${data.region ? `, ${data.region}` : ""}, ${marketName} ${data.postalCode}`,
-    `Campaign area: ${data.area || "Ontario general"}`,
+    `Campaign area: ${data.area || `${marketName} general`}`,
     `Page language: ${data.locale}`,
     `Spa type: ${data.spaType}`,
     `Locations: ${data.locations}`,
@@ -230,16 +232,25 @@ export function buildMarketOwnerEmail(
     text,
     html: shell({
       pageUrl,
-      preheader: `${data.organization} joined the ${marketName} early-access list.`,
+      preheader: context.activeMarket
+        ? `${data.organization} submitted a SpaPlus ${marketName} partner enquiry.`
+        : `${data.organization} joined the ${marketName} early-access list.`,
       eyebrow: message(context, "emailOwnerEyebrow", `NEW ${marketName.toUpperCase()} SPA LEAD`, values),
       title: data.organization,
-      intro: message(context, "emailOwnerIntro", `A spa has joined the ${marketName} founding partner list. The full enquiry is ready for review.`, values),
+      intro: message(
+        context,
+        "emailOwnerIntro",
+        context.activeMarket
+          ? `A spa has asked to explore joining the active SpaPlus ${marketName} network. The full enquiry is ready for review.`
+          : `A spa has joined the ${marketName} founding partner list. The full enquiry is ready for review.`,
+        values,
+      ),
       body,
       buttonLabel: message(context, "emailOwnerReplyButton", "Reply to spa", values),
       buttonHref: replyLink(data.email, replySubject, replyBody),
       languageTag: "en",
       footerLine: message(context, "emailOwnerFooter", "A better way to discover, book and enjoy spa experiences.", values),
-      companyName: context.copy?.emailCompanyName || "Global Spa Management Ltd.",
+      companyName: context.copy?.emailCompanyName || "GLOBAL SPA MANAGEMENT LTD",
     }),
   };
 }
@@ -270,11 +281,20 @@ export function buildMarketVisitorEmail(
         ${detailRow("Contact préféré", preferredContact)}
       </table>
       <p style="margin:22px 0 0;color:#5d6a7d;font-size:12px;line-height:1.7;">Cette inscription exprime seulement votre intérêt. Elle ne crée aucun engagement, ne demande aucun paiement et ne recueille aucun renseignement de carte de crédit. Toute offre de lancement vous sera expliquée séparément avant que vous décidiez d’aller de l’avant.</p>`;
-    const subject = message(context, "emailVisitorSubject", `Votre spa est sur la liste prioritaire de l’${marketName} | SpaPlus`, values);
+    const subject = message(
+      context,
+      "emailVisitorSubject",
+      context.activeMarket
+        ? `Nous avons reçu votre demande SpaPlus ${marketName}`
+        : `Votre spa est sur la liste prioritaire de l’${marketName} | SpaPlus`,
+      values,
+    );
     const text = [
       `Merci, ${data.name}.`,
       "",
-      `${data.organization} est maintenant sur la liste prioritaire SpaPlus pour l’${marketName}.`,
+      context.activeMarket
+        ? `Nous avons reçu la demande de partenariat de ${data.organization} pour SpaPlus ${marketName}.`
+        : `${data.organization} est maintenant sur la liste prioritaire SpaPlus pour l’${marketName}.`,
       `Nous examinerons les renseignements et communiquerons avec vous dans un délai de ${reviewWindowHours} heures.`,
       "",
       "Cette inscription exprime seulement votre intérêt. Elle ne crée aucun engagement, ne demande aucun paiement et ne recueille aucun renseignement de carte de crédit.",
@@ -286,15 +306,24 @@ export function buildMarketVisitorEmail(
       text,
       html: shell({
         pageUrl,
-        preheader: `Votre spa est sur la liste prioritaire SpaPlus pour l’${marketName}. Nous communiquerons avec vous dans un délai de ${reviewWindowHours} heures.`,
+        preheader: context.activeMarket
+          ? `Nous avons reçu votre demande SpaPlus ${marketName}. Nous communiquerons avec vous dans un délai de ${reviewWindowHours} heures.`
+          : `Votre spa est sur la liste prioritaire SpaPlus pour l’${marketName}. Nous communiquerons avec vous dans un délai de ${reviewWindowHours} heures.`,
         eyebrow: message(context, "emailVisitorEyebrow", `ACCÈS PRIORITAIRE ${marketName.toUpperCase()}`, values),
         title: message(context, "emailVisitorTitle", `Merci, {{name}}.`, values),
-        intro: message(context, "emailVisitorIntro", `${data.organization} est maintenant sur la liste prioritaire SpaPlus pour l’${marketName}.`, values),
+        intro: message(
+          context,
+          "emailVisitorIntro",
+          context.activeMarket
+            ? `Nous avons reçu les renseignements de ${data.organization} pour SpaPlus ${marketName}.`
+            : `${data.organization} est maintenant sur la liste prioritaire SpaPlus pour l’${marketName}.`,
+          values,
+        ),
         body,
         buttonLabel: message(context, "emailVisitorButton", `Retourner à SpaPlus ${marketName}`, values),
         languageTag: "fr-CA",
         footerLine: message(context, "emailVisitorFooter", "Une meilleure façon de découvrir, réserver et vivre des expériences spa.", values),
-        companyName: context.copy?.emailCompanyName || "Global Spa Management Ltd.",
+        companyName: context.copy?.emailCompanyName || "GLOBAL SPA MANAGEMENT LTD",
       }),
     };
   }
@@ -310,11 +339,20 @@ export function buildMarketVisitorEmail(
       ${detailRow("Preferred contact", data.preferredContact)}
     </table>
     <p style="margin:22px 0 0;color:#5d6a7d;font-size:12px;line-height:1.7;">This registration is an expression of interest only. It creates no commitment, requires no payment and does not request credit card information. Any launch offer will be explained separately before you decide whether to continue.</p>`;
-  const subject = message(context, "emailVisitorSubject", `Your spa is on the ${marketName} early list | SpaPlus`, values);
+  const subject = message(
+    context,
+    "emailVisitorSubject",
+    context.activeMarket
+      ? `We received your SpaPlus ${marketName} enquiry`
+      : `Your spa is on the ${marketName} early list | SpaPlus`,
+    values,
+  );
   const text = [
     `Thank you, ${data.name}.`,
     "",
-    `${data.organization} is now on the SpaPlus ${marketName} early-access list.`,
+    context.activeMarket
+      ? `We received the partner enquiry for ${data.organization} for SpaPlus ${marketName}.`
+      : `${data.organization} is now on the SpaPlus ${marketName} early-access list.`,
     `We will review the details and contact you within ${reviewWindowHours} hours.`,
     "",
     "This registration is an expression of interest only. It creates no commitment, requires no payment and does not request credit card information.",
@@ -327,15 +365,24 @@ export function buildMarketVisitorEmail(
     text,
     html: shell({
       pageUrl,
-      preheader: `Your spa is on the SpaPlus ${marketName} early-access list. We will contact you within ${reviewWindowHours} hours.`,
+      preheader: context.activeMarket
+        ? `We received your SpaPlus ${marketName} enquiry. We will contact you within ${reviewWindowHours} hours.`
+        : `Your spa is on the SpaPlus ${marketName} early-access list. We will contact you within ${reviewWindowHours} hours.`,
       eyebrow: message(context, "emailVisitorEyebrow", `${marketName.toUpperCase()} EARLY ACCESS`, values),
       title: message(context, "emailVisitorTitle", `Thank you, {{name}}.`, values),
-      intro: message(context, "emailVisitorIntro", `${data.organization} is now on the SpaPlus ${marketName} early-access list.`, values),
+      intro: message(
+        context,
+        "emailVisitorIntro",
+        context.activeMarket
+          ? `We received the information for ${data.organization} and will review its fit for SpaPlus ${marketName}.`
+          : `${data.organization} is now on the SpaPlus ${marketName} early-access list.`,
+        values,
+      ),
       body,
       buttonLabel: message(context, "emailVisitorButton", `Return to SpaPlus ${marketName}`, values),
       languageTag: "en-CA",
       footerLine: message(context, "emailVisitorFooter", "A better way to discover, book and enjoy spa experiences.", values),
-      companyName: context.copy?.emailCompanyName || "Global Spa Management Ltd.",
+      companyName: context.copy?.emailCompanyName || "GLOBAL SPA MANAGEMENT LTD",
     }),
   };
 }

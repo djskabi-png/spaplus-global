@@ -55,6 +55,8 @@ export type MarketLaunchConfig = {
     active: boolean;
   }>;
   pageMode?: "launch" | "network";
+  showVideo?: boolean;
+  copyOverrides?: Record<string, { en: string; fr: string }>;
   cmsSection?: string;
   resourceKey?: string;
   marketLinks?: Array<{
@@ -184,7 +186,7 @@ export default function MarketLaunchPage({
   const isNetwork = config.pageMode === "network";
   const cmsSection = config.cmsSection || "market.ca-on";
   const eventPrefix = marketSlug.replace(/[^a-z0-9_]+/g, "_");
-  const analyticsSite = marketSlug === "canada" ? "canada" : "ontario";
+  const analyticsSite = marketSlug === "ontario" ? "ontario" : "canada";
   const track = (event: string, data: Record<string, string> = {}) =>
     trackMarketEvent(analyticsSite, event, data);
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
@@ -198,10 +200,15 @@ export default function MarketLaunchPage({
   const [scrollProgress, setScrollProgress] = useState(0);
   const [videoPlaying, setVideoPlaying] = useState(false);
   const [cmsCopy, setCmsCopy] = useState<Record<string, string>>({});
+  const override = (field: string) =>
+    config.copyOverrides?.[field]?.[isFrench ? "fr" : "en"];
   const managed = (field: string, fallback: string) =>
-    selectedArea ? fallback : cmsCopy[field] || fallback;
+    selectedArea ? fallback : cmsCopy[field] || override(field) || fallback;
   const tr = (english: string, french: string) =>
-    managed(marketCopyFieldKey(english), isFrench ? french : english);
+    managed(
+      marketCopyFieldKey(english),
+      override(english) || (isFrench ? french : english),
+    );
   const dynamicCopy = (field: string, english: string, french: string) =>
     managed(field, isFrench ? french : english);
   const formFlag = (field: string, fallback: boolean) => {
@@ -775,7 +782,7 @@ export default function MarketLaunchPage({
         </div>
       </section>
 
-      <section className={styles.videoSection} aria-labelledby="ontario-video-title">
+      {config.showVideo !== false ? <section className={styles.videoSection} aria-labelledby="market-video-title">
         <div className={styles.videoCopy}>
           <p className={styles.eyebrowDark}>
             {dynamicCopy(
@@ -784,7 +791,7 @@ export default function MarketLaunchPage({
               "DÉCOUVREZ SPAPLUS EN ACTION",
             )}
           </p>
-          <h2 id="ontario-video-title">
+          <h2 id="market-video-title">
             {dynamicCopy(
               "videoTitle",
               "A better way for Ontario spas to be discovered.",
@@ -858,7 +865,7 @@ export default function MarketLaunchPage({
             </button>
           )}
         </div>
-      </section>
+      </section> : null}
 
       <section className={styles.intro} id="why">
         <div className={styles.introAside}>
@@ -1293,7 +1300,7 @@ export default function MarketLaunchPage({
           <div>
             {priorityAreas.map((area, index) => (
               <a
-                key={area.href}
+                key={`${area.href}-${area.label}-${index}`}
                 href={area.href}
                 aria-current={
                   selectedArea && area.label === selectedArea.name
@@ -1883,7 +1890,10 @@ export default function MarketLaunchPage({
 
         <nav
           className={styles.footerColumn}
-          aria-label={tr("Ontario page links", "Liens de la page Ontario")}
+          aria-label={tr(
+            `${marketName} page links`,
+            `Liens de la page ${marketName}`,
+          )}
         >
           <strong>{tr("Explore", "Explorer")}</strong>
           <a href="#platform">{tr("The platform", "La plateforme")}</a>
@@ -1907,6 +1917,9 @@ export default function MarketLaunchPage({
           >
             {tr("SpaPlus Canada", "SpaPlus Canada")}
           </a>
+          <a href={isFrench ? "/fr-ca/quebec/" : "/en-ca/quebec/"}>
+            {tr("Join SpaPlus in Québec", "Joindre SpaPlus au Québec")}
+          </a>
           <a href={isFrench ? "/fr-ca/ontario/" : "/en-ca/ontario/"}>
             {tr("Ontario launch", "Lancement en Ontario")}
           </a>
@@ -1917,12 +1930,20 @@ export default function MarketLaunchPage({
 
         <nav
           className={`${styles.footerColumn} ${styles.footerAreas}`}
-          aria-label={tr("Ontario launch areas", "Zones de lancement en Ontario")}
+          aria-label={dynamicCopy(
+            "priorityAreasAria",
+            isNetwork ? `${marketName} partner areas` : "Ontario launch areas",
+            isNetwork ? `Régions partenaires au ${marketName}` : "Zones de lancement en Ontario",
+          )}
         >
-          <strong>{tr("Ontario launch areas", "Zones de lancement")}</strong>
+          <strong>{dynamicCopy(
+            "priorityAreasTitle",
+            isNetwork ? `${marketName} areas` : "Ontario launch areas",
+            isNetwork ? `Régions du ${marketName}` : "Zones de lancement",
+          )}</strong>
           {priorityAreas.map((area, index) => (
             <a
-              key={area.href}
+              key={`${area.href}-${area.label}-${index}`}
               href={area.href}
               aria-current={
                 selectedArea && area.href.includes(`/${selectedArea.slug}/`)

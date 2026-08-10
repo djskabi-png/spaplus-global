@@ -10,6 +10,7 @@ import {
   canadaFrenchMarket,
   markets,
   ontarioAreas,
+  quebecFrenchMarket,
 } from "../../market-launch/markets";
 
 type MarketSlug = keyof typeof markets;
@@ -206,11 +207,13 @@ export async function POST(request: Request) {
       ? requestedArea
       : "";
     const requestedRegion = clean(body.region, 100).toLowerCase();
-    const regionOptions = requestedLocale.startsWith("fr")
-      ? canadaFrenchMarket.regionOptions || []
-      : markets.canada.regionOptions || [];
-    const acceptedRegion = marketSlug === "canada"
-      ? regionOptions.find((region) => region.value === requestedRegion)?.label || ""
+    const marketRegionOptions = requestedLocale.startsWith("fr")
+      ? marketSlug === "quebec"
+        ? quebecFrenchMarket.regionOptions || []
+        : canadaFrenchMarket.regionOptions || []
+      : market.regionOptions || [];
+    const acceptedRegion = marketSlug === "canada" || marketSlug === "quebec"
+      ? marketRegionOptions.find((region) => region.value === requestedRegion)?.label || ""
       : "";
 
     const data: MarketLeadEmailData = {
@@ -253,7 +256,7 @@ export async function POST(request: Request) {
       (isFieldRequired(marketContent, "Website") && !/^https?:\/\/\S+/i.test(data.website)) ||
       (data.website && !/^https?:\/\/\S+/i.test(data.website)) ||
       (isFieldRequired(marketContent, "City") && data.city.length < 2) ||
-      (marketSlug === "canada" && !data.region) ||
+      ((marketSlug === "canada" || marketSlug === "quebec") && !data.region) ||
       (isFieldRequired(marketContent, "PostalCode") && data.postalCode.length < 3) ||
       (isFieldRequired(marketContent, "SpaType") && data.spaType.length < 2) ||
       (isFieldRequired(marketContent, "Locations") && data.locations.length < 1) ||
@@ -290,12 +293,16 @@ export async function POST(request: Request) {
         .insert(formSubmissions)
         .values({
           submissionId,
-          formType: `${marketSlug}_spa_early_access`,
+          formType: marketSlug === "quebec" ? "quebec_spa_partner_enquiry" : `${marketSlug}_spa_early_access`,
           name: data.name,
           email: data.email,
           phone: data.phone,
           organization: data.organization,
-          topic: marketSlug === "canada" ? "Canada outside Ontario spa partner" : `${market.marketName} founding spa partner`,
+          topic: marketSlug === "canada"
+            ? "Canada outside Ontario spa partner"
+            : marketSlug === "quebec"
+              ? "Québec spa partner"
+              : `${market.marketName} founding spa partner`,
           message: messageSummary,
           locale: data.locale,
           source: data.source,
@@ -314,9 +321,13 @@ export async function POST(request: Request) {
 
     const apiKey = process.env.RESEND_API_KEY;
     const marketOwnerEmailsKey = `${marketSlug.toUpperCase()}_CONTACT_TO_EMAILS`;
+    const marketDefaultOwnerEmails = marketSlug === "quebec"
+      ? "adir@spaplus.co.il,galia@spaplus.ca"
+      : "";
     const ownerEmails = (
       marketContent.notificationRecipients ||
       process.env[marketOwnerEmailsKey] ||
+      marketDefaultOwnerEmails ||
       process.env.CONTACT_TO_EMAILS ||
       process.env.CONTACT_TO_EMAIL ||
       "djskabi@gmail.com"
@@ -335,6 +346,12 @@ export async function POST(request: Request) {
       );
     }
 
+    const configuredCopy = Object.fromEntries(
+      Object.entries(market.copyOverrides || {}).map(([field, values]) => [
+        field,
+        acceptedLocale === "fr-CA" ? values.fr : values.en,
+      ]),
+    );
     const emailContext = {
       marketName: market.marketName,
       pageUrl: data.area && marketSlug === "ontario"
@@ -344,7 +361,8 @@ export async function POST(request: Request) {
           : market.pageUrl,
       reviewWindowHours: market.reviewWindowHours,
       languageTag: data.locale,
-      copy: marketContent,
+      copy: { ...configuredCopy, ...marketContent },
+      activeMarket: marketSlug === "quebec",
     };
     const owner = buildMarketOwnerEmail(data, emailContext);
     const visitor = buildMarketVisitorEmail(data, emailContext);

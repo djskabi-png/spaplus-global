@@ -92,7 +92,12 @@ function textLines(lines, x, y, size, lineHeight, weight = 700, fill = brand.whi
 function overlaySvg({ width, height, item, concept }) {
   const side = Math.round(width * 0.075);
   const compact = height <= 1080;
-  const titleSize = compact ? 76 : height >= 1800 ? 92 : 84;
+  const titleSize = concept === "a"
+    ? compact ? 58 : height >= 1800 ? 70 : 64
+    : compact ? 76 : height >= 1800 ? 92 : 84;
+  const eyebrowSize = concept === "a"
+    ? Math.max(48, titleSize - (item.eyebrow.length > 24 ? 8 : 0))
+    : 30;
   const titleLine = Math.round(titleSize * 1.03);
   const titleY = compact ? 445 : height >= 1800 ? 690 : 555;
   const bodyY = titleY + item.title.length * titleLine + 58;
@@ -109,7 +114,7 @@ function overlaySvg({ width, height, item, concept }) {
   <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
     <defs><linearGradient id="shade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#102646" stop-opacity="0.12"/><stop offset="1" stop-color="#102646" stop-opacity="0.96"/></linearGradient></defs>
     ${background}
-    <text x="${textX}" y="${compact ? 310 : height >= 1800 ? 520 : 420}" font-family="Noto Sans, Arial, sans-serif" font-size="30" font-weight="800" letter-spacing="3" fill="#ff78ae">${esc(item.eyebrow)}</text>
+    <text x="${textX}" y="${compact ? 310 : height >= 1800 ? 520 : 420}" font-family="Noto Sans, Arial, sans-serif" font-size="${eyebrowSize}" font-weight="800" letter-spacing="${concept === "a" ? 1 : 3}" fill="${concept === "a" ? brand.white : "#ff78ae"}">${esc(item.eyebrow)}</text>
     ${textLines(item.title, textX, titleY, titleSize, titleLine, 800, titleFill)}
     ${textLines(item.body, textX, bodyY, compact ? 32 : 34, 48, 500, bodyFill)}
     <rect x="${textX}" y="${ctaY}" width="${Math.min(width - textX - side, 610)}" height="92" rx="46" fill="${brand.pink}"/>

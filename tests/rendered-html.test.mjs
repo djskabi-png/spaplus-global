@@ -28,6 +28,34 @@ test("RoomsVIP test leads are retained and clearly marked", async () => {
   assert.match(route, /Lead type: Test lead/);
 });
 
+test("Ontario Meta instant-form leads are authenticated, deduplicated, tagged and emailed", async () => {
+  const [route, templates] = await Promise.all([
+    read("app/api/integrations/meta-ontario-leads/route.ts"),
+    read("app/market-email-templates.ts"),
+  ]);
+
+  assert.match(route, /x-hub-signature-256/);
+  assert.match(route, /META_WEBHOOK_VERIFY_TOKEN/);
+  assert.match(route, /META_PAGE_ACCESS_TOKEN/);
+  assert.match(route, /meta-ontario:\$\{leadId\}/);
+  assert.match(route, /resourceKey: RESOURCE_KEY/);
+  assert.match(route, /const RESOURCE_KEY = "market:ca:on"/);
+  assert.match(route, /source: "Meta paid lead form \| Ontario"/);
+  assert.match(route, /formType: "ontario-meta-instant-form"/);
+  assert.match(route, /Meta campaign name:/);
+  assert.match(route, /Meta ad set name:/);
+  assert.match(route, /Meta ad name:/);
+  assert.match(route, /Submitted at:/);
+  assert.match(route, /adir@spaplus\.co\.il,galia@spaplus\.ca/);
+  assert.match(route, /buildMarketOwnerEmail/);
+  assert.match(route, /buildMarketVisitorEmail/);
+  assert.match(route, /Idempotency-Key.*spaplus-meta-ontario-/s);
+  assert.match(route, /to: ownerEmails/);
+  assert.match(route, /to: \[data\.email\]/);
+  assert.match(templates, /languageTag: "en"/);
+  assert.match(templates, /dir="\$\{direction\}"/);
+});
+
 test("static pages use the official SpaPlus mark instead of the retired heart icon", async () => {
   const [home, favicon] = await Promise.all([
     read("codepen/index.html"),
@@ -366,7 +394,7 @@ test("analytics is separated by site and remains blocked until consent", async (
   assert.match(globalPage, /initializeSpaPlusAnalytics\("global"\)/);
   assert.match(globalPage, /trackAnalyticsEvent\("global", "generate_lead"/);
   assert.match(ontarioPage, /initializeSpaPlusAnalytics\(analyticsSite\)/);
-  assert.match(ontarioPage, /marketSlug === "canada" \? "canada" : "ontario"/);
+  assert.match(ontarioPage, /marketSlug === "ontario" \? "ontario" : "canada"/);
   assert.match(ontarioPage, /track\("generate_lead"/);
 });
 
@@ -582,6 +610,7 @@ test("accessibility controls and statements are available in every published lan
   assert.match(widget, /a11y-contrast/);
   assert.match(widget, /a11y-underline-links/);
   assert.match(widget, /a11y-reduce-motion/);
+  assert.match(widget, /dataset\.accessibilityWidget !== "true"/);
   assert.match(styles, /:focus-visible/);
   assert.match(styles, /a11y-text-xl/);
   assert.match(englishMarketHub, /class="skip-link" href="#main"/);
@@ -600,6 +629,11 @@ test("accessibility controls and statements are available in every published lan
       /@media \(max-width:\s*700px\)[\s\S]*?\.share-page\s*\{[\s\S]*?inset-inline-end:\s*16px;/,
     );
   }
+
+  assert.match(siteStyles, /\.back-to-top\s*\{[\s\S]*?bottom:\s*86px;/);
+  assert.match(siteStyles, /@media \(max-width:\s*700px\)[\s\S]*?\.back-to-top\s*\{[\s\S]*?bottom:\s*74px;/);
+  assert.match(home, /desktop-nav[\s\S]*?global-accessibility-link/);
+  assert.match(home, /mobile-menu[\s\S]*?global-accessibility-link/);
 
   for (const locale of accessibilityRoutes) {
     const html = await read(`codepen/${locale}/accessibility/index.html`);
@@ -809,7 +843,8 @@ test("Ontario early-access funnel is complete, bilingual, regional and launch-ga
   assert.match(styles, /\.menuOpen/);
   assert.match(styles, /\.footerColumn/);
 
-  assert.match(route, /formType: `\$\{marketSlug\}_spa_early_access`/);
+  assert.match(route, /quebec_spa_partner_enquiry/);
+  assert.match(route, /`\$\{marketSlug\}_spa_early_access`/);
   assert.match(route, /Market not supported/);
   assert.match(route, /export async function GET/);
   assert.match(route, /body\.privacyAccepted !== true/);
@@ -825,7 +860,7 @@ test("Ontario early-access funnel is complete, bilingual, regional and launch-ga
   assert.match(templates, /\$\{marketName\} spa lead:/);
   assert.match(templates, /Your spa is on the \$\{marketName\} early list/);
   assert.match(templates, /Votre spa est sur la liste prioritaire/);
-  assert.match(templates, /Global Spa Management Ltd\./);
+  assert.match(templates, /GLOBAL SPA MANAGEMENT LTD/);
   assert.match(templates, /does not request credit card information/);
   assert.match(sources, /official\s+SpaPlus Canada website/);
   assert.match(sources, /do not depict Ontario\s+partners/);
@@ -836,6 +871,39 @@ test("Ontario early-access funnel is complete, bilingual, regional and launch-ga
   assert.match(sitemap, /https:\/\/app\.spaplus\.co\/fr-ca\/ontario\/hamilton\//);
   assert.match(llms, /The launch date has not been announced/);
   assert.match(llms, /does not depict an Ontario spa or partner/);
+});
+
+test("Québec partner funnel is bilingual, active-market aware and separately managed", async () => {
+  const [englishPage, frenchPage, client, marketsSource, route, access, admin, sitemap] = await Promise.all([
+    read("app/en-ca/quebec/page.tsx"),
+    read("app/fr-ca/quebec/page.tsx"),
+    read("app/market-launch/MarketLaunchPage.tsx"),
+    read("app/market-launch/markets.ts"),
+    read("app/api/market-spa-leads/route.ts"),
+    read("app/cms-access.ts"),
+    read("app/admin/AdminClient.tsx"),
+    read("public/app-sitemap.xml"),
+  ]);
+
+  assert.match(englishPage, /https:\/\/app\.spaplus\.co\/en-ca\/quebec\//);
+  assert.match(frenchPage, /https:\/\/app\.spaplus\.co\/fr-ca\/quebec\//);
+  assert.match(englishPage, /"geo.region": "CA-QC"/);
+  assert.match(frenchPage, /inLanguage: "fr-CA"/);
+  assert.match(marketsSource, /SPAPLUS IS ALREADY IN QUÉBEC/);
+  assert.match(marketsSource, /SPAPLUS EST DÉJÀ AU QUÉBEC/);
+  assert.match(marketsSource, /marketSlug: "quebec"/);
+  assert.match(marketsSource, /cmsSection: "market.ca-qc"/);
+  assert.match(marketsSource, /resourceKey: "market:ca:qc"/);
+  assert.match(marketsSource, /timeZone: "America\/Montreal"/);
+  assert.match(route, /quebec_spa_partner_enquiry/);
+  assert.match(route, /Québec spa partner/);
+  assert.match(route, /galia@spaplus\.ca/);
+  assert.match(route, /activeMarket: marketSlug === "quebec"/);
+  assert.match(access, /market:ca:qc/);
+  assert.match(admin, /tab === "quebec"/);
+  assert.match(client, /\/en-ca\/quebec\//);
+  assert.match(sitemap, /https:\/\/app\.spaplus\.co\/en-ca\/quebec\//);
+  assert.match(sitemap, /https:\/\/app\.spaplus\.co\/fr-ca\/quebec\//);
 });
 
 test("Ontario management exposes the complete bilingual page copy", async () => {
@@ -891,7 +959,7 @@ test("Canada partner funnel excludes Ontario and requires another Canadian regio
   assert.match(marketConfig, /regionOptions: canadaRegionOptions/);
   assert.match(client, /name="region"/);
   assert.match(client, /Ontario is not included here/);
-  assert.match(route, /marketSlug === "canada" && !data\.region/);
+  assert.match(route, /marketSlug === "canada" \|\| marketSlug === "quebec"/);
   assert.match(route, /Canada outside Ontario spa partner/);
   assert.match(englishPage, /outside Ontario/);
   assert.match(frenchPage, /hors Ontario/);

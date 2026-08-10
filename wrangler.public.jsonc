@@ -27,7 +27,8 @@
     "binding": "IMAGES"
   },
   "vars": {
-    "GOOGLE_CLIENT_ID": "550515562646-kt2h4ajkajqhphptjq1uf8u84p4vmfmk.apps.googleusercontent.com"
+    "GOOGLE_CLIENT_ID": "550515562646-kt2h4ajkajqhphptjq1uf8u84p4vmfmk.apps.googleusercontent.com",
+    "META_WEBHOOK_VERIFY_TOKEN_ID": "spaplus-ontario-leads-8f4d2c79a6b345e18c2f7d9a"
   },
   "observability": {
     "enabled": true

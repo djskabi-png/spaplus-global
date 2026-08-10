@@ -37,6 +37,22 @@ const PRIVATE_AUTHORIZATION_HEADER = privateName(
 const LEGACY_SIGN_IN_PATH = privateName("L3NpZ25pbi13aXRoLWNoYXRncHQ=");
 const LEGACY_SIGN_OUT_PATH = privateName("L3NpZ25vdXQtd2l0aC1jaGF0Z3B0");
 const LEGACY_BRAND_TERMS = [privateName("Y2hhdGdwdA=="), privateName("b3BlbmFp")];
+const PRIVATE_BACKEND_FALLBACK = privateName(
+  "aHR0cHM6Ly9zcGFwbHVzLWdsb2JhbC1icmFuZC5hZGlyLW5hb3ItNzUxMC5jaGF0Z3B0LnNpdGU=",
+);
+
+function privateBackendOrigin(env: Env): string {
+  const configured = String(env.PRIVATE_BACKEND_ORIGIN || "")
+    .replace(/^\uFEFF/, "")
+    .trim()
+    .replace(/^['\"]|['\"]$/g, "");
+  try {
+    return new URL(configured || PRIVATE_BACKEND_FALLBACK).origin;
+  } catch {
+    return new URL(PRIVATE_BACKEND_FALLBACK).origin;
+  }
+}
+
 
 function textResponse(message: string, status = 400): Response {
   return new Response(
@@ -278,8 +294,9 @@ async function finishGoogleLogin(request: Request, env: Env): Promise<Response> 
 
 async function proxyProtectedRequest(request: Request, env: Env, session: SignedPayload): Promise<Response> {
   if (!env.PRIVATE_BACKEND_ORIGIN || !env.SITES_BYPASS_TOKEN) return textResponse("מערכת הניהול אינה זמינה כרגע.", 503);
+  const privateOrigin = privateBackendOrigin(env);
   const publicUrl = new URL(request.url);
-  const upstreamUrl = new URL(publicUrl.pathname + publicUrl.search, env.PRIVATE_BACKEND_ORIGIN);
+  const upstreamUrl = new URL(publicUrl.pathname + publicUrl.search, privateOrigin);
   const upstreamHeaders = new Headers(request.headers);
   upstreamHeaders.set(PRIVATE_AUTHORIZATION_HEADER, `Bearer ${env.SITES_BYPASS_TOKEN}`);
   upstreamHeaders.set("x-spaplus-user-email", String(session.email || ""));
@@ -303,8 +320,8 @@ async function proxyProtectedRequest(request: Request, env: Env, session: Signed
 
   const location = headers.get("location");
   if (location) {
-    const redirected = new URL(location, env.PRIVATE_BACKEND_ORIGIN);
-    if (redirected.origin === new URL(env.PRIVATE_BACKEND_ORIGIN).origin) {
+    const redirected = new URL(location, privateOrigin);
+    if (redirected.origin === privateOrigin) {
       if (redirected.pathname === LEGACY_SIGN_IN_PATH) {
         redirected.pathname = "/auth/google/start";
       } else if (redirected.pathname === LEGACY_SIGN_OUT_PATH) {
@@ -321,7 +338,7 @@ async function proxyProtectedRequest(request: Request, env: Env, session: Signed
       return brandedAdministrationUnavailable();
     }
     body = body
-      .replaceAll(env.PRIVATE_BACKEND_ORIGIN, publicUrl.origin)
+      .replaceAll(privateOrigin, publicUrl.origin)
       .replaceAll(LEGACY_SIGN_IN_PATH, "/auth/google/start")
       .replaceAll(LEGACY_SIGN_OUT_PATH, "/auth/logout")
       .replaceAll("index-MnjarlW8.js", "index-Dq2-pwm2.js");
@@ -343,10 +360,11 @@ async function proxyProtectedRequest(request: Request, env: Env, session: Signed
 async function proxyPrivateAsset(request: Request, env: Env): Promise<Response | null> {
   if (!env.PRIVATE_BACKEND_ORIGIN || !env.SITES_BYPASS_TOKEN) return null;
 
+  const privateOrigin = privateBackendOrigin(env);
   const publicUrl = new URL(request.url);
   const upstreamUrl = new URL(
     `${publicUrl.pathname}${publicUrl.search}`,
-    env.PRIVATE_BACKEND_ORIGIN,
+    privateOrigin,
   );
   const upstream = await fetch(upstreamUrl, {
     method: request.method,
@@ -391,7 +409,7 @@ async function applyManagedOntarioMetadata(
   try {
     const contentUrl = new URL(
       `/api/cms/public?locale=${encodeURIComponent(locale)}`,
-      env.PRIVATE_BACKEND_ORIGIN,
+      privateBackendOrigin(env),
     );
     const contentResponse = await fetch(contentUrl, {
       headers: {
@@ -522,12 +540,16 @@ const worker = {
         url.pathname === "/api/market-spa-leads" ||
         url.pathname === "/api/contact" ||
         url.pathname === "/api/cms/public" ||
+        url.pathname === "/api/integrations/meta-ontario-leads" ||
         url.pathname === "/api/integrations/roomsvip-leads"
       ) &&
       env.PRIVATE_BACKEND_ORIGIN &&
       env.SITES_BYPASS_TOKEN
     ) {
-      const upstreamUrl = new URL(url.pathname + url.search, env.PRIVATE_BACKEND_ORIGIN);
+      const upstreamUrl = new URL(
+        url.pathname + url.search,
+        privateBackendOrigin(env),
+      );
       const upstreamHeaders = new Headers(request.headers);
       upstreamHeaders.set(
         PRIVATE_AUTHORIZATION_HEADER,
@@ -535,7 +557,7 @@ const worker = {
       );
       upstreamHeaders.delete("host");
       upstreamHeaders.delete("content-length");
-      return fetch(upstreamUrl, {
+      return fetch(upstreamUrl.toString(), {
         method: request.method,
         headers: upstreamHeaders,
         body:

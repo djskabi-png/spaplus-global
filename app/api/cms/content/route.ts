@@ -4,7 +4,7 @@ import { cmsAuditLog, cmsContent } from "../../../../db/schema";
 import { getAuthorizedAdmin } from "../../../admin-auth";
 import { hasPermission, sectionResource } from "../../../cms-access";
 
-const allowedSections = new Set(["translation", "company", "market.ca-on", "market.ca"]);
+const allowedSections = new Set(["translation", "company", "market.ca-on", "market.ca-qc", "market.ca"]);
 const allowedLocales = new Set([
   "en",
   "he",

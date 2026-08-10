@@ -52,6 +52,7 @@ const copy = {
     update: "Lead status",
     global: "Global website",
     ontario: "Ontario",
+    quebec: "Québec",
     received: "Received",
     contact: "Contact details",
     enquiry: "Enquiry",
@@ -76,6 +77,7 @@ const copy = {
     update: "מצב הליד",
     global: "האתר העולמי",
     ontario: "אונטריו",
+    quebec: "קוויבק",
     received: "התקבל",
     contact: "פרטי קשר",
     enquiry: "פרטי הפנייה",
@@ -100,6 +102,7 @@ const copy = {
     update: "État du prospect",
     global: "Site mondial",
     ontario: "Ontario",
+    quebec: "Québec",
     received: "Reçu",
     contact: "Coordonnées",
     enquiry: "Demande",
@@ -226,13 +229,14 @@ function activityLabels(locale: string) {
 }
 
 function receivedAt(item: Submission, locale: string) {
-  const isOntario = item.resourceKey === "market:ca:on" || item.resourceKey === "market:ca:national";
-  const timeZone = isOntario ? "America/Toronto" : "Asia/Jerusalem";
+  const isCanada = item.resourceKey.startsWith("market:ca:");
+  const isQuebec = item.resourceKey === "market:ca:qc";
+  const timeZone = isQuebec ? "America/Montreal" : isCanada ? "America/Toronto" : "Asia/Jerusalem";
   const zoneLabel = locale === "he"
-    ? (isOntario ? "שעון טורונטו" : "שעון ישראל")
+    ? (isQuebec ? "שעון מונטריאול" : isCanada ? "שעון טורונטו" : "שעון ישראל")
     : locale === "fr-CA"
-      ? (isOntario ? "Heure de Toronto" : "Heure d’Israël")
-      : (isOntario ? "Toronto time" : "Israel time");
+      ? (isQuebec ? "Heure de Montréal" : isCanada ? "Heure de Toronto" : "Heure d’Israël")
+      : (isQuebec ? "Montréal time" : isCanada ? "Toronto time" : "Israel time");
   const formatted = new Intl.DateTimeFormat(locale === "he" ? "he-IL" : locale, {
     dateStyle: "short",
     timeStyle: "medium",
@@ -300,7 +304,7 @@ export default function SubmissionsClient({
     () => Array.from(new Set(submissions.map((item) => item.resourceKey))),
     [submissions],
   );
-  const resourceLabel = (key: string) => key.startsWith("business:vila4u:") ? businessLabels(locale).vila4u : key === "market:ca:on" ? t.ontario : key === "market:ca:national" ? (locale === "he" ? "קנדה" : "Canada") : t.global;
+  const resourceLabel = (key: string) => key.startsWith("business:vila4u:") ? businessLabels(locale).vila4u : key === "market:ca:on" ? t.ontario : key === "market:ca:qc" ? t.quebec : key === "market:ca:national" ? (locale === "he" ? "קנדה" : "Canada") : t.global;
   const statusLabel = (status: DashboardStatus) => t[status];
   const selectedBusinessLeads = business === "all"
     ? submissions

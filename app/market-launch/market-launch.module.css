@@ -2383,8 +2383,9 @@
   }
 
   .hero {
-    min-height: 830px;
+    min-height: max(960px, 100svh);
     align-items: end;
+    padding-top: 112px;
     padding-bottom: 95px;
   }
 
