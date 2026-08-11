@@ -527,9 +527,9 @@ test("VII leads are validated, tagged and filterable without changing the shared
   assert.match(route, /privacyAccepted/);
   assert.match(route, /onConflictDoNothing/);
   assert.match(route, /resourceKey: "business:vila4u:leads"/);
-  assert.match(route, /formType: acceptedPurpose === "join" \? "vii-site-join" : "vii-site-contact"/);
-  assert.match(route, /Brand: VII/);
-  assert.match(route, /utm_source=vii\.co\.il/);
+  assert.match(route, /formType: `vii-site-\$\{purposes\[acceptedPurpose\]\}`/);
+  assert.match(route, /Brand: \$\{sourceBrand\}/);
+  assert.match(route, /Lead source: \$\{sourceSite\}/);
   assert.match(roomsVipRoute, /Brand: RoomsVIP/);
   assert.match(roomsVipRoute, /World: hourly/);
   assert.match(dashboard, /function leadBrand/);
