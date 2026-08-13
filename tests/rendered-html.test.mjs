@@ -28,7 +28,7 @@ test("RoomsVIP test leads are retained and clearly marked", async () => {
   assert.match(route, /Lead type: Test lead/);
 });
 
-test("Ontario Meta instant-form leads are authenticated, deduplicated, tagged and emailed", async () => {
+test("Ontario and Quebec Meta instant-form leads are authenticated, deduplicated, tagged and emailed", async () => {
   const [route, templates] = await Promise.all([
     read("app/api/integrations/meta-ontario-leads/route.ts"),
     read("app/market-email-templates.ts"),
@@ -37,11 +37,12 @@ test("Ontario Meta instant-form leads are authenticated, deduplicated, tagged an
   assert.match(route, /x-hub-signature-256/);
   assert.match(route, /META_WEBHOOK_VERIFY_TOKEN/);
   assert.match(route, /META_PAGE_ACCESS_TOKEN/);
-  assert.match(route, /meta-ontario:\$\{leadId\}/);
-  assert.match(route, /resourceKey: RESOURCE_KEY/);
-  assert.match(route, /const RESOURCE_KEY = "market:ca:on"/);
-  assert.match(route, /source: "Meta paid lead form \| Ontario"/);
-  assert.match(route, /formType: "ontario-meta-instant-form"/);
+  assert.match(route, /meta-\$\{market\.slug\}:\$\{leadId\}/);
+  assert.match(route, /resourceKey: market\.resourceKey/);
+  assert.match(route, /resourceKey: "market:ca:on"/);
+  assert.match(route, /resourceKey: "market:ca:qc"/);
+  assert.match(route, /source: `Meta paid lead form \| \$\{market\.name\}`/);
+  assert.match(route, /formType: `\$\{market\.slug\}-meta-instant-form`/);
   assert.match(route, /Meta campaign name:/);
   assert.match(route, /Meta ad set name:/);
   assert.match(route, /Meta ad name:/);
@@ -49,19 +50,19 @@ test("Ontario Meta instant-form leads are authenticated, deduplicated, tagged an
   assert.match(route, /adir@spaplus\.co\.il,galia@spaplus\.ca/);
   assert.match(route, /buildMarketOwnerEmail/);
   assert.match(route, /buildMarketVisitorEmail/);
-  assert.match(route, /Idempotency-Key.*spaplus-meta-ontario-/s);
+  assert.match(route, /Idempotency-Key.*spaplus-meta-\$\{market\.slug\}-/s);
   assert.match(route, /to: ownerEmails/);
   assert.match(route, /to: \[data\.email\]/);
   assert.match(templates, /languageTag: "en"/);
   assert.match(templates, /dir="\$\{direction\}"/);
 });
 
-test("Ontario Meta leads send an English LTR owner notification", async () => {
+test("Ontario and Quebec Meta leads send an English LTR owner notification", async () => {
   const route = await read("app/api/integrations/meta-ontario-leads/route.ts");
-  assert.match(route, /ONTARIO_CONTACT_TO_EMAILS/);
+  assert.match(route, /META_\$\{market\.slug\.toUpperCase\(\)\}_CONTACT_TO_EMAILS/);
   assert.match(route, /api\.resend\.com\/emails/);
   assert.match(route, /languageTag: "en-CA"/);
-  assert.match(route, /\(Toronto time\)/);
+  assert.match(route, /\$\{market\.name\} time/);
 });
 
 test("the public app worker verifies Meta lead webhooks at the edge and proxies delivery", async () => {

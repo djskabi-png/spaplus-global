@@ -7,16 +7,26 @@ const routeUrl = new URL(
   import.meta.url,
 );
 
-test("Ontario Meta leads are archived, attributed and emailed to the verified owners", async () => {
+test("Meta spa leads are archived, attributed and emailed to the verified owners", async () => {
   const route = await readFile(routeUrl, "utf8");
 
-  assert.match(route, /source: "Meta paid lead form \| Ontario"/);
-  assert.match(route, /resourceKey: RESOURCE_KEY/);
+  assert.match(route, /source: `Meta paid lead form \| \$\{market\.name\}`/);
+  assert.match(route, /resourceKey: market\.resourceKey/);
   assert.match(route, /status: "new"/);
   assert.match(route, /adir@spaplus\.co\.il,galia@spaplus\.ca/);
   assert.match(route, /buildMarketOwnerEmail/);
-  assert.match(route, /Idempotency-Key.*spaplus-ontario-meta-owner-/s);
-  assert.match(route, /await sendOntarioOwnerNotification\(notificationData, leadId\)/);
+  assert.match(route, /spaplus-\$\{market\.slug\}-meta-owner-/);
+  assert.match(route, /await sendMarketOwnerNotification\(notificationData, leadId, market\)/);
+});
+
+test("Meta leads distinguish Québec from Ontario before storage and notification", async () => {
+  const route = await readFile(routeUrl, "utf8");
+
+  assert.match(route, /const QUEBEC_MARKET/);
+  assert.match(route, /resourceKey: "market:ca:qc"/);
+  assert.match(route, /function inferMarket/);
+  assert.match(route, /signal\.includes\("quebec"\) \|\| signal\.includes\("québec"\)/);
+  assert.match(route, /const submissionId = `meta-\$\{market\.slug\}:\$\{leadId\}`/);
 });
 
 test("Ontario Meta lead custom fields support the English and Canadian French forms", async () => {

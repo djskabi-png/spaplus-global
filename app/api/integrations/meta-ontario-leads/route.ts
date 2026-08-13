@@ -37,7 +37,29 @@ type MetaWebhookBody = {
   }>;
 };
 
-const RESOURCE_KEY = "market:ca:on";
+type MetaMarketContext = {
+  slug: "ontario" | "quebec";
+  name: "Ontario" | "Québec";
+  resourceKey: "market:ca:on" | "market:ca:qc";
+  pageUrl: string;
+  timeZone: "America/Toronto" | "America/Montreal";
+};
+
+const ONTARIO_MARKET: MetaMarketContext = {
+  slug: "ontario",
+  name: "Ontario",
+  resourceKey: "market:ca:on",
+  pageUrl: "https://app.spaplus.co/en-ca/ontario/",
+  timeZone: "America/Toronto",
+};
+
+const QUEBEC_MARKET: MetaMarketContext = {
+  slug: "quebec",
+  name: "Québec",
+  resourceKey: "market:ca:qc",
+  pageUrl: "https://app.spaplus.co/en-ca/quebec/",
+  timeZone: "America/Montreal",
+};
 const runtimeEnv = env as unknown as Record<string, string | undefined>;
 const setting = (name: string) => runtimeEnv[name] || process.env[name] || "";
 const GRAPH_VERSION = setting("META_GRAPH_VERSION") || "v26.0";
@@ -94,7 +116,7 @@ function isEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(value);
 }
 
-function torontoTime(value: string) {
+function marketTime(value: string, timeZone: MetaMarketContext["timeZone"]) {
   return new Intl.DateTimeFormat("en-CA", {
     year: "numeric",
     month: "short",
@@ -102,34 +124,42 @@ function torontoTime(value: string) {
     hour: "numeric",
     minute: "2-digit",
     second: "2-digit",
-    timeZone: "America/Toronto",
+    timeZone,
     timeZoneName: "short",
   }).format(new Date(value));
 }
 
-async function sendOntarioOwnerNotification(
+function inferMarket(formName: string, campaignName: string): MetaMarketContext {
+  const signal = `${formName} ${campaignName}`.toLowerCase();
+  return signal.includes("quebec") || signal.includes("québec")
+    ? QUEBEC_MARKET
+    : ONTARIO_MARKET;
+}
+
+async function sendMarketOwnerNotification(
   data: MarketLeadEmailData,
   leadId: string,
+  market: MetaMarketContext,
 ) {
   const apiKey = setting("RESEND_API_KEY");
   const ownerEmails = (
-    setting("META_ONTARIO_CONTACT_TO_EMAILS") ||
-    setting("ONTARIO_CONTACT_TO_EMAILS") ||
+    setting(`META_${market.slug.toUpperCase()}_CONTACT_TO_EMAILS`) ||
+    setting(`${market.slug.toUpperCase()}_CONTACT_TO_EMAILS`) ||
     "adir@spaplus.co.il,galia@spaplus.ca"
   )
     .split(",")
     .map((value) => value.trim().toLowerCase())
     .filter(isEmail);
   if (!apiKey || ownerEmails.length === 0) {
-    throw new Error("Ontario Meta lead email is not configured");
+    throw new Error(`${market.name} Meta lead email is not configured`);
   }
 
   const from = setting("CONTACT_FROM_EMAIL") || "SpaPlus <hello@mail.spaplus.co>";
   const pageUrl = data.locale.toLowerCase().startsWith("fr")
-    ? "https://app.spaplus.co/fr-ca/ontario/"
-    : "https://app.spaplus.co/en-ca/ontario/";
+    ? market.pageUrl.replace("/en-ca/", "/fr-ca/")
+    : market.pageUrl;
   const ownerContext = {
-    marketName: "Ontario",
+    marketName: market.name,
     pageUrl,
     reviewWindowHours: 72,
     languageTag: "en-CA",
@@ -143,8 +173,8 @@ async function sendOntarioOwnerNotification(
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
-      "Idempotency-Key": `spaplus-ontario-meta-owner-${leadId}`,
-      "User-Agent": "SpaPlus-Meta-Ontario-Leads/1.0",
+      "Idempotency-Key": `spaplus-${market.slug}-meta-owner-${leadId}`,
+      "User-Agent": `SpaPlus-Meta-${market.name}-Leads/1.0`,
     },
     body: JSON.stringify({
       from,
@@ -154,15 +184,15 @@ async function sendOntarioOwnerNotification(
       html: owner.html,
       text: owner.text,
       tags: [
-        { name: "email_type", value: "ontario_meta_spa_owner" },
-        { name: "market", value: "ontario" },
+        { name: "email_type", value: `${market.slug}_meta_spa_owner` },
+        { name: "market", value: market.slug },
       ],
     }),
   });
   const ownerResult = (await ownerResponse.json()) as { id?: string; message?: string };
   if (!ownerResponse.ok || !ownerResult.id) {
     throw new Error(
-      `Ontario Meta owner email failed (${ownerResponse.status}): ${ownerResult.message || "No provider message"}`,
+      `${market.name} Meta owner email failed (${ownerResponse.status}): ${ownerResult.message || "No provider message"}`,
     );
   }
 
@@ -173,8 +203,8 @@ async function sendOntarioOwnerNotification(
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "Idempotency-Key": `spaplus-meta-ontario-${leadId}`,
-        "User-Agent": "SpaPlus-Meta-Ontario-Leads/1.0",
+        "Idempotency-Key": `spaplus-meta-${market.slug}-${leadId}`,
+        "User-Agent": `SpaPlus-Meta-${market.name}-Leads/1.0`,
       },
       body: JSON.stringify({
         from,
@@ -184,20 +214,20 @@ async function sendOntarioOwnerNotification(
         html: visitor.html,
         text: visitor.text,
         tags: [
-          { name: "email_type", value: "ontario_meta_spa_confirmation" },
-          { name: "market", value: "ontario" },
+          { name: "email_type", value: `${market.slug}_meta_spa_confirmation` },
+          { name: "market", value: market.slug },
         ],
       }),
     });
     const visitorResult = (await visitorResponse.json()) as { id?: string; message?: string };
     if (!visitorResponse.ok || !visitorResult.id) {
       throw new Error(
-        `Ontario Meta visitor email failed (${visitorResponse.status}): ${visitorResult.message || "No provider message"}`,
+        `${market.name} Meta visitor email failed (${visitorResponse.status}): ${visitorResult.message || "No provider message"}`,
       );
     }
     deliveryIds.push(visitorResult.id);
   }
-  console.log("Ontario Meta lead email accepted", {
+  console.log(`${market.name} Meta lead email accepted`, {
     deliveryIds,
     recipientCount: ownerEmails.length,
   });
@@ -244,7 +274,10 @@ async function validMetaSignature(request: Request, rawBody: string) {
 }
 
 async function fetchLead(leadgenId: string) {
-  const pageToken = setting("META_PAGE_ACCESS_TOKEN");
+  const pageToken = setting("META_PAGE_ACCESS_TOKEN")
+    .replace(/^\uFEFF/, "")
+    .trim()
+    .replace(/^["']|["']$/g, "");
   if (!pageToken) throw new Error("META_PAGE_ACCESS_TOKEN is not configured");
   const url = new URL(`https://graph.facebook.com/${GRAPH_VERSION}/${encodeURIComponent(leadgenId)}`);
   url.searchParams.set("fields", "id,created_time,field_data,form_id,ad_id,adset_id,campaign_id,platform");
@@ -258,7 +291,10 @@ async function fetchLead(leadgenId: string) {
 }
 
 async function fetchName(objectId: string | undefined) {
-  const pageToken = setting("META_PAGE_ACCESS_TOKEN");
+  const pageToken = setting("META_PAGE_ACCESS_TOKEN")
+    .replace(/^\uFEFF/, "")
+    .trim()
+    .replace(/^["']|["']$/g, "");
   if (!objectId || !pageToken) return "";
   const url = new URL(`https://graph.facebook.com/${GRAPH_VERSION}/${encodeURIComponent(objectId)}`);
   url.searchParams.set("fields", "name");
@@ -290,7 +326,8 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
   const phone = firstField(fields, ["phone_number", "phone"]);
   if (!name || (!email && !phone)) return "skipped" as const;
 
-  const submissionId = `meta-ontario:${leadId}`;
+  const market = inferMarket(formName, campaignName);
+  const submissionId = `meta-${market.slug}:${leadId}`;
   const db = getDb();
   const [existing] = await db
     .select({ id: formSubmissions.id })
@@ -341,7 +378,7 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
   const message = [
       "Company group: SpaPlus",
       "Brand: SpaPlus Canada",
-      "Lead purpose: Ontario spa partner registration",
+      `Lead purpose: ${market.name} spa partner registration`,
       "Source channel: Meta paid lead form",
       `Language: ${locale}`,
       city && `City or region: ${city}`,
@@ -364,16 +401,16 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
 
   await db.insert(formSubmissions).values({
     submissionId,
-    formType: "ontario-meta-instant-form",
+    formType: `${market.slug}-meta-instant-form`,
     name,
     email: email.toLowerCase(),
     phone,
     organization,
-    topic: spaType || "Ontario spa partner",
+    topic: spaType || `${market.name} spa partner`,
     message,
     locale,
-    source: "Meta paid lead form | Ontario",
-    resourceKey: RESOURCE_KEY,
+    source: `Meta paid lead form | ${market.name}`,
+    resourceKey: market.resourceKey,
     status: "new",
     createdAt,
   });
@@ -407,9 +444,9 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
       form_id: formId,
       lead_id: leadId,
     },
-    submittedAt: `${torontoTime(createdAt)} (Toronto time)`,
+    submittedAt: `${marketTime(createdAt, market.timeZone)} (${market.name} time)`,
   };
-  await sendOntarioOwnerNotification(notificationData, leadId);
+  await sendMarketOwnerNotification(notificationData, leadId, market);
   return "inserted" as const;
 }
 
