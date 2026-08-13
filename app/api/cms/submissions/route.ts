@@ -29,10 +29,32 @@ export async function GET() {
   const ids = submissions.map((submission) => submission.id);
   if (ids.length === 0) return Response.json({ submissions: [] });
   const db = getDb();
-  const [statusEvents, notes] = await Promise.all([
-    db.select().from(leadStatusEvents).where(inArray(leadStatusEvents.submissionId, ids)).orderBy(desc(leadStatusEvents.createdAt)),
-    db.select().from(leadNotes).where(inArray(leadNotes.submissionId, ids)).orderBy(desc(leadNotes.createdAt)),
+  const idChunks = Array.from(
+    { length: Math.ceil(ids.length / 50) },
+    (_value, index) => ids.slice(index * 50, index * 50 + 50),
+  );
+  const [statusEventChunks, noteChunks] = await Promise.all([
+    Promise.all(
+      idChunks.map((chunk) =>
+        db
+          .select()
+          .from(leadStatusEvents)
+          .where(inArray(leadStatusEvents.submissionId, chunk))
+          .orderBy(desc(leadStatusEvents.createdAt)),
+      ),
+    ),
+    Promise.all(
+      idChunks.map((chunk) =>
+        db
+          .select()
+          .from(leadNotes)
+          .where(inArray(leadNotes.submissionId, chunk))
+          .orderBy(desc(leadNotes.createdAt)),
+      ),
+    ),
   ]);
+  const statusEvents = statusEventChunks.flat();
+  const notes = noteChunks.flat();
   return Response.json({
     submissions: submissions.map((submission) => ({
       ...submission,
