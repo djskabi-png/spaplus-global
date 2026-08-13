@@ -1817,6 +1817,31 @@
   transform: none;
 }
 
+.submitButton[aria-busy="true"]::before {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  margin-right: 9px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #fff;
+  border-radius: 50%;
+  content: "";
+  vertical-align: -2px;
+  animation: submitSpin 0.75s linear infinite;
+}
+
+@keyframes submitSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .submitButton[aria-busy="true"]::before {
+    animation: none;
+  }
+}
+
 .formFinePrint,
 .formError {
   margin: -6px 0 0;

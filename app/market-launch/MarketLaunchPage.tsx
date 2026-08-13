@@ -142,6 +142,17 @@ const serviceOptions = [
   { field: "serviceSpaStays", value: "Spa stays", en: "Spa stays", fr: "Séjours spa" },
 ];
 
+const protectedQuebecFormFlags = new Set([
+  "formFieldPhoneVisible",
+  "formFieldPhoneRequired",
+  "formFieldSpaTypeVisible",
+  "formFieldSpaTypeRequired",
+  "formFieldServicesVisible",
+  "formFieldServicesRequired",
+  ...spaTypes.map((item) => `${item.field}Enabled`),
+  ...serviceOptions.map((item) => `${item.field}Enabled`),
+]);
+
 function trackMarketEvent(
   site: "ontario" | "canada",
   event: string,
@@ -212,6 +223,11 @@ export default function MarketLaunchPage({
   const dynamicCopy = (field: string, english: string, french: string) =>
     managed(field, isFrench ? french : english);
   const formFlag = (field: string, fallback: boolean) => {
+    // A content-editor setting must never make the active Quebec lead form
+    // impossible to complete or remove the contact number needed for follow-up.
+    if (marketSlug === "quebec" && protectedQuebecFormFlags.has(field)) {
+      return true;
+    }
     // Form behaviour is shared by the Ontario page and its city pages.
     // City copy can remain specific while visibility and validation stay consistent.
     const value = (cmsCopy[field] || (fallback ? "true" : "false")).toLowerCase();
@@ -425,6 +441,23 @@ export default function MarketLaunchPage({
     if (submitState === "submitting") return;
 
     const form = event.currentTarget;
+    if (!form.checkValidity()) {
+      setSubmitState("error");
+      setErrorMessage(
+        dynamicCopy(
+          "formRequiredFieldsError",
+          "Please complete every required field before sending your details.",
+          "Veuillez remplir tous les champs obligatoires avant d’envoyer vos renseignements.",
+        ),
+      );
+      track("spa_registration_error", {
+        market: marketSlug,
+        error_type: "missing_required_field",
+      });
+      form.querySelector<HTMLElement>(":invalid")?.focus();
+      form.reportValidity();
+      return;
+    }
     const values = new FormData(form);
     const services = values.getAll("services").map(String);
     if (fieldRequired("Services") && services.length === 0) {
@@ -1518,6 +1551,7 @@ export default function MarketLaunchPage({
           className={styles.form}
           onSubmit={handleSubmit}
           onFocus={beginForm}
+          noValidate
         >
           {fieldVisible("Organization") ? <div className={styles.field}>
             <label htmlFor="organization">{tr("Spa or business name", "Nom du spa ou de l’entreprise")}</label>
@@ -1649,8 +1683,10 @@ export default function MarketLaunchPage({
               id="phone"
               name="phone"
               type="tel"
+              inputMode="tel"
               autoComplete="tel"
               required={fieldRequired("Phone")}
+              minLength={7}
               maxLength={40}
             />
           </div> : null}
@@ -1733,6 +1769,9 @@ export default function MarketLaunchPage({
             className={styles.submitButton}
             type="submit"
             disabled={submitState === "submitting"}
+            aria-busy={submitState === "submitting"}
+            aria-describedby={submitState === "error" ? "market-form-error" : undefined}
+            aria-live="polite"
           >
             {submitState === "submitting"
               ? tr("Sending your details...", "Envoi de vos renseignements...")
@@ -1743,7 +1782,7 @@ export default function MarketLaunchPage({
                 )}
           </button>
           {submitState === "error" ? (
-            <p className={styles.formError} role="alert">
+            <p id="market-form-error" className={styles.formError} role="alert">
               {errorMessage}
             </p>
           ) : null}

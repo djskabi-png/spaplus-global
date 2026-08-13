@@ -1666,6 +1666,13 @@
     "fr": "https://"
   },
   {
+    "field": "formRequiredFieldsError",
+    "label": "Missing required fields message",
+    "group": "Registration form",
+    "en": "Please complete every required field before sending your details.",
+    "fr": "Veuillez remplir tous les champs obligatoires avant d’envoyer vos renseignements."
+  },
+  {
     "field": "formSubmitButton",
     "label": "Registration submit button",
     "group": "Registration form",

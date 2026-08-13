@@ -45,16 +45,16 @@ function isInsideManagedCall(node) {
 }
 
 function groupForLine(line) {
-  if (line < 504) return "Navigation and accessibility";
-  if (line < 599) return "Hero and launch status";
-  if (line < 707) return "Growth and founding partner offer";
-  if (line < 853) return "Platform preview";
-  if (line < 969) return "Proof and guest experiences";
-  if (line < 1048) return "Partner fit and launch areas";
-  if (line < 1173) return "Commercial model and process";
-  if (line < 1410) return "Registration form";
-  if (line < 1470) return "Frequently asked questions";
-  if (line < 1611) return "Final call to action and footer";
+  if (line < 536) return "Navigation and accessibility";
+  if (line < 631) return "Hero and launch status";
+  if (line < 739) return "Growth and founding partner offer";
+  if (line < 885) return "Platform preview";
+  if (line < 1001) return "Proof and guest experiences";
+  if (line < 1080) return "Partner fit and launch areas";
+  if (line < 1205) return "Commercial model and process";
+  if (line < 1442) return "Registration form";
+  if (line < 1504) return "Frequently asked questions";
+  if (line < 1645) return "Final call to action and footer";
   return "Messages, cookies and page controls";
 }
 
@@ -119,6 +119,7 @@ const manualEntries = [
   ["formLocationsPlaceholder", "Number of locations placeholder", "Registration form", "Select the number of locations", "Choisir le nombre d’établissements"],
   ["formPreferredContactPlaceholder", "Preferred contact placeholder", "Registration form", "Select a contact method", "Choisir une méthode de contact"],
   ["websitePlaceholder", "Website field placeholder", "Registration form", "https://", "https://"],
+  ["formRequiredFieldsError", "Missing required fields message", "Registration form", "Please complete every required field before sending your details.", "Veuillez remplir tous les champs obligatoires avant d’envoyer vos renseignements."],
   ["formSubmitButton", "Registration submit button", "Registration form", "Join the Ontario Founding Spa List", "Rejoindre la liste des spas fondateurs de l’Ontario"],
   ["spaTypeDaySpa", "Spa type option: day spa", "Registration form", "Day spa", "Spa urbain ou spa de jour"],
   ["spaTypeHotelResort", "Spa type option: hotel or resort", "Registration form", "Hotel or resort spa", "Spa d’hôtel ou de centre de villégiature"],
