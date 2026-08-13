@@ -41,6 +41,10 @@ test("Ontario and Quebec Meta instant-form leads are authenticated, deduplicated
   assert.match(route, /resourceKey: market\.resourceKey/);
   assert.match(route, /resourceKey: "market:ca:on"/);
   assert.match(route, /resourceKey: "market:ca:qc"/);
+  assert.match(route, /function normalizeFieldName/);
+  assert.match(route, /nom_complet/);
+  assert.match(route, /numero_de_telephone/);
+  assert.match(route, /nom_de_l_entreprise/);
   assert.match(route, /source: `Meta paid lead form \| \$\{market\.name\}`/);
   assert.match(route, /formType: `\$\{market\.slug\}-meta-instant-form`/);
   assert.match(route, /Meta campaign name:/);

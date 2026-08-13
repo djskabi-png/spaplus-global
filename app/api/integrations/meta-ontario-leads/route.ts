@@ -94,10 +94,18 @@ function firstField(fields: Map<string, string>, names: string[]) {
   return "";
 }
 
+function normalizeFieldName(name: string) {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
 function normalizedField(fields: Map<string, string>, names: string[]) {
-  const normalizedNames = names.map((name) => name.replace(/[^a-z0-9]+/g, "_"));
+  const normalizedNames = names.map(normalizeFieldName);
   for (const [key, value] of fields) {
-    const normalizedKey = key.replace(/[^a-z0-9]+/g, "_");
+    const normalizedKey = normalizeFieldName(key);
     if (normalizedNames.some((name) => normalizedKey === name || normalizedKey.includes(name))) {
       return value;
     }
@@ -366,9 +374,15 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
     fetchName(campaignId),
   ]);
 
-  const name = firstField(fields, ["full_name", "name", "first_name"]);
-  const email = firstField(fields, ["email", "work_email"]);
-  const phone = firstField(fields, ["phone_number", "phone"]);
+  const name =
+    firstField(fields, ["full_name", "name", "first_name"]) ||
+    normalizedField(fields, ["nom_complet", "nom"]);
+  const email =
+    firstField(fields, ["email", "work_email"]) ||
+    normalizedField(fields, ["e_mail", "courriel", "adresse_e_mail", "adresse_courriel"]);
+  const phone =
+    firstField(fields, ["phone_number", "phone"]) ||
+    normalizedField(fields, ["numero_de_telephone", "telephone"]);
   if (!name || (!email && !phone)) return "skipped" as const;
 
   const market = inferMarket(formName, campaignName);
@@ -387,9 +401,10 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
       "name_of_your_spa_or_business",
       "spa_or_business_name",
       "nom_de_votre_spa_ou_entreprise",
+      "nom_de_l_entreprise",
     ]);
   const city =
-    firstField(fields, ["city", "location", "business_location"]) ||
+    firstField(fields, ["city", "location", "business_location", "ville"]) ||
     normalizedField(fields, [
       "your_city_or_region",
       "city_or_region",
@@ -405,6 +420,7 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
       "website_url",
       "website_or_social_profile",
       "social_profile",
+      "site_web",
     ]) ||
     normalizedField(fields, [
       "website_or_social_media_page",
