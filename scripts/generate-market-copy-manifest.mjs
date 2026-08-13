@@ -222,6 +222,22 @@ for (const [field, label, group, en, fr] of manualEntries) {
   entries.set(field, { field, label, group, en, fr });
 }
 
+// Line numbers move whenever the page implementation changes. Preserve the
+// approved CMS group of every existing field so a form change cannot silently
+// reorganize unrelated content in the management interface.
+try {
+  const previousEntries = JSON.parse(await readFile(outputPath, "utf8"));
+  const previousGroups = new Map(
+    previousEntries.map((entry) => [entry.field, entry.group]),
+  );
+  for (const [field, entry] of entries) {
+    const previousGroup = previousGroups.get(field);
+    if (previousGroup) entries.set(field, { ...entry, group: previousGroup });
+  }
+} catch {
+  // The first generation has no prior manifest to preserve.
+}
+
 await writeFile(
   outputPath,
   `${JSON.stringify([...entries.values()], null, 2)}\n`,

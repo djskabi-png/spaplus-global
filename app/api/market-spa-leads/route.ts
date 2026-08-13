@@ -88,6 +88,14 @@ const isFieldRequired = (
   formFlag(content, `formField${field}Visible`, true) &&
   formFlag(content, `formField${field}Required`, fallback);
 
+const requiredQuebecFields = new Set([
+  "Organization",
+  "Phone",
+  "Name",
+  "City",
+  "Website",
+]);
+
 export async function OPTIONS(request: Request) {
   return new Response(null, {
     status: 204,
@@ -217,6 +225,10 @@ export async function POST(request: Request) {
     const marketContent = Object.fromEntries(
       marketContentRows.map((row) => [row.field, row.value]),
     );
+    const fieldRequired = (field: string, fallback = true) =>
+      marketSlug === "quebec"
+        ? requiredQuebecFields.has(field)
+        : isFieldRequired(marketContent, field, fallback);
     const requestedArea = clean(body.area, 100);
     const acceptedArea = marketSlug === "ontario" && ontarioAreas.some(
       (area) => area.slug === requestedArea,
@@ -240,7 +252,7 @@ export async function POST(request: Request) {
       phone: clean(body.phone, 40),
       organization: clean(body.organization, 160),
       website: clean(body.website, 300),
-      city: clean(body.city, 100),
+      city: clean(body.city, 220),
       region: acceptedRegion,
       postalCode: clean(body.postalCode, 12).toUpperCase(),
       spaType: clean(body.spaType, 100),
@@ -266,21 +278,21 @@ export async function POST(request: Request) {
       !isSubmissionId(submissionId) ||
       body.privacyAccepted !== true ||
       body.acknowledgementAccepted !== true ||
-      (isFieldRequired(marketContent, "Name") && data.name.length < 2) ||
-      (isFieldRequired(marketContent, "Role") && data.role.length < 2) ||
-      (isFieldRequired(marketContent, "Email") && !isEmail(data.email)) ||
+      (fieldRequired("Name") && data.name.length < 2) ||
+      (fieldRequired("Role") && data.role.length < 2) ||
+      (fieldRequired("Email") && !isEmail(data.email)) ||
       (data.email && !isEmail(data.email)) ||
-      (isFieldRequired(marketContent, "Phone") && data.phone.length < 7) ||
-      (isFieldRequired(marketContent, "Organization") && data.organization.length < 2) ||
-      (isFieldRequired(marketContent, "Website") && !/^https?:\/\/\S+/i.test(data.website)) ||
-      (data.website && !/^https?:\/\/\S+/i.test(data.website)) ||
-      (isFieldRequired(marketContent, "City") && data.city.length < 2) ||
-      ((marketSlug === "canada" || marketSlug === "quebec") && !data.region) ||
-      (isFieldRequired(marketContent, "PostalCode") && data.postalCode.length < 3) ||
-      (isFieldRequired(marketContent, "SpaType") && data.spaType.length < 2) ||
-      (isFieldRequired(marketContent, "Locations") && data.locations.length < 1) ||
-      (isFieldRequired(marketContent, "PreferredContact") && data.preferredContact.length < 2) ||
-      (isFieldRequired(marketContent, "Services") && data.services.length < 1)
+      (fieldRequired("Phone") && data.phone.length < 7) ||
+      (fieldRequired("Organization") && data.organization.length < 2) ||
+      (fieldRequired("Website") && data.website.length < 3) ||
+      (marketSlug !== "quebec" && data.website && !/^https?:\/\/\S+/i.test(data.website)) ||
+      (fieldRequired("City") && data.city.length < 2) ||
+      (marketSlug === "canada" && !data.region) ||
+      (fieldRequired("PostalCode") && data.postalCode.length < 3) ||
+      (fieldRequired("SpaType") && data.spaType.length < 2) ||
+      (fieldRequired("Locations") && data.locations.length < 1) ||
+      (fieldRequired("PreferredContact") && data.preferredContact.length < 2) ||
+      (fieldRequired("Services") && data.services.length < 1)
       )
     ) {
       return Response.json(
@@ -453,23 +465,28 @@ export async function POST(request: Request) {
 
       const ownerDeliveryId = await sendCloudflareEmail({
         to: ownerEmails,
-        replyTo: data.email,
+        replyTo: isEmail(data.email) ? data.email : undefined,
         subject: owner.subject,
         html: owner.html,
         text: owner.text,
         idempotencyKey: `spaplus-${marketSlug}-website-owner-${submissionId}`,
       });
-      const visitorDeliveryId = await sendCloudflareEmail({
-        to: [data.email],
-        replyTo: ownerEmails[0],
-        subject: visitor.subject,
-        html: visitor.html,
-        text: visitor.text,
-        idempotencyKey: `spaplus-${marketSlug}-website-confirmation-${submissionId}`,
-      });
+      const deliveryIds = [ownerDeliveryId];
+      if (isEmail(data.email)) {
+        deliveryIds.push(
+          await sendCloudflareEmail({
+            to: [data.email],
+            replyTo: ownerEmails[0],
+            subject: visitor.subject,
+            html: visitor.html,
+            text: visitor.text,
+            idempotencyKey: `spaplus-${marketSlug}-website-confirmation-${submissionId}`,
+          }),
+        );
+      }
 
       return Response.json(
-        { success: true, deliveryIds: [ownerDeliveryId, visitorDeliveryId] },
+        { success: true, deliveryIds },
         { headers },
       );
     }

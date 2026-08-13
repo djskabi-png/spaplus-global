@@ -1020,9 +1020,15 @@ test("Québec partner funnel is bilingual, active-market aware and separately ma
   assert.match(client, /\/en-ca\/quebec\//);
   assert.match(client, /protectedQuebecFormFlags/);
   assert.match(client, /"formFieldPhoneVisible"/);
-  assert.match(client, /"formFieldPhoneRequired"/);
   assert.match(client, /"formFieldSpaTypeVisible"/);
   assert.match(client, /"formFieldServicesVisible"/);
+  assert.match(client, /const requiredQuebecFields = new Set\(\[[\s\S]*?"Organization"[\s\S]*?"Phone"[\s\S]*?"Name"[\s\S]*?"City"[\s\S]*?"Website"[\s\S]*?\]\)/);
+  assert.match(client, /marketSlug === "quebec"[\s\S]*?requiredQuebecFields\.has\(field\)/);
+  assert.match(client, /Only five business details are required\./);
+  assert.match(client, /Seulement cinq renseignements sur l’entreprise sont obligatoires\./);
+  assert.match(client, /data-validation-attempted=\{validationAttempted\}/);
+  assert.match(client, /data-error-label=\{tr\("Business address", "Adresse de l’entreprise"\)\}/);
+  assert.match(client, /data-error-label=\{tr\("Business website or Instagram", "Site Web ou Instagram de l’entreprise"\)\}/);
   assert.match(client, /marketSlug === "quebec" && protectedQuebecFormFlags\.has\(field\)/);
   assert.match(client, /if \(!form\.checkValidity\(\)\)/);
   assert.match(client, /form\.querySelector<HTMLElement>\(":invalid"\)\?\.focus\(\)/);
@@ -1032,6 +1038,10 @@ test("Québec partner funnel is bilingual, active-market aware and separately ma
   assert.match(client, /aria-describedby=\{submitState === "error" \? "market-form-error" : undefined\}/);
   assert.match(client, /id="market-form-error"/);
   assert.match(client, /id="phone"[\s\S]*?required=\{fieldRequired\("Phone"\)\}[\s\S]*?minLength=\{7\}/);
+  assert.match(route, /const requiredQuebecFields = new Set\(\[[\s\S]*?"Organization"[\s\S]*?"Phone"[\s\S]*?"Name"[\s\S]*?"City"[\s\S]*?"Website"[\s\S]*?\]\)/);
+  assert.match(route, /marketSlug === "quebec"[\s\S]*?requiredQuebecFields\.has\(field\)/);
+  assert.match(route, /marketSlug === "canada" && !data\.region/);
+  assert.match(route, /if \(isEmail\(data\.email\)\)/);
   assert.match(sitemap, /https:\/\/app\.spaplus\.co\/en-ca\/quebec\//);
   assert.match(sitemap, /https:\/\/app\.spaplus\.co\/fr-ca\/quebec\//);
 });

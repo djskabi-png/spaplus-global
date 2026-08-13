@@ -143,14 +143,23 @@ const serviceOptions = [
 ];
 
 const protectedQuebecFormFlags = new Set([
+  "formFieldOrganizationVisible",
+  "formFieldWebsiteVisible",
+  "formFieldCityVisible",
+  "formFieldNameVisible",
   "formFieldPhoneVisible",
-  "formFieldPhoneRequired",
   "formFieldSpaTypeVisible",
-  "formFieldSpaTypeRequired",
   "formFieldServicesVisible",
-  "formFieldServicesRequired",
   ...spaTypes.map((item) => `${item.field}Enabled`),
   ...serviceOptions.map((item) => `${item.field}Enabled`),
+]);
+
+const requiredQuebecFields = new Set([
+  "Organization",
+  "Phone",
+  "Name",
+  "City",
+  "Website",
 ]);
 
 function trackMarketEvent(
@@ -202,6 +211,7 @@ export default function MarketLaunchPage({
     trackMarketEvent(analyticsSite, event, data);
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [validationAttempted, setValidationAttempted] = useState(false);
   const [formStarted, setFormStarted] = useState(false);
   const [showCookieConsent, setShowCookieConsent] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -235,7 +245,19 @@ export default function MarketLaunchPage({
   };
   const fieldVisible = (field: string) => formFlag(`formField${field}Visible`, true);
   const fieldRequired = (field: string, fallback = true) =>
-    fieldVisible(field) && formFlag(`formField${field}Required`, fallback);
+    fieldVisible(field) && (
+      marketSlug === "quebec"
+        ? requiredQuebecFields.has(field)
+        : formFlag(`formField${field}Required`, fallback)
+    );
+  const fieldLabel = (field: string, label: string, fallback = true) => (
+    <>
+      {label}
+      <span className={fieldRequired(field, fallback) ? styles.requiredBadge : styles.optionalBadge}>
+        {fieldRequired(field, fallback) ? tr("Required", "Obligatoire") : tr("Optional", "Facultatif")}
+      </span>
+    </>
+  );
   const visibleSpaTypes = spaTypes.filter((item) =>
     formFlag(`${item.field}Enabled`, true),
   );
@@ -442,13 +464,22 @@ export default function MarketLaunchPage({
 
     const form = event.currentTarget;
     if (!form.checkValidity()) {
+      setValidationAttempted(true);
       setSubmitState("error");
+      const missingFields = Array.from(
+        form.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(":invalid"),
+      )
+        .map((control) => control.dataset.errorLabel || "")
+        .filter(Boolean);
+      const missingSummary = missingFields.length
+        ? `${tr("Missing", "Champs manquants")} : ${missingFields.join(", ")}.`
+        : "";
       setErrorMessage(
-        dynamicCopy(
+        `${dynamicCopy(
           "formRequiredFieldsError",
-          "Please complete every required field before sending your details.",
-          "Veuillez remplir tous les champs obligatoires avant d’envoyer vos renseignements.",
-        ),
+          "Please complete the required business details and confirmations highlighted below.",
+          "Veuillez remplir les renseignements obligatoires sur l’entreprise et cocher les confirmations indiquées ci-dessous.",
+        )} ${missingSummary}`.trim(),
       );
       track("spa_registration_error", {
         market: marketSlug,
@@ -458,6 +489,7 @@ export default function MarketLaunchPage({
       form.reportValidity();
       return;
     }
+    setValidationAttempted(false);
     const values = new FormData(form);
     const services = values.getAll("services").map(String);
     if (fieldRequired("Services") && services.length === 0) {
@@ -1539,7 +1571,11 @@ export default function MarketLaunchPage({
           <div className={styles.assuranceCard}>
             <strong>{tr("What happens after you send it?", "Que se passe-t-il après l’envoi?")}</strong>
             <ul>
-              <li>{tr("You receive an immediate email confirmation.", "Vous recevez immédiatement un courriel de confirmation.")}</li>
+              <li>
+                {marketSlug === "quebec"
+                  ? tr("If you add an email, you receive an immediate confirmation.", "Si vous ajoutez un courriel, vous recevez une confirmation immédiate.")
+                  : tr("You receive an immediate email confirmation.", "Vous recevez immédiatement un courriel de confirmation.")}
+              </li>
               <li>{tr("Our team reviews the business and location.", "Notre équipe examine l’établissement et son emplacement.")}</li>
               <li>{tr("We contact you to arrange a short conversation.", "Nous vous contactons pour planifier un court échange.")}</li>
               <li>{tr("No payment or card details are requested.", "Aucun paiement ni renseignement de carte n’est demandé.")}</li>
@@ -1551,39 +1587,96 @@ export default function MarketLaunchPage({
           className={styles.form}
           onSubmit={handleSubmit}
           onFocus={beginForm}
+          data-validation-attempted={validationAttempted}
           noValidate
         >
+          {marketSlug === "quebec" ? (
+            <p className={styles.requirementNote}>
+              <strong>{tr("Only five business details are required.", "Seulement cinq renseignements sur l’entreprise sont obligatoires.")}</strong>{" "}
+              {tr(
+                "They are clearly marked below. The two confirmations at the bottom must also be checked before sending. If something is missing, we will highlight it and tell you exactly what to complete.",
+                "Ils sont clairement indiqués ci-dessous. Les deux confirmations au bas du formulaire doivent aussi être cochées avant l’envoi. S’il manque un renseignement, nous le mettrons en évidence et vous dirons exactement quoi remplir.",
+              )}
+            </p>
+          ) : null}
+          {submitState === "error" ? (
+            <p id="market-form-error" className={styles.formError} role="alert">
+              {errorMessage}
+            </p>
+          ) : null}
           {fieldVisible("Organization") ? <div className={styles.field}>
-            <label htmlFor="organization">{tr("Spa or business name", "Nom du spa ou de l’entreprise")}</label>
-            <input id="organization" name="organization" required={fieldRequired("Organization")} maxLength={160} />
+            <label htmlFor="organization">{fieldLabel("Organization", tr("Spa or business name", "Nom du spa ou de l’entreprise"))}</label>
+            <input
+              id="organization"
+              name="organization"
+              required={fieldRequired("Organization")}
+              data-error-label={tr("Spa or business name", "Nom du spa ou de l’entreprise")}
+              autoComplete="organization"
+              maxLength={160}
+            />
+          </div> : null}
+          {fieldVisible("Name") ? <div className={styles.field}>
+            <label htmlFor="name">{fieldLabel("Name", tr("Contact person", "Personne-ressource"))}</label>
+            <input
+              id="name"
+              name="name"
+              autoComplete="name"
+              required={fieldRequired("Name")}
+              data-error-label={tr("Contact person", "Personne-ressource")}
+              maxLength={100}
+            />
+          </div> : null}
+          {fieldVisible("Phone") ? <div className={styles.field}>
+            <label htmlFor="phone">{fieldLabel("Phone", tr("Phone", "Téléphone"))}</label>
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              required={fieldRequired("Phone")}
+              data-error-label={tr("Phone", "Téléphone")}
+              minLength={7}
+              maxLength={40}
+            />
           </div> : null}
           {fieldVisible("Website") ? <div className={styles.field}>
-            <label htmlFor="website">{tr("Website or social profile", "Site Web ou profil social")}</label>
+            <label htmlFor="website">{fieldLabel("Website", tr("Business website or Instagram", "Site Web ou Instagram de l’entreprise"))}</label>
             <input
               id="website"
               name="website"
-              type="url"
-              placeholder={managed("websitePlaceholder", "https://")}
+              type={marketSlug === "quebec" ? "text" : "url"}
+              placeholder={marketSlug === "quebec" ? tr("https:// or @instagram", "https:// ou @instagram") : managed("websitePlaceholder", "https://")}
               required={fieldRequired("Website")}
+              data-error-label={tr("Business website or Instagram", "Site Web ou Instagram de l’entreprise")}
               maxLength={300}
             />
           </div> : null}
           {fieldVisible("City") ? <div className={styles.field}>
             <label htmlFor="city">
-              {selectedArea
+              {fieldLabel("City", marketSlug === "quebec"
+                ? tr("Business address", "Adresse de l’entreprise")
+                : selectedArea
                 ? tr("City or community", "Ville ou collectivité")
-                : dynamicCopy(isNetwork ? "formCityLabelOutsideOntario" : "formCityLabel", isNetwork ? "City" : `${marketName} city`, isNetwork ? "Ville" : `Ville en ${marketName}`)}
+                : dynamicCopy(isNetwork ? "formCityLabelOutsideOntario" : "formCityLabel", isNetwork ? "City" : `${marketName} city`, isNetwork ? "Ville" : `Ville en ${marketName}`))}
             </label>
-            <input id="city" name="city" required={fieldRequired("City")} maxLength={100} />
+            <input
+              id="city"
+              name="city"
+              required={fieldRequired("City")}
+              data-error-label={tr("Business address", "Adresse de l’entreprise")}
+              autoComplete="street-address"
+              maxLength={220}
+            />
           </div> : null}
           {regionOptions.length ? <div className={styles.field}>
             <label htmlFor="region">
-              {dynamicCopy("formRegionLabel", "Province or territory", "Province ou territoire")}
+              {fieldLabel("Region", dynamicCopy("formRegionLabel", "Province or territory", "Province ou territoire"))}
             </label>
             <select
               id="region"
               name="region"
-              required
+              required={fieldRequired("Region")}
               defaultValue={
                 regionOptions.some((region) => region.value === campaignData.utm_content)
                   ? campaignData.utm_content
@@ -1607,7 +1700,7 @@ export default function MarketLaunchPage({
             </small>
           </div> : null}
           {fieldVisible("PostalCode") ? <div className={styles.field}>
-            <label htmlFor="postalCode">{tr("Postal code", "Code postal")}</label>
+            <label htmlFor="postalCode">{fieldLabel("PostalCode", tr("Postal code", "Code postal"))}</label>
             <input
               id="postalCode"
               name="postalCode"
@@ -1617,7 +1710,7 @@ export default function MarketLaunchPage({
             />
           </div> : null}
           {fieldVisible("SpaType") ? <div className={styles.field}>
-            <label htmlFor="spaType">{tr("Type of spa", "Type de spa")}</label>
+            <label htmlFor="spaType">{fieldLabel("SpaType", tr("Type of spa", "Type de spa"))}</label>
             <select id="spaType" name="spaType" required={fieldRequired("SpaType")} defaultValue="">
               <option value="" disabled>
                 {dynamicCopy("formSpaTypePlaceholder", "Select a spa type", "Choisir un type de spa")}
@@ -1630,7 +1723,7 @@ export default function MarketLaunchPage({
             </select>
           </div> : null}
           {fieldVisible("Locations") ? <div className={styles.field}>
-            <label htmlFor="locations">{tr("Number of locations", "Nombre d’établissements")}</label>
+            <label htmlFor="locations">{fieldLabel("Locations", tr("Number of locations", "Nombre d’établissements"))}</label>
             <select id="locations" name="locations" required={fieldRequired("Locations")} defaultValue="">
               <option value="" disabled>
                 {dynamicCopy("formLocationsPlaceholder", "Select the number of locations", "Choisir le nombre d’établissements")}
@@ -1642,7 +1735,7 @@ export default function MarketLaunchPage({
             </select>
           </div> : null}
           {fieldVisible("Services") ? <fieldset className={styles.services}>
-            <legend>{tr("Main services offered", "Principaux services offerts")}</legend>
+            <legend>{fieldLabel("Services", tr("Main services offered", "Principaux services offerts"))}</legend>
             <div>
               {visibleServiceOptions.map((service) => (
                 <label key={service.value}>
@@ -1652,22 +1745,12 @@ export default function MarketLaunchPage({
               ))}
             </div>
           </fieldset> : null}
-          {fieldVisible("Name") ? <div className={styles.field}>
-            <label htmlFor="name">{tr("Your full name", "Votre nom complet")}</label>
-            <input
-              id="name"
-              name="name"
-              autoComplete="name"
-              required={fieldRequired("Name")}
-              maxLength={100}
-            />
-          </div> : null}
           {fieldVisible("Role") ? <div className={styles.field}>
-            <label htmlFor="role">{tr("Your role", "Votre fonction")}</label>
+            <label htmlFor="role">{fieldLabel("Role", tr("Your role", "Votre fonction"))}</label>
             <input id="role" name="role" required={fieldRequired("Role")} maxLength={100} />
           </div> : null}
           {fieldVisible("Email") ? <div className={styles.field}>
-            <label htmlFor="email">{tr("Business email", "Courriel professionnel")}</label>
+            <label htmlFor="email">{fieldLabel("Email", tr("Business email", "Courriel professionnel"))}</label>
             <input
               id="email"
               name="email"
@@ -1677,21 +1760,8 @@ export default function MarketLaunchPage({
               maxLength={180}
             />
           </div> : null}
-          {fieldVisible("Phone") ? <div className={styles.field}>
-            <label htmlFor="phone">{tr("Phone", "Téléphone")}</label>
-            <input
-              id="phone"
-              name="phone"
-              type="tel"
-              inputMode="tel"
-              autoComplete="tel"
-              required={fieldRequired("Phone")}
-              minLength={7}
-              maxLength={40}
-            />
-          </div> : null}
           {fieldVisible("PreferredContact") ? <div className={styles.field}>
-            <label htmlFor="preferredContact">{tr("Preferred contact", "Méthode de contact préférée")}</label>
+            <label htmlFor="preferredContact">{fieldLabel("PreferredContact", tr("Preferred contact", "Méthode de contact préférée"))}</label>
             <select
               id="preferredContact"
               name="preferredContact"
@@ -1707,17 +1777,11 @@ export default function MarketLaunchPage({
             </select>
           </div> : null}
           {fieldVisible("BookingSystem") ? <div className={styles.field}>
-            <label htmlFor="bookingSystem">
-              {tr("Current booking system", "Système de réservation actuel")}{" "}
-              <span>{fieldRequired("BookingSystem", false) ? tr("Required", "Obligatoire") : tr("Optional", "Facultatif")}</span>
-            </label>
+            <label htmlFor="bookingSystem">{fieldLabel("BookingSystem", tr("Current booking system", "Système de réservation actuel"), false)}</label>
             <input id="bookingSystem" name="bookingSystem" required={fieldRequired("BookingSystem", false)} maxLength={120} />
           </div> : null}
           {fieldVisible("Message") ? <div className={`${styles.field} ${styles.fullField}`}>
-            <label htmlFor="message">
-              {tr("Anything we should know?", "Y a-t-il autre chose à savoir?")}{" "}
-              <span>{fieldRequired("Message", false) ? tr("Required", "Obligatoire") : tr("Optional", "Facultatif")}</span>
-            </label>
+            <label htmlFor="message">{fieldLabel("Message", tr("Anything we should know?", "Y a-t-il autre chose à savoir?"), false)}</label>
             <textarea id="message" name="message" required={fieldRequired("Message", false)} rows={5} maxLength={1500} />
           </div> : null}
           <div className={styles.honeypot} aria-hidden="true">
@@ -1734,6 +1798,7 @@ export default function MarketLaunchPage({
               type="checkbox"
               name="privacy"
               value="accepted"
+              data-error-label={tr("Privacy confirmation", "Confirmation de confidentialité")}
               required
             />
             <span>
@@ -1756,6 +1821,7 @@ export default function MarketLaunchPage({
               type="checkbox"
               name="acknowledgement"
               value="accepted"
+              data-error-label={tr("Partnership acknowledgement", "Confirmation de partenariat")}
               required
             />
             <span>
@@ -1781,11 +1847,6 @@ export default function MarketLaunchPage({
                   isNetwork ? "Présenter mon spa" : `Rejoindre la liste des spas fondateurs de ${selectedArea?.name || marketName}`,
                 )}
           </button>
-          {submitState === "error" ? (
-            <p id="market-form-error" className={styles.formError} role="alert">
-              {errorMessage}
-            </p>
-          ) : null}
           <p className={styles.formFinePrint}>
             {tr(
               "Founding partner terms are not guaranteed. Any commercial offer will be shared separately in writing after a fit review.",
@@ -2088,7 +2149,10 @@ export default function MarketLaunchPage({
               )}
             </h2>
             <p>
-              {dynamicCopy(
+              {marketSlug === "quebec" ? tr(
+                `Our team will review the information and contact you by phone within ${reviewWindowHours} hours. If you provided an email, a confirmation is also on its way.`,
+                `Notre équipe examinera les renseignements et communiquera avec vous par téléphone dans un délai de ${reviewWindowHours} heures. Si vous avez fourni un courriel, une confirmation est également en route.`,
+              ) : dynamicCopy(
                 "successBody",
                 `A confirmation is on its way to your email. Our team will review the information and contact you within ${reviewWindowHours} hours.`,
                 `Un courriel de confirmation est en route. Notre équipe examinera les renseignements et communiquera avec vous dans un délai de ${reviewWindowHours} heures.`,
