@@ -50,7 +50,7 @@ test("Ontario and Quebec Meta instant-form leads are authenticated, deduplicated
   assert.match(route, /adir@spaplus\.co\.il,galia@spaplus\.ca/);
   assert.match(route, /buildMarketOwnerEmail/);
   assert.match(route, /buildMarketVisitorEmail/);
-  assert.match(route, /Idempotency-Key.*spaplus-meta-\$\{market\.slug\}-/s);
+  assert.match(route, /X-Entity-Ref-ID.*spaplus-meta-\$\{market\.slug\}-/s);
   assert.match(route, /to: ownerEmails/);
   assert.match(route, /to: \[data\.email\]/);
   assert.match(templates, /languageTag: "en"/);
@@ -60,7 +60,8 @@ test("Ontario and Quebec Meta instant-form leads are authenticated, deduplicated
 test("Ontario and Quebec Meta leads send an English LTR owner notification", async () => {
   const route = await read("app/api/integrations/meta-ontario-leads/route.ts");
   assert.match(route, /META_\$\{market\.slug\.toUpperCase\(\)\}_CONTACT_TO_EMAILS/);
-  assert.match(route, /api\.resend\.com\/emails/);
+  assert.match(route, /api\.cloudflare\.com\/client\/v4\/accounts/);
+  assert.doesNotMatch(route, /api\.resend\.com\/emails/);
   assert.match(route, /languageTag: "en-CA"/);
   assert.match(route, /\$\{market\.name\} time/);
 });

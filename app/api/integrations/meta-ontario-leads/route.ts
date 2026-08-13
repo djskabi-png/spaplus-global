@@ -142,7 +142,6 @@ async function sendMarketOwnerNotification(
   leadId: string,
   market: MetaMarketContext,
 ) {
-  const apiKey = setting("RESEND_API_KEY");
   const cloudflareEmailToken = setting("CLOUDFLARE_EMAIL_API_TOKEN");
   const cloudflareEmailAccountId = setting("CLOUDFLARE_EMAIL_ACCOUNT_ID");
   const ownerEmails = (
@@ -153,17 +152,13 @@ async function sendMarketOwnerNotification(
     .split(",")
     .map((value) => value.trim().toLowerCase())
     .filter(isEmail);
-  if (
-    (!cloudflareEmailToken || !cloudflareEmailAccountId) &&
-    !apiKey
-  ) {
-    throw new Error(`${market.name} Meta lead email is not configured`);
+  if (!cloudflareEmailToken || !cloudflareEmailAccountId) {
+    throw new Error(`${market.name} Cloudflare email is not configured`);
   }
   if (ownerEmails.length === 0) {
     throw new Error(`${market.name} Meta lead recipients are not configured`);
   }
 
-  const from = setting("CONTACT_FROM_EMAIL") || "SpaPlus <hello@mail.spaplus.co>";
   const pageUrl = data.locale.toLowerCase().startsWith("fr")
     ? market.pageUrl.replace("/en-ca/", "/fr-ca/")
     : market.pageUrl;
@@ -206,82 +201,53 @@ async function sendMarketOwnerNotification(
     html: string;
     text: string;
     idempotencyKey: string;
-    tags: Array<{ name: string; value: string }>;
   }) => {
-    if (cloudflareEmailToken && cloudflareEmailAccountId) {
-      const cloudflareFrom =
-        setting("CLOUDFLARE_EMAIL_FROM") ||
-        "SpaPlus Canada <hello@mailca.spaplus.co>";
-      const response = await fetch(
-        `https://api.cloudflare.com/client/v4/accounts/${cloudflareEmailAccountId}/email/sending/send`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${cloudflareEmailToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: cloudflareFrom,
-            to: input.to,
-              reply_to: input.replyTo,
-            subject: input.subject,
-            html: input.html,
-            text: input.text,
-            headers: {
-              "X-Entity-Ref-ID": input.idempotencyKey,
-            },
-          }),
+    const cloudflareFrom =
+      setting("CLOUDFLARE_EMAIL_FROM") ||
+      "SpaPlus Canada <hello@mailca.spaplus.co>";
+    const response = await fetch(
+      `https://api.cloudflare.com/client/v4/accounts/${cloudflareEmailAccountId}/email/sending/send`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${cloudflareEmailToken}`,
+          "Content-Type": "application/json",
         },
-      );
-      const result = (await response.json()) as {
-        success?: boolean;
-        errors?: Array<{ message?: string }>;
-        result?: {
-          delivered?: string[];
-          queued?: string[];
-          permanent_bounces?: string[];
-          message_id?: string;
-        };
-      };
-      const permanentBounces = result.result?.permanent_bounces || [];
-      if (!response.ok || !result.success || permanentBounces.length > 0) {
-        const providerMessage =
-          result.errors?.map((error) => error.message).filter(Boolean).join("; ") ||
-          (permanentBounces.length > 0
-            ? `Permanent bounce: ${permanentBounces.join(", ")}`
-            : "No provider message");
-        throw new Error(
-          `${market.name} Cloudflare email failed (${response.status}): ${providerMessage}`,
-        );
-      }
-      return `cloudflare:${result.result?.message_id || input.idempotencyKey}`;
-    }
-
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "Idempotency-Key": input.idempotencyKey,
-        "User-Agent": `SpaPlus-Meta-${market.slug}-Leads/1.0`,
+        body: JSON.stringify({
+          from: cloudflareFrom,
+          to: input.to,
+          reply_to: input.replyTo,
+          subject: input.subject,
+          html: input.html,
+          text: input.text,
+          headers: {
+            "X-Entity-Ref-ID": input.idempotencyKey,
+          },
+        }),
       },
-      body: JSON.stringify({
-        from,
-        to: input.to,
-        reply_to: input.replyTo,
-        subject: input.subject,
-        html: input.html,
-        text: input.text,
-        tags: input.tags,
-      }),
-    });
-    const result = (await response.json()) as { id?: string; message?: string };
-    if (!response.ok || !result.id) {
+    );
+    const result = (await response.json()) as {
+      success?: boolean;
+      errors?: Array<{ message?: string }>;
+      result?: {
+        delivered?: string[];
+        queued?: string[];
+        permanent_bounces?: string[];
+        message_id?: string;
+      };
+    };
+    const permanentBounces = result.result?.permanent_bounces || [];
+    if (!response.ok || !result.success || permanentBounces.length > 0) {
+      const providerMessage =
+        result.errors?.map((error) => error.message).filter(Boolean).join("; ") ||
+        (permanentBounces.length > 0
+          ? `Permanent bounce: ${permanentBounces.join(", ")}`
+          : "No provider message");
       throw new Error(
-        `${market.name} Resend email failed (${response.status}): ${result.message || "No provider message"}`,
+        `${market.name} Cloudflare email failed (${response.status}): ${providerMessage}`,
       );
     }
-    return result.id;
+    return `cloudflare:${result.result?.message_id || input.idempotencyKey}`;
   };
 
   const ownerDeliveryId = await sendEmail({
@@ -291,10 +257,6 @@ async function sendMarketOwnerNotification(
     html: owner.html,
     text: owner.text,
     idempotencyKey: `spaplus-${market.slug}-meta-owner-${leadId}`,
-    tags: [
-      { name: "email_type", value: `${market.slug}_meta_spa_owner` },
-      { name: "market", value: market.slug },
-    ],
   });
 
   const deliveryIds = [ownerDeliveryId];
@@ -307,10 +269,6 @@ async function sendMarketOwnerNotification(
         html: visitor.html,
         text: visitor.text,
         idempotencyKey: `spaplus-meta-${market.slug}-${leadId}`,
-        tags: [
-          { name: "email_type", value: `${market.slug}_meta_spa_confirmation` },
-          { name: "market", value: market.slug },
-        ],
       }),
     );
   }
