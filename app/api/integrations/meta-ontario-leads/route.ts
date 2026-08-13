@@ -7,6 +7,7 @@ import {
   buildMarketVisitorEmail,
   type MarketLeadEmailData,
 } from "../../../market-email-templates";
+import { quebecCopyOverrides } from "../../../market-launch/markets";
 
 type MetaField = { name?: string; values?: unknown[] };
 type MetaLead = {
@@ -158,12 +159,33 @@ async function sendMarketOwnerNotification(
   const pageUrl = data.locale.toLowerCase().startsWith("fr")
     ? market.pageUrl.replace("/en-ca/", "/fr-ca/")
     : market.pageUrl;
+  const leadLanguage = data.locale.toLowerCase().startsWith("fr") ? "fr" : "en";
+  const marketCopy: Record<string, string> = { emailCompanyName: "GLOBAL SPA MANAGEMENT LTD" };
+  if (market.slug === "quebec") {
+    for (const key of [
+      "emailOwnerSubject",
+      "emailOwnerEyebrow",
+      "emailOwnerIntro",
+    ]) {
+      marketCopy[key] = quebecCopyOverrides[key].en;
+    }
+    for (const key of [
+      "emailOwnerReplySubject",
+      "emailOwnerReplyBody",
+      "emailVisitorSubject",
+      "emailVisitorEyebrow",
+      "emailVisitorIntro",
+      "emailVisitorButton",
+    ]) {
+      marketCopy[key] = quebecCopyOverrides[key][leadLanguage];
+    }
+  }
   const ownerContext = {
     marketName: market.name,
     pageUrl,
     reviewWindowHours: 72,
     languageTag: "en-CA",
-    copy: { emailCompanyName: "GLOBAL SPA MANAGEMENT LTD" },
+    copy: marketCopy,
   };
   const visitorContext = { ...ownerContext, languageTag: data.locale };
   const owner = buildMarketOwnerEmail(data, ownerContext);
@@ -174,7 +196,7 @@ async function sendMarketOwnerNotification(
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
       "Idempotency-Key": `spaplus-${market.slug}-meta-owner-${leadId}`,
-      "User-Agent": `SpaPlus-Meta-${market.name}-Leads/1.0`,
+      "User-Agent": `SpaPlus-Meta-${market.slug}-Leads/1.0`,
     },
     body: JSON.stringify({
       from,
@@ -204,7 +226,7 @@ async function sendMarketOwnerNotification(
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
         "Idempotency-Key": `spaplus-meta-${market.slug}-${leadId}`,
-        "User-Agent": `SpaPlus-Meta-${market.name}-Leads/1.0`,
+        "User-Agent": `SpaPlus-Meta-${market.slug}-Leads/1.0`,
       },
       body: JSON.stringify({
         from,
@@ -431,7 +453,7 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
     bookingSystem,
     preferredContact,
     message: additionalMessage,
-    area: city || "Ontario general",
+    area: city || `${market.name} general`,
     locale,
     source: `Meta paid lead form | ${platform}`,
     campaign: {
