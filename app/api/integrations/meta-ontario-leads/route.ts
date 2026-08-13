@@ -223,7 +223,7 @@ async function sendMarketOwnerNotification(
           body: JSON.stringify({
             from: cloudflareFrom,
             to: input.to,
-            replyTo: input.replyTo,
+              reply_to: input.replyTo,
             subject: input.subject,
             html: input.html,
             text: input.text,
