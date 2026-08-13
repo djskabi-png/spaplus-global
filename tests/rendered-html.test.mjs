@@ -497,6 +497,8 @@ test("management permissions fail closed and leads are scoped by market", async 
   assert.match(toolsPage, /canViewContentManagement/);
   assert.match(toolsPage, /\/auth\/logout\?return_to=\//);
   assert.match(dashboard, /allowedResourceKeys/);
+  assert.match(dashboard, /allowedResourceKeys\.filter\(isLeadResourceKey\)/);
+  assert.match(dashboard, /key === "market:ca:qc" \? t\.quebec/);
   assert.match(dashboard, /allowedBusinesses\.includes\("spaplus"\)/);
   assert.match(dashboard, /allowedBusinesses\.includes\("vila4u"\)/);
   assert.match(usersRoute, /replacePermissions/);

@@ -127,6 +127,12 @@ function leadBusiness(item: Pick<Submission, "resourceKey">): Exclude<BusinessFi
   return item.resourceKey.startsWith("business:vila4u:") ? "vila4u" : "spaplus";
 }
 
+function isLeadResourceKey(resourceKey: string) {
+  return resourceKey === "site:global"
+    || resourceKey.startsWith("market:")
+    || resourceKey === "business:vila4u:leads";
+}
+
 function businessLabels(locale: string) {
   if (locale === "he") return { all: "כל העסקים", spaplus: "ספא פלוס", vila4u: "וילה פור יו" };
   if (locale === "fr-CA") return { all: "Toutes les entreprises", spaplus: "SpaPlus", vila4u: "Vila4U" };
@@ -300,10 +306,10 @@ export default function SubmissionsClient({
 
   useEffect(() => { void load(); }, []);
 
-  const resources = useMemo(
-    () => Array.from(new Set(submissions.map((item) => item.resourceKey))),
-    [submissions],
-  );
+  const resources = useMemo(() => Array.from(new Set([
+    ...allowedResourceKeys.filter(isLeadResourceKey),
+    ...submissions.map((item) => item.resourceKey),
+  ])), [allowedResourceKeys, submissions]);
   const resourceLabel = (key: string) => key.startsWith("business:vila4u:") ? businessLabels(locale).vila4u : key === "market:ca:on" ? t.ontario : key === "market:ca:qc" ? t.quebec : key === "market:ca:national" ? (locale === "he" ? "קנדה" : "Canada") : t.global;
   const statusLabel = (status: DashboardStatus) => t[status];
   const selectedBusinessLeads = business === "all"
