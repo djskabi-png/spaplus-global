@@ -1009,6 +1009,12 @@ test("Québec partner funnel is bilingual, active-market aware and separately ma
   assert.match(route, /Québec spa partner/);
   assert.match(route, /galia@spaplus\.ca/);
   assert.match(route, /activeMarket: marketSlug === "quebec"/);
+  assert.match(route, /const useOntarioEmailDelivery = marketSlug === "quebec"/);
+  assert.match(route, /CLOUDFLARE_EMAIL_API_TOKEN/);
+  assert.match(route, /CLOUDFLARE_EMAIL_ACCOUNT_ID/);
+  assert.match(route, /email\/sending\/send/);
+  assert.match(route, /SpaPlus Canada <hello@mailca\.spaplus\.co>/);
+  assert.match(route, /spaplus-\$\{marketSlug\}-website-owner-\$\{submissionId\}/);
   assert.match(access, /market:ca:qc/);
   assert.match(admin, /tab === "quebec"/);
   assert.match(client, /\/en-ca\/quebec\//);

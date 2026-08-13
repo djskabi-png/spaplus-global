@@ -359,7 +359,16 @@ export async function POST(request: Request) {
       setting("CONTACT_FROM_EMAIL").trim() ||
       "SpaPlus <hello@mail.spaplus.co>";
 
-    if (!apiKey || ownerEmails.length === 0) {
+    const useOntarioEmailDelivery = marketSlug === "quebec";
+    const cloudflareEmailToken = setting("CLOUDFLARE_EMAIL_API_TOKEN");
+    const cloudflareEmailAccountId = setting("CLOUDFLARE_EMAIL_ACCOUNT_ID");
+
+    if (
+      ownerEmails.length === 0 ||
+      (useOntarioEmailDelivery
+        ? !cloudflareEmailToken || !cloudflareEmailAccountId
+        : !apiKey)
+    ) {
       return Response.json(
         { success: false, error: "Email service is not configured" },
         { status: 503, headers },
@@ -386,6 +395,85 @@ export async function POST(request: Request) {
     };
     const owner = buildMarketOwnerEmail(data, emailContext);
     const visitor = buildMarketVisitorEmail(data, emailContext);
+
+    if (useOntarioEmailDelivery) {
+      const cloudflareFrom =
+        setting("CLOUDFLARE_EMAIL_FROM") ||
+        "SpaPlus Canada <hello@mailca.spaplus.co>";
+      const sendCloudflareEmail = async (input: {
+        to: string[];
+        replyTo?: string;
+        subject: string;
+        html: string;
+        text: string;
+        idempotencyKey: string;
+      }) => {
+        const response = await fetch(
+          `https://api.cloudflare.com/client/v4/accounts/${cloudflareEmailAccountId}/email/sending/send`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${cloudflareEmailToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: cloudflareFrom,
+              to: input.to,
+              reply_to: input.replyTo,
+              subject: input.subject,
+              html: input.html,
+              text: input.text,
+              headers: { "X-Entity-Ref-ID": input.idempotencyKey },
+            }),
+          },
+        );
+        const result = (await response.json()) as {
+          success?: boolean;
+          errors?: Array<{ message?: string }>;
+          result?: {
+            delivered?: string[];
+            queued?: string[];
+            permanent_bounces?: string[];
+            message_id?: string;
+          };
+        };
+        const permanentBounces = result.result?.permanent_bounces || [];
+        if (!response.ok || !result.success || permanentBounces.length > 0) {
+          const providerMessage =
+            result.errors?.map((error) => error.message).filter(Boolean).join("; ") ||
+            (permanentBounces.length > 0
+              ? `Permanent bounce: ${permanentBounces.join(", ")}`
+              : "No provider message");
+          throw new Error(
+            `${market.marketName} Cloudflare email failed (${response.status}): ${providerMessage}`,
+          );
+        }
+        return `cloudflare:${result.result?.message_id || input.idempotencyKey}`;
+      };
+
+      const ownerDeliveryId = await sendCloudflareEmail({
+        to: ownerEmails,
+        replyTo: data.email,
+        subject: owner.subject,
+        html: owner.html,
+        text: owner.text,
+        idempotencyKey: `spaplus-${marketSlug}-website-owner-${submissionId}`,
+      });
+      const visitorDeliveryId = await sendCloudflareEmail({
+        to: [data.email],
+        replyTo: ownerEmails[0],
+        subject: visitor.subject,
+        html: visitor.html,
+        text: visitor.text,
+        idempotencyKey: `spaplus-${marketSlug}-website-confirmation-${submissionId}`,
+      });
+
+      return Response.json(
+        { success: true, deliveryIds: [ownerDeliveryId, visitorDeliveryId] },
+        { headers },
+      );
+    }
+
     const response = await fetch("https://api.resend.com/emails/batch", {
       method: "POST",
       headers: {
