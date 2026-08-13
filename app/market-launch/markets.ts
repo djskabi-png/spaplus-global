@@ -128,7 +128,7 @@ const frenchReferenceSpas = referenceSpas.map((spa) => {
 
 const quebecAreas = [
   ["Montréal", "Montréal"],
-  ["Québec City", "Québec"],
+  ["Quebec City", "Québec"],
   ["Laurentians", "Laurentides"],
   ["Eastern Townships", "Cantons-de-l’Est"],
   ["Outaouais", "Outaouais"],
@@ -297,7 +297,7 @@ export const quebecMarket: MarketLaunchConfig = {
   ],
   marketLinks: [
     { label: "Canada", href: "/en-ca/canada/", active: false },
-    { label: "Québec", href: "/en-ca/quebec/", active: true },
+    { label: "Quebec", href: "/en-ca/quebec/", active: true },
     { label: "Ontario", href: "/en-ca/ontario/", active: false },
   ],
 };

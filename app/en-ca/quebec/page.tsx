@@ -5,15 +5,15 @@ import { quebecMarket } from "../../market-launch/markets";
 const canonicalUrl = "https://app.spaplus.co/en-ca/quebec/";
 
 export const metadata: Metadata = {
-  title: "Join SpaPlus Québec | Spa partners",
+  title: "Join SpaPlus Quebec | Spa partners",
   description:
-    "SpaPlus is already active in Québec. Established spas can introduce their business and explore joining the SpaPlus Canada network.",
+    "SpaPlus is already active in Quebec. Established spas can introduce their business and explore joining the SpaPlus Canada network.",
   keywords: [
-    "SpaPlus Québec",
+    "SpaPlus Quebec",
     "join SpaPlus Canada",
-    "Québec spa partners",
-    "spa booking platform Québec",
-    "spa marketing Québec",
+    "Quebec spa partners",
+    "spa booking platform Quebec",
+    "spa marketing Quebec",
   ],
   alternates: {
     canonical: canonicalUrl,
@@ -24,9 +24,9 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Bring your spa to SpaPlus Québec",
+    title: "Bring your spa to SpaPlus Quebec",
     description:
-      "SpaPlus is already active in Québec. Introduce your established spa to the SpaPlus Canada partner team.",
+      "SpaPlus is already active in Quebec. Introduce your established spa to the SpaPlus Canada partner team.",
     url: canonicalUrl,
     siteName: "SpaPlus",
     locale: "en_CA",
@@ -35,16 +35,16 @@ export const metadata: Metadata = {
       url: "/ontario/og-ontario.png",
       width: 1536,
       height: 1024,
-      alt: "Illustrative SpaPlus Québec campaign artwork. It does not depict a specific applicant or partner spa.",
+      alt: "Illustrative SpaPlus Quebec campaign artwork. It does not depict a specific applicant or partner spa.",
     }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bring your spa to SpaPlus Québec",
-    description: "Introduce your established spa to the active SpaPlus Québec network.",
+    title: "Bring your spa to SpaPlus Quebec",
+    description: "Introduce your established spa to the active SpaPlus Quebec network.",
     images: ["/ontario/og-ontario.png"],
   },
-  other: { "geo.region": "CA-QC", "geo.placename": "Québec" },
+  other: { "geo.region": "CA-QC", "geo.placename": "Quebec" },
   robots: { index: true, follow: true },
 };
 
@@ -63,8 +63,8 @@ const structuredData = {
       "@type": "WebPage",
       "@id": `${canonicalUrl}#webpage`,
       url: canonicalUrl,
-      name: "Join SpaPlus Québec",
-      description: "A partner enquiry page for established Québec spas interested in joining SpaPlus Canada.",
+      name: "Join SpaPlus Quebec",
+      description: "A partner enquiry page for established Quebec spas interested in joining SpaPlus Canada.",
       inLanguage: "en-CA",
       about: { "@id": "https://spaplus.co/#organization" },
     },
@@ -73,7 +73,7 @@ const structuredData = {
       itemListElement: [
         { "@type": "ListItem", position: 1, name: "SpaPlus Global", item: "https://spaplus.co/en/" },
         { "@type": "ListItem", position: 2, name: "SpaPlus Canada", item: "https://app.spaplus.co/en-ca/canada/" },
-        { "@type": "ListItem", position: 3, name: "Québec", item: canonicalUrl },
+        { "@type": "ListItem", position: 3, name: "Quebec", item: canonicalUrl },
       ],
     },
     {
@@ -81,8 +81,8 @@ const structuredData = {
       mainEntity: [
         {
           "@type": "Question",
-          name: "Is SpaPlus already available in Québec?",
-          acceptedAnswer: { "@type": "Answer", text: "Yes. SpaPlus Canada already presents spa experiences in Québec and is welcoming enquiries from additional established Québec spas." },
+          name: "Is SpaPlus already available in Quebec?",
+          acceptedAnswer: { "@type": "Answer", text: "Yes. SpaPlus Canada already presents spa experiences in Quebec and is welcoming enquiries from additional established Quebec spas." },
         },
         {
           "@type": "Question",

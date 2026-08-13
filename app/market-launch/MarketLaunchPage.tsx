@@ -221,10 +221,16 @@ export default function MarketLaunchPage({
   const [scrollProgress, setScrollProgress] = useState(0);
   const [videoPlaying, setVideoPlaying] = useState(false);
   const [cmsCopy, setCmsCopy] = useState<Record<string, string>>({});
+  const normalizeDisplayCopy = (value: string) =>
+    marketSlug === "quebec" && !isFrench
+      ? value.replaceAll("QUÉBEC", "QUEBEC").replaceAll("Québec", "Quebec")
+      : value;
   const override = (field: string) =>
     config.copyOverrides?.[field]?.[isFrench ? "fr" : "en"];
   const managed = (field: string, fallback: string) =>
-    selectedArea ? fallback : cmsCopy[field] || override(field) || fallback;
+    normalizeDisplayCopy(
+      selectedArea ? fallback : cmsCopy[field] || override(field) || fallback,
+    );
   const tr = (english: string, french: string) =>
     managed(
       marketCopyFieldKey(english),
@@ -472,7 +478,7 @@ export default function MarketLaunchPage({
         .map((control) => control.dataset.errorLabel || "")
         .filter(Boolean);
       const missingSummary = missingFields.length
-        ? `${tr("Missing", "Champs manquants")} : ${missingFields.join(", ")}.`
+        ? `${tr("Missing:", "Champs manquants :")} ${missingFields.join(", ")}.`
         : "";
       setErrorMessage(
         `${dynamicCopy(
