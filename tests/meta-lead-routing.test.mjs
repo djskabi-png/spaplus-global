@@ -20,6 +20,8 @@ test("Meta spa leads are archived, attributed and emailed to the verified owners
   assert.match(route, /dedupeByContact\?: boolean/);
   assert.match(route, /sendVisitorEmail !== false/);
   assert.match(route, /recover_campaign/);
+  assert.match(route, /x-spaplus-recovery-token/);
+  assert.match(route, /META_RECOVERY_TOKEN/);
 });
 
 test("Meta leads distinguish Québec from Ontario before storage and notification", async () => {

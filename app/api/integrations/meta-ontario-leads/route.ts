@@ -660,11 +660,19 @@ export async function POST(request: Request) {
   const recoveryCampaignId = requestUrl.searchParams.get("recover_campaign") || "";
   if (recoveryCampaignId) {
     const market = RECOVERY_CAMPAIGNS[recoveryCampaignId];
-    const admin = await getAuthorizedAdmin();
-    if (!admin) return Response.json({ error: "Unauthorized" }, { status: 401 });
+    const recoveryToken = setting("META_RECOVERY_TOKEN");
+    const providedRecoveryToken = request.headers.get("x-spaplus-recovery-token") || "";
+    const trustedRecovery =
+      recoveryToken.length >= 32 && constantTimeEqual(providedRecoveryToken, recoveryToken);
+    const admin = trustedRecovery ? null : await getAuthorizedAdmin();
+    if (!trustedRecovery && !admin) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
     if (
       !market ||
-      !hasPermission(admin.role, admin.permissions, market.resourceKey, "manageLeads")
+      (!trustedRecovery &&
+        admin &&
+        !hasPermission(admin.role, admin.permissions, market.resourceKey, "manageLeads"))
     ) {
       return Response.json({ error: "Forbidden" }, { status: 403 });
     }
