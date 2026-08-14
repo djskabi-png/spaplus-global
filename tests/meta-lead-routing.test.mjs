@@ -16,7 +16,10 @@ test("Meta spa leads are archived, attributed and emailed to the verified owners
   assert.match(route, /adir@spaplus\.co\.il,galia@spaplus\.ca/);
   assert.match(route, /buildMarketOwnerEmail/);
   assert.match(route, /spaplus-\$\{market\.slug\}-meta-owner-/);
-  assert.match(route, /await sendMarketOwnerNotification\(notificationData, leadId, market\)/);
+  assert.match(route, /await sendMarketOwnerNotification\([\s\S]*?notificationData,[\s\S]*?leadId,[\s\S]*?market,/);
+  assert.match(route, /dedupeByContact\?: boolean/);
+  assert.match(route, /sendVisitorEmail !== false/);
+  assert.match(route, /recover_campaign/);
 });
 
 test("Meta leads distinguish Québec from Ontario before storage and notification", async () => {

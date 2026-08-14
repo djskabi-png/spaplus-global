@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { env } from "cloudflare:workers";
 import { getDb } from "../../../../db";
 import { formSubmissions } from "../../../../db/schema";
@@ -8,6 +8,8 @@ import {
   type MarketLeadEmailData,
 } from "../../../market-email-templates";
 import { quebecCopyOverrides } from "../../../market-launch/markets";
+import { getAuthorizedAdmin } from "../../../admin-auth";
+import { hasPermission } from "../../../cms-access";
 
 type MetaField = { name?: string; values?: unknown[] };
 type MetaLead = {
@@ -149,6 +151,7 @@ async function sendMarketOwnerNotification(
   data: MarketLeadEmailData,
   leadId: string,
   market: MetaMarketContext,
+  sendVisitorEmail = true,
 ) {
   const cloudflareEmailToken = setting("CLOUDFLARE_EMAIL_API_TOKEN");
   const cloudflareEmailAccountId = setting("CLOUDFLARE_EMAIL_ACCOUNT_ID");
@@ -268,7 +271,7 @@ async function sendMarketOwnerNotification(
   });
 
   const deliveryIds = [ownerDeliveryId];
-  if (isEmail(data.email)) {
+  if (sendVisitorEmail && isEmail(data.email)) {
     deliveryIds.push(
       await sendEmail({
         to: [data.email],
@@ -343,22 +346,37 @@ async function fetchLead(leadgenId: string) {
   return (await response.json()) as MetaLead;
 }
 
+const objectNameCache = new Map<string, string>();
+
 async function fetchName(objectId: string | undefined) {
   const pageToken = setting("META_PAGE_ACCESS_TOKEN")
     .replace(/^\uFEFF/, "")
     .trim()
     .replace(/^["']|["']$/g, "");
   if (!objectId || !pageToken) return "";
+  if (objectNameCache.has(objectId)) return objectNameCache.get(objectId) || "";
   const url = new URL(`https://graph.facebook.com/${GRAPH_VERSION}/${encodeURIComponent(objectId)}`);
   url.searchParams.set("fields", "name");
   url.searchParams.set("access_token", pageToken);
   const response = await fetch(url, { headers: { accept: "application/json" } });
   if (!response.ok) return "";
   const body = (await response.json()) as { name?: string };
-  return clean(body.name);
+  const name = clean(body.name);
+  objectNameCache.set(objectId, name);
+  return name;
 }
 
-async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
+type StoreLeadOptions = {
+  dedupeByContact?: boolean;
+  market?: MetaMarketContext;
+  sendVisitorEmail?: boolean;
+};
+
+async function storeLead(
+  lead: MetaLead,
+  webhookValue: MetaLeadgenValue,
+  options: StoreLeadOptions = {},
+) {
   const leadId = clean(lead.id || webhookValue.leadgen_id);
   if (!leadId) return "skipped" as const;
 
@@ -367,13 +385,6 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
   const adId = clean(lead.ad_id || webhookValue.ad_id);
   const adsetId = clean(lead.adset_id || webhookValue.adgroup_id);
   const campaignId = clean(lead.campaign_id);
-  const [formName, adName, adsetName, campaignName] = await Promise.all([
-    fetchName(formId),
-    fetchName(adId),
-    fetchName(adsetId),
-    fetchName(campaignId),
-  ]);
-
   const name =
     firstField(fields, ["full_name", "name", "first_name"]) ||
     normalizedField(fields, ["nom_complet", "nom"]);
@@ -385,7 +396,13 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
     normalizedField(fields, ["numero_de_telephone", "telephone"]);
   if (!name || (!email && !phone)) return "skipped" as const;
 
-  const market = inferMarket(formName, campaignName);
+  const [formName, adName, adsetName, campaignName] = await Promise.all([
+    fetchName(formId),
+    fetchName(adId),
+    fetchName(adsetId),
+    fetchName(campaignId),
+  ]);
+  const market = options.market || inferMarket(formName, campaignName);
   const submissionId = `meta-${market.slug}:${leadId}`;
   const db = getDb();
   const [existing] = await db
@@ -394,6 +411,34 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
     .where(eq(formSubmissions.submissionId, submissionId))
     .limit(1);
   if (existing) return "duplicate" as const;
+  if (options.dedupeByContact) {
+    if (email) {
+      const [existingEmail] = await db
+        .select({ id: formSubmissions.id })
+        .from(formSubmissions)
+        .where(
+          and(
+            eq(formSubmissions.resourceKey, market.resourceKey),
+            eq(formSubmissions.email, email.toLowerCase()),
+          ),
+        )
+        .limit(1);
+      if (existingEmail) return "duplicate" as const;
+    }
+    if (phone) {
+      const [existingPhone] = await db
+        .select({ id: formSubmissions.id })
+        .from(formSubmissions)
+        .where(
+          and(
+            eq(formSubmissions.resourceKey, market.resourceKey),
+            eq(formSubmissions.phone, phone),
+          ),
+        )
+        .limit(1);
+      if (existingPhone) return "duplicate" as const;
+    }
+  }
   const locale = inferLocale(fields, formName);
   const organization =
     firstField(fields, ["company_name", "spa_name", "business_name"]) ||
@@ -507,8 +552,94 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
     },
     submittedAt: `${marketTime(createdAt, market.timeZone)} (${market.name} time)`,
   };
-  await sendMarketOwnerNotification(notificationData, leadId, market);
+  await sendMarketOwnerNotification(
+    notificationData,
+    leadId,
+    market,
+    options.sendVisitorEmail !== false,
+  );
   return "inserted" as const;
+}
+
+const RECOVERY_CAMPAIGNS: Record<string, MetaMarketContext> = {
+  "120248551862410499": ONTARIO_MARKET,
+  "120248856435100499": QUEBEC_MARKET,
+};
+
+async function recoverMetaCampaign(campaignId: string) {
+  const market = RECOVERY_CAMPAIGNS[campaignId];
+  if (!market) throw new Error("Campaign is not approved for recovery");
+  const pageToken = setting("META_PAGE_ACCESS_TOKEN")
+    .replace(/^\uFEFF/, "")
+    .trim()
+    .replace(/^["']|["']$/g, "");
+  if (!pageToken) throw new Error("META_PAGE_ACCESS_TOKEN is not configured");
+
+  const formsUrl = new URL(
+    `https://graph.facebook.com/${GRAPH_VERSION}/${META_PAGE_ID}/leadgen_forms`,
+  );
+  formsUrl.searchParams.set("fields", "id,name,status");
+  formsUrl.searchParams.set("limit", "100");
+  formsUrl.searchParams.set("access_token", pageToken);
+  const formsResponse = await fetch(formsUrl, { headers: { accept: "application/json" } });
+  if (!formsResponse.ok) {
+    throw new Error(`Meta form retrieval failed (${formsResponse.status})`);
+  }
+  const formsBody = (await formsResponse.json()) as {
+    data?: Array<{ id?: string }>;
+  };
+
+  const seenLeadIds = new Set<string>();
+  const leads: MetaLead[] = [];
+  for (const form of formsBody.data || []) {
+    if (!form.id) continue;
+    let nextUrl: URL | null = new URL(
+      `https://graph.facebook.com/${GRAPH_VERSION}/${encodeURIComponent(form.id)}/leads`,
+    );
+    nextUrl.searchParams.set(
+      "fields",
+      "id,created_time,field_data,form_id,ad_id,adset_id,campaign_id,platform",
+    );
+    nextUrl.searchParams.set("limit", "100");
+    nextUrl.searchParams.set("access_token", pageToken);
+    while (nextUrl) {
+      const response = await fetch(nextUrl, { headers: { accept: "application/json" } });
+      if (!response.ok) {
+        throw new Error(`Meta lead recovery failed (${response.status})`);
+      }
+      const body = (await response.json()) as {
+        data?: MetaLead[];
+        paging?: { next?: string };
+      };
+      for (const lead of body.data || []) {
+        const leadId = clean(lead.id);
+        if (
+          clean(lead.campaign_id) === campaignId &&
+          leadId &&
+          !seenLeadIds.has(leadId)
+        ) {
+          seenLeadIds.add(leadId);
+          leads.push(lead);
+        }
+      }
+      nextUrl = body.paging?.next ? new URL(body.paging.next) : null;
+    }
+  }
+
+  let inserted = 0;
+  let duplicates = 0;
+  let skipped = 0;
+  for (const lead of leads) {
+    const outcome = await storeLead(
+      lead,
+      { leadgen_id: lead.id, form_id: lead.form_id, ad_id: lead.ad_id },
+      { dedupeByContact: true, market, sendVisitorEmail: false },
+    );
+    if (outcome === "inserted") inserted += 1;
+    else if (outcome === "duplicate") duplicates += 1;
+    else skipped += 1;
+  }
+  return { campaignId, market: market.slug, found: leads.length, inserted, duplicates, skipped };
 }
 
 export async function GET(request: Request) {
@@ -525,6 +656,28 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const requestUrl = new URL(request.url);
+  const recoveryCampaignId = requestUrl.searchParams.get("recover_campaign") || "";
+  if (recoveryCampaignId) {
+    const market = RECOVERY_CAMPAIGNS[recoveryCampaignId];
+    const admin = await getAuthorizedAdmin();
+    if (!admin) return Response.json({ error: "Unauthorized" }, { status: 401 });
+    if (
+      !market ||
+      !hasPermission(admin.role, admin.permissions, market.resourceKey, "manageLeads")
+    ) {
+      return Response.json({ error: "Forbidden" }, { status: 403 });
+    }
+    try {
+      return Response.json({ success: true, ...(await recoverMetaCampaign(recoveryCampaignId)) });
+    } catch (error: unknown) {
+      console.error("Meta campaign recovery failed", {
+        campaignId: recoveryCampaignId,
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+      return Response.json({ error: "Meta campaign recovery failed" }, { status: 503 });
+    }
+  }
   const rawBody = await request.text();
   let body: MetaWebhookBody;
   try {
