@@ -566,6 +566,151 @@ const RECOVERY_CAMPAIGNS: Record<string, MetaMarketContext> = {
   "120248856435100499": QUEBEC_MARKET,
 };
 
+type ExportedMetaLead = {
+  createdAt?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  formName?: string;
+};
+
+async function sha256Hex(value: string) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+async function recoverExportedLeads(campaignId: string, input: unknown) {
+  const market = RECOVERY_CAMPAIGNS[campaignId];
+  if (!market) throw new Error("Campaign is not approved for recovery");
+  if (!Array.isArray(input) || input.length === 0 || input.length > 100) {
+    throw new Error("Invalid recovery batch");
+  }
+
+  const db = getDb();
+  let inserted = 0;
+  let duplicates = 0;
+  let skipped = 0;
+  const notificationIds: string[] = [];
+  for (const raw of input as ExportedMetaLead[]) {
+    const name = clean(raw.name).slice(0, 100);
+    const email = clean(raw.email).toLowerCase().slice(0, 180);
+    const phone = clean(raw.phone).slice(0, 40);
+    const formName = clean(raw.formName).slice(0, 220);
+    const createdAt = normalizeCreatedAt(raw.createdAt);
+    if (!name || (!isEmail(email) && phone.length < 7) || !formName.toLowerCase().includes(market.slug)) {
+      skipped += 1;
+      continue;
+    }
+
+    let existingContact: { id: number } | undefined;
+    if (isEmail(email)) {
+      [existingContact] = await db
+        .select({ id: formSubmissions.id })
+        .from(formSubmissions)
+        .where(
+          and(
+            eq(formSubmissions.resourceKey, market.resourceKey),
+            eq(formSubmissions.email, email),
+          ),
+        )
+        .limit(1);
+    }
+    if (!existingContact && phone) {
+      [existingContact] = await db
+        .select({ id: formSubmissions.id })
+        .from(formSubmissions)
+        .where(
+          and(
+            eq(formSubmissions.resourceKey, market.resourceKey),
+            eq(formSubmissions.phone, phone),
+          ),
+        )
+        .limit(1);
+    }
+    if (existingContact) {
+      duplicates += 1;
+      continue;
+    }
+
+    const recoveryHash = await sha256Hex(
+      [campaignId, createdAt, name.toLowerCase(), email, phone, formName].join("|"),
+    );
+    const submissionId = `meta-${market.slug}-recovery:${recoveryHash}`;
+    const locale = formName.toLowerCase().includes("fr-ca") ? "fr-CA" : "en-CA";
+    const message = [
+      "Company group: SpaPlus",
+      "Brand: SpaPlus Canada",
+      `Lead purpose: ${market.name} spa partner registration`,
+      "Source channel: Meta paid lead form",
+      "Recovery source: Official Meta campaign export",
+      `Language: ${locale}`,
+      `Meta form name: ${formName}`,
+      `Meta campaign ID: ${campaignId}`,
+      `Submitted at: ${createdAt}`,
+    ].join("\n");
+
+    await db.insert(formSubmissions).values({
+      submissionId,
+      formType: `${market.slug}-meta-instant-form`,
+      name,
+      email,
+      phone,
+      organization: "",
+      topic: `${market.name} spa partner`,
+      message,
+      locale,
+      source: `Meta paid lead form | ${market.name}`,
+      resourceKey: market.resourceKey,
+      status: "new",
+      createdAt,
+    });
+
+    await sendMarketOwnerNotification(
+      {
+        name,
+        role: "",
+        email,
+        phone,
+        organization: "",
+        website: "",
+        city: "",
+        region: "",
+        postalCode: "",
+        spaType: "",
+        locations: "",
+        services: [],
+        bookingSystem: "",
+        preferredContact: "",
+        message: "",
+        area: `${market.name} general`,
+        locale,
+        source: "Meta paid lead form | recovered export",
+        campaign: {
+          campaign_id: campaignId,
+          campaign_name: `${market.name} Meta campaign`,
+          form_id: formName,
+          lead_id: submissionId,
+        },
+        submittedAt: `${marketTime(createdAt, market.timeZone)} (${market.name} time)`,
+      },
+      submissionId,
+      market,
+      false,
+    );
+    notificationIds.push(submissionId);
+    inserted += 1;
+  }
+  return {
+    campaignId,
+    market: market.slug,
+    found: input.length,
+    inserted,
+    duplicates,
+    skipped,
+    notified: notificationIds.length,
+  };
+}
+
 async function recoverMetaCampaign(campaignId: string) {
   const market = RECOVERY_CAMPAIGNS[campaignId];
   if (!market) throw new Error("Campaign is not approved for recovery");
@@ -680,6 +825,13 @@ export async function POST(request: Request) {
       return Response.json({ error: "Forbidden" }, { status: 403 });
     }
     try {
+      const recoveryBody = await request.json().catch(() => ({})) as { leads?: unknown };
+      if (Array.isArray(recoveryBody.leads)) {
+        return Response.json({
+          success: true,
+          ...(await recoverExportedLeads(recoveryCampaignId, recoveryBody.leads)),
+        });
+      }
       return Response.json({ success: true, ...(await recoverMetaCampaign(recoveryCampaignId)) });
     } catch (error: unknown) {
       console.error("Meta campaign recovery failed", {
