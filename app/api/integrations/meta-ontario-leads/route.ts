@@ -578,12 +578,15 @@ async function recoverMetaCampaign(campaignId: string) {
   const formsUrl = new URL(
     `https://graph.facebook.com/${GRAPH_VERSION}/${META_PAGE_ID}/leadgen_forms`,
   );
-  formsUrl.searchParams.set("fields", "id,name,status");
+  formsUrl.searchParams.set("fields", "id,name");
   formsUrl.searchParams.set("limit", "100");
   formsUrl.searchParams.set("access_token", pageToken);
   const formsResponse = await fetch(formsUrl, { headers: { accept: "application/json" } });
   if (!formsResponse.ok) {
-    throw new Error(`Meta form retrieval failed (${formsResponse.status})`);
+    const details = await formsResponse.text();
+    throw new Error(
+      `Meta form retrieval failed (${formsResponse.status}): ${details.slice(0, 300)}`,
+    );
   }
   const formsBody = (await formsResponse.json()) as {
     data?: Array<{ id?: string }>;
