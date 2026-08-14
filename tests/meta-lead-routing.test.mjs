@@ -18,6 +18,11 @@ test("Meta spa leads are archived, attributed and emailed to the verified owners
   assert.match(route, /spaplus-\$\{market\.slug\}-meta-owner-/);
   assert.match(route, /await sendMarketOwnerNotification\([\s\S]*?notificationData,[\s\S]*?leadId,[\s\S]*?market,/);
   assert.match(route, /dedupeByContact\?: boolean/);
+  assert.match(route, /enrichExisting\?: boolean/);
+  assert.match(route, /updates: Partial<Pick<typeof formSubmissions\.\$inferInsert, "phone" \| "organization">>/);
+  assert.match(route, /\.update\(formSubmissions\)\.set\(updates\)\.where\(eq\(formSubmissions\.id, existing\.id\)\)/);
+  assert.match(route, /enrichExisting: true/);
+  assert.match(route, /else if \(outcome === "enriched"\) enriched \+= 1/);
   assert.match(route, /sendVisitorEmail !== false/);
   assert.match(route, /recover_campaign/);
   assert.match(route, /x-spaplus-recovery-token/);
@@ -50,7 +55,7 @@ test("Meta webhook reports failures so Meta can retry safely", async () => {
 
   assert.match(route, /const result = await processLeadValues\(values\)/);
   assert.match(route, /status: 503/);
-  assert.match(route, /if \(existing\) return "duplicate" as const/);
+  assert.match(route, /return options\.enrichExisting/);
   assert.match(route, /return "inserted" as const/);
 });
 

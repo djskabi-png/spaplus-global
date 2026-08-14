@@ -368,9 +368,30 @@ async function fetchName(objectId: string | undefined) {
 
 type StoreLeadOptions = {
   dedupeByContact?: boolean;
+  enrichExisting?: boolean;
   market?: MetaMarketContext;
   sendVisitorEmail?: boolean;
 };
+
+type ExistingLead = {
+  id: number;
+  phone: string;
+  organization: string;
+};
+
+async function enrichExistingLead(
+  existing: ExistingLead,
+  source: { phone: string; organization: string },
+) {
+  const updates: Partial<Pick<typeof formSubmissions.$inferInsert, "phone" | "organization">> = {};
+  if (!clean(existing.phone) && clean(source.phone)) updates.phone = clean(source.phone).slice(0, 40);
+  if (!clean(existing.organization) && clean(source.organization)) {
+    updates.organization = clean(source.organization).slice(0, 180);
+  }
+  if (Object.keys(updates).length === 0) return false;
+  await getDb().update(formSubmissions).set(updates).where(eq(formSubmissions.id, existing.id));
+  return true;
+}
 
 async function storeLead(
   lead: MetaLead,
@@ -394,6 +415,16 @@ async function storeLead(
   const phone =
     firstField(fields, ["phone_number", "phone"]) ||
     normalizedField(fields, ["numero_de_telephone", "telephone"]);
+  const organization =
+    firstField(fields, ["company_name", "spa_name", "business_name"]) ||
+    normalizedField(fields, [
+      "name_of_your_spa_or_business",
+      "spa_or_business_name",
+      "business_or_spa_name",
+      "nom_de_votre_spa_ou_entreprise",
+      "nom_de_votre_spa",
+      "nom_de_l_entreprise",
+    ]);
   if (!name || (!email && !phone)) return "skipped" as const;
 
   const [formName, adName, adsetName, campaignName] = await Promise.all([
@@ -406,15 +437,28 @@ async function storeLead(
   const submissionId = `meta-${market.slug}:${leadId}`;
   const db = getDb();
   const [existing] = await db
-    .select({ id: formSubmissions.id })
+    .select({
+      id: formSubmissions.id,
+      phone: formSubmissions.phone,
+      organization: formSubmissions.organization,
+    })
     .from(formSubmissions)
     .where(eq(formSubmissions.submissionId, submissionId))
     .limit(1);
-  if (existing) return "duplicate" as const;
+  if (existing) {
+    return options.enrichExisting && (await enrichExistingLead(existing, { phone, organization }))
+      ? "enriched" as const
+      : "duplicate" as const;
+  }
   if (options.dedupeByContact) {
+    let existingContact: ExistingLead | undefined;
     if (email) {
-      const [existingEmail] = await db
-        .select({ id: formSubmissions.id })
+      [existingContact] = await db
+        .select({
+          id: formSubmissions.id,
+          phone: formSubmissions.phone,
+          organization: formSubmissions.organization,
+        })
         .from(formSubmissions)
         .where(
           and(
@@ -423,11 +467,14 @@ async function storeLead(
           ),
         )
         .limit(1);
-      if (existingEmail) return "duplicate" as const;
     }
-    if (phone) {
-      const [existingPhone] = await db
-        .select({ id: formSubmissions.id })
+    if (!existingContact && phone) {
+      [existingContact] = await db
+        .select({
+          id: formSubmissions.id,
+          phone: formSubmissions.phone,
+          organization: formSubmissions.organization,
+        })
         .from(formSubmissions)
         .where(
           and(
@@ -436,18 +483,14 @@ async function storeLead(
           ),
         )
         .limit(1);
-      if (existingPhone) return "duplicate" as const;
+    }
+    if (existingContact) {
+      return options.enrichExisting && (await enrichExistingLead(existingContact, { phone, organization }))
+        ? "enriched" as const
+        : "duplicate" as const;
     }
   }
   const locale = inferLocale(fields, formName);
-  const organization =
-    firstField(fields, ["company_name", "spa_name", "business_name"]) ||
-    normalizedField(fields, [
-      "name_of_your_spa_or_business",
-      "spa_or_business_name",
-      "nom_de_votre_spa_ou_entreprise",
-      "nom_de_l_entreprise",
-    ]);
   const city =
     firstField(fields, ["city", "location", "business_location", "ville"]) ||
     normalizedField(fields, [
@@ -775,19 +818,29 @@ async function recoverMetaCampaign(campaignId: string) {
   }
 
   let inserted = 0;
+  let enriched = 0;
   let duplicates = 0;
   let skipped = 0;
   for (const lead of leads) {
     const outcome = await storeLead(
       lead,
       { leadgen_id: lead.id, form_id: lead.form_id, ad_id: lead.ad_id },
-      { dedupeByContact: true, market, sendVisitorEmail: false },
+      { dedupeByContact: true, enrichExisting: true, market, sendVisitorEmail: false },
     );
     if (outcome === "inserted") inserted += 1;
+    else if (outcome === "enriched") enriched += 1;
     else if (outcome === "duplicate") duplicates += 1;
     else skipped += 1;
   }
-  return { campaignId, market: market.slug, found: leads.length, inserted, duplicates, skipped };
+  return {
+    campaignId,
+    market: market.slug,
+    found: leads.length,
+    inserted,
+    enriched,
+    duplicates,
+    skipped,
+  };
 }
 
 export async function GET(request: Request) {
