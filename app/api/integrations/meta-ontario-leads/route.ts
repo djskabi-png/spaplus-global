@@ -140,7 +140,27 @@ function marketTime(value: string, timeZone: MetaMarketContext["timeZone"]) {
   }).format(new Date(value));
 }
 
-function inferMarket(formName: string, campaignName: string, adName = ""): MetaMarketContext {
+const QUEBEC_FORM_MARKET_IDS = new Set([
+  "28034077039566381",
+  "1637718861417633",
+  "1757789082219370",
+  "933941882349365",
+]);
+
+const ONTARIO_FORM_MARKET_IDS = new Set([
+  "2595979447504156",
+  "1542456153506372",
+  "2831714810547194",
+]);
+
+function inferMarket(
+  formId: string,
+  formName: string,
+  campaignName: string,
+  adName = "",
+): MetaMarketContext {
+  if (QUEBEC_FORM_MARKET_IDS.has(formId)) return QUEBEC_MARKET;
+  if (ONTARIO_FORM_MARKET_IDS.has(formId)) return ONTARIO_MARKET;
   const directSignal = `${formName} ${adName}`.toLowerCase();
   if (directSignal.includes("ontario")) return ONTARIO_MARKET;
   if (directSignal.includes("quebec") || directSignal.includes("québec")) {
@@ -438,7 +458,7 @@ async function storeLead(
     fetchName(adsetId),
     fetchName(campaignId),
   ]);
-  const market = options.market || inferMarket(formName, campaignName, adName);
+  const market = options.market || inferMarket(formId, formName, campaignName, adName);
   const submissionId = `meta-${market.slug}:${leadId}`;
   const db = getDb();
   const [existing] = await db
@@ -834,7 +854,7 @@ async function recoverMetaCampaign(campaignId: string) {
       fetchName(clean(lead.ad_id)),
       fetchName(clean(lead.campaign_id)),
     ]);
-    const leadMarket = inferMarket(formName, campaignName, adName);
+    const leadMarket = inferMarket(clean(lead.form_id), formName, campaignName, adName);
     markets[leadMarket.slug] += 1;
     const outcome = await storeLead(
       lead,

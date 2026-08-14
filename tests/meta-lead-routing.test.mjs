@@ -35,6 +35,8 @@ test("Meta leads distinguish Québec from Ontario before storage and notificatio
   assert.match(route, /const QUEBEC_MARKET/);
   assert.match(route, /resourceKey: "market:ca:qc"/);
   assert.match(route, /function inferMarket/);
+  assert.match(route, /QUEBEC_FORM_MARKET_IDS\.has\(formId\)/);
+  assert.match(route, /ONTARIO_FORM_MARKET_IDS\.has\(formId\)/);
   assert.match(route, /directSignal\.includes\("ontario"\)/);
   assert.match(route, /directSignal\.includes\("quebec"\) \|\| directSignal\.includes\("québec"\)/);
   assert.match(route, /const submissionId = `meta-\$\{market\.slug\}:\$\{leadId\}`/);
@@ -73,7 +75,7 @@ test("Meta recovery reads leads from campaign ads and classifies each lead indep
 
   assert.match(route, /\$\{encodeURIComponent\(campaignId\)\}\/ads/);
   assert.match(route, /\$\{encodeURIComponent\(adId\)\}\/leads/);
-  assert.match(route, /inferMarket\(formName, campaignName, adName\)/);
+  assert.match(route, /inferMarket\(clean\(lead\.form_id\), formName, campaignName, adName\)/);
   assert.match(route, /markets\[leadMarket\.slug\] \+= 1/);
   assert.doesNotMatch(route, /enrichExisting: true, market, sendVisitorEmail: false/);
 });
