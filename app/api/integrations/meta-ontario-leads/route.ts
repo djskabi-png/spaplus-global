@@ -140,9 +140,14 @@ function marketTime(value: string, timeZone: MetaMarketContext["timeZone"]) {
   }).format(new Date(value));
 }
 
-function inferMarket(formName: string, campaignName: string): MetaMarketContext {
-  const signal = `${formName} ${campaignName}`.toLowerCase();
-  return signal.includes("quebec") || signal.includes("québec")
+function inferMarket(formName: string, campaignName: string, adName = ""): MetaMarketContext {
+  const directSignal = `${formName} ${adName}`.toLowerCase();
+  if (directSignal.includes("ontario")) return ONTARIO_MARKET;
+  if (directSignal.includes("quebec") || directSignal.includes("québec")) {
+    return QUEBEC_MARKET;
+  }
+  const campaignSignal = campaignName.toLowerCase();
+  return campaignSignal.includes("quebec") || campaignSignal.includes("québec")
     ? QUEBEC_MARKET
     : ONTARIO_MARKET;
 }
@@ -433,7 +438,7 @@ async function storeLead(
     fetchName(adsetId),
     fetchName(campaignId),
   ]);
-  const market = options.market || inferMarket(formName, campaignName);
+  const market = options.market || inferMarket(formName, campaignName, adName);
   const submissionId = `meta-${market.slug}:${leadId}`;
   const db = getDb();
   const [existing] = await db
@@ -755,37 +760,42 @@ async function recoverExportedLeads(campaignId: string, input: unknown) {
 }
 
 async function recoverMetaCampaign(campaignId: string) {
-  const market = RECOVERY_CAMPAIGNS[campaignId];
-  if (!market) throw new Error("Campaign is not approved for recovery");
+  if (!RECOVERY_CAMPAIGNS[campaignId]) throw new Error("Campaign is not approved for recovery");
   const pageToken = setting("META_PAGE_ACCESS_TOKEN")
     .replace(/^\uFEFF/, "")
     .trim()
     .replace(/^["']|["']$/g, "");
   if (!pageToken) throw new Error("META_PAGE_ACCESS_TOKEN is not configured");
 
-  const formsUrl = new URL(
-    `https://graph.facebook.com/${GRAPH_VERSION}/${META_PAGE_ID}/leadgen_forms`,
-  );
-  formsUrl.searchParams.set("fields", "id,name");
-  formsUrl.searchParams.set("limit", "100");
-  formsUrl.searchParams.set("access_token", pageToken);
-  const formsResponse = await fetch(formsUrl, { headers: { accept: "application/json" } });
-  if (!formsResponse.ok) {
-    const details = await formsResponse.text();
-    throw new Error(
-      `Meta form retrieval failed (${formsResponse.status}): ${details.slice(0, 300)}`,
-    );
-  }
-  const formsBody = (await formsResponse.json()) as {
-    data?: Array<{ id?: string }>;
-  };
-
   const seenLeadIds = new Set<string>();
   const leads: MetaLead[] = [];
-  for (const form of formsBody.data || []) {
-    if (!form.id) continue;
+  let adsUrl: URL | null = new URL(
+    `https://graph.facebook.com/${GRAPH_VERSION}/${encodeURIComponent(campaignId)}/ads`,
+  );
+  adsUrl.searchParams.set("fields", "id,name");
+  adsUrl.searchParams.set("limit", "100");
+  adsUrl.searchParams.set("access_token", pageToken);
+  const adIds: string[] = [];
+  while (adsUrl) {
+    const response = await fetch(adsUrl, { headers: { accept: "application/json" } });
+    if (!response.ok) {
+      const details = await response.text();
+      throw new Error(`Meta ad retrieval failed (${response.status}): ${details.slice(0, 300)}`);
+    }
+    const body = (await response.json()) as {
+      data?: Array<{ id?: string }>;
+      paging?: { next?: string };
+    };
+    for (const ad of body.data || []) {
+      const adId = clean(ad.id);
+      if (adId) adIds.push(adId);
+    }
+    adsUrl = body.paging?.next ? new URL(body.paging.next) : null;
+  }
+
+  for (const adId of adIds) {
     let nextUrl: URL | null = new URL(
-      `https://graph.facebook.com/${GRAPH_VERSION}/${encodeURIComponent(form.id)}/leads`,
+      `https://graph.facebook.com/${GRAPH_VERSION}/${encodeURIComponent(adId)}/leads`,
     );
     nextUrl.searchParams.set(
       "fields",
@@ -804,11 +814,7 @@ async function recoverMetaCampaign(campaignId: string) {
       };
       for (const lead of body.data || []) {
         const leadId = clean(lead.id);
-        if (
-          clean(lead.campaign_id) === campaignId &&
-          leadId &&
-          !seenLeadIds.has(leadId)
-        ) {
+        if (leadId && !seenLeadIds.has(leadId)) {
           seenLeadIds.add(leadId);
           leads.push(lead);
         }
@@ -821,11 +827,19 @@ async function recoverMetaCampaign(campaignId: string) {
   let enriched = 0;
   let duplicates = 0;
   let skipped = 0;
+  const markets = { ontario: 0, quebec: 0 };
   for (const lead of leads) {
+    const [formName, adName, campaignName] = await Promise.all([
+      fetchName(clean(lead.form_id)),
+      fetchName(clean(lead.ad_id)),
+      fetchName(clean(lead.campaign_id)),
+    ]);
+    const leadMarket = inferMarket(formName, campaignName, adName);
+    markets[leadMarket.slug] += 1;
     const outcome = await storeLead(
       lead,
       { leadgen_id: lead.id, form_id: lead.form_id, ad_id: lead.ad_id },
-      { dedupeByContact: true, enrichExisting: true, market, sendVisitorEmail: false },
+      { dedupeByContact: true, enrichExisting: true, market: leadMarket, sendVisitorEmail: false },
     );
     if (outcome === "inserted") inserted += 1;
     else if (outcome === "enriched") enriched += 1;
@@ -834,7 +848,7 @@ async function recoverMetaCampaign(campaignId: string) {
   }
   return {
     campaignId,
-    market: market.slug,
+    markets,
     found: leads.length,
     inserted,
     enriched,
