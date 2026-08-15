@@ -88,12 +88,12 @@ const isFieldRequired = (
   formFlag(content, `formField${field}Visible`, true) &&
   formFlag(content, `formField${field}Required`, fallback);
 
-const requiredQuebecFields = new Set([
+const requiredSpaLeadFields = new Set([
   "Organization",
   "Phone",
   "Name",
   "City",
-  "Website",
+  "Email",
 ]);
 
 export async function OPTIONS(request: Request) {
@@ -226,8 +226,8 @@ export async function POST(request: Request) {
       marketContentRows.map((row) => [row.field, row.value]),
     );
     const fieldRequired = (field: string, fallback = true) =>
-      marketSlug === "quebec"
-        ? requiredQuebecFields.has(field)
+      marketSlug === "quebec" || marketSlug === "ontario"
+        ? requiredSpaLeadFields.has(field)
         : isFieldRequired(marketContent, field, fallback);
     const requestedArea = clean(body.area, 100);
     const acceptedArea = marketSlug === "ontario" && ontarioAreas.some(

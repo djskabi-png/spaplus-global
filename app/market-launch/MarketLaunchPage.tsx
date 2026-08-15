@@ -142,24 +142,25 @@ const serviceOptions = [
   { field: "serviceSpaStays", value: "Spa stays", en: "Spa stays", fr: "Séjours spa" },
 ];
 
-const protectedQuebecFormFlags = new Set([
+const protectedSpaLeadFormFlags = new Set([
   "formFieldOrganizationVisible",
   "formFieldWebsiteVisible",
   "formFieldCityVisible",
   "formFieldNameVisible",
   "formFieldPhoneVisible",
+  "formFieldEmailVisible",
   "formFieldSpaTypeVisible",
   "formFieldServicesVisible",
   ...spaTypes.map((item) => `${item.field}Enabled`),
   ...serviceOptions.map((item) => `${item.field}Enabled`),
 ]);
 
-const requiredQuebecFields = new Set([
+const requiredSpaLeadFields = new Set([
   "Organization",
   "Phone",
   "Name",
   "City",
-  "Website",
+  "Email",
 ]);
 
 function trackMarketEvent(
@@ -241,7 +242,7 @@ export default function MarketLaunchPage({
   const formFlag = (field: string, fallback: boolean) => {
     // A content-editor setting must never make the active Quebec lead form
     // impossible to complete or remove the contact number needed for follow-up.
-    if (marketSlug === "quebec" && protectedQuebecFormFlags.has(field)) {
+    if ((marketSlug === "quebec" || marketSlug === "ontario") && protectedSpaLeadFormFlags.has(field)) {
       return true;
     }
     // Form behaviour is shared by the Ontario page and its city pages.
@@ -252,8 +253,8 @@ export default function MarketLaunchPage({
   const fieldVisible = (field: string) => formFlag(`formField${field}Visible`, true);
   const fieldRequired = (field: string, fallback = true) =>
     fieldVisible(field) && (
-      marketSlug === "quebec"
-        ? requiredQuebecFields.has(field)
+      marketSlug === "quebec" || marketSlug === "ontario"
+        ? requiredSpaLeadFields.has(field)
         : formFlag(`formField${field}Required`, fallback)
     );
   const fieldLabel = (field: string, label: string, fallback = true) => (
@@ -792,9 +793,10 @@ export default function MarketLaunchPage({
             className={styles.promiseRow}
             aria-label={tr("Registration terms", "Conditions d’inscription")}
           >
-            <span>{tr("No fee to register", "Inscription gratuite")}</span>
-            <span>{tr("No commitment", "Sans engagement")}</span>
-            <span>{tr("No credit card", "Sans carte de crédit")}</span>
+            <span>{tr("Spa businesses only", "Entreprises de spa seulement")}</span>
+            <span>{tr("Commission only on confirmed SpaPlus bookings", "Commission seulement sur les réservations SpaPlus confirmées")}</span>
+            <span>{tr("No monthly fee or extra costs", "Aucuns frais mensuels ni frais supplémentaires")}</span>
+            <span>{tr("No long-term commitment", "Aucun engagement à long terme")}</span>
           </div>
           <div className={styles.heroActions}>
             <a
@@ -1578,9 +1580,7 @@ export default function MarketLaunchPage({
             <strong>{tr("What happens after you send it?", "Que se passe-t-il après l’envoi?")}</strong>
             <ul>
               <li>
-                {marketSlug === "quebec"
-                  ? tr("If you add an email, you receive an immediate confirmation.", "Si vous ajoutez un courriel, vous recevez une confirmation immédiate.")
-                  : tr("You receive an immediate email confirmation.", "Vous recevez immédiatement un courriel de confirmation.")}
+                {tr("You receive an immediate email confirmation.", "Vous recevez immédiatement un courriel de confirmation.")}
               </li>
               <li>{tr("Our team reviews the business and location.", "Notre équipe examine l’établissement et son emplacement.")}</li>
               <li>{tr("We contact you to arrange a short conversation.", "Nous vous contactons pour planifier un court échange.")}</li>
@@ -1596,12 +1596,12 @@ export default function MarketLaunchPage({
           data-validation-attempted={validationAttempted}
           noValidate
         >
-          {marketSlug === "quebec" ? (
+          {marketSlug === "quebec" || marketSlug === "ontario" ? (
             <p className={styles.requirementNote}>
               <strong>{tr("Only five business details are required.", "Seulement cinq renseignements sur l’entreprise sont obligatoires.")}</strong>{" "}
               {tr(
-                "They are clearly marked below. The two confirmations at the bottom must also be checked before sending. If something is missing, we will highlight it and tell you exactly what to complete.",
-                "Ils sont clairement indiqués ci-dessous. Les deux confirmations au bas du formulaire doivent aussi être cochées avant l’envoi. S’il manque un renseignement, nous le mettrons en évidence et vous dirons exactement quoi remplir.",
+                "Business name, contact person, phone, business email and spa location are required and clearly marked below. This form is only for owners, managers and authorized representatives of operating spa businesses. It is not for spa customers, job applicants or unrelated enquiries. Do not submit repeated or irrelevant messages.",
+                "Le nom de l’entreprise, la personne-ressource, le téléphone, le courriel professionnel et l’emplacement du spa sont obligatoires et clairement indiqués. Ce formulaire est réservé aux propriétaires, gestionnaires et représentants autorisés d’entreprises de spa en activité. Il ne s’adresse pas aux clients, aux candidats à un emploi ni aux demandes sans rapport. N’envoyez pas de messages répétés ou non pertinents.",
               )}
             </p>
           ) : null}
@@ -1832,8 +1832,8 @@ export default function MarketLaunchPage({
             />
             <span>
               {tr(
-                "I understand that this registration is an expression of interest only. It creates no commitment and requests no payment or credit card.",
-                "Je comprends que cette inscription exprime seulement mon intérêt. Elle ne crée aucun engagement et ne demande aucun paiement ni carte de crédit.",
+                "I confirm that I own, manage or am authorized to represent an operating spa business that wants more SpaPlus bookings. I understand that SpaPlus charges commission only on confirmed bookings it generates, with no monthly fee, no extra costs and no long-term commitment.",
+                "Je confirme que je possède, gère ou représente avec autorisation une entreprise de spa en activité qui souhaite recevoir davantage de réservations grâce à SpaPlus. Je comprends que SpaPlus facture une commission seulement sur les réservations confirmées qu’il génère, sans frais mensuels, sans frais supplémentaires et sans engagement à long terme.",
               )}
             </span>
           </label>

@@ -74,26 +74,30 @@ function lines(items, x, y, size, lineHeight, weight, fill) {
 
 function overlay({ width, height, item, market }) {
   const tall = height >= 1800;
+  const square = width === height;
   const side = 72;
   const logoTop = tall ? 80 : 58;
-  const eyebrowY = tall ? 420 : 300;
-  const titleY = tall ? 540 : 400;
-  const titleSize = tall ? 74 : 62;
-  const promiseY = titleY + (titleSize * 2) + (tall ? 90 : 70);
-  const termsY = promiseY + (tall ? 150 : 125);
-  const feesY = termsY + (tall ? 145 : 120);
-  const ctaY = Math.min(height - 220, feesY + (tall ? 125 : 105));
+  const eyebrowY = tall ? 420 : (square ? 300 : 300);
+  const titleY = tall ? 540 : (square ? 400 : 400);
+  const titleSize = tall ? 74 : (square ? 58 : 62);
+  const promiseY = titleY + (titleSize * 2) + (tall ? 90 : (square ? 60 : 70));
+  const termsY = promiseY + (tall ? 150 : (square ? 125 : 125));
+  const feesY = termsY + (tall ? 145 : (square ? 120 : 120));
+  const ctaY = square ? height - 220 : Math.min(height - 220, feesY + (tall ? 125 : 105));
   const noteY = height - 48;
   return Buffer.from(`<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-    <defs><linearGradient id="shade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#090b0f" stop-opacity="0.45"/><stop offset="0.52" stop-color="#090b0f" stop-opacity="0.78"/><stop offset="1" stop-color="#090b0f" stop-opacity="0.96"/></linearGradient></defs>
+    <defs>
+      <linearGradient id="shade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#090b0f" stop-opacity="0.48"/><stop offset="0.52" stop-color="#090b0f" stop-opacity="0.82"/><stop offset="1" stop-color="#090b0f" stop-opacity="0.97"/></linearGradient>
+      <linearGradient id="sideShade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#090b0f" stop-opacity="0.72"/><stop offset="0.68" stop-color="#090b0f" stop-opacity="0.24"/><stop offset="1" stop-color="#090b0f" stop-opacity="0"/></linearGradient>
+    </defs>
     <rect width="100%" height="100%" fill="url(#shade)"/>
-    ${market === "quebec" ? `<rect x="700" y="0" width="380" height="180" fill="#090b0f" fill-opacity="0.94"/>` : ""}
+    <rect width="100%" height="100%" fill="url(#sideShade)"/>
     <rect x="${side}" y="${eyebrowY - 42}" width="${width - side * 2}" height="58" rx="29" fill="#cf0e5a"/>
     <text x="${width / 2}" y="${eyebrowY - 3}" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="800" letter-spacing="1" fill="#fff">${esc(item.eyebrow)}</text>
     ${lines(item.title, side, titleY, titleSize, Math.round(titleSize * 1.05), 800, "#ffffff")}
     ${lines(item.promise, side, promiseY, tall ? 42 : 36, tall ? 55 : 48, 700, "#ffffff")}
     ${lines(item.terms, side, termsY, tall ? 30 : 27, tall ? 42 : 38, 600, "#ffd4e5")}
-    ${lines(item.noFees, side, feesY, tall ? 23 : 20, tall ? 34 : 30, 800, "#ffffff")}
+    ${lines(item.noFees, side, feesY, tall ? 23 : (square ? 18 : 20), tall ? 34 : (square ? 27 : 30), 800, "#ffffff")}
     <rect x="${side}" y="${ctaY}" width="${width - side * 2}" height="96" rx="48" fill="#cf0e5a"/>
     <text x="${width / 2}" y="${ctaY + 62}" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="800" fill="#ffffff">${esc(item.cta)}</text>
     <text x="${side}" y="${noteY}" font-family="Arial, sans-serif" font-size="20" font-weight="500" fill="#eeeeee">${esc(item.note)}</text>
@@ -102,19 +106,23 @@ function overlay({ width, height, item, market }) {
 
 async function build(market, language, format, size) {
   const item = copy[market][language];
-  const logoWidth = 270;
+  const logoWidth = market === "quebec" ? 300 : 270;
   const logoBuffer = await sharp(logo).resize({ width: logoWidth }).png().toBuffer();
   const logoMeta = await sharp(logoBuffer).metadata();
-  const logoPlate = Buffer.from(`<svg width="${logoWidth + 42}" height="${(logoMeta.height || 100) + 30}" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" rx="20" fill="#ffffff" fill-opacity="0.97"/></svg>`);
-  const top = size.height >= 1800 ? 70 : 48;
-  const left = 72;
+  const plateWidth = market === "quebec" ? 380 : logoWidth + 42;
+  const plateHeight = market === "quebec" ? 210 : (logoMeta.height || 100) + 30;
+  const logoPlate = Buffer.from(`<svg width="${plateWidth}" height="${plateHeight}" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" rx="20" fill="#ffffff" fill-opacity="0.99"/></svg>`);
+  const top = market === "quebec" ? 18 : (size.height >= 1800 ? 70 : 48);
+  const left = market === "quebec" ? size.width - plateWidth : 72;
+  const logoLeft = left + Math.round((plateWidth - logoWidth) / 2);
+  const logoTop = top + Math.round((plateHeight - (logoMeta.height || 100)) / 2);
   const out = path.join(outputDir, `${market}-${language}-${format}.jpg`);
   await sharp(sources[market])
     .resize(size.width, size.height, { fit: "cover", position: market === "ontario" ? "east" : "centre" })
     .composite([
       { input: overlay({ ...size, item, market }), left: 0, top: 0 },
       { input: logoPlate, left, top },
-      { input: logoBuffer, left: left + 21, top: top + 15 },
+      { input: logoBuffer, left: logoLeft, top: logoTop },
     ])
     .jpeg({ quality: 94, chromaSubsampling: "4:4:4" })
     .toFile(out);
