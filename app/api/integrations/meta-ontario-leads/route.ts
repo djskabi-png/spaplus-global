@@ -141,6 +141,9 @@ function marketTime(value: string, timeZone: MetaMarketContext["timeZone"]) {
 }
 
 const QUEBEC_FORM_MARKET_IDS = new Set([
+  "1971938910302465",
+  "1388407340021377",
+  "1048203634671400",
   "28034077039566381",
   "1637718861417633",
   "1757789082219370",
@@ -148,6 +151,8 @@ const QUEBEC_FORM_MARKET_IDS = new Set([
 ]);
 
 const ONTARIO_FORM_MARKET_IDS = new Set([
+  "1714298559898518",
+  "1053482790944313",
   "2595979447504156",
   "1542456153506372",
   "2831714810547194",
@@ -180,6 +185,7 @@ async function sendMarketOwnerNotification(
 ) {
   const cloudflareEmailToken = setting("CLOUDFLARE_EMAIL_API_TOKEN");
   const cloudflareEmailAccountId = setting("CLOUDFLARE_EMAIL_ACCOUNT_ID");
+  const resendApiKey = setting("RESEND_API_KEY");
   const ownerEmails = (
     setting(`META_${market.slug.toUpperCase()}_CONTACT_TO_EMAILS`) ||
     setting(`${market.slug.toUpperCase()}_CONTACT_TO_EMAILS`) ||
@@ -188,8 +194,8 @@ async function sendMarketOwnerNotification(
     .split(",")
     .map((value) => value.trim().toLowerCase())
     .filter(isEmail);
-  if (!cloudflareEmailToken || !cloudflareEmailAccountId) {
-    throw new Error(`${market.name} Cloudflare email is not configured`);
+  if ((!cloudflareEmailToken || !cloudflareEmailAccountId) && !resendApiKey) {
+    throw new Error(`${market.name} email delivery is not configured`);
   }
   if (ownerEmails.length === 0) {
     throw new Error(`${market.name} Meta lead recipients are not configured`);
@@ -238,6 +244,35 @@ async function sendMarketOwnerNotification(
     text: string;
     idempotencyKey: string;
   }) => {
+    if (resendApiKey) {
+      const resendFrom = setting("CONTACT_FROM_EMAIL") || "SpaPlus Canada <hello@mail.spaplus.co>";
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json",
+          "Idempotency-Key": input.idempotencyKey,
+          "User-Agent": "SpaPlus-Meta-Canada-Leads/1.0",
+        },
+        body: JSON.stringify({
+          from: resendFrom,
+          to: input.to,
+          reply_to: input.replyTo,
+          subject: input.subject,
+          html: input.html,
+          text: input.text,
+          tags: [
+            { name: "email_type", value: `${market.slug}_meta_spa_lead` },
+            { name: "market", value: market.slug },
+          ],
+        }),
+      });
+      const result = (await response.json()) as { id?: string; message?: string };
+      if (!response.ok || !result.id) {
+        throw new Error(`${market.name} Resend email failed (${response.status}): ${result.message || "No provider message"}`);
+      }
+      return `resend:${result.id}`;
+    }
     const cloudflareFrom =
       setting("CLOUDFLARE_EMAIL_FROM") ||
       "SpaPlus Canada <hello@mailca.spaplus.co>";
@@ -912,7 +947,17 @@ export async function POST(request: Request) {
       return Response.json({ error: "Forbidden" }, { status: 403 });
     }
     try {
-      const recoveryBody = await request.json().catch(() => ({})) as { leads?: unknown };
+      const recoveryBody = await request.json().catch(() => ({})) as { leads?: unknown; leadIds?: unknown };
+      if (Array.isArray(recoveryBody.leadIds)) {
+        const leadIds = recoveryBody.leadIds.map(clean).filter((leadId) => /^\d{10,30}$/.test(leadId));
+        if (leadIds.length === 0 || leadIds.length > 10 || leadIds.length !== recoveryBody.leadIds.length) {
+          return Response.json({ error: "Invalid lead IDs" }, { status: 400 });
+        }
+        return Response.json({
+          success: true,
+          ...(await processLeadValues(leadIds.map((leadgen_id) => ({ leadgen_id, page_id: META_PAGE_ID })))),
+        });
+      }
       if (Array.isArray(recoveryBody.leads)) {
         return Response.json({
           success: true,

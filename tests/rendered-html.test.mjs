@@ -61,11 +61,12 @@ test("Ontario and Quebec Meta instant-form leads are authenticated, deduplicated
   assert.match(templates, /dir="\$\{direction\}"/);
 });
 
-test("Ontario and Quebec Meta leads send an English LTR owner notification", async () => {
+test("Ontario and Quebec Meta leads send an English LTR owner notification with resilient delivery", async () => {
   const route = await read("app/api/integrations/meta-ontario-leads/route.ts");
   assert.match(route, /META_\$\{market\.slug\.toUpperCase\(\)\}_CONTACT_TO_EMAILS/);
   assert.match(route, /api\.cloudflare\.com\/client\/v4\/accounts/);
-  assert.doesNotMatch(route, /api\.resend\.com\/emails/);
+  assert.match(route, /api\.resend\.com\/emails/);
+  assert.match(route, /Idempotency-Key/);
   assert.match(route, /languageTag: "en-CA"/);
   assert.match(route, /\$\{market\.name\} time/);
 });

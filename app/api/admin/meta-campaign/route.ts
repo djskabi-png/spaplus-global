@@ -36,7 +36,7 @@ function authorized(request: Request) {
   return expected.length >= 48 && constantTimeEqual(expected, provided);
 }
 
-function pageToken() {
+function configuredMetaToken() {
   const token = setting("META_PAGE_ACCESS_TOKEN")
     .replace(/^\uFEFF/, "")
     .trim()
@@ -45,13 +45,33 @@ function pageToken() {
   return token;
 }
 
+let resolvedPageToken: Promise<string> | undefined;
+
+async function pageToken() {
+  if (!resolvedPageToken) {
+    resolvedPageToken = (async () => {
+      const configured = configuredMetaToken();
+      const url = new URL(`https://graph.facebook.com/${GRAPH_VERSION}/me/accounts`);
+      url.searchParams.set("fields", "id,access_token");
+      url.searchParams.set("limit", "100");
+      url.searchParams.set("access_token", configured);
+      const response = await fetch(url, { headers: { accept: "application/json" } });
+      const payload = await response.json().catch(() => ({})) as { data?: Array<{ id?: string; access_token?: string }> };
+      if (!response.ok) return configured;
+      const page = payload.data?.find((entry) => entry.id === PAGE_ID);
+      return clean(page?.access_token) || configured;
+    })();
+  }
+  return resolvedPageToken;
+}
+
 async function graph(
   path: string,
   method: "GET" | "POST" = "GET",
   params: Record<string, string> = {},
 ) {
   const url = new URL(`https://graph.facebook.com/${GRAPH_VERSION}/${path.replace(/^\//, "")}`);
-  const body = new URLSearchParams({ ...params, access_token: pageToken() });
+  const body = new URLSearchParams({ ...params, access_token: await pageToken() });
   if (method === "GET") {
     for (const [key, value] of body) url.searchParams.set(key, value);
     const getResponse = await fetch(url, { headers: { accept: "application/json" } });
@@ -194,7 +214,7 @@ async function createAd(input: Record<string, unknown>) {
     name: `SpaPlus Qualified Spa Businesses V2 ${key} 2026-08-15`,
     adset_id: adsetId,
     creative: JSON.stringify({ creative_id: creativeId }),
-    status: "ACTIVE",
+    status: "PAUSED",
   });
   return { key, oldAdId: CURRENT_ADS[key], adsetId, creativeId, adId: clean(ad.id) };
 }
@@ -203,18 +223,23 @@ async function testLead(input: Record<string, unknown>) {
   const formId = clean(input.formId);
   const key = clean(input.key) as MarketLanguage;
   if (!/^\d{10,30}$/.test(formId) || !(key in FORM_COPY)) throw new Error("Invalid test form");
-  const province = key.startsWith("quebec") ? "Quebec" : "Ontario";
   const suffix = key.startsWith("quebec") ? "QC" : "ON";
+  const form = await graph(formId, "GET", { fields: "questions" }) as {
+    questions?: Array<{ key?: string; type?: string; options?: Array<{ key?: string }> }>;
+  };
+  const fieldData = (form.questions || []).flatMap((question) => {
+    const name = clean(question.key);
+    if (!name) return [];
+    if (question.type === "CUSTOM" && question.options?.length) return [{ name, values: [clean(question.options[0]?.key)] }];
+    if (question.type === "CUSTOM" || question.type === "CITY") return [{ name, values: [key.startsWith("quebec") ? "Montreal" : "Toronto"] }];
+    if (question.type === "COMPANY_NAME") return [{ name, values: [`SpaPlus ${suffix} Campaign Test Spa`] }];
+    if (question.type === "PHONE") return [{ name, values: [key.startsWith("quebec") ? "+15145550181" : "+14165550182"] }];
+    if (question.type === "FULL_NAME") return [{ name, values: [`SpaPlus ${suffix} Campaign Test`] }];
+    if (question.type === "EMAIL") return [{ name, values: [`campaign-test-${suffix.toLowerCase()}@mail.spaplus.co`] }];
+    return [];
+  });
   return graph(`${formId}/test_leads`, "POST", {
-    field_data: JSON.stringify([
-      { name: "spa_business_confirmation", values: ["confirmed_spa_business"] },
-      { name: "company_name", values: [`SpaPlus ${suffix} Campaign Test Spa`] },
-      { name: "phone_number", values: [key.startsWith("quebec") ? "+15145550181" : "+14165550182"] },
-      { name: "full_name", values: [`SpaPlus ${suffix} Campaign Test`] },
-      { name: "email", values: [`campaign-test-${suffix.toLowerCase()}@mail.spaplus.co`] },
-      { name: "city", values: [key.startsWith("quebec") ? "Montreal" : "Toronto"] },
-      { name: "province", values: [province] },
-    ]),
+    field_data: JSON.stringify(fieldData),
   });
 }
 
@@ -235,6 +260,33 @@ export async function POST(request: Request) {
       return Response.json({ success: true, result: await graph(`${AD_ACCOUNT_ID}/adimages`, "POST", { name, bytes }) });
     }
     if (body.action === "create_ad") return Response.json({ success: true, result: await createAd(body.input || {}) });
+    if (body.action === "activate_ads") {
+      const adIds = Array.isArray(body.input?.adIds) ? body.input.adIds.map(clean) : [];
+      if (adIds.length !== 4 || adIds.some((adId) => !/^\d{10,30}$/.test(adId))) throw new Error("Exactly four valid ad IDs are required");
+      const results: Record<string, unknown> = {};
+      for (const adId of adIds) results[adId] = await graph(adId, "POST", { status: "ACTIVE" });
+      return Response.json({ success: true, results });
+    }
+    if (body.action === "apply_daily_budget_caps") {
+      const budgets = {
+        "120248856435140499": "3800",
+        "120248856435090499": "1200",
+        "120248551862420499": "3800",
+        "120248638305790499": "1200",
+      } as const;
+      const results: Record<string, unknown> = {};
+      for (const [adsetId, dailyBudget] of Object.entries(budgets)) {
+        results[adsetId] = await graph(adsetId, "POST", { daily_budget: dailyBudget });
+      }
+      return Response.json({ success: true, currency: "CAD", provinceDailyCap: 50, results });
+    }
+    if (body.action === "inspect_leadgen_subscription") {
+      return Response.json({ success: true, result: await graph(`${PAGE_ID}/subscribed_apps`, "GET", { fields: "id,name,subscribed_fields" }) });
+    }
+    if (body.action === "repair_leadgen_subscription") {
+      const result = await graph(`${PAGE_ID}/subscribed_apps`, "POST", { subscribed_fields: "leadgen" });
+      return Response.json({ success: true, result });
+    }
     if (body.action === "pause_old_ads") {
       const results: Record<string, unknown> = {};
       for (const [key, adId] of Object.entries(CURRENT_ADS)) results[key] = await graph(adId, "POST", { status: "PAUSED" });
