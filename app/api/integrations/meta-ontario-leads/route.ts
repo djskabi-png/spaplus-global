@@ -670,10 +670,12 @@ const RECOVERY_CAMPAIGNS: Record<string, MetaMarketContext> = {
 };
 
 type ExportedMetaLead = {
+  leadId?: string;
   createdAt?: string;
   name?: string;
   email?: string;
   phone?: string;
+  organization?: string;
   formName?: string;
 };
 
@@ -682,7 +684,11 @@ async function sha256Hex(value: string) {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-async function recoverExportedLeads(campaignId: string, input: unknown) {
+async function recoverExportedLeads(
+  campaignId: string,
+  input: unknown,
+  options: { suppressNotifications?: boolean } = {},
+) {
   const market = RECOVERY_CAMPAIGNS[campaignId];
   if (!market) throw new Error("Campaign is not approved for recovery");
   if (!Array.isArray(input) || input.length === 0 || input.length > 100) {
@@ -698,7 +704,9 @@ async function recoverExportedLeads(campaignId: string, input: unknown) {
     const name = clean(raw.name).slice(0, 100);
     const email = clean(raw.email).toLowerCase().slice(0, 180);
     const phone = clean(raw.phone).slice(0, 40);
+    const organization = clean(raw.organization).slice(0, 180);
     const formName = clean(raw.formName).slice(0, 220);
+    const leadId = /^\d{10,30}$/.test(clean(raw.leadId)) ? clean(raw.leadId) : "";
     const createdAt = normalizeCreatedAt(raw.createdAt);
     if (!name || (!isEmail(email) && phone.length < 7) || !formName.toLowerCase().includes(market.slug)) {
       skipped += 1;
@@ -738,7 +746,9 @@ async function recoverExportedLeads(campaignId: string, input: unknown) {
     const recoveryHash = await sha256Hex(
       [campaignId, createdAt, name.toLowerCase(), email, phone, formName].join("|"),
     );
-    const submissionId = `meta-${market.slug}-recovery:${recoveryHash}`;
+    const submissionId = leadId
+      ? `meta-${market.slug}:${leadId}`
+      : `meta-${market.slug}-recovery:${recoveryHash}`;
     const locale = formName.toLowerCase().includes("fr-ca") ? "fr-CA" : "en-CA";
     const message = [
       "Company group: SpaPlus",
@@ -758,7 +768,7 @@ async function recoverExportedLeads(campaignId: string, input: unknown) {
       name,
       email,
       phone,
-      organization: "",
+      organization,
       topic: `${market.name} spa partner`,
       message,
       locale,
@@ -768,39 +778,41 @@ async function recoverExportedLeads(campaignId: string, input: unknown) {
       createdAt,
     });
 
-    await sendMarketOwnerNotification(
-      {
-        name,
-        role: "",
-        email,
-        phone,
-        organization: "",
-        website: "",
-        city: "",
-        region: "",
-        postalCode: "",
-        spaType: "",
-        locations: "",
-        services: [],
-        bookingSystem: "",
-        preferredContact: "",
-        message: "",
-        area: `${market.name} general`,
-        locale,
-        source: "Meta paid lead form | recovered export",
-        campaign: {
-          campaign_id: campaignId,
-          campaign_name: `${market.name} Meta campaign`,
-          form_id: formName,
-          lead_id: submissionId,
+    if (!options.suppressNotifications) {
+      await sendMarketOwnerNotification(
+        {
+          name,
+          role: "",
+          email,
+          phone,
+          organization,
+          website: "",
+          city: "",
+          region: "",
+          postalCode: "",
+          spaType: "",
+          locations: "",
+          services: [],
+          bookingSystem: "",
+          preferredContact: "",
+          message: "",
+          area: `${market.name} general`,
+          locale,
+          source: "Meta paid lead form | recovered export",
+          campaign: {
+            campaign_id: campaignId,
+            campaign_name: `${market.name} Meta campaign`,
+            form_id: formName,
+            lead_id: submissionId,
+          },
+          submittedAt: `${marketTime(createdAt, market.timeZone)} (${market.name} time)`,
         },
-        submittedAt: `${marketTime(createdAt, market.timeZone)} (${market.name} time)`,
-      },
-      submissionId,
-      market,
-      false,
-    );
-    notificationIds.push(submissionId);
+        submissionId,
+        market,
+        false,
+      );
+      notificationIds.push(submissionId);
+    }
     inserted += 1;
   }
   return {
@@ -947,7 +959,11 @@ export async function POST(request: Request) {
       return Response.json({ error: "Forbidden" }, { status: 403 });
     }
     try {
-      const recoveryBody = await request.json().catch(() => ({})) as { leads?: unknown; leadIds?: unknown };
+      const recoveryBody = await request.json().catch(() => ({})) as {
+        leads?: unknown;
+        leadIds?: unknown;
+        suppressNotifications?: unknown;
+      };
       if (Array.isArray(recoveryBody.leadIds)) {
         const leadIds = recoveryBody.leadIds.map(clean).filter((leadId) => /^\d{10,30}$/.test(leadId));
         if (leadIds.length === 0 || leadIds.length > 10 || leadIds.length !== recoveryBody.leadIds.length) {
@@ -961,7 +977,9 @@ export async function POST(request: Request) {
       if (Array.isArray(recoveryBody.leads)) {
         return Response.json({
           success: true,
-          ...(await recoverExportedLeads(recoveryCampaignId, recoveryBody.leads)),
+          ...(await recoverExportedLeads(recoveryCampaignId, recoveryBody.leads, {
+            suppressNotifications: recoveryBody.suppressNotifications === true,
+          })),
         });
       }
       return Response.json({ success: true, ...(await recoverMetaCampaign(recoveryCampaignId)) });

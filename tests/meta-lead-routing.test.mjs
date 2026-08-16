@@ -24,6 +24,11 @@ test("Meta spa leads are archived, attributed and emailed to the verified owners
   assert.match(route, /enrichExisting: true/);
   assert.match(route, /else if \(outcome === "enriched"\) enriched \+= 1/);
   assert.match(route, /sendVisitorEmail !== false/);
+  assert.match(route, /leadId\?: string/);
+  assert.match(route, /organization\?: string/);
+  assert.match(route, /suppressNotifications/);
+  assert.match(route, /leadId\s*\?\s*`meta-\$\{market\.slug\}:\$\{leadId\}`/);
+  assert.match(route, /organization,/);
   assert.match(route, /recover_campaign/);
   assert.match(route, /x-spaplus-recovery-token/);
   assert.match(route, /META_RECOVERY_TOKEN/);

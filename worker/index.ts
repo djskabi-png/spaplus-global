@@ -769,6 +769,20 @@ const worker = {
       return verifyMetaWebhookRequest(request, env);
     }
 
+    if (
+      hostname === "app.spaplus.co" &&
+      request.method === "POST" &&
+      url.pathname === "/api/integrations/meta-ontario-leads" &&
+      url.searchParams.has("recover_campaign")
+    ) {
+      if (!env.ADMIN_SESSION_SECRET) return Response.json({ error: "Unauthorized" }, { status: 401 });
+      const session = await verifyPayload(parseCookies(request).get(SESSION_COOKIE), env.ADMIN_SESSION_SECRET);
+      if (!session || typeof session.email !== "string") {
+        return Response.json({ error: "Unauthorized" }, { status: 401 });
+      }
+      return proxyProtectedRequest(request, env, session);
+    }
+
     if (hostname === "app.spaplus.co" && isProtectedPath(url.pathname)) {
       if (!env.ADMIN_SESSION_SECRET) return textResponse("מערכת ההתחברות עדיין אינה זמינה.", 503);
       const session = await verifyPayload(parseCookies(request).get(SESSION_COOKIE), env.ADMIN_SESSION_SECRET);
@@ -791,6 +805,7 @@ const worker = {
         url.pathname === "/api/market-spa-leads" ||
         url.pathname === "/api/contact" ||
         url.pathname === "/api/cms/public" ||
+        url.pathname === "/api/integrations/meta-ontario-leads" ||
         url.pathname === "/api/integrations/roomsvip-leads" ||
         url.pathname === "/api/integrations/vii-leads"
       ) &&

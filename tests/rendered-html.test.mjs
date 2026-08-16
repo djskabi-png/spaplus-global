@@ -79,6 +79,19 @@ test("the public app worker verifies Meta lead webhooks at the edge and proxies 
   assert.match(worker, /function verifyMetaWebhookRequest/);
   assert.match(worker, /request\.method === "GET"[\s\S]*?\/api\/integrations\/meta-ontario-leads/);
   assert.match(worker, /return verifyMetaWebhookRequest\(request, env\)/);
+  assert.match(
+    worker,
+    /request\.method === "POST"[\s\S]*?recover_campaign[\s\S]*?verifyPayload[\s\S]*?proxyProtectedRequest\(request, env, session\)/,
+  );
+  assert.match(
+    worker,
+    /url\.pathname === "\/api\/integrations\/meta-ontario-leads"[\s\S]*?PRIVATE_AUTHORIZATION_HEADER[\s\S]*?request\.body/,
+  );
+  assert.ok(
+    worker.indexOf('request.method === "GET"') <
+      worker.lastIndexOf('url.pathname === "/api/integrations/meta-ontario-leads"'),
+    "Meta GET verification must stay at the edge before POST delivery is proxied to the management backend",
+  );
 });
 
 test("Ontario owner recipients prefer the production market setting", async () => {
