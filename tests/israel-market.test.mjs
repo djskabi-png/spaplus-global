@@ -77,6 +77,11 @@ test("Israel recruitment form keeps protected market and acknowledgement fields"
   assert.match(endpoint, /requestedLocale\.startsWith\("he"\)/);
   assert.match(endpoint, /marketSlug === "israel"/);
   assert.match(mail, /const isHebrew = languageTag\.toLowerCase\(\)\.startsWith\("he"\)/);
+  assert.match(mail, /ליד חדש מבית ספא בישראל/);
+  assert.match(mail, /SpaPlus ישראל \| קיבלנו את פנייתכם/);
+  assert.match(mail, /השבת פנייה לבית הספא/);
+  assert.match(mail, /languageTag: isHebrew \? "he-IL" : "en"/);
+  assert.match(mail, /font-family:Heebo,Arial,sans-serif/);
   assert.match(worker, /pathname !== "\/he-il\/israel"/);
   assert.match(worker, /'<html lang="he-IL" dir="rtl">'/);
 });
