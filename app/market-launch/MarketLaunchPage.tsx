@@ -816,6 +816,7 @@ export default function MarketLaunchPage({
                 key={link.label}
                 href={link.href}
                 lang={link.languageTag}
+                dir={link.languageTag.toLowerCase().startsWith("he") ? "rtl" : "ltr"}
                 hrefLang={link.languageTag}
                 aria-label={managed(`languageLink${index + 1}Aria`, link.ariaLabel)}
                 aria-current={link.active ? "page" : undefined}

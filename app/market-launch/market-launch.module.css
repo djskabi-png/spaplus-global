@@ -2820,6 +2820,10 @@
     order: 3;
   }
 
+  .page[data-market="israel"] .headerNav {
+    direction: rtl;
+  }
+
   .videoSection {
     grid-template-columns: 1fr;
     gap: 38px;
@@ -3077,14 +3081,14 @@
   }
 
   .page[data-market="israel"] .languageSwitch {
-    gap: 1px;
+    gap: 4px;
     margin-top: 2px;
     padding: 3px;
   }
 
   .page[data-market="israel"] .languageSwitch a {
     min-width: 0;
-    padding: 6px;
+    padding: 6px 5px;
     font-size: 10px;
   }
 
