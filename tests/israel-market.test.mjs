@@ -3,15 +3,16 @@ import test from "node:test";
 import { readFile } from "node:fs/promises";
 
 test("Israel uses the complete market experience with Hebrew RTL copy", async () => {
-  const [page, launchPage, copy, styles] = await Promise.all([
+  const [page, launchPage, copy, styles, sitemap] = await Promise.all([
     readFile(new URL("../app/he-il/israel/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/market-launch/MarketLaunchPage.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/market-launch/israel-market-copy.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/market-launch/market-launch.module.css", import.meta.url), "utf8"),
+    readFile(new URL("../public/app-sitemap.xml", import.meta.url), "utf8"),
   ]);
 
   assert.match(page, /canonicalUrl = "https:\/\/app\.spaplus\.co\/he-il\/israel\/"/);
-  assert.match(page, /index: false, follow: false/);
+  assert.match(page, /index: true, follow: true/);
   assert.match(page, /<MarketLaunchPage config=\{israelMarket\}/);
   assert.match(launchPage, /document\.documentElement\.dir = isHebrew \? "rtl" : "ltr"/);
   assert.match(launchPage, /window\.matchMedia\("\(min-width: 981px\)"\)/);
@@ -19,10 +20,15 @@ test("Israel uses the complete market experience with Hebrew RTL copy", async ()
   assert.match(launchPage, /<main[^>]+dir=\{isHebrew \? "rtl" : "ltr"\}/);
   assert.match(styles, /\[dir="rtl"\]/);
   assert.match(styles, /var\(--font-heebo/);
-  assert.match(copy, /יותר אורחים מחפשים חוויית ספא/);
-  assert.match(copy, /seoTitle: "SpaPlus ישראל \| שותפים מבתי ספא"/);
-  assert.match(copy, /אינה מציגה בית ספא ישראלי או שותף קיים/);
+  assert.match(copy, /SPAPLUS בישראל מאז 2005/);
+  assert.match(copy, /יותר מעשרים שנה שישראל מזמינה ספא דרכנו/);
+  assert.match(copy, /אנחנו פתוחים להוסיף ל־SpaPlus עוד בתי ספא איכותיים/);
+  assert.match(copy, /seoTitle: "הצטרפות בתי ספא ל־SpaPlus ישראל \| פועלים מאז 2005"/);
+  assert.match(copy, /"Join SpaPlus": "הצטרפות ל־SpaPlus"/);
+  assert.match(copy, /formCityLabelOutsideOntario: "עיר או יישוב בישראל"/);
+  assert.doesNotMatch(copy, /דמי מנוי|ללא עלות|השקה ישראלית|מועד ההשקה|שותפים הראשונים|קבוצת השותפים|מקימה בישראל|מגיעה לישראל/);
   assert.match(copy, /הצוות שלנו בודק כל פנייה מלאה בתוך 72 שעות/);
+  assert.match(sitemap, /https:\/\/app\.spaplus\.co\/he-il\/israel\//);
 });
 
 test("Israel market configuration is localized and uses verified network proof", async () => {
@@ -31,7 +37,11 @@ test("Israel market configuration is localized and uses verified network proof",
   assert.match(markets, /export const israelMarket: MarketLaunchConfig/);
   assert.match(markets, /marketName: "ישראל"/);
   assert.match(markets, /languageTag: "he-IL"/);
-  assert.match(markets, /referenceSpas,/);
+  assert.match(markets, /pageMode: "network"/);
+  assert.match(markets, /referenceMarketName: "SpaPlus ישראל"/);
+  assert.match(markets, /ספא דה ג׳ורג׳/);
+  assert.match(markets, /ספא דריה/);
+  assert.match(markets, /ספא קלרינס/);
   assert.match(markets, /תל אביב והמרכז/);
   assert.match(markets, /ירושלים והסביבה/);
   assert.match(markets, /חיפה והצפון/);
@@ -39,10 +49,11 @@ test("Israel market configuration is localized and uses verified network proof",
 });
 
 test("Israel recruitment form keeps protected market and acknowledgement fields", async () => {
-  const [client, endpoint, mail] = await Promise.all([
+  const [client, endpoint, mail, worker] = await Promise.all([
     readFile(new URL("../app/market-launch/MarketLaunchPage.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/api/market-spa-leads/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/market-email-templates.ts", import.meta.url), "utf8"),
+    readFile(new URL("../worker/index.ts", import.meta.url), "utf8"),
   ]);
 
   assert.match(client, /marketSlug === "israel"/);
@@ -51,4 +62,6 @@ test("Israel recruitment form keeps protected market and acknowledgement fields"
   assert.match(endpoint, /requestedLocale\.startsWith\("he"\)/);
   assert.match(endpoint, /marketSlug === "israel"/);
   assert.match(mail, /const isHebrew = languageTag\.toLowerCase\(\)\.startsWith\("he"\)/);
+  assert.match(worker, /pathname !== "\/he-il\/israel"/);
+  assert.match(worker, /'<html lang="he-IL" dir="rtl">'/);
 });

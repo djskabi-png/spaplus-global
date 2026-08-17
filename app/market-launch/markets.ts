@@ -512,17 +512,33 @@ export const israelMarket: MarketLaunchConfig = {
   languageTag: "he-IL",
   timeZone: "Asia/Jerusalem",
   pageUrl: "https://app.spaplus.co/he-il/israel/",
-  homeHref: "https://spaplus.co/he/",
-  heroImage: "/ontario/hero-ontario-campaign-v2.jpg",
-  heroDisclosure: "התמונה משמשת להמחשת הקמפיין בלבד. היא אינה מציגה בית ספא ישראלי או שותף קיים בישראל.",
+  homeHref: "https://www.spaplus.co.il/",
+  heroImage: "https://www.spaplus.co.il/gallery/1719476999750692.jpeg",
+  heroDisclosure: "התמונה לקוחה מרשומה פעילה של ספא דריה באתר SpaPlus ישראל.",
   leadEndpoint: "/api/market-spa-leads",
   reviewWindowHours: 72,
-  referenceMarketName: "SpaPlus קנדה",
-  referenceCountryName: "קנדה",
-  referenceSpas: referenceSpas.map((spa) => ({
-    ...spa,
-    imageAlt: `${spa.name}, בית ספא בקנדה שמוצג כיום באתר SpaPlus קנדה`,
-  })),
+  referenceMarketName: "SpaPlus ישראל",
+  referenceCountryName: "ישראל",
+  referenceSpas: [
+    {
+      name: "ספא דה ג׳ורג׳",
+      location: "תל אביב",
+      image: "https://www.spaplus.co.il/gallery/1784030547900072_400x300.jpeg",
+      imageAlt: "ספא דה ג׳ורג׳ בתל אביב, מתוך רשומה פעילה באתר SpaPlus ישראל",
+    },
+    {
+      name: "ספא דריה",
+      location: "טבריה",
+      image: "https://www.spaplus.co.il/gallery/1719476999750692_400x300.jpeg",
+      imageAlt: "ספא דריה בטבריה, מתוך רשומה פעילה באתר SpaPlus ישראל",
+    },
+    {
+      name: "ספא קלרינס",
+      location: "ירושלים",
+      image: "https://www.spaplus.co.il/gallery/1708422320068752_400x300.jpeg",
+      imageAlt: "ספא קלרינס בירושלים, מתוך רשומה פעילה באתר SpaPlus ישראל",
+    },
+  ],
   priorityAreas: [
     { label: "תל אביב והמרכז", href: "#join" },
     { label: "ירושלים והסביבה", href: "#join" },
@@ -533,6 +549,7 @@ export const israelMarket: MarketLaunchConfig = {
   languageLinks: [{ label: "עברית", ariaLabel: "עברית", languageTag: "he-IL", href: "/he-il/israel/", active: true }],
   cmsSection: "market.il",
   resourceKey: "market:il",
+  pageMode: "network",
   showVideo: false,
 };
 

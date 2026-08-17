@@ -315,6 +315,23 @@ function projectShowcaseResponse(response: Response) {
     .transform(secured);
 }
 
+async function applyPublicDocumentLanguage(request: Request, response: Response) {
+  if (!(response.headers.get("content-type") || "").includes("text/html")) return response;
+  const pathname = new URL(request.url).pathname.replace(/\/+$/, "");
+  if (pathname !== "/he-il/israel") return response;
+  const html = (await response.text()).replace(
+    /<html\s+lang="[^"]+"\s+dir="[^"]+">/,
+    '<html lang="he-IL" dir="rtl">',
+  );
+  const headers = new Headers(response.headers);
+  headers.delete("content-length");
+  return new Response(html, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 function isProtectedPath(pathname: string): boolean {
   if (pathname === "/api/cms/public") return false;
   return pathname === "/admin" || pathname.startsWith("/admin/") ||
@@ -862,7 +879,10 @@ const worker = {
 
       const assetResponse = await env.ASSETS.fetch(request);
       if (assetResponse.status !== 404) {
-        const renderedResponse = await applyManagedOntarioMetadata(request, assetResponse, env);
+        const renderedResponse = await applyPublicDocumentLanguage(
+          request,
+          await applyManagedOntarioMetadata(request, assetResponse, env),
+        );
         if ((renderedResponse.headers.get("content-type") || "").includes("text/html")) {
           const responseHeaders = new Headers(renderedResponse.headers);
           responseHeaders.set("cache-control", "no-store, must-revalidate");
@@ -884,7 +904,7 @@ const worker = {
       const dynamicResponse = await handler.fetch(request, env, ctx);
       return dynamicResponse.status === 404
         ? appNotFoundResponse(url.pathname)
-        : dynamicResponse;
+        : await applyPublicDocumentLanguage(request, dynamicResponse);
     }
 
     if (hostname === "admin.spaplus.co" && url.pathname === "/") {
