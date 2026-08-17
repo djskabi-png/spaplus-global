@@ -20,7 +20,8 @@ test("Israel uses the complete market experience with Hebrew RTL copy", async ()
   assert.match(launchPage, /<main[^>]+dir=\{isHebrew \? "rtl" : "ltr"\}/);
   assert.match(styles, /\[dir="rtl"\]/);
   assert.match(styles, /var\(--font-heebo/);
-  assert.match(copy, /SPAPLUS בישראל מאז 2005/);
+  assert.match(copy, /SpaPlus בישראל מאז 2005/);
+  assert.doesNotMatch(copy, /SPAPLUS ישראל|ל־SPAPLUS/);
   assert.match(copy, /בתי הספא המובילים בישראל כבר איתנו/);
   assert.match(copy, /עכשיו תורכם להצטרף/);
   assert.match(copy, /אנחנו פתוחים להוסיף ל־SpaPlus בתי ספא איכותיים/);
@@ -49,6 +50,12 @@ test("Israel market configuration is localized and uses verified network proof",
   assert.match(markets, /ירושלים והסביבה/);
   assert.match(markets, /חיפה והצפון/);
   assert.match(markets, /showVideo: false/);
+  assert.match(markets, /label: "English"[\s\S]*href: "https:\/\/spaplus\.co\/en\/"/);
+  assert.match(markets, /label: "Русский"[\s\S]*href: "https:\/\/spaplus\.co\/ru\/"/);
+  assert.match(markets, /label: "עברית"[\s\S]*active: true/);
+  assert.match(markets, /languageTag: "ru"/);
+  assert.match(markets, /languageTag: "en"/);
+  assert.match(markets, /languageTag: "he-IL"/);
 });
 
 test("Israel recruitment form keeps protected market and acknowledgement fields", async () => {

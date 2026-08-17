@@ -570,7 +570,11 @@ export const israelMarket: MarketLaunchConfig = {
     { label: "ים המלח והדרום", href: "#join" },
     { label: "אילת והערבה", href: "#join" },
   ],
-  languageLinks: [{ label: "עברית", ariaLabel: "עברית", languageTag: "he-IL", href: "/he-il/israel/", active: true }],
+  languageLinks: [
+    { label: "עברית", ariaLabel: "עברית", languageTag: "he-IL", href: "/he-il/israel/", active: true },
+    { label: "English", ariaLabel: "English", languageTag: "en", href: "https://spaplus.co/en/", active: false },
+    { label: "Русский", ariaLabel: "Русский", languageTag: "ru", href: "https://spaplus.co/ru/", active: false },
+  ],
   cmsSection: "market.il",
   resourceKey: "market:il",
   pageMode: "network",
