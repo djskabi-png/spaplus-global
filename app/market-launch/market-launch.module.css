@@ -2115,6 +2115,36 @@
   .page[data-market="israel"] .backToTop span:last-child {
     display: none;
   }
+
+  .page[data-market="israel"] .cookieConsent {
+    right: 8px;
+    bottom: 8px;
+    left: 8px;
+    width: calc(100% - 16px);
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 15px;
+  }
+
+  .page[data-market="israel"] .cookieConsent strong {
+    margin-bottom: 2px;
+    font-size: 13px;
+  }
+
+  .page[data-market="israel"] .cookieConsent p {
+    font-size: 10.5px;
+    line-height: 1.35;
+  }
+
+  .page[data-market="israel"] .cookieActions {
+    gap: 7px;
+  }
+
+  .page[data-market="israel"] .cookieActions button {
+    min-height: 36px;
+    padding: 0 10px;
+    font-size: 11px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
