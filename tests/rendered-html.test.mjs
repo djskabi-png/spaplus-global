@@ -695,6 +695,8 @@ test("lead management provides a localized four-state operational dashboard", as
   assert.match(dashboard, /Deleted leads remain available here and can be restored/);
   assert.match(dashboard, /דשבורד לידים/);
   assert.match(dashboard, /Tableau de bord des prospects/);
+  assert.match(dashboard, /key === "market:il" \? t\.israel/);
+  assert.match(dashboard, /israel: "ישראל"/);
   assert.match(dashboard, /normalizeSystemLocale\(systemLocale\)/);
   assert.match(dashboard, /document\.documentElement\.lang = locale/);
   assert.match(dashboard, /document\.documentElement\.dir = locale === "he" \? "rtl" : "ltr"/);

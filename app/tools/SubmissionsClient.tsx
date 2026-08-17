@@ -51,6 +51,7 @@ const copy = {
     deleted: "Deleted",
     update: "Lead status",
     global: "Global website",
+    israel: "Israel",
     ontario: "Ontario",
     quebec: "Québec",
     received: "Received",
@@ -76,6 +77,7 @@ const copy = {
     deleted: "נמחק",
     update: "מצב הליד",
     global: "האתר העולמי",
+    israel: "ישראל",
     ontario: "אונטריו",
     quebec: "קוויבק",
     received: "התקבל",
@@ -101,6 +103,7 @@ const copy = {
     deleted: "Supprimé",
     update: "État du prospect",
     global: "Site mondial",
+    israel: "Israël",
     ontario: "Ontario",
     quebec: "Québec",
     received: "Reçu",
@@ -310,7 +313,7 @@ export default function SubmissionsClient({
     ...allowedResourceKeys.filter(isLeadResourceKey),
     ...submissions.map((item) => item.resourceKey),
   ])), [allowedResourceKeys, submissions]);
-  const resourceLabel = (key: string) => key.startsWith("business:vila4u:") ? businessLabels(locale).vila4u : key === "market:ca:on" ? t.ontario : key === "market:ca:qc" ? t.quebec : key === "market:ca:national" ? (locale === "he" ? "קנדה" : "Canada") : t.global;
+  const resourceLabel = (key: string) => key.startsWith("business:vila4u:") ? businessLabels(locale).vila4u : key === "market:il" ? t.israel : key === "market:ca:on" ? t.ontario : key === "market:ca:qc" ? t.quebec : key === "market:ca:national" ? (locale === "he" ? "קנדה" : "Canada") : t.global;
   const statusLabel = (status: DashboardStatus) => t[status];
   const selectedBusinessLeads = business === "all"
     ? submissions
