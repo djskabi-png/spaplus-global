@@ -602,6 +602,7 @@ export default function MarketLaunchPage({
     <main
       className={styles.page}
       data-market-page
+      data-market={marketSlug}
       data-release="2026-08-17-israel-rebuild"
       lang={languageTag}
       dir={isHebrew ? "rtl" : "ltr"}
@@ -803,15 +804,17 @@ export default function MarketLaunchPage({
                   `Nous préparons une meilleure façon de découvrir, comparer et réserver des expériences spa mémorables à ${primaryCity} et partout en ${marketName}.`,
                 ))}
           </p>
-          <div
-            className={styles.promiseRow}
-            aria-label={tr("Registration terms", "Conditions d’inscription")}
-          >
-            <span>{tr("Spa businesses only", "Entreprises de spa seulement")}</span>
-            <span>{tr("Commission only on confirmed SpaPlus bookings", "Commission seulement sur les réservations SpaPlus confirmées")}</span>
-            <span>{tr("No monthly fee or extra costs", "Aucuns frais mensuels ni frais supplémentaires")}</span>
-            <span>{tr("No long-term commitment", "Aucun engagement à long terme")}</span>
-          </div>
+          {marketSlug !== "israel" ? (
+            <div
+              className={styles.promiseRow}
+              aria-label={tr("Registration terms", "Conditions d’inscription")}
+            >
+              <span>{tr("Spa businesses only", "Entreprises de spa seulement")}</span>
+              <span>{tr("Commission only on confirmed SpaPlus bookings", "Commission seulement sur les réservations SpaPlus confirmées")}</span>
+              <span>{tr("No monthly fee or extra costs", "Aucuns frais mensuels ni frais supplémentaires")}</span>
+              <span>{tr("No long-term commitment", "Aucun engagement à long terme")}</span>
+            </div>
+          ) : null}
           <div className={styles.heroActions}>
             <a
               className={styles.primaryButton}
@@ -831,12 +834,14 @@ export default function MarketLaunchPage({
               {tr("See SpaPlus in action", "Voir SpaPlus en action")}
             </a>
           </div>
-          <p className={styles.heroNote}>
-            {tr(
-              "Registration is an expression of interest. It is not a contract or a purchase.",
-              "L’inscription exprime votre intérêt. Elle ne constitue ni un contrat ni un achat.",
-            )}
-          </p>
+          {marketSlug !== "israel" ? (
+            <p className={styles.heroNote}>
+              {tr(
+                "Registration is an expression of interest. It is not a contract or a purchase.",
+                "L’inscription exprime votre intérêt. Elle ne constitue ni un contrat ni un achat.",
+              )}
+            </p>
+          ) : null}
           {heroDisclosure ? (
             <p className={styles.heroMediaNote}>
               {managed("heroDisclosure", heroDisclosure)}

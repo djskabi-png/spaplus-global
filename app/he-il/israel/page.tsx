@@ -9,8 +9,8 @@ export const metadata: Metadata = {
   description: "SpaPlus פועלת בישראל מאז 2005 ופתוחה כעת להוסיף בתי ספא איכותיים מכל הארץ. הציגו את המקום שלכם ובדקו התאמה לפלטפורמה.",
   keywords: ["הצטרפות בתי ספא", "SpaPlus ישראל", "שיווק בתי ספא", "הזמנות ספא", "שותפות ספא"],
   alternates: { canonical: canonicalUrl, languages: { he: canonicalUrl, "x-default": canonicalUrl } },
-  openGraph: { title: "הצטרפות בתי ספא ל־SpaPlus ישראל", description: "יותר מעשרים שנות פעילות בישראל. עכשיו אנחנו פתוחים להוסיף מקומות מצוינים.", url: canonicalUrl, siteName: "SpaPlus", locale: "he_IL", type: "website", images: [{ url: "https://www.spaplus.co.il/gallery/1719476999750692.jpeg", alt: "ספא דריה, מתוך רשומה פעילה באתר SpaPlus ישראל." }] },
-  twitter: { card: "summary_large_image", title: "הצטרפות בתי ספא ל־SpaPlus ישראל", description: "SpaPlus פועלת בישראל מאז 2005 ופתוחה כעת להוסיף בתי ספא איכותיים.", images: ["https://www.spaplus.co.il/gallery/1719476999750692.jpeg"] },
+  openGraph: { title: "הצטרפות בתי ספא ל־SpaPlus ישראל", description: "יותר מעשרים שנות פעילות בישראל. עכשיו אנחנו פתוחים להוסיף מקומות מצוינים.", url: canonicalUrl, siteName: "SpaPlus", locale: "he_IL", type: "website", images: [{ url: "https://www.spaplus.co.il/gallery/1708422320068752.jpeg", alt: "ספא קלרינס בירושלים, מתוך רשומה פעילה באתר SpaPlus ישראל." }] },
+  twitter: { card: "summary_large_image", title: "הצטרפות בתי ספא ל־SpaPlus ישראל", description: "SpaPlus פועלת בישראל מאז 2005 ופתוחה כעת להוסיף בתי ספא איכותיים.", images: ["https://www.spaplus.co.il/gallery/1708422320068752.jpeg"] },
   robots: { index: true, follow: true },
 };
 

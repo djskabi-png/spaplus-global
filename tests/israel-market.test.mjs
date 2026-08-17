@@ -21,8 +21,11 @@ test("Israel uses the complete market experience with Hebrew RTL copy", async ()
   assert.match(styles, /\[dir="rtl"\]/);
   assert.match(styles, /var\(--font-heebo/);
   assert.match(copy, /SPAPLUS בישראל מאז 2005/);
-  assert.match(copy, /יותר מעשרים שנה שישראל מזמינה ספא דרכנו/);
-  assert.match(copy, /אנחנו פתוחים להוסיף ל־SpaPlus עוד בתי ספא איכותיים/);
+  assert.match(copy, /בתי הספא המובילים בישראל כבר איתנו/);
+  assert.match(copy, /עכשיו תורכם להצטרף/);
+  assert.match(copy, /אנחנו פתוחים להוסיף ל־SpaPlus בתי ספא איכותיים/);
+  assert.match(launchPage, /marketSlug !== "israel"/);
+  assert.match(styles, /\.page\[data-market="israel"\] \.hero h1/);
   assert.match(copy, /seoTitle: "הצטרפות בתי ספא ל־SpaPlus ישראל \| פועלים מאז 2005"/);
   assert.match(copy, /"Join SpaPlus": "הצטרפות ל־SpaPlus"/);
   assert.match(copy, /formCityLabelOutsideOntario: "עיר או יישוב בישראל"/);
