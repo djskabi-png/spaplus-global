@@ -2576,6 +2576,10 @@
   font-size: 11px;
 }
 
+.page[data-market="israel"] .footerColumn strong {
+  text-transform: none;
+}
+
 .page[data-market="israel"] .heroShade {
   background:
     linear-gradient(270deg, rgba(8, 24, 47, 0.97) 0%, rgba(12, 31, 57, 0.86) 42%, rgba(12, 31, 57, 0.28) 72%, rgba(12, 31, 57, 0.08) 100%),
