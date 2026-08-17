@@ -18,6 +18,7 @@ test("Israel uses the complete market experience with Hebrew RTL copy", async ()
   assert.match(styles, /\[dir="rtl"\]/);
   assert.match(styles, /var\(--font-heebo/);
   assert.match(copy, /יותר אורחים מחפשים חוויית ספא/);
+  assert.match(copy, /seoTitle: "SpaPlus ישראל \| שותפים מבתי ספא"/);
   assert.match(copy, /אינה מציגה בית ספא ישראלי או שותף קיים/);
   assert.match(copy, /הצוות שלנו בודק כל פנייה מלאה בתוך 72 שעות/);
 });
