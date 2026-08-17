@@ -23,6 +23,7 @@ const allowedOrigins = new Set([
   "https://spaplus.co",
   "https://www.spaplus.co",
   "https://app.spaplus.co",
+  "https://global.spaplus.co",
   "https://djskabi-png.github.io",
 ]);
 
@@ -210,9 +211,11 @@ export async function POST(request: Request) {
         .filter(([, value]) => value),
     );
     const requestedLocale = clean(body.locale, 20).toLowerCase();
-    const acceptedLocale = requestedLocale.startsWith("fr")
-      ? "fr-CA"
-      : "en-CA";
+    const acceptedLocale = requestedLocale.startsWith("he")
+      ? "he-IL"
+      : requestedLocale.startsWith("fr")
+        ? "fr-CA"
+        : "en-CA";
     const marketContentRows = await getDb()
       .select()
       .from(cmsContent)
@@ -330,7 +333,9 @@ export async function POST(request: Request) {
           email: data.email,
           phone: data.phone,
           organization: data.organization,
-          topic: marketSlug === "canada"
+          topic: marketSlug === "israel"
+            ? "Israel founding spa partner"
+            : marketSlug === "canada"
             ? "Canada outside Ontario spa partner"
             : marketSlug === "quebec"
               ? "Québec spa partner"
@@ -356,14 +361,15 @@ export async function POST(request: Request) {
     const marketDefaultOwnerEmails = marketSlug === "quebec"
       ? "adir@spaplus.co.il,galia@spaplus.ca"
       : "";
-    const ownerEmails = (
-      setting(marketOwnerEmailsKey) ||
-      marketContent.notificationRecipients ||
-      marketDefaultOwnerEmails ||
-      setting("CONTACT_TO_EMAILS") ||
-      setting("CONTACT_TO_EMAIL") ||
-      "djskabi@gmail.com"
-    )
+    const ownerEmailSource = marketSlug === "israel"
+      ? setting(marketOwnerEmailsKey) || marketContent.notificationRecipients
+      : setting(marketOwnerEmailsKey) ||
+        marketContent.notificationRecipients ||
+        marketDefaultOwnerEmails ||
+        setting("CONTACT_TO_EMAILS") ||
+        setting("CONTACT_TO_EMAIL") ||
+        "djskabi@gmail.com";
+    const ownerEmails = (ownerEmailSource || "")
       .split(",")
       .map((email) => email.trim().toLowerCase())
       .filter(isEmail);

@@ -503,6 +503,30 @@ export const canadaFrenchMarket: MarketLaunchConfig = {
   ],
 };
 
+export const israelMarket: MarketLaunchConfig = {
+  marketName: "Israel",
+  marketSlug: "israel",
+  countryName: "Israel",
+  primaryCity: "Israel",
+  locale: "he-il",
+  languageTag: "he-IL",
+  timeZone: "Asia/Jerusalem",
+  pageUrl: "https://app.spaplus.co/he-il/israel/",
+  homeHref: "https://spaplus.co/he/",
+  heroImage: "/ontario/hero-ontario-campaign-v2.jpg",
+  heroDisclosure: "Illustrative SpaPlus campaign concept. It does not depict an Israeli spa or existing partner.",
+  leadEndpoint: "/api/market-spa-leads",
+  reviewWindowHours: 72,
+  referenceMarketName: "SpaPlus Global",
+  referenceCountryName: "",
+  referenceSpas: [],
+  priorityAreas: [],
+  languageLinks: [{ label: "עברית", ariaLabel: "עברית", languageTag: "he-IL", href: "/he-il/israel/", active: true }],
+  cmsSection: "market.il",
+  resourceKey: "market:il",
+  showVideo: false,
+};
+
 export function getOntarioArea(slug: string) {
   return ontarioAreas.find((area) => area.slug === slug);
 }
@@ -554,5 +578,9 @@ export const markets = {
   quebec: {
     ...quebecMarket,
     priorityAreas: quebecMarket.priorityAreas,
+  },
+  israel: {
+    ...israelMarket,
+    priorityAreas: israelMarket.priorityAreas,
   },
 } satisfies Record<string, MarketLaunchConfig>;

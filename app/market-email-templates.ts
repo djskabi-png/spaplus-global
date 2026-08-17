@@ -262,6 +262,53 @@ export function buildMarketVisitorEmail(
   const { marketName, pageUrl, reviewWindowHours, languageTag } = context;
   const values = { name: data.name, organization: data.organization, hours: reviewWindowHours, market: marketName };
   const isFrench = languageTag.toLowerCase().startsWith("fr");
+  const isHebrew = languageTag.toLowerCase().startsWith("he");
+  if (isHebrew) {
+    const preferredContact = data.preferredContact === "Email"
+      ? "דוא״ל"
+      : data.preferredContact === "Phone"
+        ? "טלפון"
+        : data.preferredContact;
+    const body = `
+      <div style="margin:4px 0 22px;padding:19px;border:1px solid #f4c8d9;border-radius:16px;background:#fff0f6;">
+        <strong style="display:block;margin-bottom:7px;color:#192d4c;font-size:14px;">מה קורה עכשיו</strong>
+        <p style="margin:0;color:#5d6a7d;font-size:13px;line-height:1.7;">נבדוק את בית הספא, המיקום והשירותים. חבר או חברת צוות SpaPlus ייצרו איתך קשר בתוך ${escapeHtml(String(reviewWindowHours))} שעות בדרך ההתקשרות שבחרת.</p>
+      </div>
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border:1px solid #e1e6ed;border-radius:16px;border-collapse:separate;overflow:hidden;">
+        ${detailRow("בית הספא", data.organization)}
+        ${detailRow("איש קשר", data.name)}
+        ${detailRow("מיקום", `${data.city}${data.region ? `, ${data.region}` : ""}, ישראל`)}
+        ${detailRow("דרך התקשרות מועדפת", preferredContact)}
+      </table>
+      <p style="margin:22px 0 0;color:#5d6a7d;font-size:12px;line-height:1.7;">הפנייה מביעה עניין בלבד. היא אינה יוצרת התחייבות, אינה דורשת תשלום ואינה מבקשת פרטי אשראי. כל הצעה מסחרית, אם תהיה, תוצג בנפרד לפני כל החלטה.</p>`;
+    const subject = `קיבלנו את הפנייה שלך ל־SpaPlus ישראל`;
+    const text = [
+      `תודה, ${data.name}.`,
+      "",
+      `קיבלנו את פרטי ${data.organization} עבור SpaPlus ישראל.`,
+      `נבדוק את הפרטים וניצור איתך קשר בתוך ${reviewWindowHours} שעות.`,
+      "",
+      "הפנייה מביעה עניין בלבד ואינה יוצרת התחייבות או דורשת תשלום.",
+      "",
+      pageUrl,
+    ].join("\n");
+    return {
+      subject,
+      text,
+      html: shell({
+        pageUrl,
+        preheader: `קיבלנו את הפנייה שלך ל־SpaPlus ישראל וניצור איתך קשר בתוך ${reviewWindowHours} שעות.`,
+        eyebrow: "SpaPlus ישראל",
+        title: `תודה, ${data.name}.`,
+        intro: `קיבלנו את הפרטים של ${data.organization} ונבדוק את ההתאמה לפעילות SpaPlus בישראל.`,
+        body,
+        buttonLabel: "חזרה ל־SpaPlus ישראל",
+        languageTag: "he-IL",
+        footerLine: "דרך טובה יותר לגלות, להזמין וליהנות מחוויות ספא.",
+        companyName: context.copy?.emailCompanyName || "GLOBAL SPA MANAGEMENT LTD",
+      }),
+    };
+  }
   if (isFrench) {
     const preferredContact =
       data.preferredContact === "Email"

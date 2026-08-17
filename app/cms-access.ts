@@ -32,6 +32,13 @@ export const cmsResources = [
     labels: { en: "Canada partner page", he: "עמוד השותפים של קנדה", "fr-CA": "Page partenaires Canada" },
   },
   {
+    key: "market:il",
+    type: "market",
+    business: "spaplus-global",
+    topic: "israel",
+    labels: { en: "Israel spa partners", he: "שותפי בתי ספא בישראל", "fr-CA": "Partenaires spa en Israël" },
+  },
+  {
     key: "ops:global",
     type: "operations",
     business: "spaplus-global",
@@ -145,5 +152,6 @@ export function sectionResource(section: string) {
   if (section.startsWith("market.ca-on")) return "market:ca:on";
   if (section.startsWith("market.ca-qc")) return "market:ca:qc";
   if (section.startsWith("market.ca")) return "market:ca:national";
+  if (section.startsWith("market.il")) return "market:il";
   return "site:global";
 }
