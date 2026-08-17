@@ -646,7 +646,7 @@ export default function MarketLaunchPage({
                   <strong>{managed(`referenceSpa${index + 1}Name`, spa.name)}</strong>
                   <small>{managed(`referenceSpa${index + 1}Location`, spa.location)}</small>
                 </span>
-                {spa.href ? <b>{tr("View listing", "Voir la fiche")}</b> : null}
+                {spa.href ? <b>{isHebrew ? "לצפייה במקום" : tr("View listing", "Voir la fiche")}</b> : null}
               </figcaption>
             </figure>
           );
