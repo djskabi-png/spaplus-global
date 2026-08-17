@@ -14,6 +14,8 @@ test("Israel uses the complete market experience with Hebrew RTL copy", async ()
   assert.match(page, /index: false, follow: false/);
   assert.match(page, /<MarketLaunchPage config=\{israelMarket\}/);
   assert.match(launchPage, /document\.documentElement\.dir = isHebrew \? "rtl" : "ltr"/);
+  assert.match(launchPage, /window\.matchMedia\("\(min-width: 981px\)"\)/);
+  assert.match(launchPage, /if \(desktopViewport\.matches\) setMenuOpen\(false\)/);
   assert.match(launchPage, /<main[^>]+dir=\{isHebrew \? "rtl" : "ltr"\}/);
   assert.match(styles, /\[dir="rtl"\]/);
   assert.match(styles, /var\(--font-heebo/);

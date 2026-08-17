@@ -444,6 +444,16 @@ export default function MarketLaunchPage({
     };
   }, [menuOpen]);
 
+  useEffect(() => {
+    const desktopViewport = window.matchMedia("(min-width: 981px)");
+    const closeMobileMenu = () => {
+      if (desktopViewport.matches) setMenuOpen(false);
+    };
+    closeMobileMenu();
+    desktopViewport.addEventListener("change", closeMobileMenu);
+    return () => desktopViewport.removeEventListener("change", closeMobileMenu);
+  }, []);
+
   function setConsent(value: "essential" | "analytics") {
     window.localStorage.setItem("spaplus-consent", value);
     setShowCookieConsent(false);
