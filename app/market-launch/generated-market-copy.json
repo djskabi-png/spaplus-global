@@ -1064,6 +1064,13 @@
     "fr": "Téléphone"
   },
   {
+    "field": "copy1awu04j",
+    "label": "Business email",
+    "group": "Messages, cookies and page controls",
+    "en": "Business email",
+    "fr": "Courriel professionnel"
+  },
+  {
     "field": "copy5nh3x7",
     "label": "Business website or Instagram",
     "group": "Messages, cookies and page controls",
@@ -1160,13 +1167,6 @@
     "group": "Messages, cookies and page controls",
     "en": "Your role",
     "fr": "Votre fonction"
-  },
-  {
-    "field": "copy1awu04j",
-    "label": "Business email",
-    "group": "Messages, cookies and page controls",
-    "en": "Business email",
-    "fr": "Courriel professionnel"
   },
   {
     "field": "copy1yke1ci",

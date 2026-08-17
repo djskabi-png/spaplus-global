@@ -60,6 +60,9 @@ test("Israel recruitment form keeps protected market and acknowledgement fields"
   ]);
 
   assert.match(client, /marketSlug === "israel"/);
+  assert.match(client, /!isIsrael && fieldVisible\("Services"\)/);
+  assert.match(client, /!isIsrael && fieldVisible\("Role"\)/);
+  assert.match(client, /dir="ltr"/);
   assert.match(client, /privacyAccepted: values\.get\("privacy"\) === "accepted"/);
   assert.match(client, /acknowledgementAccepted:/);
   assert.match(endpoint, /requestedLocale\.startsWith\("he"\)/);

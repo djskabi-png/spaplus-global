@@ -1694,6 +1694,17 @@ export default function MarketLaunchPage({
               maxLength={40}
             />
           </div> : null}
+          {fieldVisible("Email") ? <div className={styles.field}>
+            <label htmlFor="email">{fieldLabel("Email", tr("Business email", "Courriel professionnel"))}</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required={fieldRequired("Email")}
+              maxLength={180}
+            />
+          </div> : null}
           {fieldVisible("Website") ? <div className={styles.field}>
             <label htmlFor="website">{fieldLabel("Website", tr("Business website or Instagram", "Site Web ou Instagram de l’entreprise"))}</label>
             <input
@@ -1703,6 +1714,7 @@ export default function MarketLaunchPage({
               placeholder={marketSlug === "quebec" ? tr("https:// or @instagram", "https:// ou @instagram") : managed("websitePlaceholder", "https://")}
               required={fieldRequired("Website")}
               data-error-label={tr("Business website or Instagram", "Site Web ou Instagram de l’entreprise")}
+              dir="ltr"
               maxLength={300}
             />
           </div> : null}
@@ -1788,7 +1800,7 @@ export default function MarketLaunchPage({
               <option value="11+">{tr("11 or more locations", "11 établissements ou plus")}</option>
             </select>
           </div> : null}
-          {fieldVisible("Services") ? <fieldset className={styles.services}>
+          {!isIsrael && fieldVisible("Services") ? <fieldset className={styles.services}>
             <legend>{fieldLabel("Services", tr("Main services offered", "Principaux services offerts"))}</legend>
             <div>
               {visibleServiceOptions.map((service) => (
@@ -1799,20 +1811,9 @@ export default function MarketLaunchPage({
               ))}
             </div>
           </fieldset> : null}
-          {fieldVisible("Role") ? <div className={styles.field}>
+          {!isIsrael && fieldVisible("Role") ? <div className={styles.field}>
             <label htmlFor="role">{fieldLabel("Role", tr("Your role", "Votre fonction"))}</label>
             <input id="role" name="role" required={fieldRequired("Role")} maxLength={100} />
-          </div> : null}
-          {fieldVisible("Email") ? <div className={styles.field}>
-            <label htmlFor="email">{fieldLabel("Email", tr("Business email", "Courriel professionnel"))}</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required={fieldRequired("Email")}
-              maxLength={180}
-            />
           </div> : null}
           {!isIsrael && fieldVisible("PreferredContact") ? <div className={styles.field}>
             <label htmlFor="preferredContact">{fieldLabel("PreferredContact", tr("Preferred contact", "Méthode de contact préférée"))}</label>
