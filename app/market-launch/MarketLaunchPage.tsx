@@ -39,6 +39,7 @@ export type MarketLaunchConfig = {
     location: string;
     image: string;
     imageAlt: string;
+    href?: string;
   }>;
   priorityAreas: Array<{
     label: string;
@@ -206,6 +207,7 @@ export default function MarketLaunchPage({
   } = config;
   const isFrench = languageTag.toLowerCase().startsWith("fr");
   const isHebrew = languageTag.toLowerCase().startsWith("he");
+  const isIsrael = marketSlug === "israel";
   const isNetwork = config.pageMode === "network";
   const cmsSection = config.cmsSection || "market.ca-on";
   const eventPrefix = marketSlug.replace(/[^a-z0-9_]+/g, "_");
@@ -598,6 +600,87 @@ export default function MarketLaunchPage({
     }
   }
 
+  const renderProofSection = () => (
+    <section className={styles.proof} id="proof">
+      <div className={styles.proofHeading}>
+        <div>
+          <p className={styles.eyebrowDark}>
+            {tr(
+              "BUILT FOR REAL SPA EXPERIENCES",
+              "PENSÉ POUR DE VRAIES EXPÉRIENCES SPA",
+            )}
+          </p>
+          <h2>
+            {dynamicCopy(
+              "proofTitle",
+              `Already helping guests discover spas in ${referenceMarketName}.`,
+              `Déjà au service de la découverte des spas au ${referenceMarketName}.`,
+            )}
+          </h2>
+        </div>
+        <p>
+          {dynamicCopy(
+            "proofIntro",
+            isNetwork
+              ? "These are current experiences presented on the live SpaPlus Canada platform. Availability varies by region."
+              : `These are current experiences presented on the live SpaPlus Canada platform. ${marketName} listings are not live yet.`,
+            isNetwork
+              ? "Ces expériences sont actuellement présentées sur la plateforme SpaPlus Canada. L’offre varie selon la région."
+              : `Ces expériences sont actuellement présentées sur la plateforme SpaPlus Canada. Les établissements de l’${marketName} ne sont pas encore en ligne.`,
+          )}
+        </p>
+      </div>
+      <div className={styles.gallery}>
+        {referenceSpas.map((spa, index) => {
+          const card = (
+            <figure>
+              <img
+                src={spa.image}
+                alt={managed(`referenceSpa${index + 1}Alt`, spa.imageAlt)}
+                width="400"
+                height="320"
+                loading="lazy"
+              />
+              <figcaption>
+                <span>
+                  <strong>{managed(`referenceSpa${index + 1}Name`, spa.name)}</strong>
+                  <small>{managed(`referenceSpa${index + 1}Location`, spa.location)}</small>
+                </span>
+                {spa.href ? <b>{tr("View listing", "Voir la fiche")}</b> : null}
+              </figcaption>
+            </figure>
+          );
+
+          return spa.href ? (
+            <a
+              className={styles.galleryLink}
+              href={spa.href}
+              key={spa.name}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${managed(`referenceSpa${index + 1}Name`, spa.name)}, ${managed(`referenceSpa${index + 1}Location`, spa.location)}`}
+            >
+              {card}
+            </a>
+          ) : (
+            <div className={styles.galleryLink} key={spa.name}>{card}</div>
+          );
+        })}
+      </div>
+      <p className={styles.mediaDisclosure}>
+        {dynamicCopy(
+          "proofDisclosure",
+          isNetwork
+            ? "Images are sourced from current listings on the official SpaPlus Canada website. They show existing listings and do not represent every current or future partner."
+            : `Images are sourced from current spa listings on the official SpaPlus Canada website. They illustrate the existing ${referenceMarketName} platform in ${referenceCountryName} and do not depict future ${marketName} partners.`,
+          isNetwork
+            ? "Les images proviennent de fiches actuelles du site officiel SpaPlus Canada. Elles montrent des établissements déjà présentés et ne représentent pas tous les partenaires actuels ou futurs."
+            : `Les images proviennent de fiches actuelles du site officiel SpaPlus Canada. Elles illustrent la plateforme existante au ${referenceMarketName}, au ${referenceCountryName}, et ne représentent pas de futurs partenaires en ${marketName}.`,
+        )}
+      </p>
+    </section>
+  );
+
   return (
     <main
       className={styles.page}
@@ -874,6 +957,8 @@ export default function MarketLaunchPage({
         </div>
       </section>
 
+      {isIsrael ? renderProofSection() : null}
+
       {config.showVideo !== false ? <section className={styles.videoSection} aria-labelledby="market-video-title">
         <div className={styles.videoCopy}>
           <p className={styles.eyebrowDark}>
@@ -1035,7 +1120,7 @@ export default function MarketLaunchPage({
         </article>
       </section>
 
-      <section className={styles.foundingOffer} aria-labelledby="founding-offer-title">
+      {!isIsrael ? <section className={styles.foundingOffer} aria-labelledby="founding-offer-title">
         <div>
           <p className={styles.eyebrowDark}>
             {isNetwork ? tr("THE SPAPLUS CANADA ADVANTAGE", "L’AVANTAGE SPAPLUS CANADA") : tr("THE FOUNDING PARTNER ADVANTAGE", "L’AVANTAGE PARTENAIRE FONDATEUR")}
@@ -1080,7 +1165,7 @@ export default function MarketLaunchPage({
             <small>{tr("No booking, no booking commission", "Aucune réservation, aucune commission")}</small>
           </li>
         </ol>
-      </section>
+      </section> : null}
 
       <section className={styles.platformSection} id="platform">
         <div className={styles.platformHeading}>
@@ -1239,65 +1324,9 @@ export default function MarketLaunchPage({
         </div>
       </section>
 
-      <section className={styles.proof} id="proof">
-        <div className={styles.proofHeading}>
-          <div>
-            <p className={styles.eyebrowDark}>
-              {tr(
-                "BUILT FOR REAL SPA EXPERIENCES",
-                "PENSÉ POUR DE VRAIES EXPÉRIENCES SPA",
-              )}
-            </p>
-            <h2>
-              {dynamicCopy(
-                "proofTitle",
-                `Already helping guests discover spas in ${referenceMarketName}.`,
-                `Déjà au service de la découverte des spas au ${referenceMarketName}.`,
-              )}
-            </h2>
-          </div>
-          <p>
-              {dynamicCopy(
-                "proofIntro",
-                isNetwork
-                  ? "These are current experiences presented on the live SpaPlus Canada platform. Availability varies by region."
-                  : `These are current experiences presented on the live SpaPlus Canada platform. ${marketName} listings are not live yet.`,
-                isNetwork
-                  ? "Ces expériences sont actuellement présentées sur la plateforme SpaPlus Canada. L’offre varie selon la région."
-                  : `Ces expériences sont actuellement présentées sur la plateforme SpaPlus Canada. Les établissements de l’${marketName} ne sont pas encore en ligne.`,
-            )}
-          </p>
-        </div>
-        <div className={styles.gallery}>
-          {referenceSpas.map((spa, index) => (
-            <figure key={spa.name}>
-              <img
-                src={spa.image}
-                alt={managed(`referenceSpa${index + 1}Alt`, spa.imageAlt)}
-                width="400"
-                height="320"
-              />
-              <figcaption>
-                <strong>{managed(`referenceSpa${index + 1}Name`, spa.name)}</strong>
-                <span>{managed(`referenceSpa${index + 1}Location`, spa.location)}</span>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-        <p className={styles.mediaDisclosure}>
-          {dynamicCopy(
-            "proofDisclosure",
-            isNetwork
-              ? "Images are sourced from current listings on the official SpaPlus Canada website. They show existing listings and do not represent every current or future partner."
-              : `Images are sourced from current spa listings on the official SpaPlus Canada website. They illustrate the existing ${referenceMarketName} platform in ${referenceCountryName} and do not depict future ${marketName} partners.`,
-            isNetwork
-              ? "Les images proviennent de fiches actuelles du site officiel SpaPlus Canada. Elles montrent des établissements déjà présentés et ne représentent pas tous les partenaires actuels ou futurs."
-              : `Les images proviennent de fiches actuelles du site officiel SpaPlus Canada. Elles illustrent la plateforme existante au ${referenceMarketName}, au ${referenceCountryName}, et ne représentent pas de futurs partenaires en ${marketName}.`,
-          )}
-        </p>
-      </section>
+      {!isIsrael ? renderProofSection() : null}
 
-      <section className={styles.occasionSection} id="experiences">
+      {!isIsrael ? <section className={styles.occasionSection} id="experiences">
         <div className={styles.occasionLead}>
           <p className={styles.eyebrow}>
             {tr(
@@ -1360,7 +1389,7 @@ export default function MarketLaunchPage({
             </p>
           </article>
         </div>
-      </section>
+      </section> : null}
 
       <section className={styles.fitSection}>
         <div>
@@ -1454,7 +1483,7 @@ export default function MarketLaunchPage({
         </section>
       ) : null}
 
-      <section className={styles.commercialSection} id="partner-model">
+      {!isIsrael ? <section className={styles.commercialSection} id="partner-model">
         <div className={styles.commercialIntro}>
           <p className={styles.eyebrowDark}>
             {tr("A MODEL THAT STARTS SIMPLE", "UN MODÈLE SIMPLE DÈS LE DÉPART")}
@@ -1523,7 +1552,7 @@ export default function MarketLaunchPage({
             )}
           </p>
         </div>
-      </section>
+      </section> : null}
 
       <section className={styles.process} id="process">
         <div className={styles.processIntro}>
@@ -1724,7 +1753,7 @@ export default function MarketLaunchPage({
               )}
             </small>
           </div> : null}
-          {fieldVisible("PostalCode") ? <div className={styles.field}>
+          {!isIsrael && fieldVisible("PostalCode") ? <div className={styles.field}>
             <label htmlFor="postalCode">{fieldLabel("PostalCode", tr("Postal code", "Code postal"))}</label>
             <input
               id="postalCode"
@@ -1747,7 +1776,7 @@ export default function MarketLaunchPage({
               ))}
             </select>
           </div> : null}
-          {fieldVisible("Locations") ? <div className={styles.field}>
+          {!isIsrael && fieldVisible("Locations") ? <div className={styles.field}>
             <label htmlFor="locations">{fieldLabel("Locations", tr("Number of locations", "Nombre d’établissements"))}</label>
             <select id="locations" name="locations" required={fieldRequired("Locations")} defaultValue="">
               <option value="" disabled>
@@ -1785,7 +1814,7 @@ export default function MarketLaunchPage({
               maxLength={180}
             />
           </div> : null}
-          {fieldVisible("PreferredContact") ? <div className={styles.field}>
+          {!isIsrael && fieldVisible("PreferredContact") ? <div className={styles.field}>
             <label htmlFor="preferredContact">{fieldLabel("PreferredContact", tr("Preferred contact", "Méthode de contact préférée"))}</label>
             <select
               id="preferredContact"
@@ -1801,11 +1830,11 @@ export default function MarketLaunchPage({
               <option value="WhatsApp">WhatsApp</option>
             </select>
           </div> : null}
-          {fieldVisible("BookingSystem") ? <div className={styles.field}>
+          {!isIsrael && fieldVisible("BookingSystem") ? <div className={styles.field}>
             <label htmlFor="bookingSystem">{fieldLabel("BookingSystem", tr("Current booking system", "Système de réservation actuel"), false)}</label>
             <input id="bookingSystem" name="bookingSystem" required={fieldRequired("BookingSystem", false)} maxLength={120} />
           </div> : null}
-          {fieldVisible("Message") ? <div className={`${styles.field} ${styles.fullField}`}>
+          {!isIsrael && fieldVisible("Message") ? <div className={`${styles.field} ${styles.fullField}`}>
             <label htmlFor="message">{fieldLabel("Message", tr("Anything we should know?", "Y a-t-il autre chose à savoir?"), false)}</label>
             <textarea id="message" name="message" required={fieldRequired("Message", false)} rows={5} maxLength={1500} />
           </div> : null}

@@ -1227,6 +1227,12 @@
   margin-top: 55px;
 }
 
+.galleryLink {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
 .gallery figure {
   position: relative;
   min-height: 320px;
@@ -1266,14 +1272,24 @@
 }
 
 .gallery figcaption strong,
-.gallery figcaption span {
+.gallery figcaption span,
+.gallery figcaption small {
   display: block;
   color: white;
 }
 
-.gallery figcaption span {
+.gallery figcaption small {
+  margin-top: 4px;
   color: rgba(255, 255, 255, 0.72);
   font-size: 13px;
+}
+
+.gallery figcaption b {
+  flex: 0 0 auto;
+  color: white;
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 .mediaDisclosure {
@@ -1883,6 +1899,221 @@
 @keyframes submitSpin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+.page[data-market="israel"] .proof {
+  padding: 82px 0 88px;
+}
+
+.page[data-market="israel"] .proof::before {
+  height: 100%;
+  margin-top: -82px;
+}
+
+.page[data-market="israel"] .intro {
+  padding: 88px 0 58px;
+}
+
+.page[data-market="israel"] .benefits {
+  margin-bottom: 84px;
+}
+
+.page[data-market="israel"] .benefits article {
+  min-height: 0;
+  padding: 28px;
+}
+
+.page[data-market="israel"] .benefits article > span {
+  margin-bottom: 32px;
+}
+
+.page[data-market="israel"] .platformSection {
+  padding: 10px 0 82px;
+}
+
+.page[data-market="israel"] .fitSection {
+  padding: 84px 0;
+}
+
+.page[data-market="israel"] .process {
+  padding-top: 86px;
+  padding-bottom: 86px;
+}
+
+.page[data-market="israel"] .formSection {
+  padding: 88px 0;
+}
+
+.page[data-market="israel"] .faq {
+  padding: 76px 0;
+}
+
+.page[data-market="israel"] .finalCta {
+  padding-top: 82px;
+  padding-bottom: 82px;
+}
+
+.page[data-market="israel"] :is(.intro, .proof, .fitSection, .process, .formSection, .faq, .finalCta) h2,
+.page[data-market="israel"] .platformHeading h2 {
+  font-size: clamp(36px, 4vw, 54px);
+  line-height: 1.08;
+}
+
+.page[data-market="israel"] .interfaceDisclosure {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 9px 12px;
+  border: 1px solid rgba(185, 14, 77, 0.2);
+  border-radius: 10px;
+  background: #fff5f8;
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 720;
+  line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .page[data-market="israel"] .proof,
+  .page[data-market="israel"] .intro,
+  .page[data-market="israel"] .platformSection,
+  .page[data-market="israel"] .fitSection,
+  .page[data-market="israel"] .formSection,
+  .page[data-market="israel"] .faq {
+    width: calc(100% - 32px);
+  }
+
+  .page[data-market="israel"] .proof {
+    padding: 58px 0 62px;
+  }
+
+  .page[data-market="israel"] .proof::before {
+    height: 100%;
+    margin-top: -58px;
+  }
+
+  .page[data-market="israel"] .proofHeading,
+  .page[data-market="israel"] .intro,
+  .page[data-market="israel"] .platformHeading,
+  .page[data-market="israel"] .process,
+  .page[data-market="israel"] .formSection,
+  .page[data-market="israel"] .faq {
+    gap: 22px;
+  }
+
+  .page[data-market="israel"] :is(.intro, .proof, .fitSection, .process, .formSection, .faq, .finalCta) h2,
+  .page[data-market="israel"] .platformHeading h2 {
+    font-size: 31px;
+    line-height: 1.12;
+    letter-spacing: -0.035em;
+  }
+
+  .page[data-market="israel"] .intro {
+    padding: 60px 0 42px;
+  }
+
+  .page[data-market="israel"] .benefits {
+    width: calc(100% - 32px);
+    margin-bottom: 62px;
+  }
+
+  .page[data-market="israel"] .benefits article {
+    padding: 24px;
+  }
+
+  .page[data-market="israel"] .benefits article > span {
+    margin-bottom: 22px;
+  }
+
+  .page[data-market="israel"] .platformSection {
+    padding: 0 0 62px;
+  }
+
+  .page[data-market="israel"] .productStory {
+    margin-top: 28px;
+  }
+
+  .page[data-market="israel"] .gallery {
+    display: flex;
+    max-width: none;
+    gap: 12px;
+    margin-right: -16px;
+    margin-left: -16px;
+    padding: 0 16px 12px;
+    overflow-x: auto;
+    scroll-padding-inline: 16px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+  }
+
+  .page[data-market="israel"] .galleryLink {
+    min-width: min(82vw, 320px);
+    flex: 0 0 min(82vw, 320px);
+    scroll-snap-align: start;
+  }
+
+  .page[data-market="israel"] .gallery figure {
+    min-height: 300px;
+  }
+
+  .page[data-market="israel"] .gallery figcaption {
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .page[data-market="israel"] .fitSection {
+    padding: 64px 0;
+  }
+
+  .page[data-market="israel"] .fitGrid {
+    margin-top: 32px;
+  }
+
+  .page[data-market="israel"] .process {
+    padding-top: 62px;
+    padding-bottom: 62px;
+  }
+
+  .page[data-market="israel"] .process li {
+    padding: 25px 0;
+  }
+
+  .page[data-market="israel"] .formSection {
+    padding: 64px 0;
+  }
+
+  .page[data-market="israel"] .form {
+    gap: 17px;
+    padding: 20px 16px;
+  }
+
+  .page[data-market="israel"] .services > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .page[data-market="israel"] .services label {
+    min-height: 48px;
+    padding: 8px;
+  }
+
+  .page[data-market="israel"] .faq {
+    padding: 60px 0;
+  }
+
+  .page[data-market="israel"] .finalCta {
+    padding: 64px 18px;
+  }
+
+  .page[data-market="israel"] .backToTop {
+    right: 12px;
+    bottom: 12px;
+    width: 46px;
+    height: 46px;
+  }
+
+  .page[data-market="israel"] .backToTop span:last-child {
+    display: none;
   }
 }
 
