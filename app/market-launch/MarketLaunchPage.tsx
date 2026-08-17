@@ -9,6 +9,7 @@ import {
 } from "react";
 import styles from "./market-launch.module.css";
 import { marketCopyFieldKey } from "./market-copy";
+import { israelCopy } from "./israel-market-copy";
 import {
   initializeSpaPlusAnalytics,
   setSpaPlusAnalyticsConsent,
@@ -204,6 +205,7 @@ export default function MarketLaunchPage({
     selectedArea,
   } = config;
   const isFrench = languageTag.toLowerCase().startsWith("fr");
+  const isHebrew = languageTag.toLowerCase().startsWith("he");
   const isNetwork = config.pageMode === "network";
   const cmsSection = config.cmsSection || "market.ca-on";
   const eventPrefix = marketSlug.replace(/[^a-z0-9_]+/g, "_");
@@ -230,19 +232,21 @@ export default function MarketLaunchPage({
     config.copyOverrides?.[field]?.[isFrench ? "fr" : "en"];
   const managed = (field: string, fallback: string) =>
     normalizeDisplayCopy(
-      selectedArea ? fallback : cmsCopy[field] || override(field) || fallback,
+      selectedArea
+        ? fallback
+        : cmsCopy[field] || (isHebrew ? israelCopy(field, "") : "") || override(field) || fallback,
     );
   const tr = (english: string, french: string) =>
     managed(
       marketCopyFieldKey(english),
-      override(english) || (isFrench ? french : english),
+      override(english) || (isHebrew ? israelCopy(english, english) : isFrench ? french : english),
     );
   const dynamicCopy = (field: string, english: string, french: string) =>
-    managed(field, isFrench ? french : english);
+    managed(field, isHebrew ? israelCopy(field, israelCopy(english, english)) : isFrench ? french : english);
   const formFlag = (field: string, fallback: boolean) => {
     // A content-editor setting must never make the active Quebec lead form
     // impossible to complete or remove the contact number needed for follow-up.
-    if ((marketSlug === "quebec" || marketSlug === "ontario") && protectedSpaLeadFormFlags.has(field)) {
+    if ((marketSlug === "quebec" || marketSlug === "ontario" || marketSlug === "israel") && protectedSpaLeadFormFlags.has(field)) {
       return true;
     }
     // Form behaviour is shared by the Ontario page and its city pages.
@@ -253,7 +257,7 @@ export default function MarketLaunchPage({
   const fieldVisible = (field: string) => formFlag(`formField${field}Visible`, true);
   const fieldRequired = (field: string, fallback = true) =>
     fieldVisible(field) && (
-      marketSlug === "quebec" || marketSlug === "ontario"
+      marketSlug === "quebec" || marketSlug === "ontario" || marketSlug === "israel"
         ? requiredSpaLeadFields.has(field)
         : formFlag(`formField${field}Required`, fallback)
     );
@@ -283,8 +287,8 @@ export default function MarketLaunchPage({
 
   useEffect(() => {
     document.documentElement.lang = languageTag;
-    document.documentElement.dir = "ltr";
-  }, [languageTag]);
+    document.documentElement.dir = isHebrew ? "rtl" : "ltr";
+  }, [isHebrew, languageTag]);
 
   useEffect(() => {
     const fallbackTitle = isNetwork
@@ -588,16 +592,16 @@ export default function MarketLaunchPage({
     <main
       className={styles.page}
       data-market-page
-      data-release="2026-08-01-b"
+      data-release="2026-08-17-israel-rebuild"
       lang={languageTag}
-      dir="ltr"
+      dir={isHebrew ? "rtl" : "ltr"}
       style={
         {
           "--market-hero": `url("${heroImage}")`,
         } as CSSProperties
       }
     >
-      <script
+      {config.showVideo !== false ? <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
@@ -620,7 +624,7 @@ export default function MarketLaunchPage({
             },
           }),
         }}
-      />
+      /> : null}
       <a className={styles.skipLink} href="#main-content">
         {tr("Skip to main content", "Aller au contenu principal")}
       </a>

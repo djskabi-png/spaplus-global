@@ -1044,7 +1044,7 @@ test("Québec partner funnel is bilingual, active-market aware and separately ma
   assert.match(client, /data-validation-attempted=\{validationAttempted\}/);
   assert.match(client, /data-error-label=\{tr\("Business address", "Adresse de l’entreprise"\)\}/);
   assert.match(client, /data-error-label=\{tr\("Business website or Instagram", "Site Web ou Instagram de l’entreprise"\)\}/);
-  assert.match(client, /\(marketSlug === "quebec" \|\| marketSlug === "ontario"\) && protectedSpaLeadFormFlags\.has\(field\)/);
+  assert.match(client, /\(marketSlug === "quebec" \|\| marketSlug === "ontario" \|\| marketSlug === "israel"\) && protectedSpaLeadFormFlags\.has\(field\)/);
   assert.match(client, /if \(!form\.checkValidity\(\)\)/);
   assert.match(client, /form\.querySelector<HTMLElement>\(":invalid"\)\?\.focus\(\)/);
   assert.match(client, /form\.reportValidity\(\)/);

@@ -2074,6 +2074,83 @@
   font-size: 11px;
 }
 
+.page[dir="rtl"] {
+  font-family: var(--font-heebo, "Heebo"), Arial, sans-serif;
+  font-synthesis: none;
+  text-align: right;
+}
+
+.page[dir="rtl"] .scrollProgress {
+  transform-origin: right center;
+}
+
+.page[dir="rtl"] .heroShade {
+  background:
+    linear-gradient(270deg, rgba(10, 27, 53, 0.98) 0%, rgba(16, 35, 65, 0.88) 42%, rgba(16, 35, 65, 0.26) 70%, rgba(16, 35, 65, 0.1) 100%),
+    linear-gradient(180deg, rgba(6, 18, 37, 0.28), rgba(6, 18, 37, 0.05) 50%, rgba(6, 18, 37, 0.55));
+}
+
+.page[dir="rtl"] .hero h1 {
+  max-width: 850px;
+  font-size: clamp(54px, 6.2vw, 92px);
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+}
+
+.page[dir="rtl"] .heroLead {
+  max-width: 720px;
+}
+
+.page[dir="rtl"] .eyebrow,
+.page[dir="rtl"] .eyebrowDark,
+.page[dir="rtl"] .sectionLabel,
+.page[dir="rtl"] .launchBand small {
+  letter-spacing: 0;
+}
+
+.page[dir="rtl"] .assuranceCard ul {
+  padding-right: 20px;
+  padding-left: 0;
+}
+
+.page[dir="rtl"] .requirementNote {
+  border-right: 4px solid var(--pink);
+  border-left-width: 1px;
+}
+
+.page[dir="rtl"] .optionalBadge,
+.page[dir="rtl"] .requiredBadge {
+  margin-right: 8px;
+  margin-left: 0;
+}
+
+.page[dir="rtl"] .submitButton[aria-busy="true"]::before {
+  margin-right: 0;
+  margin-left: 9px;
+}
+
+.page[dir="rtl"] .formError {
+  text-align: right;
+}
+
+.page[dir="rtl"] .faqList summary {
+  padding-right: 0;
+  padding-left: 45px;
+}
+
+.page[dir="rtl"] .faqList summary::after {
+  right: auto;
+  left: 5px;
+}
+
+.page[dir="rtl"] .footerColumn,
+.page[dir="rtl"] .footerIntro,
+.page[dir="rtl"] .form,
+.page[dir="rtl"] .partnerPreview,
+.page[dir="rtl"] .guestPreview {
+  text-align: right;
+}
+
 .backToTop {
   position: fixed;
   z-index: 90;
@@ -2480,6 +2557,11 @@
 
   .hero h1 {
     font-size: clamp(50px, 15vw, 68px);
+  }
+
+  .page[dir="rtl"] .hero h1 {
+    font-size: clamp(43px, 12.8vw, 58px);
+    line-height: 1.02;
   }
 
   .heroLead {
