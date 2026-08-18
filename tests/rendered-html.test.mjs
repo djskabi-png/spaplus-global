@@ -1203,3 +1203,20 @@ test("spa preview migrations are safe to replay after a partial deployment", asy
     assert.match(migration, /CREATE UNIQUE INDEX IF NOT EXISTS `spa_previews_slug_unique`/);
   }
 });
+
+test("spa preview builder stays English LTR with large controls and lead header links stay legible", async () => {
+  const [builderPage, builderCss, leadsCss] = await Promise.all([
+    read("app/admin/spa-previews/page.tsx"),
+    read("app/admin/spa-previews/spa-previews-fast.css"),
+    read("app/tools/leads.css"),
+  ]);
+
+  assert.match(builderPage, /className="spa-cms-shell" dir="ltr" lang="en"/);
+  assert.doesNotMatch(builderPage, /admin\.systemLocale === "he"/);
+  assert.match(builderCss, /\.spa-cms-card label\{[^}]*font-size:19px/);
+  assert.match(builderCss, /\.spa-cms-card input,[^{]+\{[^}]*min-height:62px/);
+  assert.match(builderCss, /\.spa-cms-card textarea\{[^}]*min-height:150px/);
+  assert.match(builderCss, /@media\(max-width:600px\)[\s\S]*?\.spa-cms-save\{position:static/);
+  assert.match(leadsCss, /\.cms-header \.cms-user \.cms-preview\{[^}]*color:#fff/);
+  assert.match(leadsCss, /-webkit-text-fill-color:#fff/);
+});
