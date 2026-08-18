@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getSpaPreviewBySlug } from "../../spa-preview";
+import { getRecruitmentPreviewBySlug } from "../../spa-preview";
 import "./spa-preview.css";
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const preview = await getSpaPreviewBySlug(slug);
+  const preview = await getRecruitmentPreviewBySlug(slug);
   if (!preview || preview.status !== "shared") return { robots: { index: false, follow: false } };
   const french = preview.language === "fr-CA";
   const title = french ? `${preview.spaName} | Aperçu SpaPlus` : `${preview.spaName} | SpaPlus preview`;
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function SpaPreviewPage({ params }: Props) {
   const { slug } = await params;
-  const preview = await getSpaPreviewBySlug(slug);
+  const preview = await getRecruitmentPreviewBySlug(slug);
   if (!preview || preview.status !== "shared") notFound();
   const isDemonstration = preview.slug === "spaplus-profile-demo";
   const treatments = preview.treatments.filter((treatment) => treatment.name);

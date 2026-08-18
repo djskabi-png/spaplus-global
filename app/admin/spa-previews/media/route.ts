@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     const extension = allowedTypes.get(file.type)!;
     const objectKey = `spa-previews/${now.slice(0, 7)}/${crypto.randomUUID()}.${extension}`;
     await env.PREVIEW_MEDIA.put(objectKey, file.stream(), { httpMetadata: { contentType: file.type, cacheControl: "public, max-age=31536000, immutable" }, customMetadata: { filename: file.name, uploadedBy: admin.email } });
-    const url = `https://spaplus.co/spa-preview-media/${objectKey}`;
+    const url = `https://app.spaplus.co/spa-preview-media/${objectKey}`;
     const [record] = await getDb().insert(spaPreviewMedia).values({ objectKey, url, filename: file.name.slice(0, 240), contentType: file.type, createdBy: admin.email, createdAt: now }).returning();
     uploaded.push(record);
   }

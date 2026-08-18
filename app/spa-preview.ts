@@ -64,6 +64,19 @@ export async function getSpaPreviewBySlug(slug: string) {
   return row ? serializePreview(row) : null;
 }
 
+export async function getRecruitmentPreviewBySlug(slug: string) {
+  try {
+    const response = await fetch(`https://app.spaplus.co/spa-previews-public/${encodeURIComponent(slug)}`, { cache: "no-store" });
+    if (response.ok) {
+      const data = await response.json() as { preview?: SpaPreview };
+      if (data.preview) return data.preview;
+    }
+  } catch {
+    // The direct Worker database remains a safe fallback during deployment transitions.
+  }
+  return getSpaPreviewBySlug(slug);
+}
+
 export async function listSpaPreviews() {
   const rows = await getDb().select().from(spaPreviews).orderBy(desc(spaPreviews.updatedAt));
   return rows.map(serializePreview);
