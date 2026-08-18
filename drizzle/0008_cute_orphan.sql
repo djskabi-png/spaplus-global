@@ -1,4 +1,4 @@
-CREATE TABLE `spa_previews` (
+CREATE TABLE IF NOT EXISTS `spa_previews` (
   `id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
   `slug` text NOT NULL,
   `status` text DEFAULT 'draft' NOT NULL,
@@ -15,4 +15,4 @@ CREATE TABLE `spa_previews` (
   `updated_at` text NOT NULL
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `spa_previews_slug_unique` ON `spa_previews` (`slug`);
+CREATE UNIQUE INDEX IF NOT EXISTS `spa_previews_slug_unique` ON `spa_previews` (`slug`);

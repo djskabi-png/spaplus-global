@@ -1189,3 +1189,14 @@ test("operations includes a clearly labelled illustrative sales dashboard and do
   assert.match(css, /SpaPlus Heebo/);
   assert.match(css, /@media\(max-width:650px\)/);
 });
+
+test("spa preview migrations are safe to replay after a partial deployment", async () => {
+  const migrations = await Promise.all([
+    read("drizzle/0008_cute_orphan.sql"),
+    read("drizzle/0009_spa_previews_runtime.sql"),
+  ]);
+  for (const migration of migrations) {
+    assert.match(migration, /CREATE TABLE IF NOT EXISTS `spa_previews`/);
+    assert.match(migration, /CREATE UNIQUE INDEX IF NOT EXISTS `spa_previews_slug_unique`/);
+  }
+});
