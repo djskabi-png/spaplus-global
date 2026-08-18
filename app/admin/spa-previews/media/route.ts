@@ -6,6 +6,7 @@ import { getAuthorizedAdmin } from "../../../admin-auth";
 import { hasPermission } from "../../../cms-access";
 
 const resourceKey = "site:global:spa-previews";
+const publicMediaUrl = (objectKey: string) => `https://spaplus-global-brand.adir-naor-7510.chatgpt.site/spa-preview-media/${objectKey}`;
 const allowedTypes = new Map([
   ["image/jpeg", "jpg"],
   ["image/png", "png"],
@@ -22,7 +23,7 @@ async function authorized(capability: "viewContent" | "editContent") {
 export async function GET() {
   if (!await authorized("viewContent")) return Response.json({ error: "Forbidden" }, { status: 403 });
   const media = await getDb().select().from(spaPreviewMedia).orderBy(desc(spaPreviewMedia.createdAt)).limit(200);
-  return Response.json({ media });
+  return Response.json({ media: media.map((item) => ({ ...item, url: publicMediaUrl(item.objectKey) })) });
 }
 
 export async function POST(request: Request) {
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
     const extension = allowedTypes.get(file.type)!;
     const objectKey = `spa-previews/${now.slice(0, 7)}/${crypto.randomUUID()}.${extension}`;
     await env.PREVIEW_MEDIA.put(objectKey, file.stream(), { httpMetadata: { contentType: file.type, cacheControl: "public, max-age=31536000, immutable" }, customMetadata: { filename: file.name, uploadedBy: admin.email } });
-    const url = `https://app.spaplus.co/spa-preview-media/${objectKey}`;
+    const url = publicMediaUrl(objectKey);
     const [record] = await getDb().insert(spaPreviewMedia).values({ objectKey, url, filename: file.name.slice(0, 240), contentType: file.type, createdBy: admin.email, createdAt: now }).returning();
     uploaded.push(record);
   }
