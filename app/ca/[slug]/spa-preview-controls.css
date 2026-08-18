@@ -1,0 +1,3 @@
+.canada-search-bar>.canada-search-field{display:flex;align-items:center;justify-content:flex-start;padding:0 14px;border-right:1px solid #e6e9ed;background:#fff;color:#a1a7b2;font-size:12px;line-height:1.15;text-decoration:none}
+.canada-search-bar>.canada-search-filter{border-right:1px solid #e6e9ed;background:#fff;color:#8c95a4}
+.canada-search-bar>.canada-search-field:hover,.canada-search-bar>.canada-search-filter:hover{background:#fafbfc}

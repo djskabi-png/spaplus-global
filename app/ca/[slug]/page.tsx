@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getRecruitmentPreviewBySlug } from "../../spa-preview";
 import CanadaSpaProfile from "./CanadaSpaProfile";
 import "./spa-preview.css";
+import "./spa-preview-controls.css";
 
 type Props = { params: Promise<{ slug: string }> };
 

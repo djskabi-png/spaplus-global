@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { SpaPreview } from "../../spa-preview";
 
 const icon = (name: "search" | "filter" | "globe" | "share" | "heart" | "camera" | "menu" | "back" | "person") => {
@@ -46,6 +46,24 @@ export default function CanadaSpaProfile({ preview }: { preview: SpaPreview }) {
   const photos = preview.photoUrls.filter(Boolean);
   const treatments = preview.treatments.filter((item) => item.name);
   const hours = useMemo(() => hoursRows(preview.hours, french), [preview.hours, french]);
+
+  useEffect(() => {
+    if (!galleryOpen && !menuOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setGalleryOpen(false);
+        setMenuOpen(false);
+      }
+      if (galleryOpen && event.key === "ArrowLeft") setActiveImage((current) => (current - 1 + photos.length) % photos.length);
+      if (galleryOpen && event.key === "ArrowRight") setActiveImage((current) => (current + 1) % photos.length);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    if (galleryOpen) document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [galleryOpen, menuOpen, photos.length]);
   const copy = french ? {
     where: "Où allez-vous?", guests: "Combien de personnes?", when: "Quand?", search: "Rechercher",
     book: "Réserver en ligne", images: "Photos supplémentaires", packages: "Forfaits spa", treatments: "Soins et services",
@@ -79,8 +97,8 @@ export default function CanadaSpaProfile({ preview }: { preview: SpaPreview }) {
             <img className="canada-wordmark-mark" src="/spaplus-mark.png" alt="SpaPlus" />
           </a>
           <div className="canada-search-bar" aria-label={copy.search}>
-            <span>{copy.where}</span><span>{copy.guests}</span><span>{copy.when}</span>
-            <button type="button" aria-label="Filters">{icon("filter")}</button>
+            <a className="canada-search-field" href={`https://spaplus.ca/${french ? "fr" : "en"}/`}>{copy.where}</a><a className="canada-search-field" href={`https://spaplus.ca/${french ? "fr" : "en"}/`}>{copy.guests}</a><a className="canada-search-field" href={`https://spaplus.ca/${french ? "fr" : "en"}/`}>{copy.when}</a>
+            <a className="canada-search-filter" href={`https://spaplus.ca/${french ? "fr" : "en"}/`} aria-label="Filters">{icon("filter")}</a>
             <a href="#packages" aria-label={copy.search}>{icon("search")}</a>
           </div>
           <nav className="canada-header-tools" aria-label="SpaPlus">

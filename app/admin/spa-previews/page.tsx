@@ -4,6 +4,7 @@ import { hasPermission } from "../../cms-access";
 import { listSpaPreviews } from "../../spa-preview";
 import SpaPreviewManager from "./SpaPreviewManager";
 import "./spa-previews.css";
+import "./spa-previews-fast.css";
 
 export const dynamic = "force-dynamic";
 
