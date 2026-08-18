@@ -522,6 +522,9 @@ test("management permissions fail closed and leads are scoped by market", async 
   assert.match(adminPage, /redirect\("\/tools"\)/);
   assert.match(toolsPage, /allowedLeadResourceKeys/);
   assert.match(toolsPage, /canViewContentManagement/);
+  assert.match(toolsPage, /canRecoverIsraelMetaLeads/);
+  assert.match(toolsPage, /"market:il",[\s\S]*?"manageLeads"/);
+  assert.match(toolsPage, /action="\/api\/integrations\/meta-ontario-leads\?recover_campaign=120251550743850512" method="post"/);
   assert.match(toolsPage, /\/auth\/logout\?return_to=\//);
   assert.match(dashboard, /allowedResourceKeys/);
   assert.match(dashboard, /allowedResourceKeys\.filter\(isLeadResourceKey\)/);
