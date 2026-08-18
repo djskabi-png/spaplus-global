@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-const route = await readFile(new URL("../app/api/cms/resend-delivery/route.ts", import.meta.url), "utf8");
+const route = await readFile(new URL("../app/api/cms/delivery-status/route.ts", import.meta.url), "utf8");
 
 test("Resend delivery lookup requires lead-management authorization", () => {
   assert.match(route, /getAuthorizedAdmin/);
