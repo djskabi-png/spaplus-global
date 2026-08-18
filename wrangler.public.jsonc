@@ -14,6 +14,10 @@
       "zone_name": "spaplus.co"
     },
     {
+      "pattern": "spaplus.co/assets/*",
+      "zone_name": "spaplus.co"
+    },
+    {
       "pattern": "adir.spaplus.co",
       "custom_domain": true
     }

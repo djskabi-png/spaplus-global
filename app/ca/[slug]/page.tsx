@@ -13,6 +13,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${preview.spaName} | SpaPlus preview`,
     description: `Private SpaPlus profile preview for ${preview.spaName}.`,
     robots: { index: false, follow: false, nocache: true },
+    openGraph: {
+      title: `${preview.spaName} | SpaPlus preview`,
+      description: `Private SpaPlus profile preview for ${preview.spaName}.`,
+      url: `https://spaplus.co/ca/${preview.slug}`,
+      siteName: "SpaPlus",
+      type: "website",
+      images: preview.photoUrls[0] ? [{ url: preview.photoUrls[0], alt: `${preview.spaName} profile preview` }] : [],
+    },
+    twitter: {
+      card: preview.photoUrls[0] ? "summary_large_image" : "summary",
+      title: `${preview.spaName} | SpaPlus preview`,
+      description: `Private SpaPlus profile preview for ${preview.spaName}.`,
+      images: preview.photoUrls[0] ? [preview.photoUrls[0]] : [],
+    },
   };
 }
 
