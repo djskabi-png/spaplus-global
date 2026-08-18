@@ -32,6 +32,8 @@ test("Meta spa leads are archived, attributed and emailed to the verified owners
   assert.match(route, /recover_campaign/);
   assert.match(route, /x-spaplus-recovery-token/);
   assert.match(route, /META_RECOVERY_TOKEN/);
+  assert.match(route, /"120251550743850512": ISRAEL_MARKET/);
+  assert.match(route, /marketPageId\(recoveryMarket\)/);
 });
 
 test("Meta leads distinguish Québec from Ontario before storage and notification", async () => {
@@ -105,10 +107,15 @@ test("Ontario Meta lead custom fields support the English and Canadian French fo
 test("Meta webhook reports failures so Meta can retry safely", async () => {
   const route = await readFile(routeUrl, "utf8");
 
-  assert.match(route, /const result = await processLeadValues\(values\)/);
+  assert.match(route, /const result = await processLeadValues\(values, \{ retryNotifications: true \}\)/);
   assert.match(route, /status: 503/);
   assert.match(route, /return options\.enrichExisting/);
-  assert.match(route, /return "inserted" as const/);
+  assert.match(route, /retryNotifications\?: boolean/);
+  assert.match(route, /if \(!existingLead\) \{/);
+  assert.match(route, /alertIsraelRoutingFailure\(error, values\)/);
+  assert.match(route, /spaplus-israel-meta-routing-alert-/);
+  assert.doesNotMatch(route, /console\.error\([^\n]*pageToken/);
+  assert.match(route, /return existingLead \? "duplicate" as const : "inserted" as const/);
 });
 
 test("Meta webhook requires a valid signature and accepts every form owned by the Canada page", async () => {
@@ -128,13 +135,14 @@ test("Meta webhook explicitly allows the Canadian and Israeli pages with conserv
   assert.match(route, /META_ALLOWED_PAGE_IDS\.has\(clean\(value\.page_id\)\)/);
 });
 
-test("Meta Graph reads use market-specific page tokens with a safe shared fallback", async () => {
+test("Meta Graph reads require the dedicated Israel token and retain the Canada fallback", async () => {
   const route = await readFile(routeUrl, "utf8");
 
   assert.match(route, /function pageAccessToken\(pageId = ""\)/);
   assert.match(route, /META_ISRAEL_PAGE_ACCESS_TOKEN/);
   assert.match(route, /META_CANADA_PAGE_ACCESS_TOKEN/);
-  assert.match(route, /configured \|\| setting\("META_PAGE_ACCESS_TOKEN"\)/);
+  assert.match(route, /const fallback = isIsrael \? "" : setting\("META_PAGE_ACCESS_TOKEN"\)/);
+  assert.match(route, /META_ISRAEL_PAGE_ACCESS_TOKEN is not configured/);
   assert.match(route, /fetchLead\(leadgenId, value\.page_id\)/);
   assert.match(route, /fetchName\(formId, webhookValue\.page_id\)/);
 });
@@ -175,8 +183,10 @@ test("Meta recovery reads leads from campaign ads and classifies each lead indep
   const route = await readFile(routeUrl, "utf8");
 
   assert.match(route, /\$\{encodeURIComponent\(campaignId\)\}\/ads/);
-  assert.match(route, /\$\{encodeURIComponent\(adId\)\}\/leads/);
-  assert.match(route, /inferMarket\(clean\(lead\.form_id\), formName, campaignName, adName\)/);
+  assert.match(route, /\$\{encodeURIComponent\(recoveryEdge\.id\)\}\/\$\{recoveryEdge\.edge\}/);
+  assert.match(route, /configuredFormIds\("META_ISRAEL_FORM_IDS"\)/);
+  assert.match(route, /market\.slug === "israel"[\s\S]*?ISRAEL_MARKET/);
+  assert.match(route, /<test lead: dummy data for/);
   assert.match(route, /markets\[leadMarket\.slug\] \+= 1/);
   assert.doesNotMatch(route, /enrichExisting: true, market, sendVisitorEmail: false/);
 });

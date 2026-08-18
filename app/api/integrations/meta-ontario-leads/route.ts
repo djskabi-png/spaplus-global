@@ -79,6 +79,10 @@ const META_ISRAEL_PAGE_ID = setting("META_ISRAEL_PAGE_ID") || "120456011329432";
 const META_PAGE_ID = META_CANADA_PAGE_ID;
 const META_ALLOWED_PAGE_IDS = new Set([META_CANADA_PAGE_ID, META_ISRAEL_PAGE_ID]);
 
+function marketPageId(market: MetaMarketContext) {
+  return market.slug === "israel" ? META_ISRAEL_PAGE_ID : META_CANADA_PAGE_ID;
+}
+
 function clean(value: unknown) {
   return String(value ?? "").trim();
 }
@@ -441,12 +445,48 @@ function pageAccessToken(pageId = "") {
   const configured = isIsrael
     ? setting("META_ISRAEL_PAGE_ACCESS_TOKEN")
     : setting("META_CANADA_PAGE_ACCESS_TOKEN");
-  const pageToken = (configured || setting("META_PAGE_ACCESS_TOKEN"))
+  const fallback = isIsrael ? "" : setting("META_PAGE_ACCESS_TOKEN");
+  const pageToken = (configured || fallback)
     .replace(/^\uFEFF/, "")
     .trim()
     .replace(/^["']|["']$/g, "");
-  if (!pageToken) throw new Error("META_PAGE_ACCESS_TOKEN is not configured");
+  if (!pageToken) {
+    throw new Error(
+      isIsrael
+        ? "META_ISRAEL_PAGE_ACCESS_TOKEN is not configured"
+        : "META_PAGE_ACCESS_TOKEN is not configured",
+    );
+  }
   return pageToken;
+}
+
+const israelRoutingAlertHours = new Set<string>();
+async function alertIsraelRoutingFailure(error: unknown, values: MetaLeadgenValue[]) {
+  if (!values.some((value) => clean(value.page_id) === META_ISRAEL_PAGE_ID)) return;
+  const message = error instanceof Error ? error.message : "unknown";
+  if (!/OAuth|190|463|expired|invalid.*token/i.test(message)) return;
+  const resendApiKey = setting("RESEND_API_KEY");
+  const recipients = (setting("META_ISRAEL_CONTACT_TO_EMAILS") || setting("ISRAEL_CONTACT_TO_EMAILS") || "")
+    .split(",").map((value) => value.trim().toLowerCase()).filter(isEmail);
+  if (!resendApiKey || recipients.length === 0) return;
+  const hour = new Date().toISOString().slice(0, 13);
+  if (israelRoutingAlertHours.has(hour)) return;
+  israelRoutingAlertHours.add(hour);
+  const idempotencyKey = `spaplus-israel-meta-routing-alert-${hour}`;
+  const response = await fetch("https://api.resend.com/emails/batch", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${resendApiKey}`, "Content-Type": "application/json", "Idempotency-Key": idempotencyKey },
+    body: JSON.stringify(recipients.map((to) => ({
+      from: setting("CONTACT_FROM_EMAIL") || "SpaPlus Canada <hello@mail.spaplus.co>",
+      to: [to],
+      subject: "התראה: תקלה זמנית בקבלת לידים ממטה בישראל",
+      text: "זוהתה תקלה באימות מול מטה. לא נכללו פרטי ליד או טוקן. יש לבדוק את טוקן דף ישראל ולבצע שחזור מבוקר.",
+      tags: [{ name: "email_type", value: "israel_meta_routing_alert" }],
+    }))),
+  }).catch(() => null);
+  if (response && !response.ok) {
+    console.error("Israel Meta routing alert failed", { status: response.status });
+  }
 }
 
 async function fetchLead(leadgenId: string, pageId = "") {
@@ -484,6 +524,7 @@ type StoreLeadOptions = {
   enrichExisting?: boolean;
   market?: MetaMarketContext;
   sendVisitorEmail?: boolean;
+  retryNotifications?: boolean;
 };
 
 type ExistingLead = {
@@ -576,7 +617,8 @@ async function storeLead(
     .from(formSubmissions)
     .where(eq(formSubmissions.submissionId, submissionId))
     .limit(1);
-  if (existing) {
+  const existingLead = Boolean(existing);
+  if (existing && !options.retryNotifications) {
     return options.enrichExisting && (await enrichExistingLead(existing, { phone, organization }))
       ? "enriched" as const
       : "duplicate" as const;
@@ -684,21 +726,23 @@ async function storeLead(
     .filter(Boolean)
     .join("\n");
 
-  await db.insert(formSubmissions).values({
-    submissionId,
-    formType: `${market.slug}-meta-instant-form`,
-    name,
-    email: email.toLowerCase(),
-    phone,
-    organization,
-    topic: spaType || `${market.name} spa partner`,
-    message,
-    locale,
-    source: `Meta paid lead form | ${market.name}`,
-    resourceKey: market.resourceKey,
-    status: "new",
-    createdAt,
-  });
+  if (!existingLead) {
+    await db.insert(formSubmissions).values({
+      submissionId,
+      formType: `${market.slug}-meta-instant-form`,
+      name,
+      email: email.toLowerCase(),
+      phone,
+      organization,
+      topic: spaType || `${market.name} spa partner`,
+      message,
+      locale,
+      source: `Meta paid lead form | ${market.name}`,
+      resourceKey: market.resourceKey,
+      status: "new",
+      createdAt,
+    });
+  }
 
   const notificationData: MarketLeadEmailData = {
     name,
@@ -737,12 +781,13 @@ async function storeLead(
     market,
     options.sendVisitorEmail !== false && market.slug !== "israel",
   );
-  return "inserted" as const;
+  return existingLead ? "duplicate" as const : "inserted" as const;
 }
 
 const RECOVERY_CAMPAIGNS: Record<string, MetaMarketContext> = {
   "120248551862410499": ONTARIO_MARKET,
   "120248856435100499": QUEBEC_MARKET,
+  "120251550743850512": ISRAEL_MARKET,
 };
 
 type ExportedMetaLead = {
@@ -903,42 +948,51 @@ async function recoverExportedLeads(
 }
 
 async function recoverMetaCampaign(campaignId: string) {
-  if (!RECOVERY_CAMPAIGNS[campaignId]) throw new Error("Campaign is not approved for recovery");
-  const pageToken = setting("META_PAGE_ACCESS_TOKEN")
-    .replace(/^\uFEFF/, "")
-    .trim()
-    .replace(/^["']|["']$/g, "");
-  if (!pageToken) throw new Error("META_PAGE_ACCESS_TOKEN is not configured");
+  const market = RECOVERY_CAMPAIGNS[campaignId];
+  if (!market) throw new Error("Campaign is not approved for recovery");
+  const pageToken = pageAccessToken(marketPageId(market));
 
   const seenLeadIds = new Set<string>();
   const leads: MetaLead[] = [];
-  let adsUrl: URL | null = new URL(
-    `https://graph.facebook.com/${GRAPH_VERSION}/${encodeURIComponent(campaignId)}/ads`,
-  );
-  adsUrl.searchParams.set("fields", "id,name");
-  adsUrl.searchParams.set("limit", "100");
-  adsUrl.searchParams.set("access_token", pageToken);
   const adIds: string[] = [];
-  while (adsUrl) {
-    const response = await fetch(adsUrl, { headers: { accept: "application/json" } });
-    if (!response.ok) {
-      const details = await response.text();
-      throw new Error(`Meta ad retrieval failed (${response.status}): ${details.slice(0, 300)}`);
+  if (market.slug !== "israel") {
+    let adsUrl: URL | null = new URL(
+      `https://graph.facebook.com/${GRAPH_VERSION}/${encodeURIComponent(campaignId)}/ads`,
+    );
+    adsUrl.searchParams.set("fields", "id,name");
+    adsUrl.searchParams.set("limit", "100");
+    adsUrl.searchParams.set("access_token", pageToken);
+    while (adsUrl) {
+      const response = await fetch(adsUrl, { headers: { accept: "application/json" } });
+      if (!response.ok) {
+        const details = await response.text();
+        throw new Error(`Meta ad retrieval failed (${response.status}): ${details.slice(0, 300)}`);
+      }
+      const body = (await response.json()) as {
+        data?: Array<{ id?: string }>;
+        paging?: { next?: string };
+      };
+      for (const ad of body.data || []) {
+        const adId = clean(ad.id);
+        if (adId) adIds.push(adId);
+      }
+      adsUrl = body.paging?.next ? new URL(body.paging.next) : null;
     }
-    const body = (await response.json()) as {
-      data?: Array<{ id?: string }>;
-      paging?: { next?: string };
-    };
-    for (const ad of body.data || []) {
-      const adId = clean(ad.id);
-      if (adId) adIds.push(adId);
-    }
-    adsUrl = body.paging?.next ? new URL(body.paging.next) : null;
   }
 
-  for (const adId of adIds) {
+  const recoveryEdges = market.slug === "israel"
+    ? Array.from(configuredFormIds("META_ISRAEL_FORM_IDS")).map((formId) => ({
+        id: formId,
+        edge: "leads",
+      }))
+    : adIds.map((adId) => ({ id: adId, edge: "leads" }));
+  if (market.slug === "israel" && recoveryEdges.length === 0) {
+    recoveryEdges.push({ id: "2602301363546095", edge: "leads" });
+  }
+
+  for (const recoveryEdge of recoveryEdges) {
     let nextUrl: URL | null = new URL(
-      `https://graph.facebook.com/${GRAPH_VERSION}/${encodeURIComponent(adId)}/leads`,
+      `https://graph.facebook.com/${GRAPH_VERSION}/${encodeURIComponent(recoveryEdge.id)}/${recoveryEdge.edge}`,
     );
     nextUrl.searchParams.set(
       "fields",
@@ -970,14 +1024,23 @@ async function recoverMetaCampaign(campaignId: string) {
   let enriched = 0;
   let duplicates = 0;
   let skipped = 0;
-  const markets = { ontario: 0, quebec: 0 };
+  const markets = { ontario: 0, quebec: 0, israel: 0 };
   for (const lead of leads) {
+    const isDummyLead = (lead.field_data || []).some((field) =>
+      (field.values || []).some((value) => clean(value).includes("<test lead: dummy data for")),
+    );
+    if (isDummyLead) {
+      skipped += 1;
+      continue;
+    }
     const [formName, adName, campaignName] = await Promise.all([
-      fetchName(clean(lead.form_id), META_CANADA_PAGE_ID),
-      fetchName(clean(lead.ad_id), META_CANADA_PAGE_ID),
-      fetchName(clean(lead.campaign_id), META_CANADA_PAGE_ID),
+      fetchName(clean(lead.form_id), marketPageId(market)),
+      fetchName(clean(lead.ad_id), marketPageId(market)),
+      fetchName(clean(lead.campaign_id), marketPageId(market)),
     ]);
-    const leadMarket = inferMarket(clean(lead.form_id), formName, campaignName, adName);
+    const leadMarket = market.slug === "israel"
+      ? ISRAEL_MARKET
+      : inferMarket(clean(lead.form_id), formName, campaignName, adName);
     markets[leadMarket.slug] += 1;
     const outcome = await storeLead(
       lead,
@@ -1049,9 +1112,13 @@ export async function POST(request: Request) {
         if (leadIds.length === 0 || leadIds.length > 10 || leadIds.length !== recoveryBody.leadIds.length) {
           return Response.json({ error: "Invalid lead IDs" }, { status: 400 });
         }
+        const recoveryMarket = RECOVERY_CAMPAIGNS[recoveryCampaignId];
         return Response.json({
           success: true,
-          ...(await processLeadValues(leadIds.map((leadgen_id) => ({ leadgen_id, page_id: META_PAGE_ID })))),
+          ...(await processLeadValues(leadIds.map((leadgen_id) => ({
+            leadgen_id,
+            page_id: marketPageId(recoveryMarket),
+          })), { retryNotifications: true })),
         });
       }
       if (Array.isArray(recoveryBody.leads)) {
@@ -1107,9 +1174,10 @@ export async function POST(request: Request) {
   }
 
   try {
-    const result = await processLeadValues(values);
+    const result = await processLeadValues(values, { retryNotifications: true });
     return Response.json({ success: true, accepted: values.length, ...result });
   } catch (error: unknown) {
+    await alertIsraelRoutingFailure(error, values);
     console.error("Meta lead webhook processing failed", {
       message: error instanceof Error ? error.message : "Unknown error",
       leadCount: values.length,
@@ -1118,7 +1186,7 @@ export async function POST(request: Request) {
   }
 }
 
-async function processLeadValues(values: MetaLeadgenValue[]) {
+async function processLeadValues(values: MetaLeadgenValue[], options: StoreLeadOptions = {}) {
   let inserted = 0;
   let duplicates = 0;
   let skipped = 0;
@@ -1128,7 +1196,7 @@ async function processLeadValues(values: MetaLeadgenValue[]) {
       skipped += 1;
       continue;
     }
-    const outcome = await storeLead(await fetchLead(leadgenId, value.page_id), value);
+    const outcome = await storeLead(await fetchLead(leadgenId, value.page_id), value, options);
     if (outcome === "inserted") inserted += 1;
     else if (outcome === "duplicate") duplicates += 1;
     else skipped += 1;
