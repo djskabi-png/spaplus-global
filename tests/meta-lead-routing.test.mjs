@@ -112,8 +112,12 @@ test("Meta webhook reports failures so Meta can retry safely", async () => {
   assert.match(route, /return options\.enrichExisting/);
   assert.match(route, /retryNotifications\?: boolean/);
   assert.match(route, /if \(!existingLead\) \{/);
-  assert.match(route, /alertIsraelRoutingFailure\(error, values\)/);
-  assert.match(route, /spaplus-israel-meta-routing-alert-/);
+  assert.match(route, /alertMetaRoutingFailure\(error, values\)/);
+  assert.match(route, /spaplus-\$\{market\.slug\}-meta-routing-alert-/);
+  assert.match(route, /META_\$\{market\.slug\.toUpperCase\(\)\}_CONTACT_TO_EMAILS/);
+  assert.match(route, /META_ONTARIO_CONTACT_TO_EMAILS/);
+  assert.match(route, /META_QUEBEC_CONTACT_TO_EMAILS/);
+  assert.match(route, /No lead data or token was included/);
   assert.doesNotMatch(route, /console\.error\([^\n]*pageToken/);
   assert.match(route, /return existingLead \? "duplicate" as const : "inserted" as const/);
 });

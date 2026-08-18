@@ -460,32 +460,42 @@ function pageAccessToken(pageId = "") {
   return pageToken;
 }
 
-const israelRoutingAlertHours = new Set<string>();
-async function alertIsraelRoutingFailure(error: unknown, values: MetaLeadgenValue[]) {
-  if (!values.some((value) => clean(value.page_id) === META_ISRAEL_PAGE_ID)) return;
+const metaRoutingAlertHours = new Set<string>();
+async function alertMetaRoutingFailure(error: unknown, values: MetaLeadgenValue[]) {
   const message = error instanceof Error ? error.message : "unknown";
   if (!/OAuth|190|463|expired|invalid.*token/i.test(message)) return;
   const resendApiKey = setting("RESEND_API_KEY");
-  const recipients = (setting("META_ISRAEL_CONTACT_TO_EMAILS") || setting("ISRAEL_CONTACT_TO_EMAILS") || "")
-    .split(",").map((value) => value.trim().toLowerCase()).filter(isEmail);
-  if (!resendApiKey || recipients.length === 0) return;
   const hour = new Date().toISOString().slice(0, 13);
-  if (israelRoutingAlertHours.has(hour)) return;
-  israelRoutingAlertHours.add(hour);
-  const idempotencyKey = `spaplus-israel-meta-routing-alert-${hour}`;
-  const response = await fetch("https://api.resend.com/emails/batch", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${resendApiKey}`, "Content-Type": "application/json", "Idempotency-Key": idempotencyKey },
-    body: JSON.stringify(recipients.map((to) => ({
-      from: setting("CONTACT_FROM_EMAIL") || "SpaPlus Canada <hello@mail.spaplus.co>",
-      to: [to],
-      subject: "התראה: תקלה זמנית בקבלת לידים ממטה בישראל",
-      text: "זוהתה תקלה באימות מול מטה. לא נכללו פרטי ליד או טוקן. יש לבדוק את טוקן דף ישראל ולבצע שחזור מבוקר.",
-      tags: [{ name: "email_type", value: "israel_meta_routing_alert" }],
-    }))),
-  }).catch(() => null);
-  if (response && !response.ok) {
-    console.error("Israel Meta routing alert failed", { status: response.status });
+  if (!resendApiKey) return;
+  const pageMarkets = [
+    { pageId: META_CANADA_PAGE_ID, slug: "canada", subject: "Alert: temporary Meta lead routing failure", text: "Meta authentication failed. No lead data or token was included. Check the Canadian Page token and run controlled recovery." },
+    { pageId: META_ISRAEL_PAGE_ID, slug: "israel", subject: "התראה: תקלה זמנית בקבלת לידים ממטה בישראל", text: "זוהתה תקלה באימות מול מטה. לא נכללו פרטי ליד או טוקן. יש לבדוק את טוקן דף ישראל ולבצע שחזור מבוקר." },
+  ];
+  for (const market of pageMarkets) {
+    if (!values.some((value) => clean(value.page_id) === market.pageId)) continue;
+    const recipientSettings = market.slug === "canada"
+      ? ["META_CANADA_CONTACT_TO_EMAILS", "CANADA_CONTACT_TO_EMAILS", "META_ONTARIO_CONTACT_TO_EMAILS", "ONTARIO_CONTACT_TO_EMAILS", "META_QUEBEC_CONTACT_TO_EMAILS", "QUEBEC_CONTACT_TO_EMAILS"]
+      : [`META_${market.slug.toUpperCase()}_CONTACT_TO_EMAILS`, `${market.slug.toUpperCase()}_CONTACT_TO_EMAILS`];
+    const recipients = [...new Set(
+      recipientSettings
+        .flatMap((name) => setting(name).split(","))
+        .map((value) => value.trim().toLowerCase())
+        .filter(isEmail),
+    )];
+    if (recipients.length === 0) continue;
+    const alertKey = `${market.slug}:${hour}`;
+    if (metaRoutingAlertHours.has(alertKey)) continue;
+    metaRoutingAlertHours.add(alertKey);
+    const response = await fetch("https://api.resend.com/emails/batch", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${resendApiKey}`, "Content-Type": "application/json", "Idempotency-Key": `spaplus-${market.slug}-meta-routing-alert-${hour}` },
+      body: JSON.stringify(recipients.map((to) => ({
+        from: setting("CONTACT_FROM_EMAIL") || "SpaPlus Canada <hello@mail.spaplus.co>",
+        to: [to], subject: market.subject, text: market.text,
+        tags: [{ name: "email_type", value: `${market.slug}_meta_routing_alert` }],
+      }))),
+    }).catch(() => null);
+    if (response && !response.ok) console.error("Meta routing alert failed", { market: market.slug, status: response.status });
   }
 }
 
@@ -1177,7 +1187,7 @@ export async function POST(request: Request) {
     const result = await processLeadValues(values, { retryNotifications: true });
     return Response.json({ success: true, accepted: values.length, ...result });
   } catch (error: unknown) {
-    await alertIsraelRoutingFailure(error, values);
+    await alertMetaRoutingFailure(error, values);
     console.error("Meta lead webhook processing failed", {
       message: error instanceof Error ? error.message : "Unknown error",
       leadCount: values.length,

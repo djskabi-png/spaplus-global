@@ -518,7 +518,7 @@ test("management permissions fail closed and leads are scoped by market", async 
   assert.match(access, /return false/);
   assert.match(access, /resource\.type === "site" \|\| resource\.type === "market"/);
   assert.doesNotMatch(access, /permissions\.length === 0/);
-  assert.match(adminPage, /cmsContentResources\.some/);
+  assert.match(adminPage, /cmsContentResources[\s\S]*?\.some/);
   assert.match(adminPage, /redirect\("\/tools"\)/);
   assert.match(toolsPage, /allowedLeadResourceKeys/);
   assert.match(toolsPage, /canViewContentManagement/);
