@@ -15,7 +15,7 @@ export default function SpaPreviewManager({ canEdit, initialPreviews }: { canEdi
   const shareLink = useMemo(() => draft.slug ? `https://spaplus.co/ca/${draft.slug}` : "", [draft.slug]);
 
   async function load() {
-    const response = await fetch("/api/cms/spa-previews");
+    const response = await fetch("/admin/spa-previews/data");
     if (!response.ok) { setMessage("The profile list could not be refreshed. Reload the page and try again."); return; }
     const data = await response.json() as { previews: SpaPreview[] };
     setPreviews(data.previews);
@@ -28,7 +28,7 @@ export default function SpaPreviewManager({ canEdit, initialPreviews }: { canEdi
     event.preventDefault();
     if (!canEdit) return;
     setBusy(true); setMessage("");
-    const response = await fetch("/api/cms/spa-previews", { method: draft.id ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(draft) });
+    const response = await fetch("/admin/spa-previews/data", { method: draft.id ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(draft) });
     const data = await response.json() as { preview?: SpaPreview; error?: string };
     setBusy(false);
     if (!response.ok || !data.preview) { setMessage(data.error || "The profile could not be saved."); return; }
