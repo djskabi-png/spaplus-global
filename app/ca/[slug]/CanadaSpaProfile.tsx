@@ -71,6 +71,7 @@ export default function CanadaSpaProfile({ preview }: { preview: SpaPreview }) {
     bookNow: "Réserver", about: "À propos du spa", hours: "Heures d’ouverture", contact: "Nous joindre",
     map: "Itinéraire", navigate: "Naviguer maintenant!", features: "Caractéristiques de l’endroit",
     packageFallback: "Forfait spa", close: "Fermer", previous: "Image précédente", next: "Image suivante",
+    noMatches: "Aucun soin ne correspond à ce filtre.",
   } : {
     where: "Where to?", guests: "How many guests?", when: "When?", search: "Search",
     book: "Book Online", images: "Additional Images", packages: "Spa Packages", treatments: "Treatments & Services",
@@ -78,6 +79,7 @@ export default function CanadaSpaProfile({ preview }: { preview: SpaPreview }) {
     bookNow: "Book now", about: "About the Spa", hours: "Spa Hours", contact: "Contact Us",
     map: "Arrival Map", navigate: "Navigate now!", features: "Characteristics of the place",
     packageFallback: "Spa package", close: "Close", previous: "Previous image", next: "Next image",
+    noMatches: "No services match this filter.",
   };
 
   const openGallery = (index: number) => { setActiveImage(index); setGalleryOpen(true); };
@@ -157,23 +159,23 @@ export default function CanadaSpaProfile({ preview }: { preview: SpaPreview }) {
             {preview.spaPackage.name ? <section className="canada-section" id="packages">
               <h2>{copy.packages}</h2>
               <div className="canada-filter-tabs"><button type="button" className={packageFilter === "all" ? "active" : ""} aria-pressed={packageFilter === "all"} onClick={() => setPackageFilter("all")}>{copy.all}</button><button type="button" className={packageFilter === "solo" ? "active" : ""} aria-pressed={packageFilter === "solo"} onClick={() => setPackageFilter("solo")}>{copy.solo}</button><button type="button" className={packageFilter === "couple" ? "active" : ""} aria-pressed={packageFilter === "couple"} onClick={() => setPackageFilter("couple")}>{copy.couple}</button></div>
-              <article className="canada-service-card canada-package-card">
+              {packageFilter !== "couple" ? <article className="canada-service-card canada-package-card">
                 {photos[1] ? <button type="button" className="canada-service-image" onClick={() => openGallery(1)}><img src={photos[1]} alt={preview.spaPackage.name} /></button> : null}
                 <div className="canada-service-copy"><h3>{preview.spaPackage.name || copy.packageFallback}</h3><p>{preview.spaPackage.description}</p><div className="canada-service-meta"><span>{copy.from} <strong>{priceLabel(preview.spaPackage.price, french)}</strong></span></div></div>
                 <a className="canada-card-book" href="#contact">{copy.bookNow}</a>
-              </article>
+              </article> : <p className="canada-no-results" role="status">{copy.noMatches}</p>}
             </section> : null}
 
             {treatments.length ? <section className="canada-section" id="treatments">
               <h2>{copy.treatments}</h2>
               <div className="canada-filter-tabs"><button type="button" className={treatmentFilter === "solo" ? "active" : ""} aria-pressed={treatmentFilter === "solo"} onClick={() => setTreatmentFilter("solo")}>{copy.solo}</button><button type="button" className={treatmentFilter === "couple" ? "active" : ""} aria-pressed={treatmentFilter === "couple"} onClick={() => setTreatmentFilter("couple")}>{copy.couple}</button></div>
-              <div className="canada-treatment-list">
+              {treatmentFilter === "solo" ? <div className="canada-treatment-list">
                 {treatments.map((treatment, index) => <article className="canada-service-card canada-treatment-card" key={`${treatment.name}-${index}`}>
                   {photos[index + 2] ? <button type="button" className="canada-service-image" onClick={() => openGallery(index + 2)}><img src={photos[index + 2]} alt={treatment.name} /></button> : null}
                   <div className="canada-service-copy"><h3>{treatment.name} <span>››</span></h3><p>{treatment.description}</p><div className="canada-service-meta"><strong>{priceLabel(treatment.price, french)}</strong>{treatment.duration ? <span>{treatment.duration}</span> : null}</div></div>
                   <a className="canada-card-book" href="#contact">{copy.bookNow}</a>
                 </article>)}
-              </div>
+              </div> : <p className="canada-no-results" role="status">{copy.noMatches}</p>}
             </section> : null}
           </div>
 

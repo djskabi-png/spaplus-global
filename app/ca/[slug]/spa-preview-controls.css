@@ -1,3 +1,4 @@
 .canada-search-bar>.canada-search-field{display:flex;align-items:center;justify-content:flex-start;padding:0 14px;border-right:1px solid #e6e9ed;background:#fff;color:#a1a7b2;font-size:12px;line-height:1.15;text-decoration:none}
 .canada-search-bar>.canada-search-filter{border-right:1px solid #e6e9ed;background:#fff;color:#8c95a4}
 .canada-search-bar>.canada-search-field:hover,.canada-search-bar>.canada-search-filter:hover{background:#fafbfc}
+.canada-no-results{margin:0 0 18px;padding:22px;border:1px solid #e5e8ed;border-radius:12px;background:#fff;color:#6d7481;text-align:center}
