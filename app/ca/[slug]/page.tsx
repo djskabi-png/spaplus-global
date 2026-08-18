@@ -20,10 +20,12 @@ export default async function SpaPreviewPage({ params }: Props) {
   const { slug } = await params;
   const preview = await getSpaPreviewBySlug(slug);
   if (!preview || preview.status !== "shared") notFound();
+  const isDemonstration = preview.slug === "spaplus-profile-demo";
   const treatments = preview.treatments.filter((treatment) => treatment.name);
   return (
     <main className="spa-preview-page">
       <div className="spa-preview-notice">Private collaboration preview. This profile is not yet live on SpaPlus Canada and cannot accept bookings.</div>
+      {isDemonstration ? <div className="spa-preview-demo-notice">Demonstration only. The business details and images are illustrative and do not represent a real spa.</div> : null}
       <header className="spa-preview-header">
         <a href="/" className="spa-preview-brand"><img src="/spaplus-mark.png" alt="" />SpaPlus</a>
         <span>Profile preview</span>
@@ -36,10 +38,10 @@ export default async function SpaPreviewPage({ params }: Props) {
           <p className="spa-preview-address">{preview.address}</p>
           <div className="spa-preview-hero-actions"><span>Opening soon on SpaPlus</span><a href="#about">Explore your profile</a></div>
         </div>
-        <img className="spa-preview-hero-image" src={preview.photoUrls[0]} alt={`${preview.spaName} preview`} />
+        <img className="spa-preview-hero-image" src={preview.photoUrls[0]} alt={isDemonstration ? "Illustrative SpaPlus profile demonstration" : `${preview.spaName} preview`} />
       </section>
       <section className="spa-preview-gallery" aria-label={`${preview.spaName} gallery`}>
-        {preview.photoUrls.slice(1).map((image, index) => <img key={image} src={image} alt={`${preview.spaName}, gallery image ${index + 2}`} />)}
+        {preview.photoUrls.slice(1).map((image, index) => <img key={image} src={image} alt={isDemonstration ? `Illustrative SpaPlus demonstration image ${index + 2}` : `${preview.spaName}, gallery image ${index + 2}`} />)}
       </section>
       <section className="spa-preview-details" id="about">
         <article><p className="spa-preview-kicker">About the spa</p><h2>A profile that feels like your place</h2><p>{preview.about}</p></article>

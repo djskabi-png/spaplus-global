@@ -10,6 +10,10 @@
       "zone_name": "spaplus.co"
     },
     {
+      "pattern": "spaplus.co/ca/*",
+      "zone_name": "spaplus.co"
+    },
+    {
       "pattern": "adir.spaplus.co",
       "custom_domain": true
     }
