@@ -8,6 +8,7 @@ interface Env {
   PRIVATE_BACKEND_ORIGIN?: string;
   SITES_BYPASS_TOKEN?: string;
   META_WEBHOOK_VERIFY_TOKEN?: string;
+  META_ISRAEL_WEBHOOK_VERIFY_TOKEN?: string;
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
   ADMIN_SESSION_SECRET?: string;
@@ -51,8 +52,13 @@ function constantTimeEqual(left: string, right: string): boolean {
 }
 
 function verifyMetaWebhookRequest(request: Request, env: Env): Response {
-  const expectedToken = env.META_WEBHOOK_VERIFY_TOKEN?.trim() || "";
-  if (expectedToken.length < 16) {
+  const expectedTokens = [
+    env.META_WEBHOOK_VERIFY_TOKEN,
+    env.META_ISRAEL_WEBHOOK_VERIFY_TOKEN,
+  ]
+    .map((value) => value?.trim() || "")
+    .filter((value, index, values) => value.length >= 24 && values.indexOf(value) === index);
+  if (expectedTokens.length === 0) {
     return Response.json({ error: "Webhook is not configured" }, { status: 503 });
   }
 
@@ -61,7 +67,8 @@ function verifyMetaWebhookRequest(request: Request, env: Env): Response {
   const token = url.searchParams.get("hub.verify_token") || "";
   const challenge = url.searchParams.get("hub.challenge") || "";
 
-  if (mode !== "subscribe" || !constantTimeEqual(token, expectedToken)) {
+  const validToken = expectedTokens.some((expected) => constantTimeEqual(token, expected));
+  if (mode !== "subscribe" || !validToken) {
     return Response.json({ error: "Verification token mismatch" }, { status: 403 });
   }
 

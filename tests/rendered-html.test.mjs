@@ -75,8 +75,11 @@ test("the public app worker verifies Meta lead webhooks at the edge and proxies 
   const worker = await read("worker/index.ts");
 
   assert.match(worker, /META_WEBHOOK_VERIFY_TOKEN\?: string/);
+  assert.match(worker, /META_ISRAEL_WEBHOOK_VERIFY_TOKEN\?: string/);
   assert.match(worker, /function constantTimeEqual/);
   assert.match(worker, /function verifyMetaWebhookRequest/);
+  assert.match(worker, /value\.length >= 24/);
+  assert.match(worker, /expectedTokens\.some\(\(expected\) => constantTimeEqual\(token, expected\)\)/);
   assert.match(worker, /request\.method === "GET"[\s\S]*?\/api\/integrations\/meta-ontario-leads/);
   assert.match(worker, /return verifyMetaWebhookRequest\(request, env\)/);
   assert.match(
