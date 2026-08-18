@@ -7,16 +7,16 @@ type Draft = Omit<SpaPreview, "id" | "createdAt" | "updatedAt"> & { id?: number 
 const blankTreatment = (): Treatment => ({ name: "", description: "", duration: "", price: "" });
 const blank = (): Draft => ({ slug: "", status: "shared", spaName: "", address: "", about: "", hours: "", treatments: [blankTreatment(), blankTreatment(), blankTreatment()], spaPackage: { name: "", description: "", price: "" }, logoUrl: "", photoUrls: ["", "", "", "", ""] });
 
-export default function SpaPreviewManager({ canEdit }: { canEdit: boolean }) {
-  const [previews, setPreviews] = useState<SpaPreview[]>([]);
+export default function SpaPreviewManager({ canEdit, initialPreviews }: { canEdit: boolean; initialPreviews: SpaPreview[] }) {
+  const [previews, setPreviews] = useState<SpaPreview[]>(initialPreviews);
   const [draft, setDraft] = useState<Draft>(blank);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
-  const shareLink = useMemo(() => draft.slug && typeof window !== "undefined" ? `${window.location.origin}/ca/${draft.slug}` : "", [draft.slug]);
+  const shareLink = useMemo(() => draft.slug ? `https://spaplus.co/ca/${draft.slug}` : "", [draft.slug]);
 
   async function load() {
     const response = await fetch("/api/cms/spa-previews");
-    if (!response.ok) return;
+    if (!response.ok) { setMessage("The profile list could not be refreshed. Reload the page and try again."); return; }
     const data = await response.json() as { previews: SpaPreview[] };
     setPreviews(data.previews);
   }
