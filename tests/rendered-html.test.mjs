@@ -57,7 +57,10 @@ test("Ontario and Quebec Meta instant-form leads are authenticated, deduplicated
   assert.match(route, /buildMarketOwnerEmail/);
   assert.match(route, /buildMarketVisitorEmail/);
   assert.match(route, /X-Entity-Ref-ID.*spaplus-meta-\$\{market\.slug\}-/s);
-  assert.match(route, /to: ownerEmails/);
+  assert.match(route, /api\.resend\.com\/emails\/batch/);
+  assert.match(route, /ownerEmails\.map\(\(ownerEmail, index\)/);
+  assert.match(route, /to: \[ownerEmail\]/);
+  assert.doesNotMatch(route, /to: ownerEmails/);
   assert.match(route, /to: \[data\.email\]/);
   assert.match(templates, /languageTag: isHebrew \? "he-IL" : "en"/);
   assert.match(templates, /dir="\$\{direction\}"/);

@@ -235,16 +235,29 @@ async function sendMarketOwnerNotification(
   const owner = buildMarketOwnerEmail(data, ownerContext);
   const visitor = buildMarketVisitorEmail(data, visitorContext);
 
-  const sendEmail = async (input: {
+  type ProviderEmailInput = {
     to: string[];
     replyTo?: string;
     subject: string;
     html: string;
     text: string;
     idempotencyKey: string;
-  }) => {
+  };
+  const resendFrom = setting("CONTACT_FROM_EMAIL") || "SpaPlus Canada <hello@mail.spaplus.co>";
+  const resendPayload = (input: ProviderEmailInput) => ({
+    from: resendFrom,
+    to: input.to,
+    reply_to: input.replyTo,
+    subject: input.subject,
+    html: input.html,
+    text: input.text,
+    tags: [
+      { name: "email_type", value: `${market.slug}_meta_spa_lead` },
+      { name: "market", value: market.slug },
+    ],
+  });
+  const sendEmail = async (input: ProviderEmailInput) => {
     if (resendApiKey) {
-      const resendFrom = setting("CONTACT_FROM_EMAIL") || "SpaPlus Canada <hello@mail.spaplus.co>";
       const response = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -253,18 +266,7 @@ async function sendMarketOwnerNotification(
           "Idempotency-Key": input.idempotencyKey,
           "User-Agent": "SpaPlus-Meta-Canada-Leads/1.0",
         },
-        body: JSON.stringify({
-          from: resendFrom,
-          to: input.to,
-          reply_to: input.replyTo,
-          subject: input.subject,
-          html: input.html,
-          text: input.text,
-          tags: [
-            { name: "email_type", value: `${market.slug}_meta_spa_lead` },
-            { name: "market", value: market.slug },
-          ],
-        }),
+        body: JSON.stringify(resendPayload(input)),
       });
       const result = (await response.json()) as { id?: string; message?: string };
       if (!response.ok || !result.id) {
@@ -320,16 +322,62 @@ async function sendMarketOwnerNotification(
     return `cloudflare:${result.result?.message_id || input.idempotencyKey}`;
   };
 
-  const ownerDeliveryId = await sendEmail({
-    to: ownerEmails,
+  const ownerMessage = {
     replyTo: data.email || undefined,
     subject: owner.subject,
     html: owner.html,
     text: owner.text,
-    idempotencyKey: `spaplus-${market.slug}-meta-owner-${leadId}`,
-  });
+  };
+  let ownerDeliveryIds: string[];
+  if (resendApiKey && ownerEmails.length > 1) {
+    const batchIdempotencyKey = `spaplus-${market.slug}-meta-owner-${leadId}`;
+    const response = await fetch("https://api.resend.com/emails/batch", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        "Content-Type": "application/json",
+        "Idempotency-Key": batchIdempotencyKey,
+        "User-Agent": "SpaPlus-Meta-Leads/1.1",
+      },
+      body: JSON.stringify(
+        ownerEmails.map((ownerEmail, index) =>
+          resendPayload({
+            ...ownerMessage,
+            to: [ownerEmail],
+            idempotencyKey: `${batchIdempotencyKey}-${index + 1}`,
+          }),
+        ),
+      ),
+    });
+    const result = (await response.json()) as {
+      data?: Array<{ id?: string }>;
+      message?: string;
+    };
+    if (
+      !response.ok ||
+      !Array.isArray(result.data) ||
+      result.data.length !== ownerEmails.length ||
+      result.data.some((item) => !item.id)
+    ) {
+      throw new Error(
+        `${market.name} Resend owner batch failed (${response.status}): ${result.message || "Incomplete provider response"}`,
+      );
+    }
+    ownerDeliveryIds = result.data.map((item) => `resend:${item.id}`);
+  } else {
+    ownerDeliveryIds = [];
+    for (const [index, ownerEmail] of ownerEmails.entries()) {
+      ownerDeliveryIds.push(
+        await sendEmail({
+          ...ownerMessage,
+          to: [ownerEmail],
+          idempotencyKey: `spaplus-${market.slug}-meta-owner-${leadId}-${index + 1}`,
+        }),
+      );
+    }
+  }
 
-  const deliveryIds = [ownerDeliveryId];
+  const deliveryIds = [...ownerDeliveryIds];
   if (sendVisitorEmail && isEmail(data.email)) {
     deliveryIds.push(
       await sendEmail({

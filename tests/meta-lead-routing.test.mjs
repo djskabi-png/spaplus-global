@@ -146,6 +146,11 @@ test("Israel owner notifications render Hebrew lead details and never send visit
   assert.match(route, /const owner = buildMarketOwnerEmail\(data, ownerContext\)/);
   assert.match(route, /const visitor = buildMarketVisitorEmail\(data, visitorContext\)/);
   assert.match(route, /market\.slug !== "israel"/);
+  assert.match(route, /https:\/\/api\.resend\.com\/emails\/batch/);
+  assert.match(route, /ownerEmails\.map\(\(ownerEmail, index\)/);
+  assert.match(route, /to: \[ownerEmail\]/);
+  assert.match(route, /result\.data\.length !== ownerEmails\.length/);
+  assert.doesNotMatch(route, /to: ownerEmails/);
   assert.match(route, /city,/);
   assert.match(route, /lead_id: leadId/);
 
