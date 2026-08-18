@@ -67,6 +67,28 @@ test("Israel Meta leads route to the Israel CRM market and Hebrew owner workflow
   assert.match(route, /עיר \/ יישוב/);
   assert.match(route, /market\.slug !== "israel"/);
   assert.match(route, /META_\$\{market\.slug\.toUpperCase\(\)\}_CONTACT_TO_EMAILS/);
+  assert.match(route, /SpaPlus Israel/);
+});
+
+test("Meta field normalization preserves Hebrew and resolves the exact Israel form keys", async () => {
+  const { findNormalizedMetaField, normalizeMetaFieldName } = await import(
+    "../app/meta-lead-fields.ts"
+  );
+  const fields = new Map([
+    ["שם_בית_הספא_או_העסק", "ספא בדיקה"],
+    ["עיר_או_יישוב_בישראל", "תל אביב"],
+    ['דוא"ל', "meta-test@example.com"],
+    ["שם_מלא", "ליד בדיקה"],
+    ["מספר_טלפון", "0500000000"],
+  ]);
+
+  assert.equal(normalizeMetaFieldName("שם מלא"), "שם_מלא");
+  assert.equal(findNormalizedMetaField(fields, ["שם מלא"]), "ליד בדיקה");
+  assert.equal(findNormalizedMetaField(fields, ["דוא״ל", 'דוא"ל']), "meta-test@example.com");
+  assert.equal(findNormalizedMetaField(fields, ["מספר טלפון"]), "0500000000");
+  assert.equal(findNormalizedMetaField(fields, ["שם בית הספא או העסק"]), "ספא בדיקה");
+  assert.equal(findNormalizedMetaField(fields, ["עיר או יישוב בישראל"]), "תל אביב");
+  assert.equal(findNormalizedMetaField(new Map([["---", "wrong"]]), ["***"]), "");
 });
 
 test("Ontario Meta lead custom fields support the English and Canadian French forms", async () => {

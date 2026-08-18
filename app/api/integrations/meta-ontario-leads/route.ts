@@ -10,6 +10,7 @@ import {
 import { quebecCopyOverrides } from "../../../market-launch/markets";
 import { getAuthorizedAdmin } from "../../../admin-auth";
 import { hasPermission } from "../../../cms-access";
+import { findNormalizedMetaField as normalizedField } from "../../../meta-lead-fields";
 
 type MetaField = { name?: string; values?: unknown[] };
 type MetaLead = {
@@ -102,25 +103,6 @@ function firstField(fields: Map<string, string>, names: string[]) {
   for (const name of names) {
     const value = fields.get(name);
     if (value) return value;
-  }
-  return "";
-}
-
-function normalizeFieldName(name: string) {
-  return name
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "");
-}
-
-function normalizedField(fields: Map<string, string>, names: string[]) {
-  const normalizedNames = names.map(normalizeFieldName);
-  for (const [key, value] of fields) {
-    const normalizedKey = normalizeFieldName(key);
-    if (normalizedNames.some((name) => normalizedKey === name || normalizedKey.includes(name))) {
-      return value;
-    }
   }
   return "";
 }
@@ -491,13 +473,27 @@ async function storeLead(
   const campaignId = clean(lead.campaign_id);
   const name =
     firstField(fields, ["full_name", "name", "first_name"]) ||
-    normalizedField(fields, ["nom_complet", "nom"]);
+    normalizedField(fields, ["nom_complet", "nom", "שם מלא", "שם הפונה"]);
   const email =
     firstField(fields, ["email", "work_email"]) ||
-    normalizedField(fields, ["e_mail", "courriel", "adresse_e_mail", "adresse_courriel"]);
+    normalizedField(fields, [
+      "e_mail",
+      "courriel",
+      "adresse_e_mail",
+      "adresse_courriel",
+      "דוא\"ל",
+      "דוא״ל",
+      "אימייל",
+    ]);
   const phone =
     firstField(fields, ["phone_number", "phone"]) ||
-    normalizedField(fields, ["numero_de_telephone", "telephone"]);
+    normalizedField(fields, [
+      "numero_de_telephone",
+      "telephone",
+      "מספר טלפון",
+      "טלפון נייד",
+      "טלפון",
+    ]);
   const organization =
     firstField(fields, ["company_name", "spa_name", "business_name"]) ||
     normalizedField(fields, [
@@ -507,6 +503,9 @@ async function storeLead(
       "nom_de_votre_spa_ou_entreprise",
       "nom_de_votre_spa",
       "nom_de_l_entreprise",
+      "שם בית הספא או העסק",
+      "שם בית הספא",
+      "שם העסק",
     ]) ||
     firstField(fields, ["שם בית הספא או העסק", "שם בית הספא", "שם העסק"]);
   if (!name || (!email && !phone)) return "skipped" as const;
@@ -581,6 +580,10 @@ async function storeLead(
       "your_city_or_region",
       "city_or_region",
       "votre_ville_ou_region",
+      "עיר או יישוב בישראל",
+      "עיר",
+      "יישוב",
+      "עיר יישוב",
     ]) ||
     firstField(fields, ["עיר או יישוב בישראל", "עיר", "יישוב", "עיר / יישוב"]);
   const role = firstField(fields, ["job_title", "role"]);
@@ -611,7 +614,7 @@ async function storeLead(
 
   const message = [
       "Company group: SpaPlus",
-      "Brand: SpaPlus Canada",
+      `Brand: ${market.slug === "israel" ? "SpaPlus Israel" : "SpaPlus Canada"}`,
       `Lead purpose: ${market.name} spa partner registration`,
       "Source channel: Meta paid lead form",
       `Language: ${locale}`,

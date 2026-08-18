@@ -29,9 +29,10 @@ test("RoomsVIP test leads are retained and clearly marked", async () => {
 });
 
 test("Ontario and Quebec Meta instant-form leads are authenticated, deduplicated, tagged and emailed", async () => {
-  const [route, templates] = await Promise.all([
+  const [route, templates, fieldHelpers] = await Promise.all([
     read("app/api/integrations/meta-ontario-leads/route.ts"),
     read("app/market-email-templates.ts"),
+    read("app/meta-lead-fields.ts"),
   ]);
 
   assert.match(route, /x-hub-signature-256/);
@@ -41,7 +42,8 @@ test("Ontario and Quebec Meta instant-form leads are authenticated, deduplicated
   assert.match(route, /resourceKey: market\.resourceKey/);
   assert.match(route, /resourceKey: "market:ca:on"/);
   assert.match(route, /resourceKey: "market:ca:qc"/);
-  assert.match(route, /function normalizeFieldName/);
+  assert.match(route, /findNormalizedMetaField as normalizedField/);
+  assert.match(fieldHelpers, /function normalizeMetaFieldName/);
   assert.match(route, /nom_complet/);
   assert.match(route, /numero_de_telephone/);
   assert.match(route, /nom_de_l_entreprise/);
