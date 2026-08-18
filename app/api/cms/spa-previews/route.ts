@@ -10,6 +10,7 @@ type Payload = {
   spaName?: string;
   slug?: string;
   status?: "draft" | "shared";
+  language?: "en" | "fr-CA";
   address?: string;
   about?: string;
   hours?: string;
@@ -37,12 +38,13 @@ function normalize(body: Payload) {
   const treatments = Array.isArray(body.treatments) ? body.treatments.slice(0, 3).map((item) => ({
     name: text(item?.name, 120), description: text(item?.description, 1200), duration: text(item?.duration, 80), price: text(item?.price, 80),
   })) : [];
-  const photoUrls = Array.isArray(body.photoUrls) ? body.photoUrls.slice(0, 5).map(url).filter(Boolean) : [];
-  const spaPackage = body.spaPackage || {};
+  const photoUrls = Array.isArray(body.photoUrls) ? body.photoUrls.slice(0, 10).map(url).filter(Boolean) : [];
+  const spaPackage: Partial<SpaPackage> = body.spaPackage || {};
   return {
     spaName,
     slug: slugify(String(body.slug || spaName)),
     status: body.status === "draft" ? "draft" as const : "shared" as const,
+    language: body.language === "fr-CA" ? "fr-CA" as const : "en" as const,
     address: text(body.address, 500), about: text(body.about, 8000), hours: text(body.hours, 2000),
     treatments, spaPackage: { name: text(spaPackage.name, 120), description: text(spaPackage.description, 1200), price: text(spaPackage.price, 80) },
     logoUrl: url(body.logoUrl), photoUrls,
@@ -66,8 +68,8 @@ export async function POST(request: Request) {
   const admin = await editor();
   if (!admin) return Response.json({ error: "Forbidden" }, { status: 403 });
   const data = normalize(await request.json() as Payload);
-  if (!data.spaName || !data.slug || data.treatments.length !== 3 || data.photoUrls.length !== 5) {
-    return Response.json({ error: "Add a spa name, 3 treatments, and 5 valid image URLs." }, { status: 400 });
+  if (!data.spaName || !data.slug || data.treatments.length !== 3 || data.photoUrls.length < 1 || data.photoUrls.length > 10) {
+    return Response.json({ error: "Add a spa name, 3 treatments, and between 1 and 10 gallery images." }, { status: 400 });
   }
   const db = getDb();
   const now = new Date().toISOString();
@@ -86,7 +88,7 @@ export async function PUT(request: Request) {
   const body = await request.json() as Payload;
   const id = Number(body.id);
   const data = normalize(body);
-  if (!Number.isInteger(id) || id < 1 || !data.spaName || !data.slug || data.treatments.length !== 3 || data.photoUrls.length !== 5) return Response.json({ error: "Add a spa name, 3 treatments, and 5 valid image URLs." }, { status: 400 });
+  if (!Number.isInteger(id) || id < 1 || !data.spaName || !data.slug || data.treatments.length !== 3 || data.photoUrls.length < 1 || data.photoUrls.length > 10) return Response.json({ error: "Add a spa name, 3 treatments, and between 1 and 10 gallery images." }, { status: 400 });
   const now = new Date().toISOString();
   try {
     const [row] = await getDb().update(spaPreviews).set({ ...data, treatments: JSON.stringify(data.treatments), spaPackage: JSON.stringify(data.spaPackage), photoUrls: JSON.stringify(data.photoUrls), updatedAt: now }).where(eq(spaPreviews.id, id)).returning();
@@ -96,4 +98,17 @@ export async function PUT(request: Request) {
   } catch {
     return Response.json({ error: "This link name is already in use. Choose a different slug." }, { status: 409 });
   }
+}
+
+export async function DELETE(request: Request) {
+  const admin = await editor();
+  if (!admin) return Response.json({ error: "Forbidden" }, { status: 403 });
+  const body = await request.json() as { id?: number };
+  const id = Number(body.id);
+  if (!Number.isInteger(id) || id < 1) return Response.json({ error: "Invalid preview." }, { status: 400 });
+  const [removed] = await getDb().delete(spaPreviews).where(eq(spaPreviews.id, id)).returning();
+  if (!removed) return Response.json({ error: "Preview not found." }, { status: 404 });
+  const now = new Date().toISOString();
+  await getDb().insert(cmsAuditLog).values({ actorEmail: admin.email, action: "spa_preview.deleted", entityType: "spa_preview", entityId: String(id), details: JSON.stringify({ slug: removed.slug }), createdAt: now });
+  return Response.json({ deleted: true });
 }

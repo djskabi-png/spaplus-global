@@ -18,6 +18,10 @@
       "zone_name": "spaplus.co"
     },
     {
+      "pattern": "spaplus.co/spa-preview-media/*",
+      "zone_name": "spaplus.co"
+    },
+    {
       "pattern": "adir.spaplus.co",
       "custom_domain": true
     }
@@ -38,6 +42,12 @@
   "images": {
     "binding": "IMAGES"
   },
+  "r2_buckets": [
+    {
+      "binding": "PREVIEW_MEDIA",
+      "bucket_name": "spaplus-global-spa-previews"
+    }
+  ],
   "vars": {
     "GOOGLE_CLIENT_ID": "550515562646-kt2h4ajkajqhphptjq1uf8u84p4vmfmk.apps.googleusercontent.com",
     "META_WEBHOOK_VERIFY_TOKEN_ID": "spaplus-ontario-leads-8f4d2c79a6b345e18c2f7d9a"

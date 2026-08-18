@@ -19,6 +19,7 @@ export type SpaPreview = {
   id: number;
   slug: string;
   status: "draft" | "shared";
+  language: "en" | "fr-CA";
   spaName: string;
   address: string;
   about: string;
@@ -44,6 +45,7 @@ export function serializePreview(row: typeof spaPreviews.$inferSelect): SpaPrevi
     id: row.id,
     slug: row.slug,
     status: row.status as SpaPreview["status"],
+    language: row.language as SpaPreview["language"],
     spaName: row.spaName,
     address: row.address,
     about: row.about,

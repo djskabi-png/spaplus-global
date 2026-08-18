@@ -91,6 +91,7 @@ export const spaPreviews = sqliteTable(
     id: integer("id").primaryKey({ autoIncrement: true }),
     slug: text("slug").notNull(),
     status: text("status", { enum: ["draft", "shared"] }).notNull().default("draft"),
+    language: text("language", { enum: ["en", "fr-CA"] }).notNull().default("en"),
     spaName: text("spa_name").notNull(),
     address: text("address").notNull().default(""),
     about: text("about").notNull().default(""),
@@ -104,6 +105,20 @@ export const spaPreviews = sqliteTable(
     updatedAt: text("updated_at").notNull(),
   },
   (table) => [uniqueIndex("spa_previews_slug_unique").on(table.slug)],
+);
+
+export const spaPreviewMedia = sqliteTable(
+  "spa_preview_media",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    objectKey: text("object_key").notNull(),
+    url: text("url").notNull(),
+    filename: text("filename").notNull(),
+    contentType: text("content_type").notNull(),
+    createdBy: text("created_by").notNull(),
+    createdAt: text("created_at").notNull(),
+  },
+  (table) => [uniqueIndex("spa_preview_media_object_key_unique").on(table.objectKey)],
 );
 
 export const formSubmissions = sqliteTable("form_submissions", {

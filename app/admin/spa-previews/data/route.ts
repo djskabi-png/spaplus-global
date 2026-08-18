@@ -1,1 +1,1 @@
-export { GET, POST, PUT } from "../../../api/cms/spa-previews/route";
+export { DELETE, GET, POST, PUT } from "../../../api/cms/spa-previews/route";
