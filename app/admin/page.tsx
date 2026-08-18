@@ -8,9 +8,16 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   const admin = await requireAuthorizedAdmin("/admin");
-  const canViewContent = cmsContentResources.some((resource) =>
+  const canViewSpaPreviews = hasPermission(
+    admin.role,
+    admin.permissions,
+    "site:global:spa-previews",
+    "viewContent",
+  );
+  const canViewMainContent = cmsContentResources.filter((resource) => resource.key !== "site:global:spa-previews").some((resource) =>
     hasPermission(admin.role, admin.permissions, resource.key, "viewContent"),
   );
+  const canViewContent = canViewMainContent || canViewSpaPreviews;
   const canViewOperations = cmsOperationsResources.some((resource) =>
     hasPermission(admin.role, admin.permissions, resource.key, "viewContent"),
   );
@@ -27,6 +34,7 @@ export default async function AdminPage() {
     (resource) => resource.key !== "business:vila4u:leads" &&
       hasPermission(admin.role, admin.permissions, resource.key, "viewLeads"),
   );
+  if (canViewSpaPreviews && !canViewMainContent) redirect("/admin/spa-previews");
   if (!canViewContent && !canViewOperations && canViewVila4uLeads && !canViewOtherLeads) redirect("/vila4u");
   if (!canViewContent && !canViewOperations && canViewLeads) redirect("/tools");
   if (!canViewContent && !canViewOperations && !canViewLeads && admin.role !== "owner") redirect("/access-denied");

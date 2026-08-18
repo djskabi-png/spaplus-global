@@ -85,6 +85,27 @@ export const cmsAuditLog = sqliteTable("cms_audit_log", {
   createdAt: text("created_at").notNull(),
 });
 
+export const spaPreviews = sqliteTable(
+  "spa_previews",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    slug: text("slug").notNull(),
+    status: text("status", { enum: ["draft", "shared"] }).notNull().default("draft"),
+    spaName: text("spa_name").notNull(),
+    address: text("address").notNull().default(""),
+    about: text("about").notNull().default(""),
+    hours: text("hours").notNull().default(""),
+    treatments: text("treatments").notNull().default("[]"),
+    spaPackage: text("spa_package").notNull().default("{}"),
+    logoUrl: text("logo_url").notNull().default(""),
+    photoUrls: text("photo_urls").notNull().default("[]"),
+    createdBy: text("created_by").notNull(),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [uniqueIndex("spa_previews_slug_unique").on(table.slug)],
+);
+
 export const formSubmissions = sqliteTable("form_submissions", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   submissionId: text("submission_id").notNull().unique(),

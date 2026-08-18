@@ -11,6 +11,13 @@ export const cmsResources = [
     labels: { en: "SpaPlus Global website", he: "האתר העולמי של ספא פלוס", "fr-CA": "Site mondial SpaPlus" },
   },
   {
+    key: "site:global:spa-previews",
+    type: "site",
+    business: "spaplus-global",
+    topic: "spa-previews",
+    labels: { en: "Spa profile previews", he: "תצוגות מקדימות לפרופילי ספא", "fr-CA": "Aperçus de profils spa" },
+  },
+  {
     key: "market:ca:on",
     type: "market",
     business: "spaplus-global",
