@@ -134,6 +134,16 @@ test("Israel owner notifications render Hebrew lead details and never send visit
   assert.match(template, /טלפון/);
 });
 
+test("Meta webhook verification accepts the Israel token alongside the existing token", async () => {
+  const route = await readFile(routeUrl, "utf8");
+
+  assert.match(route, /META_ISRAEL_WEBHOOK_VERIFY_TOKEN/);
+  assert.match(route, /META_WEBHOOK_VERIFY_TOKEN_ID/);
+  assert.match(route, /META_WEBHOOK_VERIFY_TOKEN/);
+  assert.match(route, /expectedTokens\.some\(\(expected\) => constantTimeEqual\(token, expected\)\)/);
+  assert.match(route, /value\.length >= 24/);
+});
+
 test("Meta recovery reads leads from campaign ads and classifies each lead independently", async () => {
   const route = await readFile(routeUrl, "utf8");
 

@@ -954,10 +954,14 @@ export async function GET(request: Request) {
   const mode = url.searchParams.get("hub.mode");
   const token = url.searchParams.get("hub.verify_token") || "";
   const challenge = url.searchParams.get("hub.challenge") || "";
-  const expected =
-    setting("META_WEBHOOK_VERIFY_TOKEN_ID") || setting("META_WEBHOOK_VERIFY_TOKEN");
-  if (expected.length < 24) return new Response("Webhook is not configured", { status: 503 });
-  if (!constantTimeEqual(token, expected)) return new Response("Verification token mismatch", { status: 403 });
+  const expectedTokens = [
+    setting("META_WEBHOOK_VERIFY_TOKEN_ID"),
+    setting("META_WEBHOOK_VERIFY_TOKEN"),
+    setting("META_ISRAEL_WEBHOOK_VERIFY_TOKEN"),
+  ].filter((value, index, values) => value.length >= 24 && values.indexOf(value) === index);
+  if (expectedTokens.length === 0) return new Response("Webhook is not configured", { status: 503 });
+  const validToken = expectedTokens.some((expected) => constantTimeEqual(token, expected));
+  if (!validToken) return new Response("Verification token mismatch", { status: 403 });
   if (mode !== "subscribe") return new Response("Verification mode mismatch", { status: 403 });
   return new Response(challenge, { status: 200 });
 }
