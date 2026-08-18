@@ -100,6 +100,7 @@ export const spaPreviews = sqliteTable(
     spaPackage: text("spa_package").notNull().default("{}"),
     logoUrl: text("logo_url").notNull().default(""),
     photoUrls: text("photo_urls").notNull().default("[]"),
+    localizedContent: text("localized_content").notNull().default("{}"),
     createdBy: text("created_by").notNull(),
     createdAt: text("created_at").notNull(),
     updatedAt: text("updated_at").notNull(),

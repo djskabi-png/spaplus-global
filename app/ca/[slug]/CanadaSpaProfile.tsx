@@ -35,8 +35,10 @@ function hoursRows(value: string, french: boolean) {
   ).map((day) => ({ day, time }));
 }
 
-export default function CanadaSpaProfile({ preview }: { preview: SpaPreview }) {
-  const french = preview.language === "fr-CA";
+export default function CanadaSpaProfile({ preview, initialLanguage }: { preview: SpaPreview; initialLanguage: "en" | "fr-CA" }) {
+  const [activeLanguage, setActiveLanguage] = useState<"en" | "fr-CA">(initialLanguage);
+  const french = activeLanguage === "fr-CA";
+  const content = preview.localizedContent[activeLanguage] || { address: preview.address, about: preview.about, hours: preview.hours, treatments: preview.treatments, spaPackage: preview.spaPackage };
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
   const [saved, setSaved] = useState(false);
@@ -44,8 +46,8 @@ export default function CanadaSpaProfile({ preview }: { preview: SpaPreview }) {
   const [packageFilter, setPackageFilter] = useState("all");
   const [treatmentFilter, setTreatmentFilter] = useState("solo");
   const photos = preview.photoUrls.filter(Boolean);
-  const treatments = preview.treatments.filter((item) => item.name);
-  const hours = useMemo(() => hoursRows(preview.hours, french), [preview.hours, french]);
+  const treatments = content.treatments.filter((item) => item.name);
+  const hours = useMemo(() => hoursRows(content.hours, french), [content.hours, french]);
 
   useEffect(() => {
     if (!galleryOpen && !menuOpen) return;
@@ -89,9 +91,16 @@ export default function CanadaSpaProfile({ preview }: { preview: SpaPreview }) {
     if (navigator.share) await navigator.share(data).catch(() => undefined);
     else await navigator.clipboard?.writeText(window.location.href).catch(() => undefined);
   };
+  const toggleLanguage = () => {
+    const language = french ? "en" : "fr-CA";
+    setActiveLanguage(language);
+    const url = new URL(window.location.href);
+    url.searchParams.set("lang", language);
+    window.history.replaceState({}, "", url);
+  };
 
   return (
-    <main className="canada-spa-page" lang={preview.language}>
+    <main className="canada-spa-page" lang={activeLanguage}>
       <header className="canada-site-header">
         <div className="canada-header-inner">
           <a className="canada-wordmark" href="https://spaplus.ca/" aria-label="SpaPlus Canada">
@@ -105,7 +114,7 @@ export default function CanadaSpaProfile({ preview }: { preview: SpaPreview }) {
           </div>
           <nav className="canada-header-tools" aria-label="SpaPlus">
             <a className="canada-tool-map" href="#contact" aria-label={copy.map}>⌖</a>
-            <a className="canada-tool-language" href={`https://spaplus.ca/${french ? "fr" : "en"}/`} aria-label="Language">{icon("globe")}</a>
+            <button className="canada-tool-language" type="button" onClick={toggleLanguage} aria-label={french ? "View in English" : "Voir en français"}>{icon("globe")}</button>
             <button className="canada-tool-share" type="button" aria-label="Share" onClick={share}>{icon("share")}</button>
             <a className="canada-tool-account" href={`https://spaplus.ca/${french ? "fr" : "en"}/`} aria-label="Account">{icon("person")}</a>
             <a className="canada-tool-search" href="#packages" aria-label={copy.search}>{icon("search")}</a>
@@ -122,7 +131,8 @@ export default function CanadaSpaProfile({ preview }: { preview: SpaPreview }) {
 
         <div className="canada-profile-heading">
           <div className="canada-profile-identity">
-            <div><h1>{preview.spaName}</h1><p>{preview.address}</p></div>
+            {preview.logoUrl ? <img className="canada-spa-logo" src={preview.logoUrl} alt={`${preview.spaName} logo`} /> : null}
+            <div><h1>{preview.spaName}</h1><p>{content.address}</p></div>
           </div>
           <div className="canada-profile-actions">
             <a className="canada-book-primary" href="#packages">{copy.book}</a>
@@ -132,13 +142,14 @@ export default function CanadaSpaProfile({ preview }: { preview: SpaPreview }) {
         </div>
 
         {photos.length ? <div className="canada-gallery">
+          <span className="canada-illustrative-media">{french ? "Images d’illustration" : "Illustrative images"}</span>
           <button type="button" className="canada-gallery-main" onClick={() => openGallery(0)}><img src={photos[0]} alt={preview.spaName} /></button>
           <div className="canada-gallery-grid">
             {photos.slice(1, 5).map((photo, index) => <button type="button" key={photo} onClick={() => openGallery(index + 1)}><img src={photo} alt={`${preview.spaName} ${index + 2}`} /></button>)}
           </div>
           {photos.length > 1 ? <button type="button" className="canada-additional-images" onClick={() => openGallery(1)}>{icon("camera")}<span>{copy.images}</span></button> : null}
           {photos.length > 1 ? <button type="button" className="canada-mobile-next" aria-label={copy.next} onClick={() => openGallery(1)}>›</button> : null}
-          <div className="canada-mobile-name"><strong>{preview.spaName}</strong></div>
+          <div className="canada-mobile-name">{preview.logoUrl ? <img src={preview.logoUrl} alt="" /> : null}<strong>{preview.spaName}</strong></div>
         </div> : null}
 
         <div className="canada-mobile-actions">
@@ -148,7 +159,7 @@ export default function CanadaSpaProfile({ preview }: { preview: SpaPreview }) {
         </div>
 
         <nav className="canada-mobile-tabs" aria-label="Profile sections">
-          {preview.spaPackage.name ? <a href="#packages">{french ? "Forfaits" : "Packages"}</a> : null}
+          {content.spaPackage.name ? <a href="#packages">{french ? "Forfaits" : "Packages"}</a> : null}
           {treatments.length ? <a href="#treatments">{french ? "Soins" : "Treatments"}</a> : null}
           <a href="#about">{copy.aboutTab}</a>
           <a href="#contact">{french ? "Contact" : "Contact"}</a>
@@ -156,33 +167,33 @@ export default function CanadaSpaProfile({ preview }: { preview: SpaPreview }) {
 
         <div className="canada-profile-content">
           <div className="canada-profile-main">
-            {preview.spaPackage.name ? <section className="canada-section" id="packages">
+            {content.spaPackage.name ? <section className="canada-section" id="packages">
               <h2>{copy.packages}</h2>
               <div className="canada-filter-tabs"><button type="button" className={packageFilter === "all" ? "active" : ""} aria-pressed={packageFilter === "all"} onClick={() => setPackageFilter("all")}>{copy.all}</button><button type="button" className={packageFilter === "solo" ? "active" : ""} aria-pressed={packageFilter === "solo"} onClick={() => setPackageFilter("solo")}>{copy.solo}</button><button type="button" className={packageFilter === "couple" ? "active" : ""} aria-pressed={packageFilter === "couple"} onClick={() => setPackageFilter("couple")}>{copy.couple}</button></div>
-              {packageFilter !== "couple" ? <article className="canada-service-card canada-package-card">
-                {photos[1] ? <button type="button" className="canada-service-image" onClick={() => openGallery(1)}><img src={photos[1]} alt={preview.spaPackage.name} /></button> : null}
-                <div className="canada-service-copy"><h3>{preview.spaPackage.name || copy.packageFallback}</h3><p>{preview.spaPackage.description}</p><div className="canada-service-meta"><span>{copy.from} <strong>{priceLabel(preview.spaPackage.price, french)}</strong></span></div></div>
+              <article className="canada-service-card canada-package-card">
+                {photos[1] ? <button type="button" className="canada-service-image" onClick={() => openGallery(1)}><img src={photos[1]} alt={content.spaPackage.name} /></button> : null}
+                <div className="canada-service-copy"><h3>{content.spaPackage.name || copy.packageFallback}</h3><p>{content.spaPackage.description}</p><div className="canada-service-meta"><span>{copy.from} <strong>{priceLabel(content.spaPackage.price, french)}</strong></span></div></div>
                 <a className="canada-card-book" href="#contact">{copy.bookNow}</a>
-              </article> : <p className="canada-no-results" role="status">{copy.noMatches}</p>}
+              </article>
             </section> : null}
 
             {treatments.length ? <section className="canada-section" id="treatments">
               <h2>{copy.treatments}</h2>
               <div className="canada-filter-tabs"><button type="button" className={treatmentFilter === "solo" ? "active" : ""} aria-pressed={treatmentFilter === "solo"} onClick={() => setTreatmentFilter("solo")}>{copy.solo}</button><button type="button" className={treatmentFilter === "couple" ? "active" : ""} aria-pressed={treatmentFilter === "couple"} onClick={() => setTreatmentFilter("couple")}>{copy.couple}</button></div>
-              {treatmentFilter === "solo" ? <div className="canada-treatment-list">
+              <div className="canada-treatment-list">
                 {treatments.map((treatment, index) => <article className="canada-service-card canada-treatment-card" key={`${treatment.name}-${index}`}>
                   {photos[index + 2] ? <button type="button" className="canada-service-image" onClick={() => openGallery(index + 2)}><img src={photos[index + 2]} alt={treatment.name} /></button> : null}
                   <div className="canada-service-copy"><h3>{treatment.name} <span>››</span></h3><p>{treatment.description}</p><div className="canada-service-meta"><strong>{priceLabel(treatment.price, french)}</strong>{treatment.duration ? <span>{treatment.duration}</span> : null}</div></div>
                   <a className="canada-card-book" href="#contact">{copy.bookNow}</a>
                 </article>)}
-              </div> : <p className="canada-no-results" role="status">{copy.noMatches}</p>}
+              </div>
             </section> : null}
           </div>
 
           <aside className="canada-profile-side">
-            <section className="canada-side-section" id="about"><h2>{copy.about}</h2><p>{preview.about}</p></section>
+            <section className="canada-side-section" id="about"><h2>{copy.about}</h2><p>{content.about}</p></section>
             <section className="canada-side-section"><h2>{copy.hours}</h2><dl className="canada-hours">{hours.map(({ day, time }) => <div key={day}><dt>{day}</dt><dd>{time}</dd></div>)}</dl></section>
-            <section className="canada-side-section" id="contact"><h2>{copy.contact}</h2><a className="canada-book-secondary" href="#packages">{copy.book}</a><h3>{copy.map}</h3><p>{preview.address}</p><a className="canada-navigate" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(preview.address)}`} target="_blank" rel="noreferrer">{copy.navigate}</a></section>
+            <section className="canada-side-section" id="contact"><h2>{copy.contact}</h2><a className="canada-book-secondary" href="#packages">{copy.book}</a><h3>{copy.map}</h3><p>{content.address}</p><a className="canada-navigate" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(content.address)}`} target="_blank" rel="noreferrer">{copy.navigate}</a></section>
           </aside>
         </div>
       </section>

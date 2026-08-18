@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import test from "node:test";
 
 const root = new URL("../", import.meta.url);
@@ -1219,4 +1219,43 @@ test("spa preview builder stays English LTR with large controls and lead header 
   assert.match(builderCss, /@media\(max-width:600px\)[\s\S]*?\.spa-cms-save\{position:static/);
   assert.match(leadsCss, /\.cms-header \.cms-user \.cms-preview\{[^}]*color:#fff/);
   assert.match(leadsCss, /-webkit-text-fill-color:#fff/);
+});
+
+test("spa preview builder creates a complete bilingual profile from only the spa name", async () => {
+  const [builder, profile, page, api, schema, migration, mediaSource] = await Promise.all([
+    read("app/admin/spa-previews/SpaPreviewManager.tsx"),
+    read("app/ca/[slug]/CanadaSpaProfile.tsx"),
+    read("app/ca/[slug]/page.tsx"),
+    read("app/api/cms/spa-previews/route.ts"),
+    read("db/schema.ts"),
+    read("drizzle/0012_spa_preview_bilingual_content.sql"),
+    read("project_knowledge/SPA_PREVIEW_DEFAULT_MEDIA.md"),
+  ]);
+
+  assert.match(builder, /useState<Draft>\(\(\) => completeDraft\(\)\)/);
+  assert.match(builder, /localizedContent: SpaPreviewLocalizations = \{ en: templateContent\("en"\), "fr-CA": templateContent\("fr-CA"\) \}/);
+  assert.match(builder, /defaultPhotoUrls = \[1, 2, 3, 4, 5\]/);
+  assert.match(builder, /defaultLogoUrl = "https:\/\/app\.spaplus\.co\/spa-preview-logo\.svg"/);
+  assert.match(builder, /<label>Spa name<input required/);
+  assert.doesNotMatch(builder, /<label>Address<textarea required/);
+  assert.doesNotMatch(builder, /<label>About us<textarea required/);
+  assert.doesNotMatch(builder, /<label>Name<input required/);
+  assert.match(builder, /Open English/);
+  assert.match(builder, /Open French/);
+  assert.match(builder, /English \+ Français/);
+  assert.match(profile, /toggleLanguage/);
+  assert.match(profile, /window\.history\.replaceState/);
+  assert.match(profile, /Images d’illustration/);
+  assert.match(profile, /Illustrative images/);
+  assert.doesNotMatch(profile, /\{packageFilter !== "couple" \? <article/);
+  assert.doesNotMatch(profile, /\{treatmentFilter === "solo" \? <div/);
+  assert.match(page, /initialLanguage=\{lang === "fr-CA" \? "fr-CA" : "en"\}/);
+  assert.match(api, /localizedContent: JSON\.stringify\(data\.localizedContent\)/);
+  assert.match(schema, /localizedContent: text\("localized_content"\)/);
+  assert.match(migration, /ALTER TABLE `spa_previews` ADD `localized_content`/);
+  assert.match(mediaSource, /generated specifically for SpaPlus recruitment previews/);
+  for (let number = 1; number <= 5; number += 1) {
+    await stat(new URL(`public/spa-preview-gallery-${number}.webp`, root));
+  }
+  await stat(new URL("public/spa-preview-logo.svg", root));
 });

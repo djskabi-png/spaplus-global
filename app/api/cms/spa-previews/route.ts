@@ -3,7 +3,7 @@ import { getDb } from "../../../../db";
 import { cmsAuditLog, spaPreviews } from "../../../../db/schema";
 import { getAuthorizedAdmin } from "../../../admin-auth";
 import { hasPermission } from "../../../cms-access";
-import { listSpaPreviews, serializePreview, type SpaPackage, type Treatment } from "../../../spa-preview";
+import { listSpaPreviews, serializePreview, type SpaPackage, type SpaPreviewContent, type SpaPreviewLocalizations, type Treatment } from "../../../spa-preview";
 
 type Payload = {
   id?: number;
@@ -18,6 +18,7 @@ type Payload = {
   spaPackage?: SpaPackage;
   logoUrl?: string;
   photoUrls?: string[];
+  localizedContent?: SpaPreviewLocalizations;
 };
 
 const text = (value: unknown, max: number) => String(value || "").trim().slice(0, max);
@@ -40,6 +41,24 @@ function normalize(body: Payload) {
   })) : [];
   const photoUrls = Array.isArray(body.photoUrls) ? body.photoUrls.slice(0, 10).map(url).filter(Boolean) : [];
   const spaPackage: Partial<SpaPackage> = body.spaPackage || {};
+  const normalizeContent = (content: Partial<SpaPreviewContent> | undefined): SpaPreviewContent => {
+    const source = content || {};
+    const sourcePackage: Partial<SpaPackage> = source.spaPackage || {};
+    return {
+      address: text(source.address, 500),
+      about: text(source.about, 8000),
+      hours: text(source.hours, 2000),
+      treatments: Array.isArray(source.treatments) ? source.treatments.slice(0, 3).map((item) => ({
+        name: text(item?.name, 120), description: text(item?.description, 1200), duration: text(item?.duration, 80), price: text(item?.price, 80),
+      })) : [],
+      spaPackage: { name: text(sourcePackage.name, 120), description: text(sourcePackage.description, 1200), price: text(sourcePackage.price, 80) },
+    };
+  };
+  const localizedContent: SpaPreviewLocalizations = {};
+  for (const language of ["en", "fr-CA"] as const) {
+    const content = normalizeContent(body.localizedContent?.[language]);
+    if (content.about || content.treatments.length || content.spaPackage.name) localizedContent[language] = content;
+  }
   return {
     spaName,
     slug: slugify(String(body.slug || spaName)),
@@ -47,7 +66,7 @@ function normalize(body: Payload) {
     language: body.language === "fr-CA" ? "fr-CA" as const : "en" as const,
     address: text(body.address, 500), about: text(body.about, 8000), hours: text(body.hours, 2000),
     treatments, spaPackage: { name: text(spaPackage.name, 120), description: text(spaPackage.description, 1200), price: text(spaPackage.price, 80) },
-    logoUrl: url(body.logoUrl), photoUrls,
+    logoUrl: url(body.logoUrl), photoUrls, localizedContent,
   };
 }
 
@@ -74,7 +93,7 @@ export async function POST(request: Request) {
   const db = getDb();
   const now = new Date().toISOString();
   try {
-    const [row] = await db.insert(spaPreviews).values({ ...data, treatments: JSON.stringify(data.treatments), spaPackage: JSON.stringify(data.spaPackage), photoUrls: JSON.stringify(data.photoUrls), createdBy: admin.email, createdAt: now, updatedAt: now }).returning();
+    const [row] = await db.insert(spaPreviews).values({ ...data, treatments: JSON.stringify(data.treatments), spaPackage: JSON.stringify(data.spaPackage), photoUrls: JSON.stringify(data.photoUrls), localizedContent: JSON.stringify(data.localizedContent), createdBy: admin.email, createdAt: now, updatedAt: now }).returning();
     await db.insert(cmsAuditLog).values({ actorEmail: admin.email, action: "spa_preview.created", entityType: "spa_preview", entityId: String(row.id), details: JSON.stringify({ slug: row.slug, status: row.status }), createdAt: now });
     return Response.json({ preview: serializePreview(row) }, { status: 201 });
   } catch {
@@ -91,7 +110,7 @@ export async function PUT(request: Request) {
   if (!Number.isInteger(id) || id < 1 || !data.spaName || !data.slug || data.treatments.length !== 3 || data.photoUrls.length < 1 || data.photoUrls.length > 10) return Response.json({ error: "Add a spa name, 3 treatments, and between 1 and 10 gallery images." }, { status: 400 });
   const now = new Date().toISOString();
   try {
-    const [row] = await getDb().update(spaPreviews).set({ ...data, treatments: JSON.stringify(data.treatments), spaPackage: JSON.stringify(data.spaPackage), photoUrls: JSON.stringify(data.photoUrls), updatedAt: now }).where(eq(spaPreviews.id, id)).returning();
+    const [row] = await getDb().update(spaPreviews).set({ ...data, treatments: JSON.stringify(data.treatments), spaPackage: JSON.stringify(data.spaPackage), photoUrls: JSON.stringify(data.photoUrls), localizedContent: JSON.stringify(data.localizedContent), updatedAt: now }).where(eq(spaPreviews.id, id)).returning();
     if (!row) return Response.json({ error: "Preview not found." }, { status: 404 });
     await getDb().insert(cmsAuditLog).values({ actorEmail: admin.email, action: "spa_preview.updated", entityType: "spa_preview", entityId: String(row.id), details: JSON.stringify({ slug: row.slug, status: row.status }), createdAt: now });
     return Response.json({ preview: serializePreview(row) });

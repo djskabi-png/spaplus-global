@@ -15,6 +15,16 @@ export type SpaPackage = {
   price: string;
 };
 
+export type SpaPreviewContent = {
+  address: string;
+  about: string;
+  hours: string;
+  treatments: Treatment[];
+  spaPackage: SpaPackage;
+};
+
+export type SpaPreviewLocalizations = Partial<Record<"en" | "fr-CA", SpaPreviewContent>>;
+
 export type SpaPreview = {
   id: number;
   slug: string;
@@ -28,6 +38,7 @@ export type SpaPreview = {
   spaPackage: SpaPackage;
   logoUrl: string;
   photoUrls: string[];
+  localizedContent: SpaPreviewLocalizations;
   createdAt: string;
   updatedAt: string;
 };
@@ -41,6 +52,10 @@ function parseJson<T>(value: string, fallback: T): T {
 }
 
 export function serializePreview(row: typeof spaPreviews.$inferSelect): SpaPreview {
+  const treatments = parseJson<Treatment[]>(row.treatments, []);
+  const spaPackage = parseJson<SpaPackage>(row.spaPackage, { name: "", description: "", price: "" });
+  const fallbackContent: SpaPreviewContent = { address: row.address, about: row.about, hours: row.hours, treatments, spaPackage };
+  const localizedContent = parseJson<SpaPreviewLocalizations>(row.localizedContent, {});
   return {
     id: row.id,
     slug: row.slug,
@@ -50,10 +65,11 @@ export function serializePreview(row: typeof spaPreviews.$inferSelect): SpaPrevi
     address: row.address,
     about: row.about,
     hours: row.hours,
-    treatments: parseJson<Treatment[]>(row.treatments, []),
-    spaPackage: parseJson<SpaPackage>(row.spaPackage, { name: "", description: "", price: "" }),
+    treatments,
+    spaPackage,
     logoUrl: row.logoUrl,
     photoUrls: parseJson<string[]>(row.photoUrls, []),
+    localizedContent: { ...localizedContent, [row.language]: localizedContent[row.language as "en" | "fr-CA"] || fallbackContent },
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
