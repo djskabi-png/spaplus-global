@@ -7,6 +7,13 @@ type Language = "en" | "fr-CA";
 type Draft = Omit<SpaPreview, "id" | "createdAt" | "updatedAt"> & { id?: number };
 type MediaItem = { id: number; url: string; filename: string; contentType: string; createdAt: string };
 
+const stableMediaUrl = (url: string) => url.replace(
+  "https://app.spaplus.co/spa-preview-media/",
+  "https://spaplus-global-brand.adir-naor-7510.chatgpt.site/spa-preview-media/",
+);
+
+const normalizeMedia = (items: MediaItem[]) => items.map((item) => ({ ...item, url: stableMediaUrl(item.url) }));
+
 const blankTreatment = (): Treatment => ({ name: "", description: "", duration: "", price: "" });
 const hoursFor = (language: Language) => language === "fr-CA" ? "Lundi au dimanche : 9 h à 18 h" : "Monday to Sunday: 9:00 AM to 6:00 PM";
 const blank = (language: Language = "en"): Draft => ({
@@ -70,7 +77,7 @@ export default function SpaPreviewManager({ canEdit, initialPreviews }: { canEdi
     const response = await fetch("/admin/spa-previews/media");
     if (!response.ok) { setMessage("The media library could not be loaded."); return; }
     const data = await response.json() as { media: MediaItem[] };
-    setMedia(data.media);
+    setMedia(normalizeMedia(data.media));
   }
 
   useEffect(() => { void load(); void loadMedia(); }, []);
@@ -119,10 +126,11 @@ export default function SpaPreviewManager({ canEdit, initialPreviews }: { canEdi
     const data = await response.json() as { media?: MediaItem[]; error?: string };
     setUploading(false);
     if (!response.ok || !data.media?.length) { setMessage(data.error || "The images could not be uploaded."); return; }
-    setMedia((current) => [...data.media!, ...current]);
+    const uploadedMedia = normalizeMedia(data.media);
+    setMedia((current) => [...uploadedMedia, ...current]);
     setDraft((current) => destination === "logo"
-      ? { ...current, logoUrl: data.media![0].url }
-      : { ...current, photoUrls: [...current.photoUrls, ...data.media!.map((item) => item.url)].slice(0, 10) });
+      ? { ...current, logoUrl: uploadedMedia[0].url }
+      : { ...current, photoUrls: [...current.photoUrls, ...uploadedMedia.map((item) => item.url)].slice(0, 10) });
     setMessage(`${data.media.length} image${data.media.length === 1 ? "" : "s"} uploaded and added to this profile.`);
   }
 
