@@ -95,7 +95,7 @@ export default function CanadaSpaProfile({ preview }: { preview: SpaPreview }) {
       <header className="canada-site-header">
         <div className="canada-header-inner">
           <a className="canada-wordmark" href="https://spaplus.ca/" aria-label="SpaPlus Canada">
-            <img className="canada-wordmark-full" src="/ontario/spaplus-canada-logo.png" alt="SpaPlus Canada" />
+            <img className="canada-wordmark-full" src="https://spaplus-global-brand.adir-naor-7510.chatgpt.site/ontario/spaplus-canada-logo.png" alt="SpaPlus Canada" />
             <img className="canada-wordmark-mark" src="/spaplus-mark.png" alt="SpaPlus" />
           </a>
           <div className="canada-search-bar" aria-label={copy.search}>
