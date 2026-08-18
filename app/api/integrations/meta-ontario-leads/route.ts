@@ -41,11 +41,11 @@ type MetaWebhookBody = {
 };
 
 type MetaMarketContext = {
-  slug: "ontario" | "quebec";
-  name: "Ontario" | "Québec";
-  resourceKey: "market:ca:on" | "market:ca:qc";
+  slug: "ontario" | "quebec" | "israel";
+  name: "Ontario" | "Québec" | "ישראל";
+  resourceKey: "market:ca:on" | "market:ca:qc" | "market:il";
   pageUrl: string;
-  timeZone: "America/Toronto" | "America/Montreal";
+  timeZone: "America/Toronto" | "America/Montreal" | "Asia/Jerusalem";
 };
 
 const ONTARIO_MARKET: MetaMarketContext = {
@@ -63,10 +63,20 @@ const QUEBEC_MARKET: MetaMarketContext = {
   pageUrl: "https://app.spaplus.co/en-ca/quebec/",
   timeZone: "America/Montreal",
 };
+const ISRAEL_MARKET: MetaMarketContext = {
+  slug: "israel",
+  name: "ישראל",
+  resourceKey: "market:il",
+  pageUrl: "https://app.spaplus.co/he-il/israel/",
+  timeZone: "Asia/Jerusalem",
+};
 const runtimeEnv = env as unknown as Record<string, string | undefined>;
 const setting = (name: string) => runtimeEnv[name] || process.env[name] || "";
 const GRAPH_VERSION = setting("META_GRAPH_VERSION") || "v26.0";
-const META_PAGE_ID = "1065026380020011";
+const META_CANADA_PAGE_ID = setting("META_CANADA_PAGE_ID") || "1065026380020011";
+const META_ISRAEL_PAGE_ID = setting("META_ISRAEL_PAGE_ID") || "120456011329432";
+const META_PAGE_ID = META_CANADA_PAGE_ID;
+const META_ALLOWED_PAGE_IDS = new Set([META_CANADA_PAGE_ID, META_ISRAEL_PAGE_ID]);
 
 function clean(value: unknown) {
   return String(value ?? "").trim();
@@ -158,20 +168,27 @@ const ONTARIO_FORM_MARKET_IDS = new Set([
   "2831714810547194",
 ]);
 
+function configuredFormIds(settingName: string) {
+  return new Set(setting(settingName).split(",").map((value) => value.trim()).filter(Boolean));
+}
+
 function inferMarket(
   formId: string,
   formName: string,
   campaignName: string,
   adName = "",
 ): MetaMarketContext {
+  if (configuredFormIds("META_ISRAEL_FORM_IDS").has(formId)) return ISRAEL_MARKET;
   if (QUEBEC_FORM_MARKET_IDS.has(formId)) return QUEBEC_MARKET;
   if (ONTARIO_FORM_MARKET_IDS.has(formId)) return ONTARIO_MARKET;
   const directSignal = `${formName} ${adName}`.toLowerCase();
+  if (directSignal.includes("israel") || directSignal.includes("ישראל")) return ISRAEL_MARKET;
   if (directSignal.includes("ontario")) return ONTARIO_MARKET;
   if (directSignal.includes("quebec") || directSignal.includes("québec")) {
     return QUEBEC_MARKET;
   }
   const campaignSignal = campaignName.toLowerCase();
+  if (campaignSignal.includes("israel") || campaignSignal.includes("ישראל")) return ISRAEL_MARKET;
   return campaignSignal.includes("quebec") || campaignSignal.includes("québec")
     ? QUEBEC_MARKET
     : ONTARIO_MARKET;
@@ -229,7 +246,7 @@ async function sendMarketOwnerNotification(
     marketName: market.name,
     pageUrl,
     reviewWindowHours: 72,
-    languageTag: "en-CA",
+    languageTag: market.slug === "israel" ? "he-IL" : "en-CA",
     copy: marketCopy,
   };
   const visitorContext = { ...ownerContext, languageTag: data.locale };
@@ -389,12 +406,21 @@ async function validMetaSignature(request: Request, rawBody: string) {
   return false;
 }
 
-async function fetchLead(leadgenId: string) {
-  const pageToken = setting("META_PAGE_ACCESS_TOKEN")
+function pageAccessToken(pageId = "") {
+  const isIsrael = clean(pageId) === META_ISRAEL_PAGE_ID;
+  const configured = isIsrael
+    ? setting("META_ISRAEL_PAGE_ACCESS_TOKEN")
+    : setting("META_CANADA_PAGE_ACCESS_TOKEN");
+  const pageToken = (configured || setting("META_PAGE_ACCESS_TOKEN"))
     .replace(/^\uFEFF/, "")
     .trim()
     .replace(/^["']|["']$/g, "");
   if (!pageToken) throw new Error("META_PAGE_ACCESS_TOKEN is not configured");
+  return pageToken;
+}
+
+async function fetchLead(leadgenId: string, pageId = "") {
+  const pageToken = pageAccessToken(pageId);
   const url = new URL(`https://graph.facebook.com/${GRAPH_VERSION}/${encodeURIComponent(leadgenId)}`);
   url.searchParams.set("fields", "id,created_time,field_data,form_id,ad_id,adset_id,campaign_id,platform");
   url.searchParams.set("access_token", pageToken);
@@ -408,11 +434,8 @@ async function fetchLead(leadgenId: string) {
 
 const objectNameCache = new Map<string, string>();
 
-async function fetchName(objectId: string | undefined) {
-  const pageToken = setting("META_PAGE_ACCESS_TOKEN")
-    .replace(/^\uFEFF/, "")
-    .trim()
-    .replace(/^["']|["']$/g, "");
+async function fetchName(objectId: string | undefined, pageId = "") {
+  const pageToken = pageAccessToken(pageId);
   if (!objectId || !pageToken) return "";
   if (objectNameCache.has(objectId)) return objectNameCache.get(objectId) || "";
   const url = new URL(`https://graph.facebook.com/${GRAPH_VERSION}/${encodeURIComponent(objectId)}`);
@@ -484,14 +507,15 @@ async function storeLead(
       "nom_de_votre_spa_ou_entreprise",
       "nom_de_votre_spa",
       "nom_de_l_entreprise",
-    ]);
+    ]) ||
+    firstField(fields, ["שם בית הספא או העסק", "שם בית הספא", "שם העסק"]);
   if (!name || (!email && !phone)) return "skipped" as const;
 
   const [formName, adName, adsetName, campaignName] = await Promise.all([
-    fetchName(formId),
-    fetchName(adId),
-    fetchName(adsetId),
-    fetchName(campaignId),
+    fetchName(formId, webhookValue.page_id),
+    fetchName(adId, webhookValue.page_id),
+    fetchName(adsetId, webhookValue.page_id),
+    fetchName(campaignId, webhookValue.page_id),
   ]);
   const market = options.market || inferMarket(formId, formName, campaignName, adName);
   const submissionId = `meta-${market.slug}:${leadId}`;
@@ -550,14 +574,15 @@ async function storeLead(
         : "duplicate" as const;
     }
   }
-  const locale = inferLocale(fields, formName);
+  const locale = market.slug === "israel" ? "he-IL" : inferLocale(fields, formName);
   const city =
     firstField(fields, ["city", "location", "business_location", "ville"]) ||
     normalizedField(fields, [
       "your_city_or_region",
       "city_or_region",
       "votre_ville_ou_region",
-    ]);
+    ]) ||
+    firstField(fields, ["עיר או יישוב בישראל", "עיר", "יישוב", "עיר / יישוב"]);
   const role = firstField(fields, ["job_title", "role"]);
   const spaType = firstField(fields, ["spa_type", "type_of_spa"]);
   const platform = clean(lead.platform) || "Facebook and Instagram";
@@ -659,7 +684,7 @@ async function storeLead(
     notificationData,
     leadId,
     market,
-    options.sendVisitorEmail !== false,
+    options.sendVisitorEmail !== false && market.slug !== "israel",
   );
   return "inserted" as const;
 }
@@ -897,9 +922,9 @@ async function recoverMetaCampaign(campaignId: string) {
   const markets = { ontario: 0, quebec: 0 };
   for (const lead of leads) {
     const [formName, adName, campaignName] = await Promise.all([
-      fetchName(clean(lead.form_id)),
-      fetchName(clean(lead.ad_id)),
-      fetchName(clean(lead.campaign_id)),
+      fetchName(clean(lead.form_id), META_CANADA_PAGE_ID),
+      fetchName(clean(lead.ad_id), META_CANADA_PAGE_ID),
+      fetchName(clean(lead.campaign_id), META_CANADA_PAGE_ID),
     ]);
     const leadMarket = inferMarket(clean(lead.form_id), formName, campaignName, adName);
     markets[leadMarket.slug] += 1;
@@ -1021,7 +1046,7 @@ export async function POST(request: Request) {
 
   const hasValidSignature = await validMetaSignature(request, rawBody);
   const hasAllowedLeadContext =
-    values.length > 0 && values.every((value) => clean(value.page_id) === META_PAGE_ID);
+    values.length > 0 && values.every((value) => META_ALLOWED_PAGE_IDS.has(clean(value.page_id)));
   if (!hasValidSignature || !hasAllowedLeadContext) {
     return Response.json({ error: "Invalid Meta webhook" }, { status: 401 });
   }
@@ -1048,7 +1073,7 @@ async function processLeadValues(values: MetaLeadgenValue[]) {
       skipped += 1;
       continue;
     }
-    const outcome = await storeLead(await fetchLead(leadgenId), value);
+    const outcome = await storeLead(await fetchLead(leadgenId, value.page_id), value);
     if (outcome === "inserted") inserted += 1;
     else if (outcome === "duplicate") duplicates += 1;
     else skipped += 1;

@@ -47,6 +47,28 @@ test("Meta leads distinguish Québec from Ontario before storage and notificatio
   assert.match(route, /const submissionId = `meta-\$\{market\.slug\}:\$\{leadId\}`/);
 });
 
+test("Israel Meta leads route to the Israel CRM market and Hebrew owner workflow", async () => {
+  const route = await readFile(routeUrl, "utf8");
+
+  assert.match(route, /const ISRAEL_MARKET/);
+  assert.match(route, /slug: "israel"/);
+  assert.match(route, /name: "ישראל"/);
+  assert.match(route, /resourceKey: "market:il"/);
+  assert.match(route, /pageUrl: "https:\/\/app\.spaplus\.co\/he-il\/israel\//);
+  assert.match(route, /timeZone: "Asia\/Jerusalem"/);
+  assert.match(route, /META_ISRAEL_FORM_IDS/);
+  assert.match(route, /directSignal\.includes\("ישראל"\)/);
+  assert.match(route, /campaignSignal\.includes\("ישראל"\)/);
+  assert.match(route, /market\.slug === "israel" \? "he-IL"/);
+  assert.match(route, /שם בית הספא או העסק/);
+  assert.match(route, /שם בית הספא/);
+  assert.match(route, /שם העסק/);
+  assert.match(route, /עיר או יישוב בישראל/);
+  assert.match(route, /עיר \/ יישוב/);
+  assert.match(route, /market\.slug !== "israel"/);
+  assert.match(route, /META_\$\{market\.slug\.toUpperCase\(\)\}_CONTACT_TO_EMAILS/);
+});
+
 test("Ontario Meta lead custom fields support the English and Canadian French forms", async () => {
   const route = await readFile(routeUrl, "utf8");
 
@@ -70,9 +92,46 @@ test("Meta webhook reports failures so Meta can retry safely", async () => {
 test("Meta webhook requires a valid signature and accepts every form owned by the Canada page", async () => {
   const route = await readFile(routeUrl, "utf8");
 
-  assert.match(route, /values\.every\(\(value\) => clean\(value\.page_id\) === META_PAGE_ID\)/);
+  assert.match(route, /values\.every\(\(value\) => META_ALLOWED_PAGE_IDS\.has\(clean\(value\.page_id\)\)\)/);
   assert.match(route, /if \(!hasValidSignature \|\| !hasAllowedLeadContext\)/);
   assert.doesNotMatch(route, /META_FORM_IDS/);
+});
+
+test("Meta webhook explicitly allows the Canadian and Israeli pages with conservative defaults", async () => {
+  const route = await readFile(routeUrl, "utf8");
+
+  assert.match(route, /META_CANADA_PAGE_ID = setting\("META_CANADA_PAGE_ID"\) \|\| "1065026380020011"/);
+  assert.match(route, /META_ISRAEL_PAGE_ID = setting\("META_ISRAEL_PAGE_ID"\) \|\| "120456011329432"/);
+  assert.match(route, /new Set\(\[META_CANADA_PAGE_ID, META_ISRAEL_PAGE_ID\]\)/);
+  assert.match(route, /META_ALLOWED_PAGE_IDS\.has\(clean\(value\.page_id\)\)/);
+});
+
+test("Meta Graph reads use market-specific page tokens with a safe shared fallback", async () => {
+  const route = await readFile(routeUrl, "utf8");
+
+  assert.match(route, /function pageAccessToken\(pageId = ""\)/);
+  assert.match(route, /META_ISRAEL_PAGE_ACCESS_TOKEN/);
+  assert.match(route, /META_CANADA_PAGE_ACCESS_TOKEN/);
+  assert.match(route, /configured \|\| setting\("META_PAGE_ACCESS_TOKEN"\)/);
+  assert.match(route, /fetchLead\(leadgenId, value\.page_id\)/);
+  assert.match(route, /fetchName\(formId, webhookValue\.page_id\)/);
+});
+
+test("Israel owner notifications render Hebrew lead details and never send visitor email", async () => {
+  const route = await readFile(routeUrl, "utf8");
+
+  assert.match(route, /languageTag: market\.slug === "israel" \? "he-IL" : "en-CA"/);
+  assert.match(route, /const owner = buildMarketOwnerEmail\(data, ownerContext\)/);
+  assert.match(route, /const visitor = buildMarketVisitorEmail\(data, visitorContext\)/);
+  assert.match(route, /market\.slug !== "israel"/);
+  assert.match(route, /city,/);
+  assert.match(route, /lead_id: leadId/);
+
+  const template = await readFile(new URL("../app/market-email-templates.ts", import.meta.url), "utf8");
+  assert.match(template, /בית הספא/);
+  assert.match(template, /איש קשר/);
+  assert.match(template, /דוא״ל/);
+  assert.match(template, /טלפון/);
 });
 
 test("Meta recovery reads leads from campaign ads and classifies each lead independently", async () => {

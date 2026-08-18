@@ -67,7 +67,7 @@ test("Ontario and Quebec Meta leads send an English LTR owner notification with 
   assert.match(route, /api\.cloudflare\.com\/client\/v4\/accounts/);
   assert.match(route, /api\.resend\.com\/emails/);
   assert.match(route, /Idempotency-Key/);
-  assert.match(route, /languageTag: "en-CA"/);
+  assert.match(route, /languageTag: market\.slug === "israel" \? "he-IL" : "en-CA"/);
   assert.match(route, /\$\{market\.name\} time/);
 });
 
