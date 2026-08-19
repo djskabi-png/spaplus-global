@@ -6,6 +6,7 @@ import type { SpaPackage, SpaPreview, SpaPreviewContent, SpaPreviewLocalizations
 type Language = "en" | "fr-CA";
 type Draft = Omit<SpaPreview, "id" | "createdAt" | "updatedAt"> & { id?: number };
 type MediaItem = { id: number; url: string; filename: string; contentType: string; createdAt: string };
+type MediaNotice = { tone: "progress" | "success" | "error"; text: string };
 
 const stableMediaUrl = (url: string) => url.replace(
   "https://app.spaplus.co/spa-preview-media/",
@@ -18,6 +19,8 @@ const blankTreatment = (): Treatment => ({ name: "", description: "", duration: 
 const hoursFor = (language: Language) => language === "fr-CA" ? "Lundi au dimanche : 9 h à 18 h" : "Monday to Sunday: 9:00 AM to 6:00 PM";
 const defaultLogoUrl = "https://app.spaplus.co/spa-preview-logo.svg";
 const defaultPhotoUrls = [1, 2, 3, 4, 5].map((number) => `https://app.spaplus.co/spa-preview-gallery-${number}.webp`);
+const supportedImageTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
+const isTemplatePhoto = (url: string) => defaultPhotoUrls.includes(url);
 const blank = (language: Language = "en"): Draft => ({
   slug: "",
   status: "shared",
@@ -90,6 +93,7 @@ export default function SpaPreviewManager({ canEdit, initialPreviews }: { canEdi
   const [draft, setDraft] = useState<Draft>(() => completeDraft());
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [message, setMessage] = useState("");
+  const [mediaNotice, setMediaNotice] = useState<MediaNotice | null>(null);
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
   const shareLink = useMemo(() => draft.slug ? `https://spaplus.co/ca/${draft.slug}` : "", [draft.slug]);
@@ -119,12 +123,14 @@ export default function SpaPreviewManager({ canEdit, initialPreviews }: { canEdi
     const content = localizedContent[language] || templateContent(language);
     setDraft({ ...preview, ...content, localizedContent, treatments: [...content.treatments, blankTreatment(), blankTreatment(), blankTreatment()].slice(0, 3), photoUrls: preview.photoUrls.slice(0, 10) });
     setMessage("");
+    setMediaNotice(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function startNew() {
     setDraft(completeDraft(draft.language));
     setMessage("");
+    setMediaNotice(null);
   }
 
   function changeLanguage(language: Language) {
@@ -150,38 +156,75 @@ export default function SpaPreviewManager({ canEdit, initialPreviews }: { canEdi
   function toggleGallery(url: string) {
     setDraft((current) => {
       if (current.photoUrls.includes(url)) return { ...current, photoUrls: current.photoUrls.filter((item) => item !== url) };
-      if (current.photoUrls.length >= 10) { setMessage("You can select up to 10 gallery images."); return current; }
-      return { ...current, photoUrls: [...current.photoUrls, url] };
+      const selectedPhotos = current.photoUrls.filter((item) => !isTemplatePhoto(item));
+      if (selectedPhotos.length >= 10) {
+        setMediaNotice({ tone: "error", text: "The gallery already has 10 of your images. Remove one before adding another." });
+        return current;
+      }
+      setMediaNotice({ tone: "success", text: "Image added to the gallery. Template images were replaced automatically." });
+      return { ...current, photoUrls: [...selectedPhotos, url] };
     });
   }
 
   async function upload(files: FileList | null, destination: "logo" | "gallery") {
     if (!files?.length || !canEdit) return;
-    const selected = Array.from(files).slice(0, destination === "logo" ? 1 : 10);
-    if (destination === "gallery" && draft.photoUrls.length + selected.length > 10) { setMessage("A profile can have up to 10 gallery images."); return; }
-    const invalid = selected.find((file) => !["image/jpeg", "image/png", "image/webp", "image/avif"].includes(file.type) || file.size > 8 * 1024 * 1024);
-    if (invalid) { setMessage("Use JPG, PNG, WebP or AVIF images up to 8 MB each."); return; }
-    setUploading(true); setMessage("");
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 45_000);
+    const selected = Array.from(files);
+    const maximum = destination === "logo" ? 1 : 10;
+    if (selected.length > maximum) {
+      setMediaNotice({ tone: "error", text: destination === "logo" ? "Choose one logo image." : "Choose up to 10 gallery images at a time." });
+      return;
+    }
+    const invalid = selected.find((file) => !supportedImageTypes.has(file.type) || file.size > 8 * 1024 * 1024);
+    if (invalid) {
+      setMediaNotice({ tone: "error", text: `${invalid.name} could not be uploaded. Use JPG, PNG, WebP or AVIF images up to 8 MB each.` });
+      return;
+    }
+    const selectedPhotos = draft.photoUrls.filter((url) => !isTemplatePhoto(url));
+    if (destination === "gallery" && selectedPhotos.length + selected.length > 10) {
+      const remaining = 10 - selectedPhotos.length;
+      setMediaNotice({ tone: "error", text: `You can add ${remaining} more gallery image${remaining === 1 ? "" : "s"}. Remove an image or choose a smaller batch.` });
+      return;
+    }
+    setUploading(true);
+    setMessage("");
+    setMediaNotice({ tone: "progress", text: `Preparing ${selected.length} image${selected.length === 1 ? "" : "s"}...` });
+    const uploadedMedia: MediaItem[] = [];
     try {
-      const body = new FormData();
-      selected.forEach((file) => body.append("files", file));
-      const response = await fetch("/admin/spa-previews/media", { method: "POST", body, signal: controller.signal });
-      const data = await response.json().catch(() => ({ error: "The server returned an invalid upload response." })) as { media?: MediaItem[]; error?: string };
-      if (!response.ok || !data.media?.length) { setMessage(data.error || "The images could not be uploaded."); return; }
-      const uploadedMedia = normalizeMedia(data.media);
+      for (let offset = 0; offset < selected.length; offset += 3) {
+        const batch = selected.slice(offset, offset + 3);
+        setMediaNotice({ tone: "progress", text: `Uploading images ${offset + 1}-${offset + batch.length} of ${selected.length}...` });
+        const body = new FormData();
+        batch.forEach((file) => body.append("files", file));
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), 90_000);
+        try {
+          const response = await fetch("/admin/spa-previews/media", { method: "POST", body, signal: controller.signal });
+          const data = await response.json().catch(() => ({ error: "The server returned an invalid upload response." })) as { media?: MediaItem[]; error?: string };
+          const returnedMedia = data.media || [];
+          if (!response.ok || returnedMedia.length !== batch.length) throw new Error(data.error || "The images could not be uploaded.");
+          uploadedMedia.push(...normalizeMedia(returnedMedia));
+        } finally {
+          window.clearTimeout(timeout);
+        }
+      }
       setMedia((current) => [...uploadedMedia, ...current.filter((item) => !uploadedMedia.some((uploaded) => uploaded.id === item.id))]);
       setDraft((current) => destination === "logo"
         ? { ...current, logoUrl: uploadedMedia[0].url }
-        : { ...current, photoUrls: [...current.photoUrls, ...uploadedMedia.map((item) => item.url)].slice(0, 10) });
-      setMessage(`${data.media.length} image${data.media.length === 1 ? "" : "s"} uploaded and added to this profile.`);
+        : { ...current, photoUrls: [...current.photoUrls.filter((url) => !isTemplatePhoto(url)), ...uploadedMedia.map((item) => item.url)].slice(0, 10) });
+      setMediaNotice({ tone: "success", text: `${uploadedMedia.length} image${uploadedMedia.length === 1 ? "" : "s"} uploaded and added to this profile.` });
     } catch (error) {
-      setMessage(error instanceof DOMException && error.name === "AbortError"
-        ? "The upload took too long and was stopped. Please try again."
-        : "The upload could not be completed. Please try again.");
+      if (uploadedMedia.length) {
+        setMedia((current) => [...uploadedMedia, ...current.filter((item) => !uploadedMedia.some((uploaded) => uploaded.id === item.id))]);
+        setDraft((current) => destination === "logo"
+          ? { ...current, logoUrl: uploadedMedia[0].url }
+          : { ...current, photoUrls: [...current.photoUrls.filter((url) => !isTemplatePhoto(url)), ...uploadedMedia.map((item) => item.url)].slice(0, 10) });
+      }
+      const timedOut = error instanceof Error && error.name === "AbortError";
+      const reason = timedOut ? "The current batch took too long." : error instanceof Error ? error.message : "The upload could not be completed.";
+      setMediaNotice({ tone: "error", text: uploadedMedia.length
+        ? `${uploadedMedia.length} image${uploadedMedia.length === 1 ? "" : "s"} uploaded. ${reason} Select the remaining images and try again.`
+        : `${reason} Please try again.` });
     } finally {
-      window.clearTimeout(timeout);
       setUploading(false);
     }
   }
@@ -239,10 +282,10 @@ export default function SpaPreviewManager({ canEdit, initialPreviews }: { canEdi
         </div>
         <div className="spa-cms-card"><div className="spa-cms-card-heading"><div><p>2. Treatments</p><h2>Three editable signature services</h2></div><span>Ready</span></div>{draft.treatments.map((item, index) => <fieldset key={index}><legend>Treatment {index + 1}</legend><label>Name<input disabled={!canEdit || busy} value={item.name} onChange={(event) => treatment(index, "name", event.target.value)} /></label><label>Description<textarea disabled={!canEdit || busy} value={item.description} onChange={(event) => treatment(index, "description", event.target.value)} /></label><div className="spa-cms-split"><label>Duration<input disabled={!canEdit || busy} value={item.duration} onChange={(event) => treatment(index, "duration", event.target.value)} /></label><label>Price<input disabled={!canEdit || busy} value={item.price} onChange={(event) => treatment(index, "price", event.target.value)} /></label></div></fieldset>)}</div>
         <div className="spa-cms-card"><div className="spa-cms-card-heading"><div><p>3. Featured package</p><h2>One package to showcase</h2></div><span>Included</span></div><label>Package name<input disabled={!canEdit || busy} value={draft.spaPackage.name} onChange={(event) => setDraft({ ...draft, spaPackage: { ...draft.spaPackage, name: event.target.value } })} /></label><label>Description<textarea disabled={!canEdit || busy} value={draft.spaPackage.description} onChange={(event) => setDraft({ ...draft, spaPackage: { ...draft.spaPackage, description: event.target.value } })} /></label><label>Package price<input disabled={!canEdit || busy} value={draft.spaPackage.price} onChange={(event) => setDraft({ ...draft, spaPackage: { ...draft.spaPackage, price: event.target.value } })} /></label></div>
-        <div className="spa-cms-card"><div className="spa-cms-card-heading"><div><p>4. Brand and gallery</p><h2>Upload now or reuse existing images</h2></div><span>Up to 10</span></div>
-          <p className="spa-cms-help">JPG, PNG, WebP or AVIF, up to 8 MB per image. Uploaded media stays in this library for future profiles.</p>
-          <div className="spa-cms-upload-row"><label className="spa-cms-upload">Upload logo<input type="file" accept="image/jpeg,image/png,image/webp,image/avif" disabled={!canEdit || uploading} onChange={(event) => { void upload(event.target.files, "logo"); event.currentTarget.value = ""; }} /></label><label className="spa-cms-upload">Upload gallery images<input type="file" multiple accept="image/jpeg,image/png,image/webp,image/avif" disabled={!canEdit || uploading} onChange={(event) => { void upload(event.target.files, "gallery"); event.currentTarget.value = ""; }} /></label></div>
-          {uploading ? <p className="spa-cms-help" role="status">Uploading images...</p> : null}
+        <div className="spa-cms-card" aria-busy={uploading}><div className="spa-cms-card-heading"><div><p>4. Brand and gallery</p><h2>Upload now or reuse existing images</h2></div><span>Up to 10</span></div>
+          <p className="spa-cms-help">JPG, PNG, WebP or AVIF, up to 8 MB per image. Choose up to 10 gallery images together. Your own gallery automatically replaces the template images.</p>
+          <div className="spa-cms-upload-row"><label className="spa-cms-upload">Upload logo<input type="file" accept="image/jpeg,image/png,image/webp,image/avif" disabled={!canEdit || busy || uploading} onChange={(event) => { void upload(event.target.files, "logo"); event.currentTarget.value = ""; }} /></label><label className="spa-cms-upload">Upload gallery images<input type="file" multiple accept="image/jpeg,image/png,image/webp,image/avif" disabled={!canEdit || busy || uploading} onChange={(event) => { void upload(event.target.files, "gallery"); event.currentTarget.value = ""; }} /></label></div>
+          {mediaNotice ? <div className={`spa-cms-media-notice is-${mediaNotice.tone}`} role="status" aria-live="polite">{mediaNotice.text}</div> : null}
           <div className="spa-cms-selected-media">
             <div><strong>Selected logo</strong>{draft.logoUrl ? <button type="button" onClick={() => setDraft({ ...draft, logoUrl: "" })}><img src={draft.logoUrl} alt="Selected logo" /><span>Remove</span></button> : <span>No logo selected</span>}</div>
             <div><strong>Selected gallery ({draft.photoUrls.length}/10)</strong><div>{draft.photoUrls.map((url, index) => <button type="button" key={`${url}-${index}`} onClick={() => toggleGallery(url)}><img src={url} alt={`Selected gallery image ${index + 1}`} /><span>Remove</span></button>)}</div></div>

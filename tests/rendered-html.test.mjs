@@ -1272,16 +1272,22 @@ test("spa preview builder creates a complete bilingual profile from only the spa
 });
 
 test("spa preview image uploads always finish with success or a retryable error", async () => {
-  const [builder, mediaRoute] = await Promise.all([
+  const [builder, css, mediaRoute] = await Promise.all([
     read("app/admin/spa-previews/SpaPreviewManager.tsx"),
+    read("app/admin/spa-previews/spa-previews-fast.css"),
     read("app/admin/spa-previews/media/route.ts"),
   ]);
 
   assert.match(builder, /new AbortController\(\)/);
-  assert.match(builder, /window\.setTimeout\(\(\) => controller\.abort\(\), 45_000\)/);
+  assert.match(builder, /window\.setTimeout\(\(\) => controller\.abort\(\), 90_000\)/);
+  assert.match(builder, /for \(let offset = 0; offset < selected\.length; offset \+= 3\)/);
+  assert.match(builder, /current\.photoUrls\.filter\(\(url\) => !isTemplatePhoto\(url\)\)/);
+  assert.match(builder, /Choose up to 10 gallery images together/);
+  assert.match(builder, /role="status" aria-live="polite"/);
   assert.match(builder, /finally \{[\s\S]*?setUploading\(false\)/);
   assert.match(builder, /event\.currentTarget\.value = ""/);
   assert.match(builder, /media\?fresh=\$\{Date\.now\(\)\}/);
+  assert.match(css, /\.spa-cms-media-notice\.is-error/);
   assert.match(mediaRoute, /await file\.arrayBuffer\(\)/);
   assert.doesNotMatch(mediaRoute, /file\.stream\(\)/);
   assert.match(mediaRoute, /Promise\.allSettled\(uploadedKeys\.map/);

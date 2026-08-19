@@ -17,6 +17,7 @@
 .spa-cms-quickbar label{gap:10px;font-size:16px}
 .spa-cms-quickbar select,.spa-cms-quickbar button{min-height:58px;font-size:16px}
 .spa-cms-upload{min-height:78px!important;font-size:17px!important}
+.spa-cms-media-notice{margin:0 0 18px;padding:14px 16px;border:1px solid #b9cbe0;border-radius:14px;background:#f4f8fd;color:#243d5e;font-size:14px;font-weight:800;line-height:1.5}.spa-cms-media-notice.is-progress{border-color:#f2bfd2;background:#fff5f8;color:#9a1746}.spa-cms-media-notice.is-success{border-color:#a9dfc4;background:#ebfff4;color:#0b6e4d}.spa-cms-media-notice.is-error{border-color:#efb0b8;background:#fff2f3;color:#9d2635}
 .spa-cms-save{position:sticky;z-index:5;bottom:16px;min-height:64px;font-size:17px;box-shadow:0 14px 32px rgba(237,23,96,.28)}
 .spa-cms-link a,.spa-cms-link button{min-height:42px;padding:10px 15px;font-size:13px}
 .spa-cms-list>article{padding:13px}
