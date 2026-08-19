@@ -53,6 +53,7 @@ test("lead cards prioritize customer details and collapse secondary information"
   assert.match(styles, /\.lead-message-panel/);
   assert.match(styles, /\.lead-disclosure-button:focus-visible/);
   assert.match(styles, /@media \(max-width: 560px\)[\s\S]*?\.lead-customer-facts,[\s\S]*?grid-template-columns: 1fr/);
+  assert.match(styles, /@media \(max-width: 560px\)[\s\S]*?\.lead-filters\.has-custom-range \{[\s\S]*?position: static;[\s\S]*?z-index: auto;/);
   assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
 });
 

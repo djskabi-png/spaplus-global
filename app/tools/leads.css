@@ -729,7 +729,9 @@
 
   .lead-filters,
   .lead-filters.has-custom-range {
-    top: 68px;
+    position: static;
+    top: auto;
+    z-index: auto;
     grid-template-columns: 1fr;
     padding: 13px;
     border-radius: 17px;
