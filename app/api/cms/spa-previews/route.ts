@@ -80,7 +80,7 @@ export async function GET() {
   const admin = await getAuthorizedAdmin();
   if (!admin) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!hasPermission(admin.role, admin.permissions, "site:global:spa-previews", "viewContent")) return Response.json({ error: "Forbidden" }, { status: 403 });
-  return Response.json({ previews: await listSpaPreviews() });
+  return Response.json({ previews: await listSpaPreviews() }, { headers: { "Cache-Control": "no-store, max-age=0" } });
 }
 
 export async function POST(request: Request) {

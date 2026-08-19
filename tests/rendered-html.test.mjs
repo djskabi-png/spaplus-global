@@ -1243,6 +1243,7 @@ test("spa preview builder creates a complete bilingual profile from only the spa
   assert.match(builder, /Open English/);
   assert.match(builder, /Open French/);
   assert.match(builder, /English \+ Français/);
+  assert.match(builder, /fetch\("\/admin\/spa-previews\/records", \{ cache: "no-store" \}\)/);
   assert.match(profile, /toggleLanguage/);
   assert.match(profile, /window\.history\.replaceState/);
   assert.match(profile, /Images d’illustration/);
@@ -1251,6 +1252,7 @@ test("spa preview builder creates a complete bilingual profile from only the spa
   assert.doesNotMatch(profile, /\{treatmentFilter === "solo" \? <div/);
   assert.match(page, /initialLanguage=\{lang === "fr-CA" \? "fr-CA" : "en"\}/);
   assert.match(api, /localizedContent: JSON\.stringify\(data\.localizedContent\)/);
+  assert.match(api, /"Cache-Control": "no-store, max-age=0"/);
   assert.match(schema, /localizedContent: text\("localized_content"\)/);
   assert.match(migration, /ALTER TABLE `spa_previews` ADD `localized_content`/);
   assert.match(mediaSource, /generated specifically for SpaPlus recruitment previews/);
