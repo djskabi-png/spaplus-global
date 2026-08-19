@@ -190,18 +190,31 @@ export default function SpaPreviewManager({ canEdit, initialPreviews }: { canEdi
     setMediaNotice({ tone: "progress", text: `Preparing ${selected.length} image${selected.length === 1 ? "" : "s"}...` });
     const uploadedMedia: MediaItem[] = [];
     try {
-      for (let offset = 0; offset < selected.length; offset += 3) {
-        const batch = selected.slice(offset, offset + 3);
-        setMediaNotice({ tone: "progress", text: `Uploading images ${offset + 1}-${offset + batch.length} of ${selected.length}...` });
-        const body = new FormData();
-        batch.forEach((file) => body.append("files", file));
+      for (let offset = 0; offset < selected.length; offset += 1) {
+        const file = selected[offset];
+        setMediaNotice({ tone: "progress", text: `Uploading image ${offset + 1} of ${selected.length}...` });
         const controller = new AbortController();
         const timeout = window.setTimeout(() => controller.abort(), 90_000);
         try {
-          const response = await fetch("/admin/spa-previews/media", { method: "POST", body, signal: controller.signal });
-          const data = await response.json().catch(() => ({ error: "The server returned an invalid upload response." })) as { media?: MediaItem[]; error?: string };
+          const response = await fetch("/admin/spa-previews/media", {
+            method: "POST",
+            body: file,
+            signal: controller.signal,
+            headers: {
+              "Content-Type": file.type,
+              "X-SpaPlus-Upload": "direct-file",
+              "X-SpaPlus-Filename": encodeURIComponent(file.name.slice(0, 180)),
+            },
+          });
+          if (response.redirected || response.url.includes("/auth/google/")) throw new Error("Your admin session expired. Reload the page and sign in again.");
+          const responseType = response.headers.get("content-type") || "";
+          if (!responseType.includes("application/json")) {
+            if (response.status === 413) throw new Error("This image is too large for the server. Use an image up to 8 MB.");
+            throw new Error(`The server could not process this image (error ${response.status || "unknown"}).`);
+          }
+          const data = await response.json().catch(() => ({ error: "The server returned incomplete upload data." })) as { media?: MediaItem[]; error?: string };
           const returnedMedia = data.media || [];
-          if (!response.ok || returnedMedia.length !== batch.length) throw new Error(data.error || "The images could not be uploaded.");
+          if (!response.ok || returnedMedia.length !== 1) throw new Error(data.error || "The image could not be uploaded.");
           uploadedMedia.push(...normalizeMedia(returnedMedia));
         } finally {
           window.clearTimeout(timeout);

@@ -1280,7 +1280,11 @@ test("spa preview image uploads always finish with success or a retryable error"
 
   assert.match(builder, /new AbortController\(\)/);
   assert.match(builder, /window\.setTimeout\(\(\) => controller\.abort\(\), 90_000\)/);
-  assert.match(builder, /for \(let offset = 0; offset < selected\.length; offset \+= 3\)/);
+  assert.match(builder, /for \(let offset = 0; offset < selected\.length; offset \+= 1\)/);
+  assert.match(builder, /"X-SpaPlus-Upload": "direct-file"/);
+  assert.match(builder, /body: file/);
+  assert.doesNotMatch(builder, /new FormData\(\)/);
+  assert.match(builder, /Your admin session expired\. Reload the page and sign in again\./);
   assert.match(builder, /current\.photoUrls\.filter\(\(url\) => !isTemplatePhoto\(url\)\)/);
   assert.match(builder, /Choose up to 10 gallery images together/);
   assert.match(builder, /role="status" aria-live="polite"/);
@@ -1290,6 +1294,9 @@ test("spa preview image uploads always finish with success or a retryable error"
   assert.match(css, /\.spa-cms-media-notice\.is-error/);
   assert.match(mediaRoute, /await file\.arrayBuffer\(\)/);
   assert.doesNotMatch(mediaRoute, /file\.stream\(\)/);
+  assert.match(mediaRoute, /request\.headers\.get\("x-spaplus-upload"\) === "direct-file"/);
+  assert.match(mediaRoute, /const bytes = await request\.arrayBuffer\(\)/);
+  assert.match(mediaRoute, /Spa preview media request could not be read/);
   assert.match(mediaRoute, /Promise\.allSettled\(uploadedKeys\.map/);
   assert.match(mediaRoute, /The upload did not finish\. Please try again\./);
 });

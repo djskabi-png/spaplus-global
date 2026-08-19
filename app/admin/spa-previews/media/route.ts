@@ -13,6 +13,15 @@ const allowedTypes = new Map([
   ["image/webp", "webp"],
   ["image/avif", "avif"],
 ]);
+const maximumFileSize = 8 * 1024 * 1024;
+
+type UploadPart = { filename: string; contentType: string; bytes: ArrayBuffer };
+
+function decodedFilename(value: string | null) {
+  if (!value) return "image";
+  try { return decodeURIComponent(value).slice(0, 240) || "image"; }
+  catch { return "image"; }
+}
 
 async function authorized(capability: "viewContent" | "editContent") {
   const admin = await getAuthorizedAdmin();
@@ -32,11 +41,31 @@ export async function GET() {
 export async function POST(request: Request) {
   const admin = await authorized("editContent");
   if (!admin) return Response.json({ error: "Forbidden" }, { status: 403 });
-  const formData = await request.formData();
-  const files = formData.getAll("files").filter((value): value is File => value instanceof File);
-  if (!files.length || files.length > 10) return Response.json({ error: "Choose between 1 and 10 images." }, { status: 400 });
-  const invalid = files.find((file) => !allowedTypes.has(file.type) || file.size > 8 * 1024 * 1024);
-  if (invalid) return Response.json({ error: "Use JPG, PNG, WebP or AVIF images up to 8 MB each." }, { status: 400 });
+  const parts: UploadPart[] = [];
+  try {
+    if (request.headers.get("x-spaplus-upload") === "direct-file") {
+      const contentType = (request.headers.get("content-type") || "").split(";", 1)[0].toLowerCase();
+      const contentLength = Number(request.headers.get("content-length") || 0);
+      if (!allowedTypes.has(contentType) || contentLength > maximumFileSize) {
+        return Response.json({ error: "Use JPG, PNG, WebP or AVIF images up to 8 MB each." }, { status: 400 });
+      }
+      const bytes = await request.arrayBuffer();
+      if (!bytes.byteLength || bytes.byteLength > maximumFileSize) {
+        return Response.json({ error: "Use JPG, PNG, WebP or AVIF images up to 8 MB each." }, { status: 400 });
+      }
+      parts.push({ filename: decodedFilename(request.headers.get("x-spaplus-filename")), contentType, bytes });
+    } else {
+      const formData = await request.formData();
+      const files = formData.getAll("files").filter((value): value is File => value instanceof File);
+      if (!files.length || files.length > 10) return Response.json({ error: "Choose between 1 and 10 images." }, { status: 400 });
+      const invalid = files.find((file) => !allowedTypes.has(file.type) || file.size > maximumFileSize);
+      if (invalid) return Response.json({ error: "Use JPG, PNG, WebP or AVIF images up to 8 MB each." }, { status: 400 });
+      for (const file of files) parts.push({ filename: file.name.slice(0, 240), contentType: file.type, bytes: await file.arrayBuffer() });
+    }
+  } catch (error) {
+    console.error("Spa preview media request could not be read", error);
+    return Response.json({ error: "The image request could not be read. Please choose the file again." }, { status: 400 });
+  }
   const now = new Date().toISOString();
   const uploadedKeys: string[] = [];
   const rows: Array<{
@@ -48,16 +77,15 @@ export async function POST(request: Request) {
     createdAt: string;
   }> = [];
   try {
-    for (const file of files) {
-      const extension = allowedTypes.get(file.type)!;
+    for (const part of parts) {
+      const extension = allowedTypes.get(part.contentType)!;
       const objectKey = `spa-previews/${now.slice(0, 7)}/${crypto.randomUUID()}.${extension}`;
-      const bytes = await file.arrayBuffer();
-      await env.PREVIEW_MEDIA.put(objectKey, bytes, {
-        httpMetadata: { contentType: file.type, cacheControl: "public, max-age=31536000, immutable" },
-        customMetadata: { filename: file.name.slice(0, 240), uploadedBy: admin.email },
+      await env.PREVIEW_MEDIA.put(objectKey, part.bytes, {
+        httpMetadata: { contentType: part.contentType, cacheControl: "public, max-age=31536000, immutable" },
+        customMetadata: { filename: part.filename, uploadedBy: admin.email },
       });
       uploadedKeys.push(objectKey);
-      rows.push({ objectKey, url: publicMediaUrl(objectKey), filename: file.name.slice(0, 240), contentType: file.type, createdBy: admin.email, createdAt: now });
+      rows.push({ objectKey, url: publicMediaUrl(objectKey), filename: part.filename, contentType: part.contentType, createdBy: admin.email, createdAt: now });
     }
     const uploaded = await getDb().insert(spaPreviewMedia).values(rows).returning();
     return Response.json({ media: uploaded }, { status: 201, headers: { "Cache-Control": "no-store, max-age=0" } });
