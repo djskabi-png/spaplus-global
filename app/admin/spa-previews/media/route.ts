@@ -1,7 +1,7 @@
 import { env } from "cloudflare:workers";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { getDb } from "../../../../db";
-import { spaPreviewMedia } from "../../../../db/schema";
+import { cmsAuditLog, spaPreviewMedia, spaPreviews } from "../../../../db/schema";
 import { getAuthorizedAdmin } from "../../../admin-auth";
 import { hasPermission } from "../../../cms-access";
 
@@ -21,6 +21,13 @@ function decodedFilename(value: string | null) {
   if (!value) return "image";
   try { return decodeURIComponent(value).slice(0, 240) || "image"; }
   catch { return "image"; }
+}
+
+function parsedPhotoUrls(value: string) {
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [];
+  } catch { return []; }
 }
 
 async function authorized(capability: "viewContent" | "editContent") {
@@ -94,4 +101,61 @@ export async function POST(request: Request) {
     console.error("Spa preview media upload failed", error);
     return Response.json({ error: "The upload did not finish. Please try again." }, { status: 500 });
   }
+}
+
+export async function DELETE(request: Request) {
+  const admin = await authorized("editContent");
+  if (!admin) return Response.json({ error: "Forbidden" }, { status: 403 });
+  const body = await request.json().catch(() => null) as { id?: unknown } | null;
+  const id = Number(body?.id);
+  if (!Number.isInteger(id) || id <= 0) return Response.json({ error: "Choose a valid image." }, { status: 400 });
+
+  const db = getDb();
+  const [item] = await db.select().from(spaPreviewMedia).where(eq(spaPreviewMedia.id, id)).limit(1);
+  if (!item) return Response.json({ error: "This image is no longer in the media library." }, { status: 404 });
+
+  const possibleUrls = new Set([
+    item.url,
+    publicMediaUrl(item.objectKey),
+    `https://app.spaplus.co/spa-preview-media/${item.objectKey}`,
+  ]);
+  const previews = await db.select({ id: spaPreviews.id, spaName: spaPreviews.spaName, logoUrl: spaPreviews.logoUrl, photoUrls: spaPreviews.photoUrls }).from(spaPreviews);
+  const usedBy = previews.filter((preview) => possibleUrls.has(preview.logoUrl) || parsedPhotoUrls(preview.photoUrls).some((url) => possibleUrls.has(url)));
+  if (usedBy.length) {
+    const names = usedBy.map((preview) => preview.spaName).slice(0, 3);
+    return Response.json({ error: `This image is used by ${names.join(", ")}. Remove it from the saved profile first.`, usedBy: usedBy.map((preview) => preview.id) }, { status: 409 });
+  }
+
+  const now = new Date().toISOString();
+  await db.batch([
+    db.delete(spaPreviewMedia).where(eq(spaPreviewMedia.id, id)),
+    db.insert(cmsAuditLog).values({
+      actorEmail: admin.email,
+      action: "spa_preview_media.deleted",
+      entityType: "spa_preview_media",
+      entityId: String(id),
+      details: JSON.stringify({ objectKey: item.objectKey, filename: item.filename }),
+      createdAt: now,
+    }),
+  ]);
+  try {
+    await env.PREVIEW_MEDIA.delete(item.objectKey);
+    const remaining = await env.PREVIEW_MEDIA.head(item.objectKey);
+    if (remaining) throw new Error("The stored object still exists after deletion");
+  } catch (error) {
+    console.error("Spa preview media storage deletion failed", error);
+    await db.batch([
+      db.insert(spaPreviewMedia).values(item),
+      db.insert(cmsAuditLog).values({
+        actorEmail: admin.email,
+        action: "spa_preview_media.delete_failed_restored",
+        entityType: "spa_preview_media",
+        entityId: String(id),
+        details: JSON.stringify({ objectKey: item.objectKey, filename: item.filename }),
+        createdAt: new Date().toISOString(),
+      }),
+    ]);
+    return Response.json({ error: "The image could not be deleted from storage. It remains in the library." }, { status: 500 });
+  }
+  return Response.json({ deleted: true, id }, { headers: { "Cache-Control": "no-store, max-age=0" } });
 }

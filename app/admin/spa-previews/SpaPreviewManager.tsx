@@ -96,6 +96,7 @@ export default function SpaPreviewManager({ canEdit, initialPreviews }: { canEdi
   const [mediaNotice, setMediaNotice] = useState<MediaNotice | null>(null);
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [deletingMediaId, setDeletingMediaId] = useState<number | null>(null);
   const shareLink = useMemo(() => draft.slug ? `https://spaplus.co/ca/${draft.slug}` : "", [draft.slug]);
 
   async function load() {
@@ -262,6 +263,35 @@ export default function SpaPreviewManager({ canEdit, initialPreviews }: { canEdi
     setDraft(data.preview); setMessage("Saved. The profile link is ready to share."); await load();
   }
 
+  async function deleteMedia(item: MediaItem) {
+    if (!canEdit || !window.confirm(`Delete ${item.filename} from the media library? This cannot be undone.`)) return;
+    setDeletingMediaId(item.id);
+    setMediaNotice({ tone: "progress", text: `Deleting ${item.filename}...` });
+    try {
+      const response = await fetch("/admin/spa-previews/media", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: item.id }),
+      });
+      const data = await response.json().catch(() => ({ error: "The server returned an invalid deletion response." })) as { deleted?: boolean; error?: string };
+      if (!response.ok || !data.deleted) {
+        setMediaNotice({ tone: "error", text: data.error || "The image could not be deleted." });
+        return;
+      }
+      setMedia((current) => current.filter((mediaItem) => mediaItem.id !== item.id));
+      setDraft((current) => ({
+        ...current,
+        logoUrl: current.logoUrl === item.url ? "" : current.logoUrl,
+        photoUrls: current.photoUrls.filter((url) => url !== item.url),
+      }));
+      setMediaNotice({ tone: "success", text: `${item.filename} was deleted from the media library.` });
+    } catch {
+      setMediaNotice({ tone: "error", text: "The image could not be deleted. Check the connection and try again." });
+    } finally {
+      setDeletingMediaId(null);
+    }
+  }
+
   async function remove(preview: SpaPreview) {
     if (!canEdit || !window.confirm(`Delete ${preview.spaName}? Uploaded images will remain in the media library.`)) return;
     setBusy(true); setMessage("");
@@ -304,7 +334,7 @@ export default function SpaPreviewManager({ canEdit, initialPreviews }: { canEdi
             <div><strong>Selected gallery ({draft.photoUrls.length}/10)</strong><div>{draft.photoUrls.map((url, index) => <button type="button" key={`${url}-${index}`} onClick={() => toggleGallery(url)}><img src={url} alt={`Selected gallery image ${index + 1}`} /><span>Remove</span></button>)}</div></div>
           </div>
           <div className="spa-cms-library-title"><strong>Previously uploaded images</strong><span>Select “Logo” or “Gallery” on any image.</span></div>
-          <div className="spa-cms-media-library">{media.length ? media.map((item) => <article key={item.id} className={draft.logoUrl === item.url || draft.photoUrls.includes(item.url) ? "is-selected" : ""}><img src={item.url} alt={item.filename} /><small title={item.filename}>{item.filename}</small><div><button type="button" onClick={() => setDraft({ ...draft, logoUrl: item.url })}>Logo</button><button type="button" onClick={() => toggleGallery(item.url)}>{draft.photoUrls.includes(item.url) ? "Remove" : "Gallery"}</button></div></article>) : <p className="spa-cms-help">No uploaded images yet. Your first upload will appear here.</p>}</div>
+          <div className="spa-cms-media-library">{media.length ? media.map((item) => <article key={item.id} className={draft.logoUrl === item.url || draft.photoUrls.includes(item.url) ? "is-selected" : ""}><img src={item.url} alt={item.filename} /><small title={item.filename}>{item.filename}</small><div><button type="button" disabled={deletingMediaId === item.id} onClick={() => setDraft({ ...draft, logoUrl: item.url })}>Logo</button><button type="button" disabled={deletingMediaId === item.id} onClick={() => toggleGallery(item.url)}>{draft.photoUrls.includes(item.url) ? "Remove" : "Gallery"}</button><button type="button" className="spa-cms-media-delete" disabled={deletingMediaId === item.id} onClick={() => void deleteMedia(item)}>{deletingMediaId === item.id ? "Deleting..." : "Delete"}</button></div></article>) : <p className="spa-cms-help">No uploaded images yet. Your first upload will appear here.</p>}</div>
         </div>
         {canEdit ? <button className="spa-cms-save" type="submit" disabled={busy || uploading}>{busy ? "Saving..." : draft.id ? "Save profile" : "Create shareable profile"}</button> : null}
       </form>

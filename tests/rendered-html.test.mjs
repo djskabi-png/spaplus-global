@@ -1299,4 +1299,13 @@ test("spa preview image uploads always finish with success or a retryable error"
   assert.match(mediaRoute, /Spa preview media request could not be read/);
   assert.match(mediaRoute, /Promise\.allSettled\(uploadedKeys\.map/);
   assert.match(mediaRoute, /The upload did not finish\. Please try again\./);
+  assert.match(builder, /Delete \$\{item\.filename\} from the media library\?/);
+  assert.match(builder, /method: "DELETE"/);
+  assert.match(builder, /setMedia\(\(current\) => current\.filter/);
+  assert.match(css, /grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+  assert.match(mediaRoute, /export async function DELETE\(request: Request\)/);
+  assert.match(mediaRoute, /This image is used by/);
+  assert.match(mediaRoute, /env\.PREVIEW_MEDIA\.delete\(item\.objectKey\)/);
+  assert.match(mediaRoute, /spa_preview_media\.deleted/);
+  assert.match(mediaRoute, /delete_failed_restored/);
 });
