@@ -1243,7 +1243,7 @@ test("spa preview builder creates a complete bilingual profile from only the spa
   assert.match(builder, /Open English/);
   assert.match(builder, /Open French/);
   assert.match(builder, /English \+ Français/);
-  assert.match(builder, /fetch\("\/admin\/spa-previews\/records", \{ cache: "no-store" \}\)/);
+  assert.match(builder, /fetch\(`\/admin\/spa-previews\/records\?fresh=\$\{Date\.now\(\)\}`/);
   assert.match(profile, /toggleLanguage/);
   assert.match(profile, /window\.history\.replaceState/);
   assert.match(profile, /Images d’illustration/);

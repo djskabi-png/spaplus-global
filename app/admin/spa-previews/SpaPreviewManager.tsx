@@ -95,7 +95,7 @@ export default function SpaPreviewManager({ canEdit, initialPreviews }: { canEdi
   const shareLink = useMemo(() => draft.slug ? `https://spaplus.co/ca/${draft.slug}` : "", [draft.slug]);
 
   async function load() {
-    const response = await fetch("/admin/spa-previews/records", { cache: "no-store" });
+    const response = await fetch(`/admin/spa-previews/records?fresh=${Date.now()}`, { cache: "no-store" });
     if (!response.ok) { setMessage("The profile list could not be refreshed. Reload the page and try again."); return; }
     const data = await response.json() as { previews: SpaPreview[] };
     setPreviews(data.previews);
