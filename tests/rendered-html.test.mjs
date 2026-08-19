@@ -503,9 +503,10 @@ test("every target market has English pages and every page template has Coming S
 });
 
 test("management permissions fail closed and leads are scoped by market", async () => {
-  const [access, adminPage, toolsPage, dashboard, usersRoute, submissionsRoute, marketRoute, migration, worker] = await Promise.all([
+  const [access, adminPage, adminClient, toolsPage, dashboard, usersRoute, submissionsRoute, marketRoute, migration, worker] = await Promise.all([
     read("app/cms-access.ts"),
     read("app/admin/page.tsx"),
+    read("app/admin/AdminClient.tsx"),
     read("app/tools/page.tsx"),
     read("app/tools/SubmissionsClient.tsx"),
     read("app/api/cms/users/route.ts"),
@@ -533,6 +534,14 @@ test("management permissions fail closed and leads are scoped by market", async 
   assert.match(dashboard, /allowedBusinesses\.includes\("vila4u"\)/);
   assert.match(usersRoute, /replacePermissions/);
   assert.match(usersRoute, /validResourceKey/);
+  assert.match(usersRoute, /effectivePermissions/);
+  assert.match(usersRoute, /serializedUser/);
+  assert.match(usersRoute, /"Cache-Control": "no-store, max-age=0"/);
+  assert.match(usersRoute, /success: true, user/);
+  assert.match(adminClient, /api\/cms\/users\?fresh=\$\{Date\.now\(\)\}/);
+  assert.match(adminClient, /cache: "no-store"/);
+  assert.match(adminClient, /data\.user/);
+  assert.match(adminClient, /const refreshed = await loadUsers\(\)/);
   assert.match(submissionsRoute, /inArray\(formSubmissions\.resourceKey, resources\)/);
   assert.match(submissionsRoute, /manageLeads/);
   assert.match(marketRoute, /resourceKey: market\.resourceKey \|\| "market:ca:on"/);

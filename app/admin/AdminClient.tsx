@@ -244,10 +244,11 @@ export default function AdminClient({
   }, [canViewSelectedContent, locale, resourceKey, tab]);
 
   const loadUsers = useCallback(async () => {
-    const response = await fetch("/api/cms/users");
-    if (!response.ok) return;
+    const response = await fetch(`/api/cms/users?fresh=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) return false;
     const data = (await response.json()) as { users: CmsUser[] };
     setUsers(data.users);
+    return true;
   }, []);
 
   useEffect(() => { void loadContent(); }, [loadContent]);
@@ -321,9 +322,11 @@ export default function AdminClient({
     const response = await fetch("/api/cms/users", {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newUser),
     });
-    setStatus(response.ok ? t.saved : t.failed);
+    const data = await response.json() as { user?: CmsUser; error?: string };
+    setStatus(response.ok && data.user ? t.saved : data.error || t.failed);
     if (response.ok) {
       setNewUser({ email: "", displayName: "", role: "editor", defaultLocale: "en", systemLocale: "en", canReportBugs: false, permissions: emptyPermissions });
+      if (data.user) setUsers((current) => [...current.filter((item) => item.id !== data.user!.id), data.user!]);
       await loadUsers();
     }
     setSavingAction(null);
@@ -335,8 +338,16 @@ export default function AdminClient({
     const response = await fetch("/api/cms/users", {
       method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: user.id, ...changes }),
     });
-    setStatus(response.ok ? t.saved : t.failed);
-    if (response.ok) await loadUsers();
+    const data = await response.json() as { user?: CmsUser; error?: string };
+    if (!response.ok || !data.user) {
+      setStatus(data.error || t.failed);
+      await loadUsers();
+      setSavingAction(null);
+      return;
+    }
+    setUsers((current) => current.map((item) => item.id === data.user!.id ? data.user! : item));
+    const refreshed = await loadUsers();
+    setStatus(refreshed ? t.saved : t.failed);
     setSavingAction(null);
   }
 

@@ -57,16 +57,24 @@ async function replacePermissions(userId: number, permissions: ReturnType<typeof
   if (!permissions) return;
   const db = getDb();
   await db.delete(cmsPermissions).where(eq(cmsPermissions.userId, userId));
-  if (permissions.length === 0) return;
+  const effectivePermissions = permissions.filter((permission) =>
+    permission.canViewContent || permission.canEditContent || permission.canViewLeads || permission.canManageLeads
+  );
+  if (effectivePermissions.length === 0) return;
   const now = new Date().toISOString();
   await db.insert(cmsPermissions).values(
-    permissions.map((permission) => ({
+    effectivePermissions.map((permission) => ({
       userId,
       ...permission,
       createdAt: now,
       updatedAt: now,
     })),
   );
+}
+
+async function serializedUser(id: number) {
+  const [user] = await getDb().select().from(cmsUsers).where(eq(cmsUsers.id, id)).limit(1);
+  return user ? { ...user, permissions: await getUserPermissions(user.id) } : null;
 }
 
 export async function GET() {
@@ -81,7 +89,10 @@ export async function GET() {
       permissions: await getUserPermissions(user.id),
     })),
   );
-  return Response.json({ users, resources: cmsResources });
+  return Response.json(
+    { users, resources: cmsResources },
+    { headers: { "Cache-Control": "no-store, max-age=0" } },
+  );
 }
 
 export async function POST(request: Request) {
@@ -153,7 +164,9 @@ export async function POST(request: Request) {
     details: JSON.stringify({ role, defaultLocale, systemLocale, canReportBugs, permissions }),
     createdAt: now,
   });
-  return Response.json({ success: true });
+  const user = await serializedUser(saved.id);
+  if (!user) return Response.json({ error: "Saved user could not be verified" }, { status: 500 });
+  return Response.json({ success: true, user }, { headers: { "Cache-Control": "no-store, max-age=0" } });
 }
 
 export async function PATCH(request: Request) {
@@ -217,5 +230,7 @@ export async function PATCH(request: Request) {
     details: JSON.stringify({ status, role, defaultLocale, systemLocale, canReportBugs, permissions }),
     createdAt: now,
   });
-  return Response.json({ success: true });
+  const user = await serializedUser(id);
+  if (!user) return Response.json({ error: "Saved user could not be verified" }, { status: 500 });
+  return Response.json({ success: true, user }, { headers: { "Cache-Control": "no-store, max-age=0" } });
 }
