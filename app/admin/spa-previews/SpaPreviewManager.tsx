@@ -102,7 +102,7 @@ export default function SpaPreviewManager({ canEdit, initialPreviews }: { canEdi
   }
 
   async function loadMedia() {
-    const response = await fetch("/admin/spa-previews/media");
+    const response = await fetch(`/admin/spa-previews/media?fresh=${Date.now()}`, { cache: "no-store" });
     if (!response.ok) { setMessage("The media library could not be loaded."); return; }
     const data = await response.json() as { media: MediaItem[] };
     setMedia(normalizeMedia(data.media));
@@ -159,19 +159,31 @@ export default function SpaPreviewManager({ canEdit, initialPreviews }: { canEdi
     if (!files?.length || !canEdit) return;
     const selected = Array.from(files).slice(0, destination === "logo" ? 1 : 10);
     if (destination === "gallery" && draft.photoUrls.length + selected.length > 10) { setMessage("A profile can have up to 10 gallery images."); return; }
+    const invalid = selected.find((file) => !["image/jpeg", "image/png", "image/webp", "image/avif"].includes(file.type) || file.size > 8 * 1024 * 1024);
+    if (invalid) { setMessage("Use JPG, PNG, WebP or AVIF images up to 8 MB each."); return; }
     setUploading(true); setMessage("");
-    const body = new FormData();
-    selected.forEach((file) => body.append("files", file));
-    const response = await fetch("/admin/spa-previews/media", { method: "POST", body });
-    const data = await response.json() as { media?: MediaItem[]; error?: string };
-    setUploading(false);
-    if (!response.ok || !data.media?.length) { setMessage(data.error || "The images could not be uploaded."); return; }
-    const uploadedMedia = normalizeMedia(data.media);
-    setMedia((current) => [...uploadedMedia, ...current]);
-    setDraft((current) => destination === "logo"
-      ? { ...current, logoUrl: uploadedMedia[0].url }
-      : { ...current, photoUrls: [...current.photoUrls, ...uploadedMedia.map((item) => item.url)].slice(0, 10) });
-    setMessage(`${data.media.length} image${data.media.length === 1 ? "" : "s"} uploaded and added to this profile.`);
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 45_000);
+    try {
+      const body = new FormData();
+      selected.forEach((file) => body.append("files", file));
+      const response = await fetch("/admin/spa-previews/media", { method: "POST", body, signal: controller.signal });
+      const data = await response.json().catch(() => ({ error: "The server returned an invalid upload response." })) as { media?: MediaItem[]; error?: string };
+      if (!response.ok || !data.media?.length) { setMessage(data.error || "The images could not be uploaded."); return; }
+      const uploadedMedia = normalizeMedia(data.media);
+      setMedia((current) => [...uploadedMedia, ...current.filter((item) => !uploadedMedia.some((uploaded) => uploaded.id === item.id))]);
+      setDraft((current) => destination === "logo"
+        ? { ...current, logoUrl: uploadedMedia[0].url }
+        : { ...current, photoUrls: [...current.photoUrls, ...uploadedMedia.map((item) => item.url)].slice(0, 10) });
+      setMessage(`${data.media.length} image${data.media.length === 1 ? "" : "s"} uploaded and added to this profile.`);
+    } catch (error) {
+      setMessage(error instanceof DOMException && error.name === "AbortError"
+        ? "The upload took too long and was stopped. Please try again."
+        : "The upload could not be completed. Please try again.");
+    } finally {
+      window.clearTimeout(timeout);
+      setUploading(false);
+    }
   }
 
   async function save(event: React.FormEvent) {
@@ -229,7 +241,7 @@ export default function SpaPreviewManager({ canEdit, initialPreviews }: { canEdi
         <div className="spa-cms-card"><div className="spa-cms-card-heading"><div><p>3. Featured package</p><h2>One package to showcase</h2></div><span>Included</span></div><label>Package name<input disabled={!canEdit || busy} value={draft.spaPackage.name} onChange={(event) => setDraft({ ...draft, spaPackage: { ...draft.spaPackage, name: event.target.value } })} /></label><label>Description<textarea disabled={!canEdit || busy} value={draft.spaPackage.description} onChange={(event) => setDraft({ ...draft, spaPackage: { ...draft.spaPackage, description: event.target.value } })} /></label><label>Package price<input disabled={!canEdit || busy} value={draft.spaPackage.price} onChange={(event) => setDraft({ ...draft, spaPackage: { ...draft.spaPackage, price: event.target.value } })} /></label></div>
         <div className="spa-cms-card"><div className="spa-cms-card-heading"><div><p>4. Brand and gallery</p><h2>Upload now or reuse existing images</h2></div><span>Up to 10</span></div>
           <p className="spa-cms-help">JPG, PNG, WebP or AVIF, up to 8 MB per image. Uploaded media stays in this library for future profiles.</p>
-          <div className="spa-cms-upload-row"><label className="spa-cms-upload">Upload logo<input type="file" accept="image/jpeg,image/png,image/webp,image/avif" disabled={!canEdit || uploading} onChange={(event) => void upload(event.target.files, "logo")} /></label><label className="spa-cms-upload">Upload gallery images<input type="file" multiple accept="image/jpeg,image/png,image/webp,image/avif" disabled={!canEdit || uploading} onChange={(event) => void upload(event.target.files, "gallery")} /></label></div>
+          <div className="spa-cms-upload-row"><label className="spa-cms-upload">Upload logo<input type="file" accept="image/jpeg,image/png,image/webp,image/avif" disabled={!canEdit || uploading} onChange={(event) => { void upload(event.target.files, "logo"); event.currentTarget.value = ""; }} /></label><label className="spa-cms-upload">Upload gallery images<input type="file" multiple accept="image/jpeg,image/png,image/webp,image/avif" disabled={!canEdit || uploading} onChange={(event) => { void upload(event.target.files, "gallery"); event.currentTarget.value = ""; }} /></label></div>
           {uploading ? <p className="spa-cms-help" role="status">Uploading images...</p> : null}
           <div className="spa-cms-selected-media">
             <div><strong>Selected logo</strong>{draft.logoUrl ? <button type="button" onClick={() => setDraft({ ...draft, logoUrl: "" })}><img src={draft.logoUrl} alt="Selected logo" /><span>Remove</span></button> : <span>No logo selected</span>}</div>

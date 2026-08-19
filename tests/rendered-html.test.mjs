@@ -1270,3 +1270,20 @@ test("spa preview builder creates a complete bilingual profile from only the spa
   }
   await stat(new URL("public/spa-preview-logo.svg", root));
 });
+
+test("spa preview image uploads always finish with success or a retryable error", async () => {
+  const [builder, mediaRoute] = await Promise.all([
+    read("app/admin/spa-previews/SpaPreviewManager.tsx"),
+    read("app/admin/spa-previews/media/route.ts"),
+  ]);
+
+  assert.match(builder, /new AbortController\(\)/);
+  assert.match(builder, /window\.setTimeout\(\(\) => controller\.abort\(\), 45_000\)/);
+  assert.match(builder, /finally \{[\s\S]*?setUploading\(false\)/);
+  assert.match(builder, /event\.currentTarget\.value = ""/);
+  assert.match(builder, /media\?fresh=\$\{Date\.now\(\)\}/);
+  assert.match(mediaRoute, /await file\.arrayBuffer\(\)/);
+  assert.doesNotMatch(mediaRoute, /file\.stream\(\)/);
+  assert.match(mediaRoute, /Promise\.allSettled\(uploadedKeys\.map/);
+  assert.match(mediaRoute, /The upload did not finish\. Please try again\./);
+});
