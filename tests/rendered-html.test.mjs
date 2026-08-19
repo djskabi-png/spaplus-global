@@ -728,8 +728,8 @@ test("lead management provides a localized four-state operational dashboard", as
   assert.match(systemLocale, /locale\.startsWith\("fr-"\)/);
   assert.match(route, /manageLeads/);
   assert.doesNotMatch(route, /export async function DELETE/);
-  assert.match(styles, /grid-template-columns:repeat\(4/);
-  assert.match(styles, /@media\(max-width:560px\)/);
+  assert.match(styles, /grid-template-columns:\s*repeat\(\s*4/);
+  assert.match(styles, /@media\s*\(\s*max-width:\s*560px\s*\)/);
 });
 
 test("accessibility controls and statements are available in every published language", async () => {
@@ -1226,8 +1226,8 @@ test("spa preview builder stays English LTR with large controls and lead header 
   assert.match(builderCss, /\.spa-cms-card input,[^{]+\{[^}]*min-height:62px/);
   assert.match(builderCss, /\.spa-cms-card textarea\{[^}]*min-height:150px/);
   assert.match(builderCss, /@media\(max-width:600px\)[\s\S]*?\.spa-cms-save\{position:static/);
-  assert.match(leadsCss, /\.cms-header \.cms-user \.cms-preview\{[^}]*color:#fff/);
-  assert.match(leadsCss, /-webkit-text-fill-color:#fff/);
+  assert.match(leadsCss, /\.cms-header\s+\.cms-user\s+\.cms-preview\s*\{[^}]*color:\s*#fff/);
+  assert.match(leadsCss, /-webkit-text-fill-color:\s*#fff/);
 });
 
 test("spa preview builder creates a complete bilingual profile from only the spa name", async () => {
