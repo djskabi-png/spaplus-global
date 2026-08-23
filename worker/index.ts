@@ -33,6 +33,7 @@ const SESSION_COOKIE = "spg_admin_session";
 const OAUTH_STATE_COOKIE = "spg_oauth_state";
 const GOOGLE_CALLBACK = "https://app.spaplus.co/auth/google/callback";
 const GOOGLE_DRIVE_CALLBACK = "https://app.spaplus.co/auth/google/drive/callback";
+const GOOGLE_CALENDAR_CALLBACK = GOOGLE_CALLBACK;
 const DEFAULT_PRIVATE_BACKEND_ORIGIN = "https://spaplus-global-brand.adir-naor-7510.chatgpt.site";
 const SESSION_SECONDS = 8 * 60 * 60;
 const DRIVE_CREDENTIAL_KEY = "bugs_google_refresh_token";
@@ -147,6 +148,36 @@ async function getDriveAccessToken(env: Env): Promise<string | null> {
   if (!env.ADMIN_SESSION_SECRET || !env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) return null;
   await ensureIntegrationCredentialsTable(env);
   const stored = await env.DB.prepare("SELECT encrypted_value FROM integration_credentials WHERE key = ? LIMIT 1").bind(DRIVE_CREDENTIAL_KEY).first<{ encrypted_value: string }>();
+  if (!stored?.encrypted_value) return null;
+  const refreshToken = await decryptCredential(stored.encrypted_value, env.ADMIN_SESSION_SECRET);
+  if (!refreshToken) return null;
+  const response = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ client_id: env.GOOGLE_CLIENT_ID, client_secret: env.GOOGLE_CLIENT_SECRET, refresh_token: refreshToken, grant_type: "refresh_token" }),
+  });
+  if (!response.ok) return null;
+  const payload = await response.json() as { access_token?: string };
+  return payload.access_token || null;
+}
+
+function calendarCredentialKey(email: string) {
+  return `calendar_google_refresh_token:${email.trim().toLowerCase()}`;
+}
+
+async function storeCalendarRefreshToken(env: Env, refreshToken: string, email: string) {
+  if (!env.ADMIN_SESSION_SECRET) throw new Error("Missing credential encryption key");
+  await ensureIntegrationCredentialsTable(env);
+  const encrypted = await encryptCredential(refreshToken, env.ADMIN_SESSION_SECRET);
+  await env.DB.prepare("INSERT INTO integration_credentials (key, encrypted_value, owner_email, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(key) DO UPDATE SET encrypted_value = excluded.encrypted_value, owner_email = excluded.owner_email, updated_at = excluded.updated_at")
+    .bind(calendarCredentialKey(email), encrypted, email, new Date().toISOString()).run();
+}
+
+async function getCalendarAccessToken(env: Env, email: string): Promise<string | null> {
+  if (!env.ADMIN_SESSION_SECRET || !env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) return null;
+  await ensureIntegrationCredentialsTable(env);
+  const stored = await env.DB.prepare("SELECT encrypted_value FROM integration_credentials WHERE key = ? LIMIT 1")
+    .bind(calendarCredentialKey(email)).first<{ encrypted_value: string }>();
   if (!stored?.encrypted_value) return null;
   const refreshToken = await decryptCredential(stored.encrypted_value, env.ADMIN_SESSION_SECRET);
   if (!refreshToken) return null;
@@ -343,7 +374,7 @@ function isProtectedPath(pathname: string): boolean {
   if (pathname === "/api/cms/public") return false;
   return pathname === "/admin" || pathname.startsWith("/admin/") ||
     pathname === "/tools" || pathname.startsWith("/tools/") ||
-    pathname.startsWith("/api/cms/");
+    pathname.startsWith("/api/cms/") || pathname === "/api/meetings";
 }
 
 async function startGoogleLogin(request: Request, env: Env): Promise<Response> {
@@ -513,6 +544,64 @@ async function finishDriveConnection(request: Request, env: Env): Promise<Respon
   });
 }
 
+async function startCalendarConnection(request: Request, env: Env, session: SignedPayload): Promise<Response> {
+  const email = String(session.email || "").trim().toLowerCase();
+  if (!email || !env.GOOGLE_CLIENT_ID || !env.ADMIN_SESSION_SECRET) return textResponse("חיבור Google Calendar אינו זמין כרגע.", 503);
+  const state = await signPayload({ kind: "calendar", email, exp: Math.floor(Date.now() / 1000) + 10 * 60 }, env.ADMIN_SESSION_SECRET);
+  const googleUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+  googleUrl.search = new URLSearchParams({
+    client_id: env.GOOGLE_CLIENT_ID,
+    redirect_uri: GOOGLE_CALENDAR_CALLBACK,
+    response_type: "code",
+    scope: "openid email profile https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.events.freebusy",
+    access_type: "offline",
+    include_granted_scopes: "true",
+    prompt: "consent",
+    state,
+  }).toString();
+  return new Response(null, {
+    status: 302,
+    headers: {
+      location: googleUrl.toString(),
+      "cache-control": "no-store",
+      "set-cookie": `${OAUTH_STATE_COOKIE}=${state}; Path=/auth/google/calendar; HttpOnly; Secure; SameSite=Lax; Max-Age=600`,
+    },
+  });
+}
+
+async function finishCalendarConnection(request: Request, env: Env): Promise<Response> {
+  if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET || !env.ADMIN_SESSION_SECRET) return textResponse("חיבור Google Calendar אינו זמין כרגע.", 503);
+  const url = new URL(request.url);
+  const state = url.searchParams.get("state") || "";
+  if (!state || parseCookies(request).get(OAUTH_STATE_COOKIE) !== state) return textResponse("בקשת החיבור ליומן אינה תקינה.", 400);
+  const statePayload = await verifyPayload(state, env.ADMIN_SESSION_SECRET);
+  if (!statePayload || statePayload.kind !== "calendar" || typeof statePayload.email !== "string") return textResponse("תוקף בקשת החיבור ליומן הסתיים.", 400);
+  const code = url.searchParams.get("code") || "";
+  if (!code) return textResponse("החיבור ליומן בוטל.", 400);
+  const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ code, client_id: env.GOOGLE_CLIENT_ID, client_secret: env.GOOGLE_CLIENT_SECRET, redirect_uri: GOOGLE_CALENDAR_CALLBACK, grant_type: "authorization_code" }),
+  });
+  if (!tokenResponse.ok) return textResponse("Google לא אישרה את החיבור ליומן.", 401);
+  const tokens = await tokenResponse.json() as { id_token?: string; refresh_token?: string };
+  if (!tokens.id_token || !tokens.refresh_token) return textResponse("לא התקבלה הרשאה קבועה ליומן. נסו לחבר שוב.", 401);
+  const identityResponse = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(tokens.id_token)}`);
+  if (!identityResponse.ok) return textResponse("לא ניתן היה לאמת את חשבון Google.", 401);
+  const identity = await identityResponse.json() as Record<string, string>;
+  const email = (identity.email || "").trim().toLowerCase();
+  if (email !== statePayload.email || identity.aud !== env.GOOGLE_CLIENT_ID || identity.email_verified !== "true") return textResponse("יש לחבר את אותו חשבון Google שבאמצעותו נכנסתם למערכת.", 403);
+  await storeCalendarRefreshToken(env, tokens.refresh_token, email);
+  return new Response(null, {
+    status: 302,
+    headers: {
+      location: new URL("/tools/meetings?calendar=connected", url.origin).toString(),
+      "cache-control": "no-store",
+      "set-cookie": `${OAUTH_STATE_COOKIE}=; Path=/auth/google/calendar; HttpOnly; Secure; SameSite=Lax; Max-Age=0`,
+    },
+  });
+}
+
 async function proxyProtectedRequest(request: Request, env: Env, session: SignedPayload): Promise<Response> {
   if (!env.SITES_BYPASS_TOKEN) return textResponse("מערכת הניהול אינה זמינה כרגע.", 503);
   const publicUrl = new URL(request.url);
@@ -527,6 +616,13 @@ async function proxyProtectedRequest(request: Request, env: Env, session: Signed
     if (accessToken) {
       upstreamHeaders.set("x-spaplus-google-sheets-token", accessToken);
       upstreamHeaders.set("x-spaplus-bugs-drive-connected", "1");
+    }
+  }
+  if (publicUrl.pathname === "/api/meetings") {
+    const calendarToken = await getCalendarAccessToken(env, String(session.email || ""));
+    if (calendarToken) {
+      upstreamHeaders.set("x-spaplus-google-calendar-token", calendarToken);
+      upstreamHeaders.set("x-spaplus-google-calendar-connected", "1");
     }
   }
   upstreamHeaders.delete("host");
@@ -755,11 +851,17 @@ const worker = {
     }
 
     if (hostname === "app.spaplus.co" && url.pathname === "/auth/google/callback") {
-      return finishGoogleLogin(request, env);
+      const state = url.searchParams.get("state") || "";
+      const statePayload = env.ADMIN_SESSION_SECRET ? await verifyPayload(state, env.ADMIN_SESSION_SECRET) : null;
+      return statePayload?.kind === "calendar" ? finishCalendarConnection(request, env) : finishGoogleLogin(request, env);
     }
 
     if (hostname === "app.spaplus.co" && url.pathname === "/auth/google/drive/callback") {
       return finishDriveConnection(request, env);
+    }
+
+    if (hostname === "app.spaplus.co" && url.pathname === "/auth/google/calendar/callback") {
+      return finishCalendarConnection(request, env);
     }
 
     if (hostname === "app.spaplus.co" && url.pathname === "/auth/google/drive/authorize") {
@@ -771,6 +873,17 @@ const worker = {
         return Response.redirect(loginUrl.toString(), 302);
       }
       return startDriveConnection(request, env, session);
+    }
+
+    if (hostname === "app.spaplus.co" && url.pathname === "/auth/google/calendar/authorize") {
+      if (!env.ADMIN_SESSION_SECRET) return textResponse("מערכת ההתחברות עדיין אינה זמינה.", 503);
+      const session = await verifyPayload(parseCookies(request).get(SESSION_COOKIE), env.ADMIN_SESSION_SECRET);
+      if (!session || typeof session.email !== "string") {
+        const loginUrl = new URL("/auth/google/start", url.origin);
+        loginUrl.searchParams.set("return_to", "/tools/meetings");
+        return Response.redirect(loginUrl.toString(), 302);
+      }
+      return startCalendarConnection(request, env, session);
     }
 
     if (hostname === "app.spaplus.co" && url.pathname === "/auth/logout") {

@@ -76,7 +76,7 @@ const uiCopy = {
   en: {
     title: "Clear content. Precise access.", eyebrow: "SpaPlus management",
     preview: "View website", global: "Global website", market: "Ontario page", quebec: "Québec page", canada: "Canada page", spaPreviews: "Spa profile previews",
-    users: "Users and permissions", leads: "Leads and forms", bugs: "Bug reports", contentLanguage: "Content language",
+    users: "Users and permissions", leads: "Leads and forms", meetings: "Schedule a meeting", bugs: "Bug reports", contentLanguage: "Content language",
     languageNote: "Changes apply only to the selected content language.", save: "Save",
     saving: "Saving...", saved: "Saved successfully", failed: "Unable to save",
     usersTitle: "Users and permissions", security: "Passwords are never stored here. Each user signs in with their own Google account.",
@@ -92,7 +92,7 @@ const uiCopy = {
   he: {
     title: "תוכן ברור. הרשאות מדויקות.", eyebrow: "מערכת הניהול של ספא פלוס",
     preview: "צפייה באתר", global: "האתר העולמי", market: "עמוד אונטריו", quebec: "עמוד קוויבק", canada: "עמוד קנדה", spaPreviews: "תצוגות מקדימות לספא",
-    users: "משתמשים והרשאות", leads: "פניות וטפסים", bugs: "דיווחי באגים", contentLanguage: "שפת התוכן",
+    users: "משתמשים והרשאות", leads: "פניות וטפסים", meetings: "קביעת פגישה", bugs: "דיווחי באגים", contentLanguage: "שפת התוכן",
     languageNote: "השינויים יחולו רק על שפת התוכן שנבחרה.", save: "שמירה",
     saving: "שומר...", saved: "נשמר בהצלחה", failed: "לא ניתן לשמור",
     usersTitle: "משתמשים והרשאות", security: "סיסמאות אינן נשמרות כאן. כל משתמש נכנס באמצעות חשבון גוגל האישי שלו.",
@@ -108,7 +108,7 @@ const uiCopy = {
   "fr-CA": {
     title: "Un contenu clair. Des accès précis.", eyebrow: "Gestion SpaPlus",
     preview: "Voir le site", global: "Site mondial", market: "Page Ontario", quebec: "Page Québec", canada: "Page Canada", spaPreviews: "Aperçus de profils spa",
-    users: "Utilisateurs et autorisations", leads: "Demandes et formulaires", bugs: "Signalements de bogues", contentLanguage: "Langue du contenu",
+    users: "Utilisateurs et autorisations", leads: "Demandes et formulaires", meetings: "Planifier une rencontre", bugs: "Signalements de bogues", contentLanguage: "Langue du contenu",
     languageNote: "Les changements s’appliquent uniquement à la langue de contenu choisie.", save: "Enregistrer",
     saving: "Enregistrement...", saved: "Enregistré", failed: "Enregistrement impossible",
     usersTitle: "Utilisateurs et autorisations", security: "Aucun mot de passe n’est conservé ici. Chaque personne se connecte avec son propre compte Google.",
@@ -422,6 +422,7 @@ export default function AdminClient({
         {canViewMarketContent ? <button className={tab === "market" ? "active" : ""} onClick={() => setTab("market")}>{t.market}</button> : null}
         {canViewSpaPreviews ? <a href="/admin/spa-previews">{t.spaPreviews}</a> : null}
         {role === "owner" ? <button className={tab === "users" ? "active" : ""} onClick={() => setTab("users")}>{t.users}</button> : null}
+        <a href="/tools/meetings">{t.meetings}</a>
         {resources.some((resource) => can(resource.key, "canViewLeads")) ? <a href="/tools">{t.leads}</a> : null}
         {role === "owner" || canReportBugs ? <a href="/admin/bugs">{t.bugs}</a> : null}
         {role === "owner" ? <a href="/admin/projects">{uiLocale === "he" ? "הפרויקטים של אדיר" : uiLocale === "fr-CA" ? "Projets d’Adir" : "Adir’s projects"}</a> : null}
