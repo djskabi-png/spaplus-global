@@ -101,6 +101,7 @@ export async function POST(request: Request) {
   const title = clean(body.title, 180);
   const notes = clean(body.notes, 3000);
   const locale = body.locale === "he" ? "he" : "en";
+  const calendarSignature = locale === "he" ? "נקבע באמצעות SpaPlus Global" : "Scheduled with SpaPlus Global";
   const startsAt = clean(body.startsAt, 40);
   const endsAt = clean(body.endsAt, 40);
   const timeZone = clean(body.timeZone, 80);
@@ -164,7 +165,7 @@ export async function POST(request: Request) {
       headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         summary: title,
-        description: `${notes}${notes ? "\n\n" : ""}Scheduled with SpaPlus Global`,
+        description: `${notes}${notes ? "\n\n" : ""}${calendarSignature}`,
         start: { dateTime: start.toISOString(), timeZone },
         end: { dateTime: end.toISOString(), timeZone },
         attendees: [{ email: guestEmail, displayName: guestName }],

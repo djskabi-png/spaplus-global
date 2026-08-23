@@ -2,6 +2,7 @@ import { requireAuthorizedAdmin } from "../../admin-auth";
 import { normalizeSystemLocale } from "../../system-locale";
 import MeetingClient from "./MeetingClient";
 import "./meetings.css";
+import "./language-picker.css";
 
 export const dynamic = "force-dynamic";
 

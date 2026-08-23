@@ -1,0 +1,78 @@
+{
+  "status": "fixed",
+  "symptom": "The guest-facing invitation was Hebrew while the product requirement was an explicit Hebrew or English meeting choice controlling all subsequent output.",
+  "expected_behavior": "The organizer explicitly selects Hebrew or English before booking, and that choice controls the interface, default title, calendar description and branded guest email.",
+  "environment": "SpaPlus Global production meeting route at https://app.spaplus.co/tools/meetings, version 202, authenticated Hebrew success state on 2026-08-23.",
+  "reproduction": {
+    "steps": [
+      "Open the authenticated meeting route in production.",
+      "Inspect the language control and completed booking state.",
+      "Compare the visible control with the received branded invitation screenshot."
+    ],
+    "evidence": "The live DOM exposed only a small English interface toggle and no explicit meeting-language field; the supplied invitation screenshot rendered the entire guest message in Hebrew."
+  },
+  "observations": [
+    {
+      "observation": "The existing header button changed activeLocale but was labelled only with the other interface language.",
+      "evidence": "MeetingClient.tsx before fix used one meeting-language header button calling setActiveLocale."
+    },
+    {
+      "observation": "The default meeting title did not react to a language change.",
+      "evidence": "MeetingClient.tsx before fix used defaultValue derived from activeLocale on the uncontrolled title input."
+    },
+    {
+      "observation": "The calendar description always ended in English.",
+      "evidence": "route.ts before fix appended Scheduled with SpaPlus Global regardless of locale."
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "mechanism": "The API discards the selected locale before generating the branded email.",
+      "prediction": "The request locale would be absent or brandedGuestEmail would have no locale branch.",
+      "discriminating_test": "Inspect request serialization and email generation branches.",
+      "result": "The client sent locale: activeLocale and brandedGuestEmail already branched on data.locale.",
+      "status": "rejected"
+    },
+    {
+      "id": "H2",
+      "mechanism": "The product conflated interface switching with an explicit meeting-language decision and left generated defaults partially unbound to the selection.",
+      "prediction": "The live form would have no explicit meeting-language field, the title would be uncontrolled and at least one generated calendar string would be fixed-language.",
+      "discriminating_test": "Inspect the production DOM and the three generation boundaries in source.",
+      "result": "All three predictions were observed: no language field, an uncontrolled default title and a constant English calendar signature.",
+      "status": "supported"
+    }
+  ],
+  "root_cause_hypothesis_id": "H2",
+  "fix": {
+    "change": "Add a prominent accessible Hebrew or English meeting-language selector, make the default title react safely to selection, and localize the calendar signature from the same locale used by the email generator.",
+    "evidence": "Commit 8aa403f adds the selector and one locale state controlling request payload, title defaults, calendar description and branded email."
+  },
+  "affected_family": [
+    "Meeting form language and direction",
+    "Default meeting title",
+    "Google Calendar event description",
+    "Branded guest email HTML, text and subject",
+    "Success confirmation"
+  ],
+  "regression_checks": [
+    {
+      "check": "Production build and full automated suite",
+      "status": "passed",
+      "evidence": "Vinext production build passed and 76 tests passed with zero failures."
+    },
+    {
+      "check": "Language propagation regression",
+      "status": "passed",
+      "evidence": "The new test verifies both language choices, locale request propagation, reactive default title, localized calendar signature and email language direction."
+    },
+    {
+      "check": "Hebrew typography source audit",
+      "status": "passed",
+      "evidence": "The account typography audit passed the complete clean worktree."
+    }
+  ],
+  "confidence": "high",
+  "remaining_unknowns": [],
+  "authorization_boundary": "Targeted code repair and validation only; no new Google scopes, permissions or calendar data changes."
+}
