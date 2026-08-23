@@ -55,4 +55,5 @@ test("the selected meeting language controls every generated guest surface", () 
   assert.match(route, /direction:\$\{direction\};text-align:\$\{textAlign\}/);
   assert.match(route, /<bdi dir="auto" style="unicode-bidi:isolate">/);
   assert.match(route, /const logoMargin = he \? "0 0 0 auto" : "0 auto 0 0"/);
+  assert.match(route, /const subject = `\$\{he \? "\\u2067" : "\\u2066"\}\$\{subjectText\}\\u2069`/);
 });
