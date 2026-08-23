@@ -75,7 +75,7 @@ const marketCopyEntries = marketCopyManifest as MarketCopyEntry[];
 const uiCopy = {
   en: {
     title: "Clear content. Precise access.", eyebrow: "SpaPlus management",
-    preview: "View website", global: "Global website", market: "Ontario page", quebec: "Québec page", canada: "Canada page",
+    preview: "View website", global: "Global website", market: "Ontario page", quebec: "Québec page", canada: "Canada page", spaPreviews: "Spa profile previews",
     users: "Users and permissions", leads: "Leads and forms", meetings: "Schedule a meeting", bugs: "Bug reports", contentLanguage: "Content language",
     languageNote: "Changes apply only to the selected content language.", save: "Save",
     saving: "Saving...", saved: "Saved successfully", failed: "Unable to save",
@@ -91,7 +91,7 @@ const uiCopy = {
   },
   he: {
     title: "תוכן ברור. הרשאות מדויקות.", eyebrow: "מערכת הניהול של ספא פלוס",
-    preview: "צפייה באתר", global: "האתר העולמי", market: "עמוד אונטריו", quebec: "עמוד קוויבק", canada: "עמוד קנדה",
+    preview: "צפייה באתר", global: "האתר העולמי", market: "עמוד אונטריו", quebec: "עמוד קוויבק", canada: "עמוד קנדה", spaPreviews: "תצוגות מקדימות לספא",
     users: "משתמשים והרשאות", leads: "פניות וטפסים", meetings: "קביעת פגישה", bugs: "דיווחי באגים", contentLanguage: "שפת התוכן",
     languageNote: "השינויים יחולו רק על שפת התוכן שנבחרה.", save: "שמירה",
     saving: "שומר...", saved: "נשמר בהצלחה", failed: "לא ניתן לשמור",
@@ -107,7 +107,7 @@ const uiCopy = {
   },
   "fr-CA": {
     title: "Un contenu clair. Des accès précis.", eyebrow: "Gestion SpaPlus",
-    preview: "Voir le site", global: "Site mondial", market: "Page Ontario", quebec: "Page Québec", canada: "Page Canada",
+    preview: "Voir le site", global: "Site mondial", market: "Page Ontario", quebec: "Page Québec", canada: "Page Canada", spaPreviews: "Aperçus de profils spa",
     users: "Utilisateurs et autorisations", leads: "Demandes et formulaires", meetings: "Planifier une rencontre", bugs: "Signalements de bogues", contentLanguage: "Langue du contenu",
     languageNote: "Les changements s’appliquent uniquement à la langue de contenu choisie.", save: "Enregistrer",
     saving: "Enregistrement...", saved: "Enregistré", failed: "Enregistrement impossible",
@@ -177,10 +177,11 @@ export default function AdminClient({
   const can = (resourceKey: string, capability: keyof Omit<Permission, "resourceKey">) =>
     role === "owner" || permissions.some((item) => item.resourceKey === resourceKey && (item[capability] || (capability === "canViewContent" && item.canEditContent) || (capability === "canViewLeads" && item.canManageLeads)));
   const canViewGlobalContent = can("site:global", "canViewContent");
+  const canViewSpaPreviews = can("site:global:spa-previews", "canViewContent");
   const canViewMarketContent = can("market:ca:on", "canViewContent");
   const canViewQuebecContent = can("market:ca:qc", "canViewContent");
   const canViewCanadaContent = can("market:ca:national", "canViewContent");
-  const hasContentAccess = canViewGlobalContent || canViewMarketContent || canViewQuebecContent || canViewCanadaContent;
+  const hasContentAccess = canViewGlobalContent || canViewSpaPreviews || canViewMarketContent || canViewQuebecContent || canViewCanadaContent;
   const hasLeadAccess = resources.some((resource) => can(resource.key, "canViewLeads"));
   const hasVila4uLeadAccess = can("business:vila4u:leads", "canViewLeads");
   const hasOtherLeadAccess = resources.some((resource) =>
@@ -243,10 +244,11 @@ export default function AdminClient({
   }, [canViewSelectedContent, locale, resourceKey, tab]);
 
   const loadUsers = useCallback(async () => {
-    const response = await fetch("/api/cms/users");
-    if (!response.ok) return;
+    const response = await fetch(`/api/cms/users?fresh=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) return false;
     const data = (await response.json()) as { users: CmsUser[] };
     setUsers(data.users);
+    return true;
   }, []);
 
   useEffect(() => { void loadContent(); }, [loadContent]);
@@ -320,9 +322,11 @@ export default function AdminClient({
     const response = await fetch("/api/cms/users", {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newUser),
     });
-    setStatus(response.ok ? t.saved : t.failed);
+    const data = await response.json() as { user?: CmsUser; error?: string };
+    setStatus(response.ok && data.user ? t.saved : data.error || t.failed);
     if (response.ok) {
       setNewUser({ email: "", displayName: "", role: "editor", defaultLocale: "en", systemLocale: "en", canReportBugs: false, permissions: emptyPermissions });
+      if (data.user) setUsers((current) => [...current.filter((item) => item.id !== data.user!.id), data.user!]);
       await loadUsers();
     }
     setSavingAction(null);
@@ -334,8 +338,16 @@ export default function AdminClient({
     const response = await fetch("/api/cms/users", {
       method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: user.id, ...changes }),
     });
-    setStatus(response.ok ? t.saved : t.failed);
-    if (response.ok) await loadUsers();
+    const data = await response.json() as { user?: CmsUser; error?: string };
+    if (!response.ok || !data.user) {
+      setStatus(data.error || t.failed);
+      await loadUsers();
+      setSavingAction(null);
+      return;
+    }
+    setUsers((current) => current.map((item) => item.id === data.user!.id ? data.user! : item));
+    const refreshed = await loadUsers();
+    setStatus(refreshed ? t.saved : t.failed);
     setSavingAction(null);
   }
 
@@ -408,6 +420,7 @@ export default function AdminClient({
         {canViewCanadaContent ? <button className={tab === "canada" ? "active" : ""} onClick={() => setTab("canada")}>{t.canada}</button> : null}
         {canViewQuebecContent ? <button className={tab === "quebec" ? "active" : ""} onClick={() => setTab("quebec")}>{t.quebec}</button> : null}
         {canViewMarketContent ? <button className={tab === "market" ? "active" : ""} onClick={() => setTab("market")}>{t.market}</button> : null}
+        {canViewSpaPreviews ? <a href="/admin/spa-previews">{t.spaPreviews}</a> : null}
         {role === "owner" ? <button className={tab === "users" ? "active" : ""} onClick={() => setTab("users")}>{t.users}</button> : null}
         <a href="/tools/meetings">{t.meetings}</a>
         {resources.some((resource) => can(resource.key, "canViewLeads")) ? <a href="/tools">{t.leads}</a> : null}

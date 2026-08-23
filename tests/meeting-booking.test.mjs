@@ -7,7 +7,7 @@ const route = readFileSync(new URL("../app/api/meetings/route.ts", import.meta.u
 const client = readFileSync(new URL("../app/tools/meetings/MeetingClient.tsx", import.meta.url), "utf8");
 const styles = readFileSync(new URL("../app/tools/meetings/meetings.css", import.meta.url), "utf8");
 const languageStyles = readFileSync(new URL("../app/tools/meetings/language-picker.css", import.meta.url), "utf8");
-const schema = readFileSync(new URL("../drizzle/0008_meeting_bookings.sql", import.meta.url), "utf8");
+const schema = readFileSync(new URL("../drizzle/0014_meeting_bookings.sql", import.meta.url), "utf8");
 
 test("every authorized user can connect a personal Google Calendar", () => {
   assert.match(worker, /calendar_google_refresh_token:/);

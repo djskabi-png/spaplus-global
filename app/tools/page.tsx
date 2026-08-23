@@ -19,6 +19,12 @@ export default async function ToolsPage() {
   const canViewContentManagement = cmsContentResources.some((resource) =>
     hasPermission(admin.role, admin.permissions, resource.key, "viewContent"),
   );
+  const canRecoverIsraelMetaLeads = hasPermission(
+    admin.role,
+    admin.permissions,
+    "market:il",
+    "manageLeads",
+  );
   const systemLocale = normalizeSystemLocale(admin.systemLocale);
   const isHebrew = systemLocale === "he";
   const centreName = isHebrew
@@ -40,9 +46,18 @@ export default async function ToolsPage() {
           <img src="/spaplus-mark.png" alt="" />
           <span>{centreName}</span>
         </a>
-        {admin.role === "owner" ? <a className="cms-preview" href="/admin/projects">{isHebrew ? "הפרויקטים של אדיר" : systemLocale === "fr-CA" ? "Projets d’Adir" : "Adir’s projects"}</a> : null}
-        <a className="cms-preview" href="/tools/meetings">{isHebrew ? "קביעת פגישה" : systemLocale === "fr-CA" ? "Planifier une réunion" : "Schedule a meeting"}</a>
-        <a className="cms-preview" href={backHref}>{backLabel}</a>
+        <div className="cms-user">
+          {canRecoverIsraelMetaLeads ? (
+            <form action="/api/integrations/meta-ontario-leads?recover_campaign=120251550743850512" method="post">
+              <button className="cms-preview" type="submit">
+                {isHebrew ? "סנכרון לידי מטא" : systemLocale === "fr-CA" ? "Synchroniser les prospects Meta" : "Sync Meta leads"}
+              </button>
+            </form>
+          ) : null}
+          {admin.role === "owner" ? <a className="cms-preview" href="/admin/projects">{isHebrew ? "הפרויקטים של אדיר" : systemLocale === "fr-CA" ? "Projets d’Adir" : "Adir’s projects"}</a> : null}
+          <a className="cms-preview" href="/tools/meetings">{isHebrew ? "קביעת פגישה" : systemLocale === "fr-CA" ? "Planifier une réunion" : "Schedule a meeting"}</a>
+          <a className="cms-preview" href={backHref}>{backLabel}</a>
+        </div>
       </header>
       <SubmissionsClient systemLocale={systemLocale} allowedResourceKeys={allowedLeadResourceKeys} />
     </main>

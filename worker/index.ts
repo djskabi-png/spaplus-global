@@ -8,6 +8,7 @@ interface Env {
   PRIVATE_BACKEND_ORIGIN?: string;
   SITES_BYPASS_TOKEN?: string;
   META_WEBHOOK_VERIFY_TOKEN?: string;
+  META_ISRAEL_WEBHOOK_VERIFY_TOKEN?: string;
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
   ADMIN_SESSION_SECRET?: string;
@@ -52,8 +53,13 @@ function constantTimeEqual(left: string, right: string): boolean {
 }
 
 function verifyMetaWebhookRequest(request: Request, env: Env): Response {
-  const expectedToken = env.META_WEBHOOK_VERIFY_TOKEN?.trim() || "";
-  if (expectedToken.length < 16) {
+  const expectedTokens = [
+    env.META_WEBHOOK_VERIFY_TOKEN,
+    env.META_ISRAEL_WEBHOOK_VERIFY_TOKEN,
+  ]
+    .map((value) => value?.trim() || "")
+    .filter((value, index, values) => value.length >= 24 && values.indexOf(value) === index);
+  if (expectedTokens.length === 0) {
     return Response.json({ error: "Webhook is not configured" }, { status: 503 });
   }
 
@@ -62,7 +68,8 @@ function verifyMetaWebhookRequest(request: Request, env: Env): Response {
   const token = url.searchParams.get("hub.verify_token") || "";
   const challenge = url.searchParams.get("hub.challenge") || "";
 
-  if (mode !== "subscribe" || !constantTimeEqual(token, expectedToken)) {
+  const validToken = expectedTokens.some((expected) => constantTimeEqual(token, expected));
+  if (mode !== "subscribe" || !validToken) {
     return Response.json({ error: "Verification token mismatch" }, { status: 403 });
   }
 
@@ -344,6 +351,23 @@ function projectShowcaseResponse(response: Response) {
   return new Rewriter()
     .on("html", { element(element) { element.setAttribute("lang", "he"); element.setAttribute("dir", "rtl"); } })
     .transform(secured);
+}
+
+async function applyPublicDocumentLanguage(request: Request, response: Response) {
+  if (!(response.headers.get("content-type") || "").includes("text/html")) return response;
+  const pathname = new URL(request.url).pathname.replace(/\/+$/, "");
+  if (pathname !== "/he-il/israel") return response;
+  const html = (await response.text()).replace(
+    /<html\s+lang="[^"]+"\s+dir="[^"]+">/,
+    '<html lang="he-IL" dir="rtl">',
+  );
+  const headers = new Headers(response.headers);
+  headers.delete("content-length");
+  return new Response(html, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
 }
 
 function isProtectedPath(pathname: string): boolean {
@@ -882,6 +906,20 @@ const worker = {
       return verifyMetaWebhookRequest(request, env);
     }
 
+    if (
+      hostname === "app.spaplus.co" &&
+      request.method === "POST" &&
+      url.pathname === "/api/integrations/meta-ontario-leads" &&
+      url.searchParams.has("recover_campaign")
+    ) {
+      if (!env.ADMIN_SESSION_SECRET) return Response.json({ error: "Unauthorized" }, { status: 401 });
+      const session = await verifyPayload(parseCookies(request).get(SESSION_COOKIE), env.ADMIN_SESSION_SECRET);
+      if (!session || typeof session.email !== "string") {
+        return Response.json({ error: "Unauthorized" }, { status: 401 });
+      }
+      return proxyProtectedRequest(request, env, session);
+    }
+
     if (hostname === "app.spaplus.co" && isProtectedPath(url.pathname)) {
       if (!env.ADMIN_SESSION_SECRET) return textResponse("מערכת ההתחברות עדיין אינה זמינה.", 503);
       const session = await verifyPayload(parseCookies(request).get(SESSION_COOKIE), env.ADMIN_SESSION_SECRET);
@@ -961,7 +999,10 @@ const worker = {
 
       const assetResponse = await env.ASSETS.fetch(request);
       if (assetResponse.status !== 404) {
-        const renderedResponse = await applyManagedOntarioMetadata(request, assetResponse, env);
+        const renderedResponse = await applyPublicDocumentLanguage(
+          request,
+          await applyManagedOntarioMetadata(request, assetResponse, env),
+        );
         if ((renderedResponse.headers.get("content-type") || "").includes("text/html")) {
           const responseHeaders = new Headers(renderedResponse.headers);
           responseHeaders.set("cache-control", "no-store, must-revalidate");
@@ -983,7 +1024,7 @@ const worker = {
       const dynamicResponse = await handler.fetch(request, env, ctx);
       return dynamicResponse.status === 404
         ? appNotFoundResponse(url.pathname)
-        : dynamicResponse;
+        : await applyPublicDocumentLanguage(request, dynamicResponse);
     }
 
     if (hostname === "admin.spaplus.co" && url.pathname === "/") {

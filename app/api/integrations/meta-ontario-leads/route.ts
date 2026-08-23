@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { env } from "cloudflare:workers";
 import { getDb } from "../../../../db";
 import { formSubmissions } from "../../../../db/schema";
@@ -8,6 +8,9 @@ import {
   type MarketLeadEmailData,
 } from "../../../market-email-templates";
 import { quebecCopyOverrides } from "../../../market-launch/markets";
+import { getAuthorizedAdmin } from "../../../admin-auth";
+import { hasPermission } from "../../../cms-access";
+import { findNormalizedMetaField as normalizedField } from "../../../meta-lead-fields";
 
 type MetaField = { name?: string; values?: unknown[] };
 type MetaLead = {
@@ -39,11 +42,11 @@ type MetaWebhookBody = {
 };
 
 type MetaMarketContext = {
-  slug: "ontario" | "quebec";
-  name: "Ontario" | "Québec";
-  resourceKey: "market:ca:on" | "market:ca:qc";
+  slug: "ontario" | "quebec" | "israel";
+  name: "Ontario" | "Québec" | "ישראל";
+  resourceKey: "market:ca:on" | "market:ca:qc" | "market:il";
   pageUrl: string;
-  timeZone: "America/Toronto" | "America/Montreal";
+  timeZone: "America/Toronto" | "America/Montreal" | "Asia/Jerusalem";
 };
 
 const ONTARIO_MARKET: MetaMarketContext = {
@@ -61,10 +64,24 @@ const QUEBEC_MARKET: MetaMarketContext = {
   pageUrl: "https://app.spaplus.co/en-ca/quebec/",
   timeZone: "America/Montreal",
 };
+const ISRAEL_MARKET: MetaMarketContext = {
+  slug: "israel",
+  name: "ישראל",
+  resourceKey: "market:il",
+  pageUrl: "https://app.spaplus.co/he-il/israel/",
+  timeZone: "Asia/Jerusalem",
+};
 const runtimeEnv = env as unknown as Record<string, string | undefined>;
 const setting = (name: string) => runtimeEnv[name] || process.env[name] || "";
 const GRAPH_VERSION = setting("META_GRAPH_VERSION") || "v26.0";
-const META_PAGE_ID = "1065026380020011";
+const META_CANADA_PAGE_ID = setting("META_CANADA_PAGE_ID") || "1065026380020011";
+const META_ISRAEL_PAGE_ID = setting("META_ISRAEL_PAGE_ID") || "120456011329432";
+const META_PAGE_ID = META_CANADA_PAGE_ID;
+const META_ALLOWED_PAGE_IDS = new Set([META_CANADA_PAGE_ID, META_ISRAEL_PAGE_ID]);
+
+function marketPageId(market: MetaMarketContext) {
+  return market.slug === "israel" ? META_ISRAEL_PAGE_ID : META_CANADA_PAGE_ID;
+}
 
 function clean(value: unknown) {
   return String(value ?? "").trim();
@@ -94,25 +111,6 @@ function firstField(fields: Map<string, string>, names: string[]) {
   return "";
 }
 
-function normalizeFieldName(name: string) {
-  return name
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "");
-}
-
-function normalizedField(fields: Map<string, string>, names: string[]) {
-  const normalizedNames = names.map(normalizeFieldName);
-  for (const [key, value] of fields) {
-    const normalizedKey = normalizeFieldName(key);
-    if (normalizedNames.some((name) => normalizedKey === name || normalizedKey.includes(name))) {
-      return value;
-    }
-  }
-  return "";
-}
-
 function inferLocale(fields: Map<string, string>, formName: string) {
   const explicit = firstField(fields, ["language", "locale", "preferred_language"]);
   const signal = `${explicit} ${formName}`.toLowerCase();
@@ -138,9 +136,46 @@ function marketTime(value: string, timeZone: MetaMarketContext["timeZone"]) {
   }).format(new Date(value));
 }
 
-function inferMarket(formName: string, campaignName: string): MetaMarketContext {
-  const signal = `${formName} ${campaignName}`.toLowerCase();
-  return signal.includes("quebec") || signal.includes("québec")
+const QUEBEC_FORM_MARKET_IDS = new Set([
+  "1971938910302465",
+  "1388407340021377",
+  "1048203634671400",
+  "28034077039566381",
+  "1637718861417633",
+  "1757789082219370",
+  "933941882349365",
+]);
+
+const ONTARIO_FORM_MARKET_IDS = new Set([
+  "1714298559898518",
+  "1053482790944313",
+  "2595979447504156",
+  "1542456153506372",
+  "2831714810547194",
+]);
+
+function configuredFormIds(settingName: string) {
+  return new Set(setting(settingName).split(",").map((value) => value.trim()).filter(Boolean));
+}
+
+function inferMarket(
+  formId: string,
+  formName: string,
+  campaignName: string,
+  adName = "",
+): MetaMarketContext {
+  if (configuredFormIds("META_ISRAEL_FORM_IDS").has(formId)) return ISRAEL_MARKET;
+  if (QUEBEC_FORM_MARKET_IDS.has(formId)) return QUEBEC_MARKET;
+  if (ONTARIO_FORM_MARKET_IDS.has(formId)) return ONTARIO_MARKET;
+  const directSignal = `${formName} ${adName}`.toLowerCase();
+  if (directSignal.includes("israel") || directSignal.includes("ישראל")) return ISRAEL_MARKET;
+  if (directSignal.includes("ontario")) return ONTARIO_MARKET;
+  if (directSignal.includes("quebec") || directSignal.includes("québec")) {
+    return QUEBEC_MARKET;
+  }
+  const campaignSignal = campaignName.toLowerCase();
+  if (campaignSignal.includes("israel") || campaignSignal.includes("ישראל")) return ISRAEL_MARKET;
+  return campaignSignal.includes("quebec") || campaignSignal.includes("québec")
     ? QUEBEC_MARKET
     : ONTARIO_MARKET;
 }
@@ -149,9 +184,11 @@ async function sendMarketOwnerNotification(
   data: MarketLeadEmailData,
   leadId: string,
   market: MetaMarketContext,
+  sendVisitorEmail = true,
 ) {
   const cloudflareEmailToken = setting("CLOUDFLARE_EMAIL_API_TOKEN");
   const cloudflareEmailAccountId = setting("CLOUDFLARE_EMAIL_ACCOUNT_ID");
+  const resendApiKey = setting("RESEND_API_KEY");
   const ownerEmails = (
     setting(`META_${market.slug.toUpperCase()}_CONTACT_TO_EMAILS`) ||
     setting(`${market.slug.toUpperCase()}_CONTACT_TO_EMAILS`) ||
@@ -160,8 +197,8 @@ async function sendMarketOwnerNotification(
     .split(",")
     .map((value) => value.trim().toLowerCase())
     .filter(isEmail);
-  if (!cloudflareEmailToken || !cloudflareEmailAccountId) {
-    throw new Error(`${market.name} Cloudflare email is not configured`);
+  if ((!cloudflareEmailToken || !cloudflareEmailAccountId) && !resendApiKey) {
+    throw new Error(`${market.name} email delivery is not configured`);
   }
   if (ownerEmails.length === 0) {
     throw new Error(`${market.name} Meta lead recipients are not configured`);
@@ -195,21 +232,52 @@ async function sendMarketOwnerNotification(
     marketName: market.name,
     pageUrl,
     reviewWindowHours: 72,
-    languageTag: "en-CA",
+    languageTag: market.slug === "israel" ? "he-IL" : "en-CA",
     copy: marketCopy,
   };
   const visitorContext = { ...ownerContext, languageTag: data.locale };
   const owner = buildMarketOwnerEmail(data, ownerContext);
   const visitor = buildMarketVisitorEmail(data, visitorContext);
 
-  const sendEmail = async (input: {
+  type ProviderEmailInput = {
     to: string[];
     replyTo?: string;
     subject: string;
     html: string;
     text: string;
     idempotencyKey: string;
-  }) => {
+  };
+  const resendFrom = setting("CONTACT_FROM_EMAIL") || "SpaPlus Canada <hello@mail.spaplus.co>";
+  const resendPayload = (input: ProviderEmailInput) => ({
+    from: resendFrom,
+    to: input.to,
+    reply_to: input.replyTo,
+    subject: input.subject,
+    html: input.html,
+    text: input.text,
+    tags: [
+      { name: "email_type", value: `${market.slug}_meta_spa_lead` },
+      { name: "market", value: market.slug },
+    ],
+  });
+  const sendEmail = async (input: ProviderEmailInput) => {
+    if (resendApiKey) {
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json",
+          "Idempotency-Key": input.idempotencyKey,
+          "User-Agent": "SpaPlus-Meta-Canada-Leads/1.0",
+        },
+        body: JSON.stringify(resendPayload(input)),
+      });
+      const result = (await response.json()) as { id?: string; message?: string };
+      if (!response.ok || !result.id) {
+        throw new Error(`${market.name} Resend email failed (${response.status}): ${result.message || "No provider message"}`);
+      }
+      return `resend:${result.id}`;
+    }
     const cloudflareFrom =
       setting("CLOUDFLARE_EMAIL_FROM") ||
       "SpaPlus Canada <hello@mailca.spaplus.co>";
@@ -258,17 +326,63 @@ async function sendMarketOwnerNotification(
     return `cloudflare:${result.result?.message_id || input.idempotencyKey}`;
   };
 
-  const ownerDeliveryId = await sendEmail({
-    to: ownerEmails,
+  const ownerMessage = {
     replyTo: data.email || undefined,
     subject: owner.subject,
     html: owner.html,
     text: owner.text,
-    idempotencyKey: `spaplus-${market.slug}-meta-owner-${leadId}`,
-  });
+  };
+  let ownerDeliveryIds: string[];
+  if (resendApiKey && ownerEmails.length > 1) {
+    const batchIdempotencyKey = `spaplus-${market.slug}-meta-owner-${leadId}`;
+    const response = await fetch("https://api.resend.com/emails/batch", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        "Content-Type": "application/json",
+        "Idempotency-Key": batchIdempotencyKey,
+        "User-Agent": "SpaPlus-Meta-Leads/1.1",
+      },
+      body: JSON.stringify(
+        ownerEmails.map((ownerEmail, index) =>
+          resendPayload({
+            ...ownerMessage,
+            to: [ownerEmail],
+            idempotencyKey: `${batchIdempotencyKey}-${index + 1}`,
+          }),
+        ),
+      ),
+    });
+    const result = (await response.json()) as {
+      data?: Array<{ id?: string }>;
+      message?: string;
+    };
+    if (
+      !response.ok ||
+      !Array.isArray(result.data) ||
+      result.data.length !== ownerEmails.length ||
+      result.data.some((item) => !item.id)
+    ) {
+      throw new Error(
+        `${market.name} Resend owner batch failed (${response.status}): ${result.message || "Incomplete provider response"}`,
+      );
+    }
+    ownerDeliveryIds = result.data.map((item) => `resend:${item.id}`);
+  } else {
+    ownerDeliveryIds = [];
+    for (const [index, ownerEmail] of ownerEmails.entries()) {
+      ownerDeliveryIds.push(
+        await sendEmail({
+          ...ownerMessage,
+          to: [ownerEmail],
+          idempotencyKey: `spaplus-${market.slug}-meta-owner-${leadId}-${index + 1}`,
+        }),
+      );
+    }
+  }
 
-  const deliveryIds = [ownerDeliveryId];
-  if (isEmail(data.email)) {
+  const deliveryIds = [...ownerDeliveryIds];
+  if (sendVisitorEmail && isEmail(data.email)) {
     deliveryIds.push(
       await sendEmail({
         to: [data.email],
@@ -326,12 +440,67 @@ async function validMetaSignature(request: Request, rawBody: string) {
   return false;
 }
 
-async function fetchLead(leadgenId: string) {
-  const pageToken = setting("META_PAGE_ACCESS_TOKEN")
+function pageAccessToken(pageId = "") {
+  const isIsrael = clean(pageId) === META_ISRAEL_PAGE_ID;
+  const configured = isIsrael
+    ? setting("META_ISRAEL_PAGE_ACCESS_TOKEN")
+    : setting("META_CANADA_PAGE_ACCESS_TOKEN");
+  const fallback = isIsrael ? "" : setting("META_PAGE_ACCESS_TOKEN");
+  const pageToken = (configured || fallback)
     .replace(/^\uFEFF/, "")
     .trim()
     .replace(/^["']|["']$/g, "");
-  if (!pageToken) throw new Error("META_PAGE_ACCESS_TOKEN is not configured");
+  if (!pageToken) {
+    throw new Error(
+      isIsrael
+        ? "META_ISRAEL_PAGE_ACCESS_TOKEN is not configured"
+        : "META_PAGE_ACCESS_TOKEN is not configured",
+    );
+  }
+  return pageToken;
+}
+
+const metaRoutingAlertHours = new Set<string>();
+async function alertMetaRoutingFailure(error: unknown, values: MetaLeadgenValue[]) {
+  const message = error instanceof Error ? error.message : "unknown";
+  if (!/OAuth|190|463|expired|invalid.*token/i.test(message)) return;
+  const resendApiKey = setting("RESEND_API_KEY");
+  const hour = new Date().toISOString().slice(0, 13);
+  if (!resendApiKey) return;
+  const pageMarkets = [
+    { pageId: META_CANADA_PAGE_ID, slug: "canada", subject: "Alert: temporary Meta lead routing failure", text: "Meta authentication failed. No lead data or token was included. Check the Canadian Page token and run controlled recovery." },
+    { pageId: META_ISRAEL_PAGE_ID, slug: "israel", subject: "התראה: תקלה זמנית בקבלת לידים ממטה בישראל", text: "זוהתה תקלה באימות מול מטה. לא נכללו פרטי ליד או טוקן. יש לבדוק את טוקן דף ישראל ולבצע שחזור מבוקר." },
+  ];
+  for (const market of pageMarkets) {
+    if (!values.some((value) => clean(value.page_id) === market.pageId)) continue;
+    const recipientSettings = market.slug === "canada"
+      ? ["META_CANADA_CONTACT_TO_EMAILS", "CANADA_CONTACT_TO_EMAILS", "META_ONTARIO_CONTACT_TO_EMAILS", "ONTARIO_CONTACT_TO_EMAILS", "META_QUEBEC_CONTACT_TO_EMAILS", "QUEBEC_CONTACT_TO_EMAILS"]
+      : [`META_${market.slug.toUpperCase()}_CONTACT_TO_EMAILS`, `${market.slug.toUpperCase()}_CONTACT_TO_EMAILS`];
+    const recipients = [...new Set(
+      recipientSettings
+        .flatMap((name) => setting(name).split(","))
+        .map((value) => value.trim().toLowerCase())
+        .filter(isEmail),
+    )];
+    if (recipients.length === 0) continue;
+    const alertKey = `${market.slug}:${hour}`;
+    if (metaRoutingAlertHours.has(alertKey)) continue;
+    metaRoutingAlertHours.add(alertKey);
+    const response = await fetch("https://api.resend.com/emails/batch", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${resendApiKey}`, "Content-Type": "application/json", "Idempotency-Key": `spaplus-${market.slug}-meta-routing-alert-${hour}` },
+      body: JSON.stringify(recipients.map((to) => ({
+        from: setting("CONTACT_FROM_EMAIL") || "SpaPlus Canada <hello@mail.spaplus.co>",
+        to: [to], subject: market.subject, text: market.text,
+        tags: [{ name: "email_type", value: `${market.slug}_meta_routing_alert` }],
+      }))),
+    }).catch(() => null);
+    if (response && !response.ok) console.error("Meta routing alert failed", { market: market.slug, status: response.status });
+  }
+}
+
+async function fetchLead(leadgenId: string, pageId = "") {
+  const pageToken = pageAccessToken(pageId);
   const url = new URL(`https://graph.facebook.com/${GRAPH_VERSION}/${encodeURIComponent(leadgenId)}`);
   url.searchParams.set("fields", "id,created_time,field_data,form_id,ad_id,adset_id,campaign_id,platform");
   url.searchParams.set("access_token", pageToken);
@@ -343,22 +512,56 @@ async function fetchLead(leadgenId: string) {
   return (await response.json()) as MetaLead;
 }
 
-async function fetchName(objectId: string | undefined) {
-  const pageToken = setting("META_PAGE_ACCESS_TOKEN")
-    .replace(/^\uFEFF/, "")
-    .trim()
-    .replace(/^["']|["']$/g, "");
+const objectNameCache = new Map<string, string>();
+
+async function fetchName(objectId: string | undefined, pageId = "") {
+  const pageToken = pageAccessToken(pageId);
   if (!objectId || !pageToken) return "";
+  if (objectNameCache.has(objectId)) return objectNameCache.get(objectId) || "";
   const url = new URL(`https://graph.facebook.com/${GRAPH_VERSION}/${encodeURIComponent(objectId)}`);
   url.searchParams.set("fields", "name");
   url.searchParams.set("access_token", pageToken);
   const response = await fetch(url, { headers: { accept: "application/json" } });
   if (!response.ok) return "";
   const body = (await response.json()) as { name?: string };
-  return clean(body.name);
+  const name = clean(body.name);
+  objectNameCache.set(objectId, name);
+  return name;
 }
 
-async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
+type StoreLeadOptions = {
+  dedupeByContact?: boolean;
+  enrichExisting?: boolean;
+  market?: MetaMarketContext;
+  sendVisitorEmail?: boolean;
+  retryNotifications?: boolean;
+};
+
+type ExistingLead = {
+  id: number;
+  phone: string;
+  organization: string;
+};
+
+async function enrichExistingLead(
+  existing: ExistingLead,
+  source: { phone: string; organization: string },
+) {
+  const updates: Partial<Pick<typeof formSubmissions.$inferInsert, "phone" | "organization">> = {};
+  if (!clean(existing.phone) && clean(source.phone)) updates.phone = clean(source.phone).slice(0, 40);
+  if (!clean(existing.organization) && clean(source.organization)) {
+    updates.organization = clean(source.organization).slice(0, 180);
+  }
+  if (Object.keys(updates).length === 0) return false;
+  await getDb().update(formSubmissions).set(updates).where(eq(formSubmissions.id, existing.id));
+  return true;
+}
+
+async function storeLead(
+  lead: MetaLead,
+  webhookValue: MetaLeadgenValue,
+  options: StoreLeadOptions = {},
+) {
   const leadId = clean(lead.id || webhookValue.leadgen_id);
   if (!leadId) return "skipped" as const;
 
@@ -367,49 +570,122 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
   const adId = clean(lead.ad_id || webhookValue.ad_id);
   const adsetId = clean(lead.adset_id || webhookValue.adgroup_id);
   const campaignId = clean(lead.campaign_id);
-  const [formName, adName, adsetName, campaignName] = await Promise.all([
-    fetchName(formId),
-    fetchName(adId),
-    fetchName(adsetId),
-    fetchName(campaignId),
-  ]);
-
   const name =
     firstField(fields, ["full_name", "name", "first_name"]) ||
-    normalizedField(fields, ["nom_complet", "nom"]);
+    normalizedField(fields, ["nom_complet", "nom", "שם מלא", "שם הפונה"]);
   const email =
     firstField(fields, ["email", "work_email"]) ||
-    normalizedField(fields, ["e_mail", "courriel", "adresse_e_mail", "adresse_courriel"]);
+    normalizedField(fields, [
+      "e_mail",
+      "courriel",
+      "adresse_e_mail",
+      "adresse_courriel",
+      "דוא\"ל",
+      "דוא״ל",
+      "אימייל",
+    ]);
   const phone =
     firstField(fields, ["phone_number", "phone"]) ||
-    normalizedField(fields, ["numero_de_telephone", "telephone"]);
-  if (!name || (!email && !phone)) return "skipped" as const;
-
-  const market = inferMarket(formName, campaignName);
-  const submissionId = `meta-${market.slug}:${leadId}`;
-  const db = getDb();
-  const [existing] = await db
-    .select({ id: formSubmissions.id })
-    .from(formSubmissions)
-    .where(eq(formSubmissions.submissionId, submissionId))
-    .limit(1);
-  if (existing) return "duplicate" as const;
-  const locale = inferLocale(fields, formName);
+    normalizedField(fields, [
+      "numero_de_telephone",
+      "telephone",
+      "מספר טלפון",
+      "טלפון נייד",
+      "טלפון",
+    ]);
   const organization =
     firstField(fields, ["company_name", "spa_name", "business_name"]) ||
     normalizedField(fields, [
       "name_of_your_spa_or_business",
       "spa_or_business_name",
+      "business_or_spa_name",
       "nom_de_votre_spa_ou_entreprise",
+      "nom_de_votre_spa",
       "nom_de_l_entreprise",
-    ]);
+      "שם בית הספא או העסק",
+      "שם בית הספא",
+      "שם העסק",
+    ]) ||
+    firstField(fields, ["שם בית הספא או העסק", "שם בית הספא", "שם העסק"]);
+  if (!name || (!email && !phone)) return "skipped" as const;
+
+  const [formName, adName, adsetName, campaignName] = await Promise.all([
+    fetchName(formId, webhookValue.page_id),
+    fetchName(adId, webhookValue.page_id),
+    fetchName(adsetId, webhookValue.page_id),
+    fetchName(campaignId, webhookValue.page_id),
+  ]);
+  const market = options.market || inferMarket(formId, formName, campaignName, adName);
+  const submissionId = `meta-${market.slug}:${leadId}`;
+  const db = getDb();
+  const [existing] = await db
+    .select({
+      id: formSubmissions.id,
+      phone: formSubmissions.phone,
+      organization: formSubmissions.organization,
+    })
+    .from(formSubmissions)
+    .where(eq(formSubmissions.submissionId, submissionId))
+    .limit(1);
+  const existingLead = Boolean(existing);
+  if (existing && !options.retryNotifications) {
+    return options.enrichExisting && (await enrichExistingLead(existing, { phone, organization }))
+      ? "enriched" as const
+      : "duplicate" as const;
+  }
+  if (options.dedupeByContact) {
+    let existingContact: ExistingLead | undefined;
+    if (email) {
+      [existingContact] = await db
+        .select({
+          id: formSubmissions.id,
+          phone: formSubmissions.phone,
+          organization: formSubmissions.organization,
+        })
+        .from(formSubmissions)
+        .where(
+          and(
+            eq(formSubmissions.resourceKey, market.resourceKey),
+            eq(formSubmissions.email, email.toLowerCase()),
+          ),
+        )
+        .limit(1);
+    }
+    if (!existingContact && phone) {
+      [existingContact] = await db
+        .select({
+          id: formSubmissions.id,
+          phone: formSubmissions.phone,
+          organization: formSubmissions.organization,
+        })
+        .from(formSubmissions)
+        .where(
+          and(
+            eq(formSubmissions.resourceKey, market.resourceKey),
+            eq(formSubmissions.phone, phone),
+          ),
+        )
+        .limit(1);
+    }
+    if (existingContact) {
+      return options.enrichExisting && (await enrichExistingLead(existingContact, { phone, organization }))
+        ? "enriched" as const
+        : "duplicate" as const;
+    }
+  }
+  const locale = market.slug === "israel" ? "he-IL" : inferLocale(fields, formName);
   const city =
     firstField(fields, ["city", "location", "business_location", "ville"]) ||
     normalizedField(fields, [
       "your_city_or_region",
       "city_or_region",
       "votre_ville_ou_region",
-    ]);
+      "עיר או יישוב בישראל",
+      "עיר",
+      "יישוב",
+      "עיר יישוב",
+    ]) ||
+    firstField(fields, ["עיר או יישוב בישראל", "עיר", "יישוב", "עיר / יישוב"]);
   const role = firstField(fields, ["job_title", "role"]);
   const spaType = firstField(fields, ["spa_type", "type_of_spa"]);
   const platform = clean(lead.platform) || "Facebook and Instagram";
@@ -438,7 +714,7 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
 
   const message = [
       "Company group: SpaPlus",
-      "Brand: SpaPlus Canada",
+      `Brand: ${market.slug === "israel" ? "SpaPlus Israel" : "SpaPlus Canada"}`,
       `Lead purpose: ${market.name} spa partner registration`,
       "Source channel: Meta paid lead form",
       `Language: ${locale}`,
@@ -460,21 +736,23 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
     .filter(Boolean)
     .join("\n");
 
-  await db.insert(formSubmissions).values({
-    submissionId,
-    formType: `${market.slug}-meta-instant-form`,
-    name,
-    email: email.toLowerCase(),
-    phone,
-    organization,
-    topic: spaType || `${market.name} spa partner`,
-    message,
-    locale,
-    source: `Meta paid lead form | ${market.name}`,
-    resourceKey: market.resourceKey,
-    status: "new",
-    createdAt,
-  });
+  if (!existingLead) {
+    await db.insert(formSubmissions).values({
+      submissionId,
+      formType: `${market.slug}-meta-instant-form`,
+      name,
+      email: email.toLowerCase(),
+      phone,
+      organization,
+      topic: spaType || `${market.name} spa partner`,
+      message,
+      locale,
+      source: `Meta paid lead form | ${market.name}`,
+      resourceKey: market.resourceKey,
+      status: "new",
+      createdAt,
+    });
+  }
 
   const notificationData: MarketLeadEmailData = {
     name,
@@ -507,8 +785,292 @@ async function storeLead(lead: MetaLead, webhookValue: MetaLeadgenValue) {
     },
     submittedAt: `${marketTime(createdAt, market.timeZone)} (${market.name} time)`,
   };
-  await sendMarketOwnerNotification(notificationData, leadId, market);
-  return "inserted" as const;
+  await sendMarketOwnerNotification(
+    notificationData,
+    leadId,
+    market,
+    options.sendVisitorEmail !== false && market.slug !== "israel",
+  );
+  return existingLead ? "duplicate" as const : "inserted" as const;
+}
+
+const RECOVERY_CAMPAIGNS: Record<string, MetaMarketContext> = {
+  "120248551862410499": ONTARIO_MARKET,
+  "120248856435100499": QUEBEC_MARKET,
+  "120251550743850512": ISRAEL_MARKET,
+};
+
+type ExportedMetaLead = {
+  leadId?: string;
+  createdAt?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  organization?: string;
+  formName?: string;
+};
+
+async function sha256Hex(value: string) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+async function recoverExportedLeads(
+  campaignId: string,
+  input: unknown,
+  options: { suppressNotifications?: boolean } = {},
+) {
+  const market = RECOVERY_CAMPAIGNS[campaignId];
+  if (!market) throw new Error("Campaign is not approved for recovery");
+  if (!Array.isArray(input) || input.length === 0 || input.length > 100) {
+    throw new Error("Invalid recovery batch");
+  }
+
+  const db = getDb();
+  let inserted = 0;
+  let duplicates = 0;
+  let skipped = 0;
+  const notificationIds: string[] = [];
+  for (const raw of input as ExportedMetaLead[]) {
+    const name = clean(raw.name).slice(0, 100);
+    const email = clean(raw.email).toLowerCase().slice(0, 180);
+    const phone = clean(raw.phone).slice(0, 40);
+    const organization = clean(raw.organization).slice(0, 180);
+    const formName = clean(raw.formName).slice(0, 220);
+    const leadId = /^\d{10,30}$/.test(clean(raw.leadId)) ? clean(raw.leadId) : "";
+    const createdAt = normalizeCreatedAt(raw.createdAt);
+    if (!name || (!isEmail(email) && phone.length < 7) || !formName.toLowerCase().includes(market.slug)) {
+      skipped += 1;
+      continue;
+    }
+
+    let existingContact: { id: number } | undefined;
+    if (isEmail(email)) {
+      [existingContact] = await db
+        .select({ id: formSubmissions.id })
+        .from(formSubmissions)
+        .where(
+          and(
+            eq(formSubmissions.resourceKey, market.resourceKey),
+            eq(formSubmissions.email, email),
+          ),
+        )
+        .limit(1);
+    }
+    if (!existingContact && phone) {
+      [existingContact] = await db
+        .select({ id: formSubmissions.id })
+        .from(formSubmissions)
+        .where(
+          and(
+            eq(formSubmissions.resourceKey, market.resourceKey),
+            eq(formSubmissions.phone, phone),
+          ),
+        )
+        .limit(1);
+    }
+    if (existingContact) {
+      duplicates += 1;
+      continue;
+    }
+
+    const recoveryHash = await sha256Hex(
+      [campaignId, createdAt, name.toLowerCase(), email, phone, formName].join("|"),
+    );
+    const submissionId = leadId
+      ? `meta-${market.slug}:${leadId}`
+      : `meta-${market.slug}-recovery:${recoveryHash}`;
+    const locale = formName.toLowerCase().includes("fr-ca") ? "fr-CA" : "en-CA";
+    const message = [
+      "Company group: SpaPlus",
+      "Brand: SpaPlus Canada",
+      `Lead purpose: ${market.name} spa partner registration`,
+      "Source channel: Meta paid lead form",
+      "Recovery source: Official Meta campaign export",
+      `Language: ${locale}`,
+      `Meta form name: ${formName}`,
+      `Meta campaign ID: ${campaignId}`,
+      `Submitted at: ${createdAt}`,
+    ].join("\n");
+
+    await db.insert(formSubmissions).values({
+      submissionId,
+      formType: `${market.slug}-meta-instant-form`,
+      name,
+      email,
+      phone,
+      organization,
+      topic: `${market.name} spa partner`,
+      message,
+      locale,
+      source: `Meta paid lead form | ${market.name}`,
+      resourceKey: market.resourceKey,
+      status: "new",
+      createdAt,
+    });
+
+    if (!options.suppressNotifications) {
+      await sendMarketOwnerNotification(
+        {
+          name,
+          role: "",
+          email,
+          phone,
+          organization,
+          website: "",
+          city: "",
+          region: "",
+          postalCode: "",
+          spaType: "",
+          locations: "",
+          services: [],
+          bookingSystem: "",
+          preferredContact: "",
+          message: "",
+          area: `${market.name} general`,
+          locale,
+          source: "Meta paid lead form | recovered export",
+          campaign: {
+            campaign_id: campaignId,
+            campaign_name: `${market.name} Meta campaign`,
+            form_id: formName,
+            lead_id: submissionId,
+          },
+          submittedAt: `${marketTime(createdAt, market.timeZone)} (${market.name} time)`,
+        },
+        submissionId,
+        market,
+        false,
+      );
+      notificationIds.push(submissionId);
+    }
+    inserted += 1;
+  }
+  return {
+    campaignId,
+    market: market.slug,
+    found: input.length,
+    inserted,
+    duplicates,
+    skipped,
+    notified: notificationIds.length,
+  };
+}
+
+async function recoverMetaCampaign(campaignId: string) {
+  const market = RECOVERY_CAMPAIGNS[campaignId];
+  if (!market) throw new Error("Campaign is not approved for recovery");
+  const pageToken = pageAccessToken(marketPageId(market));
+
+  const seenLeadIds = new Set<string>();
+  const leads: MetaLead[] = [];
+  const adIds: string[] = [];
+  if (market.slug !== "israel") {
+    let adsUrl: URL | null = new URL(
+      `https://graph.facebook.com/${GRAPH_VERSION}/${encodeURIComponent(campaignId)}/ads`,
+    );
+    adsUrl.searchParams.set("fields", "id,name");
+    adsUrl.searchParams.set("limit", "100");
+    adsUrl.searchParams.set("access_token", pageToken);
+    while (adsUrl) {
+      const response = await fetch(adsUrl, { headers: { accept: "application/json" } });
+      if (!response.ok) {
+        const details = await response.text();
+        throw new Error(`Meta ad retrieval failed (${response.status}): ${details.slice(0, 300)}`);
+      }
+      const body = (await response.json()) as {
+        data?: Array<{ id?: string }>;
+        paging?: { next?: string };
+      };
+      for (const ad of body.data || []) {
+        const adId = clean(ad.id);
+        if (adId) adIds.push(adId);
+      }
+      adsUrl = body.paging?.next ? new URL(body.paging.next) : null;
+    }
+  }
+
+  const recoveryEdges = market.slug === "israel"
+    ? Array.from(configuredFormIds("META_ISRAEL_FORM_IDS")).map((formId) => ({
+        id: formId,
+        edge: "leads",
+      }))
+    : adIds.map((adId) => ({ id: adId, edge: "leads" }));
+  if (market.slug === "israel" && recoveryEdges.length === 0) {
+    recoveryEdges.push({ id: "2602301363546095", edge: "leads" });
+  }
+
+  for (const recoveryEdge of recoveryEdges) {
+    let nextUrl: URL | null = new URL(
+      `https://graph.facebook.com/${GRAPH_VERSION}/${encodeURIComponent(recoveryEdge.id)}/${recoveryEdge.edge}`,
+    );
+    nextUrl.searchParams.set(
+      "fields",
+      "id,created_time,field_data,form_id,ad_id,adset_id,campaign_id,platform",
+    );
+    nextUrl.searchParams.set("limit", "100");
+    nextUrl.searchParams.set("access_token", pageToken);
+    while (nextUrl) {
+      const response = await fetch(nextUrl, { headers: { accept: "application/json" } });
+      if (!response.ok) {
+        throw new Error(`Meta lead recovery failed (${response.status})`);
+      }
+      const body = (await response.json()) as {
+        data?: MetaLead[];
+        paging?: { next?: string };
+      };
+      for (const lead of body.data || []) {
+        const leadId = clean(lead.id);
+        if (leadId && !seenLeadIds.has(leadId)) {
+          seenLeadIds.add(leadId);
+          leads.push(lead);
+        }
+      }
+      nextUrl = body.paging?.next ? new URL(body.paging.next) : null;
+    }
+  }
+
+  let inserted = 0;
+  let enriched = 0;
+  let duplicates = 0;
+  let skipped = 0;
+  const markets = { ontario: 0, quebec: 0, israel: 0 };
+  for (const lead of leads) {
+    const isDummyLead = (lead.field_data || []).some((field) =>
+      (field.values || []).some((value) => clean(value).includes("<test lead: dummy data for")),
+    );
+    if (isDummyLead) {
+      skipped += 1;
+      continue;
+    }
+    const [formName, adName, campaignName] = await Promise.all([
+      fetchName(clean(lead.form_id), marketPageId(market)),
+      fetchName(clean(lead.ad_id), marketPageId(market)),
+      fetchName(clean(lead.campaign_id), marketPageId(market)),
+    ]);
+    const leadMarket = market.slug === "israel"
+      ? ISRAEL_MARKET
+      : inferMarket(clean(lead.form_id), formName, campaignName, adName);
+    markets[leadMarket.slug] += 1;
+    const outcome = await storeLead(
+      lead,
+      { leadgen_id: lead.id, form_id: lead.form_id, ad_id: lead.ad_id },
+      { dedupeByContact: true, enrichExisting: true, market: leadMarket, sendVisitorEmail: false },
+    );
+    if (outcome === "inserted") inserted += 1;
+    else if (outcome === "enriched") enriched += 1;
+    else if (outcome === "duplicate") duplicates += 1;
+    else skipped += 1;
+  }
+  return {
+    campaignId,
+    markets,
+    found: leads.length,
+    inserted,
+    enriched,
+    duplicates,
+    skipped,
+  };
 }
 
 export async function GET(request: Request) {
@@ -516,15 +1078,76 @@ export async function GET(request: Request) {
   const mode = url.searchParams.get("hub.mode");
   const token = url.searchParams.get("hub.verify_token") || "";
   const challenge = url.searchParams.get("hub.challenge") || "";
-  const expected =
-    setting("META_WEBHOOK_VERIFY_TOKEN_ID") || setting("META_WEBHOOK_VERIFY_TOKEN");
-  if (expected.length < 24) return new Response("Webhook is not configured", { status: 503 });
-  if (!constantTimeEqual(token, expected)) return new Response("Verification token mismatch", { status: 403 });
+  const expectedTokens = [
+    setting("META_WEBHOOK_VERIFY_TOKEN_ID"),
+    setting("META_WEBHOOK_VERIFY_TOKEN"),
+    setting("META_ISRAEL_WEBHOOK_VERIFY_TOKEN"),
+  ].filter((value, index, values) => value.length >= 24 && values.indexOf(value) === index);
+  if (expectedTokens.length === 0) return new Response("Webhook is not configured", { status: 503 });
+  const validToken = expectedTokens.some((expected) => constantTimeEqual(token, expected));
+  if (!validToken) return new Response("Verification token mismatch", { status: 403 });
   if (mode !== "subscribe") return new Response("Verification mode mismatch", { status: 403 });
   return new Response(challenge, { status: 200 });
 }
 
 export async function POST(request: Request) {
+  const requestUrl = new URL(request.url);
+  const recoveryCampaignId = requestUrl.searchParams.get("recover_campaign") || "";
+  if (recoveryCampaignId) {
+    const market = RECOVERY_CAMPAIGNS[recoveryCampaignId];
+    const recoveryToken = setting("META_RECOVERY_TOKEN");
+    const providedRecoveryToken = request.headers.get("x-spaplus-recovery-token") || "";
+    const trustedRecovery =
+      recoveryToken.length >= 32 && constantTimeEqual(providedRecoveryToken, recoveryToken);
+    const admin = trustedRecovery ? null : await getAuthorizedAdmin();
+    if (!trustedRecovery && !admin) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    if (
+      !market ||
+      (!trustedRecovery &&
+        admin &&
+        !hasPermission(admin.role, admin.permissions, market.resourceKey, "manageLeads"))
+    ) {
+      return Response.json({ error: "Forbidden" }, { status: 403 });
+    }
+    try {
+      const recoveryBody = await request.json().catch(() => ({})) as {
+        leads?: unknown;
+        leadIds?: unknown;
+        suppressNotifications?: unknown;
+      };
+      if (Array.isArray(recoveryBody.leadIds)) {
+        const leadIds = recoveryBody.leadIds.map(clean).filter((leadId) => /^\d{10,30}$/.test(leadId));
+        if (leadIds.length === 0 || leadIds.length > 10 || leadIds.length !== recoveryBody.leadIds.length) {
+          return Response.json({ error: "Invalid lead IDs" }, { status: 400 });
+        }
+        const recoveryMarket = RECOVERY_CAMPAIGNS[recoveryCampaignId];
+        return Response.json({
+          success: true,
+          ...(await processLeadValues(leadIds.map((leadgen_id) => ({
+            leadgen_id,
+            page_id: marketPageId(recoveryMarket),
+          })), { retryNotifications: true })),
+        });
+      }
+      if (Array.isArray(recoveryBody.leads)) {
+        return Response.json({
+          success: true,
+          ...(await recoverExportedLeads(recoveryCampaignId, recoveryBody.leads, {
+            suppressNotifications: recoveryBody.suppressNotifications === true,
+          })),
+        });
+      }
+      return Response.json({ success: true, ...(await recoverMetaCampaign(recoveryCampaignId)) });
+    } catch (error: unknown) {
+      console.error("Meta campaign recovery failed", {
+        campaignId: recoveryCampaignId,
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+      return Response.json({ error: "Meta campaign recovery failed" }, { status: 503 });
+    }
+  }
   const rawBody = await request.text();
   let body: MetaWebhookBody;
   try {
@@ -555,15 +1178,16 @@ export async function POST(request: Request) {
 
   const hasValidSignature = await validMetaSignature(request, rawBody);
   const hasAllowedLeadContext =
-    values.length > 0 && values.every((value) => clean(value.page_id) === META_PAGE_ID);
+    values.length > 0 && values.every((value) => META_ALLOWED_PAGE_IDS.has(clean(value.page_id)));
   if (!hasValidSignature || !hasAllowedLeadContext) {
     return Response.json({ error: "Invalid Meta webhook" }, { status: 401 });
   }
 
   try {
-    const result = await processLeadValues(values);
+    const result = await processLeadValues(values, { retryNotifications: true });
     return Response.json({ success: true, accepted: values.length, ...result });
   } catch (error: unknown) {
+    await alertMetaRoutingFailure(error, values);
     console.error("Meta lead webhook processing failed", {
       message: error instanceof Error ? error.message : "Unknown error",
       leadCount: values.length,
@@ -572,7 +1196,7 @@ export async function POST(request: Request) {
   }
 }
 
-async function processLeadValues(values: MetaLeadgenValue[]) {
+async function processLeadValues(values: MetaLeadgenValue[], options: StoreLeadOptions = {}) {
   let inserted = 0;
   let duplicates = 0;
   let skipped = 0;
@@ -582,7 +1206,7 @@ async function processLeadValues(values: MetaLeadgenValue[]) {
       skipped += 1;
       continue;
     }
-    const outcome = await storeLead(await fetchLead(leadgenId), value);
+    const outcome = await storeLead(await fetchLead(leadgenId, value.page_id), value, options);
     if (outcome === "inserted") inserted += 1;
     else if (outcome === "duplicate") duplicates += 1;
     else skipped += 1;

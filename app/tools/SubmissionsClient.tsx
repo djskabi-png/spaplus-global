@@ -1,6 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import {
+  isExplicitTestLead,
+  leadCustomerMessage,
+  leadLocation,
+  taggedValue,
+} from "./lead-display.mjs";
 import { normalizeSystemLocale } from "../system-locale";
 import "./status.css";
 import "./business-tabs.css";
@@ -16,6 +22,8 @@ type LeadNote = { id: number; body: string; state: NoteState; actorEmail: string
 
 type Submission = {
   id: number;
+  submissionId?: string;
+  isTest?: boolean;
   formType: string;
   name: string;
   email: string;
@@ -51,11 +59,32 @@ const copy = {
     deleted: "Deleted",
     update: "Lead status",
     global: "Global website",
+    israel: "Israel",
     ontario: "Ontario",
     quebec: "Québec",
     received: "Received",
     contact: "Contact details",
     enquiry: "Enquiry",
+    business: "Business",
+    location: "City or area",
+    phoneLabel: "Phone",
+    emailLabel: "Email",
+    customerMessage: "What the customer submitted",
+    noCustomerMessage: "No additional message was submitted.",
+    moreInfo: "Show more information",
+    lessInfo: "Hide additional information",
+    treatment: "Lead follow-up",
+    hideTreatment: "Hide lead follow-up",
+    technicalInfo: "Source and technical information",
+    sourceLabel: "Source",
+    formLabel: "Form type",
+    leadIdLabel: "Lead ID",
+    languageLabel: "Language",
+    rawSourceData: "Full source data",
+    utmSource: "Campaign source",
+    utmMedium: "Campaign channel",
+    utmCampaign: "Campaign name",
+    utmContent: "Ad variation",
     restoreHint: "Deleted leads remain available here and can be restored.",
   },
   he: {
@@ -76,11 +105,32 @@ const copy = {
     deleted: "נמחק",
     update: "מצב הליד",
     global: "האתר העולמי",
+    israel: "ישראל",
     ontario: "אונטריו",
     quebec: "קוויבק",
     received: "התקבל",
     contact: "פרטי קשר",
     enquiry: "פרטי הפנייה",
+    business: "בית העסק",
+    location: "עיר או אזור",
+    phoneLabel: "טלפון",
+    emailLabel: "דוא״ל",
+    customerMessage: "מה הלקוח השאיר",
+    noCustomerMessage: "לא נכתבה הודעה נוספת.",
+    moreInfo: "הצג מידע נוסף",
+    lessInfo: "הסתר מידע נוסף",
+    treatment: "טיפול בליד",
+    hideTreatment: "הסתר טיפול בליד",
+    technicalInfo: "מקור ונתונים טכניים",
+    sourceLabel: "מקור",
+    formLabel: "סוג טופס",
+    leadIdLabel: "מזהה ליד",
+    languageLabel: "שפה",
+    rawSourceData: "כל המידע שהתקבל מהמקור",
+    utmSource: "מקור הקמפיין",
+    utmMedium: "ערוץ הקמפיין",
+    utmCampaign: "שם הקמפיין",
+    utmContent: "גרסת המודעה",
     restoreHint: "לידים שנמחקו נשמרים כאן וניתן לשחזר אותם.",
   },
   "fr-CA": {
@@ -101,11 +151,32 @@ const copy = {
     deleted: "Supprimé",
     update: "État du prospect",
     global: "Site mondial",
+    israel: "Israël",
     ontario: "Ontario",
     quebec: "Québec",
     received: "Reçu",
     contact: "Coordonnées",
     enquiry: "Demande",
+    business: "Entreprise",
+    location: "Ville ou secteur",
+    phoneLabel: "Téléphone",
+    emailLabel: "Courriel",
+    customerMessage: "Informations envoyées par le client",
+    noCustomerMessage: "Aucun message supplémentaire n’a été envoyé.",
+    moreInfo: "Afficher plus d’informations",
+    lessInfo: "Masquer les informations supplémentaires",
+    treatment: "Suivi du prospect",
+    hideTreatment: "Masquer le suivi du prospect",
+    technicalInfo: "Source et données techniques",
+    sourceLabel: "Source",
+    formLabel: "Type de formulaire",
+    leadIdLabel: "Identifiant du prospect",
+    languageLabel: "Langue",
+    rawSourceData: "Données complètes reçues de la source",
+    utmSource: "Source de campagne",
+    utmMedium: "Canal de campagne",
+    utmCampaign: "Nom de campagne",
+    utmContent: "Variante de l’annonce",
     restoreHint: "Les prospects supprimés restent accessibles ici et peuvent être restaurés.",
   },
 } as const;
@@ -137,10 +208,6 @@ function businessLabels(locale: string) {
   if (locale === "he") return { all: "כל העסקים", spaplus: "ספא פלוס", vila4u: "וילה פור יו" };
   if (locale === "fr-CA") return { all: "Toutes les entreprises", spaplus: "SpaPlus", vila4u: "Vila4U" };
   return { all: "All businesses", spaplus: "SpaPlus", vila4u: "Vila4U" };
-}
-
-function taggedValue(item: Pick<Submission, "message">, label: string) {
-  return item.message.match(new RegExp(`^${label}:\\s*([^\\n]+)`, "im"))?.[1]?.trim() || "";
 }
 
 function leadBrand(item: Pick<Submission, "formType" | "message" | "resourceKey">): Exclude<BrandFilter, "all"> {
@@ -251,6 +318,13 @@ function receivedAt(item: Submission, locale: string) {
   return { formatted, zoneLabel };
 }
 
+async function fetchSubmissions() {
+  const response = await fetch("/api/cms/submissions");
+  if (!response.ok) throw new Error("Unable to load submissions");
+  const data = (await response.json()) as { submissions: Submission[] };
+  return data.submissions || [];
+}
+
 export default function SubmissionsClient({
   systemLocale,
   allowedResourceKeys,
@@ -284,6 +358,9 @@ export default function SubmissionsClient({
   const [noteKinds, setNoteKinds] = useState<Record<number, NoteState>>({});
   const [noteFilters, setNoteFilters] = useState<Record<number, NoteState | "all">>({});
   const [savingNoteId, setSavingNoteId] = useState<number | null>(null);
+  const [expandedInfo, setExpandedInfo] = useState<Record<number, boolean>>({});
+  const [expandedTreatment, setExpandedTreatment] = useState<Record<number, boolean>>({});
+  const [periodReference] = useState(() => Date.now());
 
   useEffect(() => {
     document.documentElement.lang = locale;
@@ -293,10 +370,7 @@ export default function SubmissionsClient({
   async function load() {
     setError("");
     try {
-      const response = await fetch("/api/cms/submissions");
-      if (!response.ok) throw new Error("Unable to load submissions");
-      const data = (await response.json()) as { submissions: Submission[] };
-      setSubmissions(data.submissions || []);
+      setSubmissions(await fetchSubmissions());
     } catch {
       setError(t.error);
     } finally {
@@ -304,17 +378,35 @@ export default function SubmissionsClient({
     }
   }
 
-  useEffect(() => { void load(); }, []);
+  useEffect(() => {
+    let active = true;
+    void fetchSubmissions()
+      .then((items) => {
+        if (!active) return;
+        setSubmissions(items);
+      })
+      .catch(() => {
+        if (active) setError(t.error);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => { active = false; };
+  }, [t.error]);
 
+  const operationalSubmissions = useMemo(
+    () => submissions.filter((item) => !isExplicitTestLead(item)),
+    [submissions],
+  );
   const resources = useMemo(() => Array.from(new Set([
     ...allowedResourceKeys.filter(isLeadResourceKey),
-    ...submissions.map((item) => item.resourceKey),
-  ])), [allowedResourceKeys, submissions]);
-  const resourceLabel = (key: string) => key.startsWith("business:vila4u:") ? businessLabels(locale).vila4u : key === "market:ca:on" ? t.ontario : key === "market:ca:qc" ? t.quebec : key === "market:ca:national" ? (locale === "he" ? "קנדה" : "Canada") : t.global;
+    ...operationalSubmissions.map((item) => item.resourceKey),
+  ])), [allowedResourceKeys, operationalSubmissions]);
+  const resourceLabel = (key: string) => key.startsWith("business:vila4u:") ? businessLabels(locale).vila4u : key === "market:il" ? t.israel : key === "market:ca:on" ? t.ontario : key === "market:ca:qc" ? t.quebec : key === "market:ca:national" ? (locale === "he" ? "קנדה" : "Canada") : t.global;
   const statusLabel = (status: DashboardStatus) => t[status];
   const selectedBusinessLeads = business === "all"
-    ? submissions
-    : submissions.filter((item) => leadBusiness(item) === business);
+    ? operationalSubmissions
+    : operationalSubmissions.filter((item) => leadBusiness(item) === business);
   const brandLeads = brandFilter === "all"
     ? selectedBusinessLeads
     : selectedBusinessLeads.filter((item) => leadBrand(item) === brandFilter);
@@ -334,16 +426,10 @@ export default function SubmissionsClient({
         return createdAt >= start && createdAt <= end;
       });
     }
-    const now = Date.now();
+    const now = periodReference;
     const duration = datePeriod === "today" ? 24 * 60 * 60 * 1000 : datePeriod === "week" ? 7 * 24 * 60 * 60 * 1000 : 30 * 24 * 60 * 60 * 1000;
     return worldLeads.filter((item) => now - new Date(item.createdAt).getTime() <= duration);
-  }, [customFrom, customTo, datePeriod, worldLeads]);
-  const counts = Object.fromEntries(
-    dashboardStatuses.map((status) => [
-      status,
-      periodLeads.filter((item) => normalizeStatus(item.status) === status).length,
-    ]),
-  ) as Record<DashboardStatus, number>;
+  }, [customFrom, customTo, datePeriod, periodReference, worldLeads]);
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const sources = sourceLabels(locale);
   const businesses = businessLabels(locale);
@@ -440,9 +526,9 @@ export default function SubmissionsClient({
       </div>
 
       <nav className="lead-business-tabs" aria-label={businesses.all}>
-        {allowedBusinesses.length > 1 ? <button className={business === "all" ? "is-active" : ""} type="button" onClick={() => { setBusiness("all"); setBrandFilter("all"); setWorldFilter("all"); setResource("all"); }}>{businesses.all} ({submissions.length})</button> : null}
-        {allowedBusinesses.includes("spaplus") ? <button className={business === "spaplus" ? "is-active" : ""} type="button" onClick={() => { setBusiness("spaplus"); setBrandFilter("all"); setWorldFilter("all"); setResource("all"); }}>{businesses.spaplus} ({submissions.filter((item) => leadBusiness(item) === "spaplus").length})</button> : null}
-        {allowedBusinesses.includes("vila4u") ? <button className={business === "vila4u" ? "is-active" : ""} type="button" onClick={() => { setBusiness("vila4u"); setBrandFilter("all"); setWorldFilter("all"); setResource("all"); }}>{businesses.vila4u} ({submissions.filter((item) => leadBusiness(item) === "vila4u").length})</button> : null}
+        {allowedBusinesses.length > 1 ? <button className={business === "all" ? "is-active" : ""} type="button" onClick={() => { setBusiness("all"); setBrandFilter("all"); setWorldFilter("all"); setResource("all"); }}>{businesses.all} ({operationalSubmissions.length})</button> : null}
+        {allowedBusinesses.includes("spaplus") ? <button className={business === "spaplus" ? "is-active" : ""} type="button" onClick={() => { setBusiness("spaplus"); setBrandFilter("all"); setWorldFilter("all"); setResource("all"); }}>{businesses.spaplus} ({operationalSubmissions.filter((item) => leadBusiness(item) === "spaplus").length})</button> : null}
+        {allowedBusinesses.includes("vila4u") ? <button className={business === "vila4u" ? "is-active" : ""} type="button" onClick={() => { setBusiness("vila4u"); setBrandFilter("all"); setWorldFilter("all"); setResource("all"); }}>{businesses.vila4u} ({operationalSubmissions.filter((item) => leadBusiness(item) === "vila4u").length})</button> : null}
       </nav>
 
       {availableBrands.length > 1 ? (
@@ -559,40 +645,57 @@ export default function SubmissionsClient({
           const currentStatus = normalizeStatus(item.status);
           const leadAttribution = attribution(item);
           const received = receivedAt(item, locale);
+          const location = leadLocation(item);
+          const customerMessage = leadCustomerMessage(item);
+          const infoIsOpen = Boolean(expandedInfo[item.id]);
+          const treatmentIsOpen = Boolean(expandedTreatment[item.id]);
+          const infoPanelId = `lead-information-${item.id}`;
+          const treatmentPanelId = `lead-treatment-${item.id}`;
+          const technicalItems = [
+            { label: t.sourceLabel, value: item.source || sources[leadAttribution.group] },
+            { label: t.formLabel, value: item.formType },
+            { label: t.leadIdLabel, value: item.submissionId || String(item.id) },
+            { label: t.languageLabel, value: item.locale },
+            { label: t.allAreas, value: item.resourceKey },
+            { label: brands.title, value: brands[leadBrand(item)] },
+            { label: leadWorlds.title, value: leadWorlds[leadWorld(item)] },
+            { label: t.utmSource, value: leadAttribution.utmSource },
+            { label: t.utmMedium, value: leadAttribution.utmMedium },
+            { label: t.utmCampaign, value: leadAttribution.utmCampaign },
+            { label: t.utmContent, value: leadAttribution.utmContent },
+          ].filter((detail) => detail.value);
           return (
             <article className={`lead-card is-${currentStatus}`} key={item.id}>
               <header>
-                <div>
+                <div className="lead-card-summary">
                   <span className={`lead-status-badge is-${currentStatus}`}>{statusLabel(currentStatus)}</span>
                   <small>{resourceLabel(item.resourceKey)}</small>
-                  <span className={`lead-brand-badge is-${leadBrand(item)}`}>{brands[leadBrand(item)]}</span>
-                  <span className="lead-world-badge">{leadWorlds[leadWorld(item)]}</span>
                   <span className={`lead-source-badge is-${leadAttribution.group}`}>{sources[leadAttribution.group]}</span>
                 </div>
                 <time dateTime={item.createdAt}>{t.received}: {received.formatted} <span className="lead-time-zone">{received.zoneLabel}</span></time>
               </header>
               <div className="lead-card-grid">
-                <section>
+                <section className="lead-customer-card">
                   <span>{t.contact}</span>
-                  <h2>{item.name || item.organization}</h2>
-                  {item.organization && item.organization !== item.name ? <strong>{item.organization}</strong> : null}
-                  <a dir="ltr" href={`mailto:${item.email}`}>{item.email}</a>
-                  {item.phone ? <a dir="ltr" href={`tel:${item.phone}`}>{item.phone}</a> : null}
-                </section>
-                <section>
-                  <span>{t.enquiry}</span>
-                  {item.topic ? <h3>{item.topic}</h3> : null}
-                  <div className="lead-attribution" dir="ltr">
-                    <strong>{sources.title}</strong>
-                    <span>{leadAttribution.utmSource || leadAttribution.group}</span>
-                    {leadAttribution.utmMedium ? <span>{leadAttribution.utmMedium}</span> : null}
-                    {leadAttribution.utmCampaign ? <span>{leadAttribution.utmCampaign}</span> : null}
-                    {leadAttribution.utmContent ? <span>{leadAttribution.utmContent}</span> : null}
+                  <h2>{item.name || item.organization || item.email || item.phone}</h2>
+                  <dl className="lead-customer-facts">
+                    {item.organization && item.organization !== item.name ? <div><dt>{t.business}</dt><dd>{item.organization}</dd></div> : null}
+                    {location ? <div><dt>{t.location}</dt><dd>{location}</dd></div> : null}
+                  </dl>
+                  <div className="lead-contact-actions">
+                    {item.phone ? <a className="is-primary" href={`tel:${item.phone}`}><span>{t.phoneLabel}</span><strong><bdi dir="ltr">{item.phone}</bdi></strong></a> : null}
+                    {item.email ? <a href={`mailto:${item.email}`}><span>{t.emailLabel}</span><strong><bdi dir="ltr">{item.email}</bdi></strong></a> : null}
                   </div>
-                  <p>{item.message}</p>
+                </section>
+                <section className="lead-customer-message">
+                  <span>{t.customerMessage}</span>
+                  {item.topic ? <h3>{item.topic}</h3> : null}
+                  <div className={`lead-message-panel${customerMessage ? "" : " is-empty"}`}>
+                    <p>{customerMessage || t.noCustomerMessage}</p>
+                  </div>
                 </section>
               </div>
-              <footer>
+              <footer className="lead-card-toolbar">
                 <label>
                   <span>{t.update}</span>
                   <select
@@ -604,47 +707,83 @@ export default function SubmissionsClient({
                   </select>
                   {updatingId === item.id ? <span className="action-loading" role="status"><i aria-hidden="true" />{activity.saving}</span> : null}
                 </label>
+                <div className="lead-card-actions">
+                  <button
+                    className="lead-disclosure-button"
+                    type="button"
+                    aria-expanded={infoIsOpen}
+                    aria-controls={infoPanelId}
+                    onClick={() => setExpandedInfo((current) => ({ ...current, [item.id]: !infoIsOpen }))}
+                  >
+                    {infoIsOpen ? t.lessInfo : t.moreInfo}
+                  </button>
+                  <button
+                    className="lead-disclosure-button is-treatment"
+                    type="button"
+                    aria-expanded={treatmentIsOpen}
+                    aria-controls={treatmentPanelId}
+                    onClick={() => setExpandedTreatment((current) => ({ ...current, [item.id]: !treatmentIsOpen }))}
+                  >
+                    {treatmentIsOpen ? t.hideTreatment : `${t.treatment} (${item.notes.length})`}
+                  </button>
+                </div>
               </footer>
-              <div className="lead-activity-grid">
-                <section className="lead-history">
-                  <h3>{activity.activity}</h3>
-                  <ol>
-                    {item.statusEvents.map((event) => (
-                      <li key={event.id}>
-                        <strong>{event.actorName || event.actorEmail}</strong>
-                        <span>{activity.changed}: {statusLabel(normalizeStatus(event.fromStatus))} → {statusLabel(normalizeStatus(event.toStatus))}</span>
-                        <time dateTime={event.createdAt}>{new Intl.DateTimeFormat(locale === "he" ? "he-IL" : locale, { dateStyle: "short", timeStyle: "short" }).format(new Date(event.createdAt))}</time>
+              {infoIsOpen ? (
+                <section className="lead-technical-panel" id={infoPanelId} aria-label={t.technicalInfo}>
+                  <h3>{t.technicalInfo}</h3>
+                  <dl>
+                    {technicalItems.map((detail) => <div key={detail.label}><dt>{detail.label}</dt><dd dir="auto">{detail.value}</dd></div>)}
+                  </dl>
+                  {item.message && item.message.trim() !== customerMessage ? (
+                    <div className="lead-raw-source">
+                      <h4>{t.rawSourceData}</h4>
+                      <p dir="auto">{item.message}</p>
+                    </div>
+                  ) : null}
+                </section>
+              ) : null}
+              {treatmentIsOpen ? (
+                <div className="lead-activity-grid" id={treatmentPanelId}>
+                  <section className="lead-history">
+                    <h3>{activity.activity}</h3>
+                    <ol>
+                      {item.statusEvents.map((event) => (
+                        <li key={event.id}>
+                          <strong>{event.actorName || event.actorEmail}</strong>
+                          <span>{activity.changed}: {statusLabel(normalizeStatus(event.fromStatus))} → {statusLabel(normalizeStatus(event.toStatus))}</span>
+                          <time dateTime={event.createdAt}>{new Intl.DateTimeFormat(locale === "he" ? "he-IL" : locale, { dateStyle: "short", timeStyle: "short" }).format(new Date(event.createdAt))}</time>
+                        </li>
+                      ))}
+                      <li>
+                        <strong>{activity.created}</strong>
+                        <time dateTime={item.createdAt}>{received.formatted}</time>
                       </li>
-                    ))}
-                    <li>
-                      <strong>{activity.created}</strong>
-                      <time dateTime={item.createdAt}>{received.formatted}</time>
-                    </li>
-                  </ol>
-                </section>
-                <section className="lead-notes">
-                  <div className="lead-notes-heading">
-                    <h3>{activity.notes}</h3>
-                    <label><span>{activity.noteFilter}</span><select value={noteFilters[item.id] || "all"} onChange={(event) => setNoteFilters((current) => ({ ...current, [item.id]: event.target.value as NoteState | "all" }))}><option value="all">{activity.all}</option><option value="open">{activity.open}</option><option value="important">{activity.important}</option><option value="handled">{activity.handled}</option></select></label>
-                  </div>
-                  <div className="lead-note-list">
-                    {item.notes.filter((note) => !noteFilters[item.id] || noteFilters[item.id] === "all" || note.state === noteFilters[item.id]).map((note) => (
-                      <article className={`lead-note is-${note.state}`} key={note.id}>
-                        <p>{note.body}</p>
-                        <div><span>{activity.by} {note.actorName || note.actorEmail}</span><time dateTime={note.createdAt}>{new Intl.DateTimeFormat(locale === "he" ? "he-IL" : locale, { dateStyle: "short", timeStyle: "short" }).format(new Date(note.createdAt))}</time></div>
-                        <select aria-label={activity.noteFilter} value={note.state} disabled={savingNoteId === item.id} onChange={(event) => void updateNoteState(item, note, event.target.value as NoteState)}><option value="open">{activity.open}</option><option value="important">{activity.important}</option><option value="handled">{activity.handled}</option></select>
-                      </article>
-                    ))}
-                    {item.notes.length > 0 && item.notes.filter((note) => !noteFilters[item.id] || noteFilters[item.id] === "all" || note.state === noteFilters[item.id]).length === 0 ? <p>{activity.noNotes}</p> : null}
-                  </div>
-                  <div className="lead-note-form">
-                    <label><span>{activity.add}</span><textarea value={noteDrafts[item.id] || ""} placeholder={activity.placeholder} maxLength={4000} onChange={(event) => setNoteDrafts((current) => ({ ...current, [item.id]: event.target.value }))} /></label>
-                    <select value={noteKinds[item.id] || "open"} onChange={(event) => setNoteKinds((current) => ({ ...current, [item.id]: event.target.value as NoteState }))}><option value="open">{activity.open}</option><option value="important">{activity.important}</option><option value="handled">{activity.handled}</option></select>
-                    <button className={savingNoteId === item.id ? "is-loading" : ""} type="button" disabled={savingNoteId === item.id || !(noteDrafts[item.id] || "").trim()} onClick={() => void addNote(item)}>{savingNoteId === item.id ? <><i className="action-spinner" aria-hidden="true" />{activity.saving}</> : activity.publish}</button>
-                  </div>
-                  {savingNoteId === item.id ? <span className="action-loading lead-note-loading" role="status"><i aria-hidden="true" />{activity.saving}</span> : null}
-                </section>
-              </div>
+                    </ol>
+                  </section>
+                  <section className="lead-notes">
+                    <div className="lead-notes-heading">
+                      <h3>{activity.notes}</h3>
+                      <label><span>{activity.noteFilter}</span><select value={noteFilters[item.id] || "all"} onChange={(event) => setNoteFilters((current) => ({ ...current, [item.id]: event.target.value as NoteState | "all" }))}><option value="all">{activity.all}</option><option value="open">{activity.open}</option><option value="important">{activity.important}</option><option value="handled">{activity.handled}</option></select></label>
+                    </div>
+                    <div className="lead-note-list">
+                      {item.notes.filter((note) => !noteFilters[item.id] || noteFilters[item.id] === "all" || note.state === noteFilters[item.id]).map((note) => (
+                        <article className={`lead-note is-${note.state}`} key={note.id}>
+                          <p>{note.body}</p>
+                          <div><span>{activity.by} {note.actorName || note.actorEmail}</span><time dateTime={note.createdAt}>{new Intl.DateTimeFormat(locale === "he" ? "he-IL" : locale, { dateStyle: "short", timeStyle: "short" }).format(new Date(note.createdAt))}</time></div>
+                          <select aria-label={activity.noteFilter} value={note.state} disabled={savingNoteId === item.id} onChange={(event) => void updateNoteState(item, note, event.target.value as NoteState)}><option value="open">{activity.open}</option><option value="important">{activity.important}</option><option value="handled">{activity.handled}</option></select>
+                        </article>
+                      ))}
+                      {item.notes.length > 0 && item.notes.filter((note) => !noteFilters[item.id] || noteFilters[item.id] === "all" || note.state === noteFilters[item.id]).length === 0 ? <p>{activity.noNotes}</p> : null}
+                    </div>
+                    <div className="lead-note-form">
+                      <label><span>{activity.add}</span><textarea value={noteDrafts[item.id] || ""} placeholder={activity.placeholder} maxLength={4000} onChange={(event) => setNoteDrafts((current) => ({ ...current, [item.id]: event.target.value }))} /></label>
+                      <select aria-label={activity.noteFilter} value={noteKinds[item.id] || "open"} onChange={(event) => setNoteKinds((current) => ({ ...current, [item.id]: event.target.value as NoteState }))}><option value="open">{activity.open}</option><option value="important">{activity.important}</option><option value="handled">{activity.handled}</option></select>
+                      <button className={savingNoteId === item.id ? "is-loading" : ""} type="button" disabled={savingNoteId === item.id || !(noteDrafts[item.id] || "").trim()} onClick={() => void addNote(item)}>{savingNoteId === item.id ? <><i className="action-spinner" aria-hidden="true" />{activity.saving}</> : activity.publish}</button>
+                    </div>
+                    {savingNoteId === item.id ? <span className="action-loading lead-note-loading" role="status"><i aria-hidden="true" />{activity.saving}</span> : null}
+                  </section>
+                </div>
+              ) : null}
             </article>
           );
         })}

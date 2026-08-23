@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import test from "node:test";
 
 const root = new URL("../", import.meta.url);
@@ -29,9 +29,10 @@ test("RoomsVIP test leads are retained and clearly marked", async () => {
 });
 
 test("Ontario and Quebec Meta instant-form leads are authenticated, deduplicated, tagged and emailed", async () => {
-  const [route, templates] = await Promise.all([
+  const [route, templates, fieldHelpers] = await Promise.all([
     read("app/api/integrations/meta-ontario-leads/route.ts"),
     read("app/market-email-templates.ts"),
+    read("app/meta-lead-fields.ts"),
   ]);
 
   assert.match(route, /x-hub-signature-256/);
@@ -41,7 +42,8 @@ test("Ontario and Quebec Meta instant-form leads are authenticated, deduplicated
   assert.match(route, /resourceKey: market\.resourceKey/);
   assert.match(route, /resourceKey: "market:ca:on"/);
   assert.match(route, /resourceKey: "market:ca:qc"/);
-  assert.match(route, /function normalizeFieldName/);
+  assert.match(route, /findNormalizedMetaField as normalizedField/);
+  assert.match(fieldHelpers, /function normalizeMetaFieldName/);
   assert.match(route, /nom_complet/);
   assert.match(route, /numero_de_telephone/);
   assert.match(route, /nom_de_l_entreprise/);
@@ -55,18 +57,22 @@ test("Ontario and Quebec Meta instant-form leads are authenticated, deduplicated
   assert.match(route, /buildMarketOwnerEmail/);
   assert.match(route, /buildMarketVisitorEmail/);
   assert.match(route, /X-Entity-Ref-ID.*spaplus-meta-\$\{market\.slug\}-/s);
-  assert.match(route, /to: ownerEmails/);
+  assert.match(route, /api\.resend\.com\/emails\/batch/);
+  assert.match(route, /ownerEmails\.map\(\(ownerEmail, index\)/);
+  assert.match(route, /to: \[ownerEmail\]/);
+  assert.doesNotMatch(route, /to: ownerEmails/);
   assert.match(route, /to: \[data\.email\]/);
-  assert.match(templates, /languageTag: "en"/);
+  assert.match(templates, /languageTag: isHebrew \? "he-IL" : "en"/);
   assert.match(templates, /dir="\$\{direction\}"/);
 });
 
-test("Ontario and Quebec Meta leads send an English LTR owner notification", async () => {
+test("Ontario and Quebec Meta leads send an English LTR owner notification with resilient delivery", async () => {
   const route = await read("app/api/integrations/meta-ontario-leads/route.ts");
   assert.match(route, /META_\$\{market\.slug\.toUpperCase\(\)\}_CONTACT_TO_EMAILS/);
   assert.match(route, /api\.cloudflare\.com\/client\/v4\/accounts/);
-  assert.doesNotMatch(route, /api\.resend\.com\/emails/);
-  assert.match(route, /languageTag: "en-CA"/);
+  assert.match(route, /api\.resend\.com\/emails/);
+  assert.match(route, /Idempotency-Key/);
+  assert.match(route, /languageTag: market\.slug === "israel" \? "he-IL" : "en-CA"/);
   assert.match(route, /\$\{market\.name\} time/);
 });
 
@@ -74,10 +80,26 @@ test("the public app worker verifies Meta lead webhooks at the edge and proxies 
   const worker = await read("worker/index.ts");
 
   assert.match(worker, /META_WEBHOOK_VERIFY_TOKEN\?: string/);
+  assert.match(worker, /META_ISRAEL_WEBHOOK_VERIFY_TOKEN\?: string/);
   assert.match(worker, /function constantTimeEqual/);
   assert.match(worker, /function verifyMetaWebhookRequest/);
+  assert.match(worker, /value\.length >= 24/);
+  assert.match(worker, /expectedTokens\.some\(\(expected\) => constantTimeEqual\(token, expected\)\)/);
   assert.match(worker, /request\.method === "GET"[\s\S]*?\/api\/integrations\/meta-ontario-leads/);
   assert.match(worker, /return verifyMetaWebhookRequest\(request, env\)/);
+  assert.match(
+    worker,
+    /request\.method === "POST"[\s\S]*?recover_campaign[\s\S]*?verifyPayload[\s\S]*?proxyProtectedRequest\(request, env, session\)/,
+  );
+  assert.match(
+    worker,
+    /url\.pathname === "\/api\/integrations\/meta-ontario-leads"[\s\S]*?PRIVATE_AUTHORIZATION_HEADER[\s\S]*?request\.body/,
+  );
+  assert.ok(
+    worker.indexOf('request.method === "GET"') <
+      worker.lastIndexOf('url.pathname === "/api/integrations/meta-ontario-leads"'),
+    "Meta GET verification must stay at the edge before POST delivery is proxied to the management backend",
+  );
 });
 
 test("Ontario owner recipients prefer the production market setting", async () => {
@@ -481,9 +503,10 @@ test("every target market has English pages and every page template has Coming S
 });
 
 test("management permissions fail closed and leads are scoped by market", async () => {
-  const [access, adminPage, toolsPage, dashboard, usersRoute, submissionsRoute, marketRoute, migration, worker] = await Promise.all([
+  const [access, adminPage, adminClient, toolsPage, dashboard, usersRoute, submissionsRoute, marketRoute, migration, worker] = await Promise.all([
     read("app/cms-access.ts"),
     read("app/admin/page.tsx"),
+    read("app/admin/AdminClient.tsx"),
     read("app/tools/page.tsx"),
     read("app/tools/SubmissionsClient.tsx"),
     read("app/api/cms/users/route.ts"),
@@ -496,10 +519,13 @@ test("management permissions fail closed and leads are scoped by market", async 
   assert.match(access, /return false/);
   assert.match(access, /resource\.type === "site" \|\| resource\.type === "market"/);
   assert.doesNotMatch(access, /permissions\.length === 0/);
-  assert.match(adminPage, /cmsContentResources\.some/);
+  assert.match(adminPage, /cmsContentResources[\s\S]*?\.some/);
   assert.match(adminPage, /redirect\("\/tools"\)/);
   assert.match(toolsPage, /allowedLeadResourceKeys/);
   assert.match(toolsPage, /canViewContentManagement/);
+  assert.match(toolsPage, /canRecoverIsraelMetaLeads/);
+  assert.match(toolsPage, /"market:il",[\s\S]*?"manageLeads"/);
+  assert.match(toolsPage, /action="\/api\/integrations\/meta-ontario-leads\?recover_campaign=120251550743850512" method="post"/);
   assert.match(toolsPage, /\/auth\/logout\?return_to=\//);
   assert.match(dashboard, /allowedResourceKeys/);
   assert.match(dashboard, /allowedResourceKeys\.filter\(isLeadResourceKey\)/);
@@ -508,6 +534,14 @@ test("management permissions fail closed and leads are scoped by market", async 
   assert.match(dashboard, /allowedBusinesses\.includes\("vila4u"\)/);
   assert.match(usersRoute, /replacePermissions/);
   assert.match(usersRoute, /validResourceKey/);
+  assert.match(usersRoute, /effectivePermissions/);
+  assert.match(usersRoute, /serializedUser/);
+  assert.match(usersRoute, /"Cache-Control": "no-store, max-age=0"/);
+  assert.match(usersRoute, /success: true, user/);
+  assert.match(adminClient, /api\/cms\/users\?fresh=\$\{Date\.now\(\)\}/);
+  assert.match(adminClient, /cache: "no-store"/);
+  assert.match(adminClient, /data\.user/);
+  assert.match(adminClient, /const refreshed = await loadUsers\(\)/);
   assert.match(submissionsRoute, /inArray\(formSubmissions\.resourceKey, resources\)/);
   assert.match(submissionsRoute, /manageLeads/);
   assert.match(marketRoute, /resourceKey: market\.resourceKey \|\| "market:ca:on"/);
@@ -681,6 +715,8 @@ test("lead management provides a localized four-state operational dashboard", as
   assert.match(dashboard, /Deleted leads remain available here and can be restored/);
   assert.match(dashboard, /דשבורד לידים/);
   assert.match(dashboard, /Tableau de bord des prospects/);
+  assert.match(dashboard, /key === "market:il" \? t\.israel/);
+  assert.match(dashboard, /israel: "ישראל"/);
   assert.match(dashboard, /normalizeSystemLocale\(systemLocale\)/);
   assert.match(dashboard, /document\.documentElement\.lang = locale/);
   assert.match(dashboard, /document\.documentElement\.dir = locale === "he" \? "rtl" : "ltr"/);
@@ -692,8 +728,8 @@ test("lead management provides a localized four-state operational dashboard", as
   assert.match(systemLocale, /locale\.startsWith\("fr-"\)/);
   assert.match(route, /manageLeads/);
   assert.doesNotMatch(route, /export async function DELETE/);
-  assert.match(styles, /grid-template-columns:repeat\(4/);
-  assert.match(styles, /@media\(max-width:560px\)/);
+  assert.match(styles, /grid-template-columns:\s*repeat\(\s*4/);
+  assert.match(styles, /@media\s*\(\s*max-width:\s*560px\s*\)/);
 });
 
 test("accessibility controls and statements are available in every published language", async () => {
@@ -877,10 +913,11 @@ test("Ontario early-access funnel is complete, bilingual, regional and launch-ga
   assert.match(marketPage, /marketName: "Ontario"/);
   assert.match(client, /`SpaPlus is coming to \$\{marketName\}\.`/);
   assert.match(client, /`SpaPlus arrive en \$\{marketName\}\.`/);
-  assert.match(client, /No fee to register/);
-  assert.match(client, /Inscription gratuite/);
-  assert.match(client, /No commitment/);
-  assert.match(client, /No credit card/);
+  assert.match(client, /Spa businesses only/);
+  assert.match(client, /Entreprises de spa seulement/);
+  assert.match(client, /Commission only on confirmed SpaPlus bookings/);
+  assert.match(client, /No monthly fee or extra costs/);
+  assert.match(client, /No long-term commitment/);
   assert.match(client, /reviewWindowHours/);
   assert.match(client, /\{marketName\} listings are not live/);
   assert.match(client, /do not depict future/);
@@ -1018,18 +1055,18 @@ test("Québec partner funnel is bilingual, active-market aware and separately ma
   assert.match(access, /market:ca:qc/);
   assert.match(admin, /tab === "quebec"/);
   assert.match(client, /\/en-ca\/quebec\//);
-  assert.match(client, /protectedQuebecFormFlags/);
+  assert.match(client, /protectedSpaLeadFormFlags/);
   assert.match(client, /"formFieldPhoneVisible"/);
   assert.match(client, /"formFieldSpaTypeVisible"/);
   assert.match(client, /"formFieldServicesVisible"/);
-  assert.match(client, /const requiredQuebecFields = new Set\(\[[\s\S]*?"Organization"[\s\S]*?"Phone"[\s\S]*?"Name"[\s\S]*?"City"[\s\S]*?"Website"[\s\S]*?\]\)/);
-  assert.match(client, /marketSlug === "quebec"[\s\S]*?requiredQuebecFields\.has\(field\)/);
+  assert.match(client, /const requiredSpaLeadFields = new Set\(\[[\s\S]*?"Organization"[\s\S]*?"Phone"[\s\S]*?"Name"[\s\S]*?"City"[\s\S]*?"Email"[\s\S]*?\]\)/);
+  assert.match(client, /marketSlug === "quebec" \|\| marketSlug === "ontario"[\s\S]*?requiredSpaLeadFields\.has\(field\)/);
   assert.match(client, /Only five business details are required\./);
   assert.match(client, /Seulement cinq renseignements sur l’entreprise sont obligatoires\./);
   assert.match(client, /data-validation-attempted=\{validationAttempted\}/);
   assert.match(client, /data-error-label=\{tr\("Business address", "Adresse de l’entreprise"\)\}/);
   assert.match(client, /data-error-label=\{tr\("Business website or Instagram", "Site Web ou Instagram de l’entreprise"\)\}/);
-  assert.match(client, /marketSlug === "quebec" && protectedQuebecFormFlags\.has\(field\)/);
+  assert.match(client, /\(marketSlug === "quebec" \|\| marketSlug === "ontario" \|\| marketSlug === "israel"\) && protectedSpaLeadFormFlags\.has\(field\)/);
   assert.match(client, /if \(!form\.checkValidity\(\)\)/);
   assert.match(client, /form\.querySelector<HTMLElement>\(":invalid"\)\?\.focus\(\)/);
   assert.match(client, /form\.reportValidity\(\)/);
@@ -1038,8 +1075,8 @@ test("Québec partner funnel is bilingual, active-market aware and separately ma
   assert.match(client, /aria-describedby=\{submitState === "error" \? "market-form-error" : undefined\}/);
   assert.match(client, /id="market-form-error"/);
   assert.match(client, /id="phone"[\s\S]*?required=\{fieldRequired\("Phone"\)\}[\s\S]*?minLength=\{7\}/);
-  assert.match(route, /const requiredQuebecFields = new Set\(\[[\s\S]*?"Organization"[\s\S]*?"Phone"[\s\S]*?"Name"[\s\S]*?"City"[\s\S]*?"Website"[\s\S]*?\]\)/);
-  assert.match(route, /marketSlug === "quebec"[\s\S]*?requiredQuebecFields\.has\(field\)/);
+  assert.match(route, /const requiredSpaLeadFields = new Set\(\[[\s\S]*?"Organization"[\s\S]*?"Phone"[\s\S]*?"Name"[\s\S]*?"City"[\s\S]*?"Email"[\s\S]*?\]\)/);
+  assert.match(route, /marketSlug === "quebec" \|\| marketSlug === "ontario"[\s\S]*?requiredSpaLeadFields\.has\(field\)/);
   assert.match(route, /marketSlug === "canada" && !data\.region/);
   assert.match(route, /if \(isEmail\(data\.email\)\)/);
   assert.match(sitemap, /https:\/\/app\.spaplus\.co\/en-ca\/quebec\//);
@@ -1163,4 +1200,112 @@ test("operations includes a clearly labelled illustrative sales dashboard and do
   assert.match(operations, /dashboard-preview/);
   assert.match(css, /SpaPlus Heebo/);
   assert.match(css, /@media\(max-width:650px\)/);
+});
+
+test("spa preview migrations are safe to replay after a partial deployment", async () => {
+  const migrations = await Promise.all([
+    read("drizzle/0008_cute_orphan.sql"),
+    read("drizzle/0009_spa_previews_runtime.sql"),
+  ]);
+  for (const migration of migrations) {
+    assert.match(migration, /CREATE TABLE IF NOT EXISTS `spa_previews`/);
+    assert.match(migration, /CREATE UNIQUE INDEX IF NOT EXISTS `spa_previews_slug_unique`/);
+  }
+});
+
+test("spa preview builder stays English LTR with large controls and lead header links stay legible", async () => {
+  const [builderPage, builderCss, leadsCss] = await Promise.all([
+    read("app/admin/spa-previews/page.tsx"),
+    read("app/admin/spa-previews/spa-previews-fast.css"),
+    read("app/tools/leads.css"),
+  ]);
+
+  assert.match(builderPage, /className="spa-cms-shell" dir="ltr" lang="en"/);
+  assert.doesNotMatch(builderPage, /admin\.systemLocale === "he"/);
+  assert.match(builderCss, /\.spa-cms-card label\{[^}]*font-size:19px/);
+  assert.match(builderCss, /\.spa-cms-card input,[^{]+\{[^}]*min-height:62px/);
+  assert.match(builderCss, /\.spa-cms-card textarea\{[^}]*min-height:150px/);
+  assert.match(builderCss, /@media\(max-width:600px\)[\s\S]*?\.spa-cms-save\{position:static/);
+  assert.match(leadsCss, /\.cms-header\s+\.cms-user\s+\.cms-preview\s*\{[^}]*color:\s*#fff/);
+  assert.match(leadsCss, /-webkit-text-fill-color:\s*#fff/);
+});
+
+test("spa preview builder creates a complete bilingual profile from only the spa name", async () => {
+  const [builder, profile, page, api, schema, migration, mediaSource] = await Promise.all([
+    read("app/admin/spa-previews/SpaPreviewManager.tsx"),
+    read("app/ca/[slug]/CanadaSpaProfile.tsx"),
+    read("app/ca/[slug]/page.tsx"),
+    read("app/api/cms/spa-previews/route.ts"),
+    read("db/schema.ts"),
+    read("drizzle/0012_spa_preview_bilingual_content.sql"),
+    read("project_knowledge/SPA_PREVIEW_DEFAULT_MEDIA.md"),
+  ]);
+
+  assert.match(builder, /useState<Draft>\(\(\) => completeDraft\(\)\)/);
+  assert.match(builder, /localizedContent: SpaPreviewLocalizations = \{ en: templateContent\("en"\), "fr-CA": templateContent\("fr-CA"\) \}/);
+  assert.match(builder, /defaultPhotoUrls = \[1, 2, 3, 4, 5\]/);
+  assert.match(builder, /defaultLogoUrl = "https:\/\/app\.spaplus\.co\/spa-preview-logo\.svg"/);
+  assert.match(builder, /<label>Spa name<input required/);
+  assert.doesNotMatch(builder, /<label>Address<textarea required/);
+  assert.doesNotMatch(builder, /<label>About us<textarea required/);
+  assert.doesNotMatch(builder, /<label>Name<input required/);
+  assert.match(builder, /Open English/);
+  assert.match(builder, /Open French/);
+  assert.match(builder, /English \+ Français/);
+  assert.match(builder, /fetch\(`\/admin\/spa-previews\/records\?fresh=\$\{Date\.now\(\)\}`/);
+  assert.match(profile, /toggleLanguage/);
+  assert.match(profile, /window\.history\.replaceState/);
+  assert.match(profile, /Images d’illustration/);
+  assert.match(profile, /Illustrative images/);
+  assert.doesNotMatch(profile, /\{packageFilter !== "couple" \? <article/);
+  assert.doesNotMatch(profile, /\{treatmentFilter === "solo" \? <div/);
+  assert.match(page, /initialLanguage=\{lang === "fr-CA" \? "fr-CA" : "en"\}/);
+  assert.match(api, /localizedContent: JSON\.stringify\(data\.localizedContent\)/);
+  assert.match(api, /"Cache-Control": "no-store, max-age=0"/);
+  assert.match(schema, /localizedContent: text\("localized_content"\)/);
+  assert.match(migration, /ALTER TABLE `spa_previews` ADD `localized_content`/);
+  assert.match(mediaSource, /generated specifically for SpaPlus recruitment previews/);
+  for (let number = 1; number <= 5; number += 1) {
+    await stat(new URL(`public/spa-preview-gallery-${number}.webp`, root));
+  }
+  await stat(new URL("public/spa-preview-logo.svg", root));
+});
+
+test("spa preview image uploads always finish with success or a retryable error", async () => {
+  const [builder, css, mediaRoute] = await Promise.all([
+    read("app/admin/spa-previews/SpaPreviewManager.tsx"),
+    read("app/admin/spa-previews/spa-previews-fast.css"),
+    read("app/admin/spa-previews/media/route.ts"),
+  ]);
+
+  assert.match(builder, /new AbortController\(\)/);
+  assert.match(builder, /window\.setTimeout\(\(\) => controller\.abort\(\), 90_000\)/);
+  assert.match(builder, /for \(let offset = 0; offset < selected\.length; offset \+= 1\)/);
+  assert.match(builder, /"X-SpaPlus-Upload": "direct-file"/);
+  assert.match(builder, /body: file/);
+  assert.doesNotMatch(builder, /new FormData\(\)/);
+  assert.match(builder, /Your admin session expired\. Reload the page and sign in again\./);
+  assert.match(builder, /current\.photoUrls\.filter\(\(url\) => !isTemplatePhoto\(url\)\)/);
+  assert.match(builder, /Choose up to 10 gallery images together/);
+  assert.match(builder, /role="status" aria-live="polite"/);
+  assert.match(builder, /finally \{[\s\S]*?setUploading\(false\)/);
+  assert.match(builder, /event\.currentTarget\.value = ""/);
+  assert.match(builder, /media\?fresh=\$\{Date\.now\(\)\}/);
+  assert.match(css, /\.spa-cms-media-notice\.is-error/);
+  assert.match(mediaRoute, /await file\.arrayBuffer\(\)/);
+  assert.doesNotMatch(mediaRoute, /file\.stream\(\)/);
+  assert.match(mediaRoute, /request\.headers\.get\("x-spaplus-upload"\) === "direct-file"/);
+  assert.match(mediaRoute, /const bytes = await request\.arrayBuffer\(\)/);
+  assert.match(mediaRoute, /Spa preview media request could not be read/);
+  assert.match(mediaRoute, /Promise\.allSettled\(uploadedKeys\.map/);
+  assert.match(mediaRoute, /The upload did not finish\. Please try again\./);
+  assert.match(builder, /Delete \$\{item\.filename\} from the media library\?/);
+  assert.match(builder, /method: "DELETE"/);
+  assert.match(builder, /setMedia\(\(current\) => current\.filter/);
+  assert.match(css, /grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+  assert.match(mediaRoute, /export async function DELETE\(request: Request\)/);
+  assert.match(mediaRoute, /This image is used by/);
+  assert.match(mediaRoute, /env\.PREVIEW_MEDIA\.delete\(item\.objectKey\)/);
+  assert.match(mediaRoute, /spa_preview_media\.deleted/);
+  assert.match(mediaRoute, /delete_failed_restored/);
 });

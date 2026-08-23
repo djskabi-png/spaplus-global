@@ -1,4 +1,3 @@
-ALTER TABLE `bug_reports` ADD `custom_project` text DEFAULT '' NOT NULL;
-ALTER TABLE `bug_reports` ADD `target_key` text DEFAULT 'adir' NOT NULL;
-ALTER TABLE `bug_reports` ADD `attachment_name` text DEFAULT '' NOT NULL;
-ALTER TABLE `bug_reports` ADD `attachment_url` text DEFAULT '' NOT NULL;
+-- The fields introduced here were incorporated into the idempotent baseline
+-- migration 0006 before the hosted migration ledger was enabled.
+-- Intentionally left as a no-op so existing production data remains intact.

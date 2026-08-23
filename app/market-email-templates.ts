@@ -86,7 +86,7 @@ function shell({
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>${escapeHtml(title)}</title>
 </head>
-<body dir="${direction}" style="margin:0;padding:0;background:#f3f5f8;color:#192d4c;font-family:'Noto Sans',Arial,sans-serif;direction:${direction};text-align:${alignment};">
+<body dir="${direction}" style="margin:0;padding:0;background:#f3f5f8;color:#192d4c;font-family:Heebo,Arial,sans-serif;direction:${direction};text-align:${alignment};">
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(preheader)}</div>
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f3f5f8;">
     <tr>
@@ -163,7 +163,12 @@ export function buildMarketOwnerEmail(
   context: MarketEmailContext,
 ) {
   const { marketName, pageUrl } = context;
-  const leadLabel = context.activeMarket ? `${marketName} spa partner lead` : `${marketName} founding spa lead`;
+  const isHebrew = context.languageTag.toLowerCase().startsWith("he");
+  const leadLabel = isHebrew
+    ? "ליד חדש מבית ספא בישראל"
+    : context.activeMarket
+      ? `${marketName} spa partner lead`
+      : `${marketName} founding spa lead`;
   const values = { name: data.name, organization: data.organization, hours: context.reviewWindowHours, market: marketName };
   const campaign = Object.entries(data.campaign)
     .map(([key, value]) => `${key}: ${value}`)
@@ -171,85 +176,118 @@ export function buildMarketOwnerEmail(
   const replySubject = message(
     context,
     "emailOwnerReplySubject",
-    "SpaPlus Ontario | Your registration",
+    isHebrew ? "SpaPlus ישראל | קיבלנו את פנייתכם" : "SpaPlus Ontario | Your registration",
     values,
   );
   const replyBody = message(
     context,
     "emailOwnerReplyBody",
-    "Hello {{name}},\n\nThank you for registering {{organization}} for SpaPlus Ontario. We have received your details and will be in touch shortly.\n\nBest regards,\nSpaPlus Ontario",
+    isHebrew
+      ? "שלום {{name}},\n\nתודה ששלחתם את פרטי {{organization}} ל־SpaPlus ישראל. קיבלנו את הפנייה וניצור איתכם קשר בהקדם.\n\nבברכה,\nצוות SpaPlus ישראל"
+      : "Hello {{name}},\n\nThank you for registering {{organization}} for SpaPlus Ontario. We have received your details and will be in touch shortly.\n\nBest regards,\nSpaPlus Ontario",
     values,
   );
   const body = `
     <div style="margin:4px 0 20px;padding:16px 18px;border:1px solid #f4c8d9;border-radius:16px;background:#fff0f6;color:#192d4c;font-size:13px;line-height:1.6;">
       <strong>${escapeHtml(leadLabel)}</strong><br>
-      Replying to this email goes directly to ${escapeHtml(data.name)}. The reply button below opens a prepared email to the spa contact.
+      ${isHebrew
+        ? `תגובה למייל הזה תגיע ישירות אל ${escapeHtml(data.name)}. הכפתור למטה פותח תשובה מוכנה לאיש הקשר של בית הספא.`
+        : `Replying to this email goes directly to ${escapeHtml(data.name)}. The reply button below opens a prepared email to the spa contact.`}
     </div>
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border:1px solid #e1e6ed;border-radius:16px;border-collapse:separate;overflow:hidden;">
-      ${detailRow("Spa", data.organization)}
-      ${detailRow("Contact", `${data.name}, ${data.role}`)}
-      ${detailRow("Email", data.email)}
-      ${detailRow("Phone", data.phone)}
-      ${detailRow("Preferred contact", data.preferredContact)}
-      ${detailRow("Website or social", data.website)}
-      ${detailRow("Location", `${data.city}${data.region ? `, ${data.region}` : ""}, ${marketName} ${data.postalCode}`)}
-      ${detailRow("Campaign area", data.area || `${marketName} general`)}
-      ${detailRow("Page language", data.locale)}
-      ${detailRow("Spa type", data.spaType)}
-      ${detailRow("Locations", data.locations)}
-      ${detailRow("Services", data.services.join(", "))}
-      ${detailRow("Booking system", data.bookingSystem || "Not provided")}
-      ${detailRow("Message", data.message || "No additional message")}
-      ${detailRow("Submitted", data.submittedAt)}
-      ${detailRow("Campaign", campaign || "Direct or untagged")}
-      ${detailRow("Source", data.source)}
+      ${detailRow(isHebrew ? "בית הספא" : "Spa", data.organization)}
+      ${detailRow(isHebrew ? "איש קשר" : "Contact", `${data.name}, ${data.role}`)}
+      ${detailRow(isHebrew ? "דוא״ל" : "Email", data.email)}
+      ${detailRow(isHebrew ? "טלפון" : "Phone", data.phone)}
+      ${detailRow(isHebrew ? "דרך התקשרות מועדפת" : "Preferred contact", data.preferredContact)}
+      ${detailRow(isHebrew ? "אתר או רשת חברתית" : "Website or social", data.website)}
+      ${detailRow(isHebrew ? "מיקום" : "Location", `${data.city}${data.region ? `, ${data.region}` : ""}, ${marketName} ${data.postalCode}`)}
+      ${detailRow(isHebrew ? "אזור הקמפיין" : "Campaign area", data.area || (isHebrew ? "ישראל" : `${marketName} general`))}
+      ${detailRow(isHebrew ? "שפת העמוד" : "Page language", data.locale)}
+      ${detailRow(isHebrew ? "סוג בית הספא" : "Spa type", data.spaType)}
+      ${detailRow(isHebrew ? "מספר סניפים" : "Locations", data.locations)}
+      ${detailRow(isHebrew ? "שירותים" : "Services", data.services.join(", "))}
+      ${detailRow(isHebrew ? "מערכת הזמנות" : "Booking system", data.bookingSystem || (isHebrew ? "לא נמסר" : "Not provided"))}
+      ${detailRow(isHebrew ? "הודעה" : "Message", data.message || (isHebrew ? "לא נוספה הודעה" : "No additional message"))}
+      ${detailRow(isHebrew ? "מועד השליחה" : "Submitted", data.submittedAt)}
+      ${detailRow(isHebrew ? "קמפיין" : "Campaign", campaign || (isHebrew ? "הגעה ישירה" : "Direct or untagged"))}
+      ${detailRow(isHebrew ? "מקור" : "Source", data.source)}
     </table>`;
-  const subject = message(context, "emailOwnerSubject", `${marketName} spa lead: {{organization}} | SpaPlus`, values);
-  const text = [
-    `New ${leadLabel}`,
-    "",
-    `Spa: ${data.organization}`,
-    `Contact: ${data.name}, ${data.role}`,
-    `Email: ${data.email}`,
-    `Phone: ${data.phone}`,
-    `Preferred contact: ${data.preferredContact}`,
-    `Website or social: ${data.website}`,
-    `Location: ${data.city}${data.region ? `, ${data.region}` : ""}, ${marketName} ${data.postalCode}`,
-    `Campaign area: ${data.area || `${marketName} general`}`,
-    `Page language: ${data.locale}`,
-    `Spa type: ${data.spaType}`,
-    `Locations: ${data.locations}`,
-    `Services: ${data.services.join(", ")}`,
-    `Booking system: ${data.bookingSystem || "Not provided"}`,
-    `Message: ${data.message || "No additional message"}`,
-    `Submitted: ${data.submittedAt}`,
-    `Campaign: ${campaign || "Direct or untagged"}`,
-    `Source: ${data.source}`,
-  ].join("\n");
+  const subject = message(
+    context,
+    "emailOwnerSubject",
+    isHebrew ? "ליד חדש ל־SpaPlus ישראל: {{organization}}" : `${marketName} spa lead: {{organization}} | SpaPlus`,
+    values,
+  );
+  const text = (isHebrew
+    ? [
+        leadLabel,
+        "",
+        `בית הספא: ${data.organization}`,
+        `איש קשר: ${data.name}, ${data.role}`,
+        `דוא״ל: ${data.email}`,
+        `טלפון: ${data.phone}`,
+        `דרך התקשרות מועדפת: ${data.preferredContact}`,
+        `אתר או רשת חברתית: ${data.website}`,
+        `מיקום: ${data.city}${data.region ? `, ${data.region}` : ""}, ישראל ${data.postalCode}`,
+        `סוג בית הספא: ${data.spaType}`,
+        `מספר סניפים: ${data.locations}`,
+        `שירותים: ${data.services.join(", ")}`,
+        `מערכת הזמנות: ${data.bookingSystem || "לא נמסר"}`,
+        `הודעה: ${data.message || "לא נוספה הודעה"}`,
+        `מועד השליחה: ${data.submittedAt}`,
+        `קמפיין: ${campaign || "הגעה ישירה"}`,
+        `מקור: ${data.source}`,
+      ]
+    : [
+        `New ${leadLabel}`,
+        "",
+        `Spa: ${data.organization}`,
+        `Contact: ${data.name}, ${data.role}`,
+        `Email: ${data.email}`,
+        `Phone: ${data.phone}`,
+        `Preferred contact: ${data.preferredContact}`,
+        `Website or social: ${data.website}`,
+        `Location: ${data.city}${data.region ? `, ${data.region}` : ""}, ${marketName} ${data.postalCode}`,
+        `Campaign area: ${data.area || `${marketName} general`}`,
+        `Page language: ${data.locale}`,
+        `Spa type: ${data.spaType}`,
+        `Locations: ${data.locations}`,
+        `Services: ${data.services.join(", ")}`,
+        `Booking system: ${data.bookingSystem || "Not provided"}`,
+        `Message: ${data.message || "No additional message"}`,
+        `Submitted: ${data.submittedAt}`,
+        `Campaign: ${campaign || "Direct or untagged"}`,
+        `Source: ${data.source}`,
+      ]).join("\n");
 
   return {
     subject,
     text,
     html: shell({
       pageUrl,
-      preheader: context.activeMarket
-        ? `${data.organization} submitted a SpaPlus ${marketName} partner enquiry.`
-        : `${data.organization} joined the ${marketName} early-access list.`,
-      eyebrow: message(context, "emailOwnerEyebrow", `NEW ${marketName.toUpperCase()} SPA LEAD`, values),
+      preheader: isHebrew
+        ? `התקבלה פנייה חדשה מבית הספא ${data.organization}.`
+        : context.activeMarket
+          ? `${data.organization} submitted a SpaPlus ${marketName} partner enquiry.`
+          : `${data.organization} joined the ${marketName} early-access list.`,
+      eyebrow: message(context, "emailOwnerEyebrow", isHebrew ? "ליד חדש מ־SpaPlus ישראל" : `NEW ${marketName.toUpperCase()} SPA LEAD`, values),
       title: data.organization,
       intro: message(
         context,
         "emailOwnerIntro",
-        context.activeMarket
-          ? `A spa has asked to explore joining the active SpaPlus ${marketName} network. The full enquiry is ready for review.`
-          : `A spa has joined the ${marketName} founding partner list. The full enquiry is ready for review.`,
+        isHebrew
+          ? "בית ספא ביקש להצטרף לפעילות SpaPlus בישראל. כל פרטי הפנייה מופיעים כאן ומוכנים להמשך טיפול."
+          : context.activeMarket
+            ? `A spa has asked to explore joining the active SpaPlus ${marketName} network. The full enquiry is ready for review.`
+            : `A spa has joined the ${marketName} founding partner list. The full enquiry is ready for review.`,
         values,
       ),
       body,
-      buttonLabel: message(context, "emailOwnerReplyButton", "Reply to spa", values),
+      buttonLabel: message(context, "emailOwnerReplyButton", isHebrew ? "השבת פנייה לבית הספא" : "Reply to spa", values),
       buttonHref: replyLink(data.email, replySubject, replyBody),
-      languageTag: "en",
-      footerLine: message(context, "emailOwnerFooter", "A better way to discover, book and enjoy spa experiences.", values),
+      languageTag: isHebrew ? "he-IL" : "en",
+      footerLine: message(context, "emailOwnerFooter", isHebrew ? "דרך טובה יותר לגלות, להזמין וליהנות מחוויות ספא." : "A better way to discover, book and enjoy spa experiences.", values),
       companyName: context.copy?.emailCompanyName || "GLOBAL SPA MANAGEMENT LTD",
     }),
   };
@@ -262,6 +300,53 @@ export function buildMarketVisitorEmail(
   const { marketName, pageUrl, reviewWindowHours, languageTag } = context;
   const values = { name: data.name, organization: data.organization, hours: reviewWindowHours, market: marketName };
   const isFrench = languageTag.toLowerCase().startsWith("fr");
+  const isHebrew = languageTag.toLowerCase().startsWith("he");
+  if (isHebrew) {
+    const preferredContact = data.preferredContact === "Email"
+      ? "דוא״ל"
+      : data.preferredContact === "Phone"
+        ? "טלפון"
+        : data.preferredContact;
+    const body = `
+      <div style="margin:4px 0 22px;padding:19px;border:1px solid #f4c8d9;border-radius:16px;background:#fff0f6;">
+        <strong style="display:block;margin-bottom:7px;color:#192d4c;font-size:14px;">מה קורה עכשיו</strong>
+        <p style="margin:0;color:#5d6a7d;font-size:13px;line-height:1.7;">נבדוק את בית הספא, המיקום והשירותים. חבר או חברת צוות SpaPlus ייצרו איתך קשר בתוך ${escapeHtml(String(reviewWindowHours))} שעות בדרך ההתקשרות שבחרת.</p>
+      </div>
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border:1px solid #e1e6ed;border-radius:16px;border-collapse:separate;overflow:hidden;">
+        ${detailRow("בית הספא", data.organization)}
+        ${detailRow("איש קשר", data.name)}
+        ${detailRow("מיקום", `${data.city}${data.region ? `, ${data.region}` : ""}, ישראל`)}
+        ${detailRow("דרך התקשרות מועדפת", preferredContact)}
+      </table>
+      <p style="margin:22px 0 0;color:#5d6a7d;font-size:12px;line-height:1.7;">הפנייה מביעה עניין בלבד. היא אינה יוצרת התחייבות, אינה דורשת תשלום ואינה מבקשת פרטי אשראי. כל הצעה מסחרית, אם תהיה, תוצג בנפרד לפני כל החלטה.</p>`;
+    const subject = `קיבלנו את הפנייה שלך ל־SpaPlus ישראל`;
+    const text = [
+      `תודה, ${data.name}.`,
+      "",
+      `קיבלנו את פרטי ${data.organization} עבור SpaPlus ישראל.`,
+      `נבדוק את הפרטים וניצור איתך קשר בתוך ${reviewWindowHours} שעות.`,
+      "",
+      "הפנייה מביעה עניין בלבד ואינה יוצרת התחייבות או דורשת תשלום.",
+      "",
+      pageUrl,
+    ].join("\n");
+    return {
+      subject,
+      text,
+      html: shell({
+        pageUrl,
+        preheader: `קיבלנו את הפנייה שלך ל־SpaPlus ישראל וניצור איתך קשר בתוך ${reviewWindowHours} שעות.`,
+        eyebrow: "SpaPlus ישראל",
+        title: `תודה, ${data.name}.`,
+        intro: `קיבלנו את הפרטים של ${data.organization} ונבדוק את ההתאמה לפעילות SpaPlus בישראל.`,
+        body,
+        buttonLabel: "חזרה ל־SpaPlus ישראל",
+        languageTag: "he-IL",
+        footerLine: "דרך טובה יותר לגלות, להזמין וליהנות מחוויות ספא.",
+        companyName: context.copy?.emailCompanyName || "GLOBAL SPA MANAGEMENT LTD",
+      }),
+    };
+  }
   if (isFrench) {
     const preferredContact =
       data.preferredContact === "Email"

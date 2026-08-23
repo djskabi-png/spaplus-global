@@ -503,6 +503,84 @@ export const canadaFrenchMarket: MarketLaunchConfig = {
   ],
 };
 
+export const israelMarket: MarketLaunchConfig = {
+  marketName: "ישראל",
+  marketSlug: "israel",
+  countryName: "ישראל",
+  primaryCity: "תל אביב",
+  locale: "he-il",
+  languageTag: "he-IL",
+  timeZone: "Asia/Jerusalem",
+  pageUrl: "https://app.spaplus.co/he-il/israel/",
+  homeHref: "https://www.spaplus.co.il/",
+  heroImage: "https://www.spaplus.co.il/gallery/1708422320068752.jpeg",
+  heroDisclosure: "בתמונה: ספא קלרינס בירושלים, מתוך רשומה פעילה באתר SpaPlus ישראל.",
+  leadEndpoint: "/api/market-spa-leads",
+  reviewWindowHours: 72,
+  referenceMarketName: "SpaPlus ישראל",
+  referenceCountryName: "ישראל",
+  referenceSpas: [
+    {
+      name: "ספא דה ג׳ורג׳",
+      location: "תל אביב",
+      image: "https://www.spaplus.co.il/gallery/1784030547900072_400x300.jpeg",
+      imageAlt: "ספא דה ג׳ורג׳ בתל אביב, מתוך רשומה פעילה באתר SpaPlus ישראל",
+      href: "https://www.spaplus.co.il/The_george_spa",
+    },
+    {
+      name: "ספא דריה",
+      location: "טבריה",
+      image: "https://www.spaplus.co.il/gallery/1719476999750692_400x300.jpeg",
+      imageAlt: "ספא דריה בטבריה, מתוך רשומה פעילה באתר SpaPlus ישראל",
+      href: "https://www.spaplus.co.il/spa_darya_Tiberias",
+    },
+    {
+      name: "ספא קלרינס",
+      location: "ירושלים",
+      image: "https://www.spaplus.co.il/gallery/1708422320068752_400x300.jpeg",
+      imageAlt: "ספא קלרינס בירושלים, מתוך רשומה פעילה באתר SpaPlus ישראל",
+      href: "https://www.spaplus.co.il/spa_clarins",
+    },
+    {
+      name: "ספא קאסה סוזנה",
+      location: "תל אביב",
+      image: "https://www.spaplus.co.il/gallery/1742990294590301_400x300.jpeg",
+      imageAlt: "ספא קאסה סוזנה בתל אביב, מתוך רשומה פעילה באתר SpaPlus ישראל",
+      href: "https://www.spaplus.co.il/spa_casa_suzanna",
+    },
+    {
+      name: "ספא לוטוס במלון יערים",
+      location: "מעלה החמישה",
+      image: "https://www.spaplus.co.il/gallery/1783343460318041_400x300.jpeg",
+      imageAlt: "ספא לוטוס במלון יערים במעלה החמישה, מתוך רשומה פעילה באתר SpaPlus ישראל",
+      href: "https://www.spaplus.co.il/spa_6_sense",
+    },
+    {
+      name: "ספא אחוזת אסיינדה ביער",
+      location: "מעלות תרשיחא",
+      image: "https://www.spaplus.co.il/gallery/1769501292113083_400x300.jpeg",
+      imageAlt: "ספא אחוזת אסיינדה ביער במעלות תרשיחא, מתוך רשומה פעילה באתר SpaPlus ישראל",
+      href: "https://www.spaplus.co.il/Hacienda_Mansion_Spa_in_the_forest",
+    },
+  ],
+  priorityAreas: [
+    { label: "תל אביב והמרכז", href: "#join" },
+    { label: "ירושלים והסביבה", href: "#join" },
+    { label: "חיפה והצפון", href: "#join" },
+    { label: "ים המלח והדרום", href: "#join" },
+    { label: "אילת והערבה", href: "#join" },
+  ],
+  languageLinks: [
+    { label: "עברית", ariaLabel: "עברית", languageTag: "he-IL", href: "/he-il/israel/", active: true },
+    { label: "English", ariaLabel: "English", languageTag: "en", href: "https://spaplus.co/en/", active: false },
+    { label: "Русский", ariaLabel: "Русский", languageTag: "ru", href: "https://spaplus.co/ru/", active: false },
+  ],
+  cmsSection: "market.il",
+  resourceKey: "market:il",
+  pageMode: "network",
+  showVideo: false,
+};
+
 export function getOntarioArea(slug: string) {
   return ontarioAreas.find((area) => area.slug === slug);
 }
@@ -554,5 +632,9 @@ export const markets = {
   quebec: {
     ...quebecMarket,
     priorityAreas: quebecMarket.priorityAreas,
+  },
+  israel: {
+    ...israelMarket,
+    priorityAreas: israelMarket.priorityAreas,
   },
 } satisfies Record<string, MarketLaunchConfig>;
