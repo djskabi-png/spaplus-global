@@ -45,7 +45,8 @@ function brandedGuestEmail(data: {
   const calendar = he ? "פתיחת האירוע ביומן" : "Open the calendar event";
   const when = localizedDate(data.startsAt, data.locale, data.timeZone);
   const isolatedTitle = `\u2068${data.title}\u2069`;
-  const subject = he ? `הזמנה לפגישה: ${isolatedTitle}` : `Meeting invitation: ${isolatedTitle}`;
+  const subjectText = he ? `הזמנה לפגישה: ${isolatedTitle}` : `Meeting invitation: ${isolatedTitle}`;
+  const subject = `${he ? "\u2067" : "\u2066"}${subjectText}\u2069`;
   const note = data.notes ? `<div style="margin-top:22px;padding:16px 18px;border-radius:14px;background:#f5f7fb;color:#3f5873;line-height:1.7">${escapeHtml(data.notes).replaceAll("\n", "<br>")}</div>` : "";
   const textAlign = he ? "right" : "left";
   const logoMargin = he ? "0 0 0 auto" : "0 auto 0 0";
