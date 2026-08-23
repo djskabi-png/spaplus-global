@@ -51,4 +51,8 @@ test("the selected meeting language controls every generated guest surface", () 
   assert.match(route, /locale === "he" \? "נקבע באמצעות SpaPlus Global" : "Scheduled with SpaPlus Global"/);
   assert.match(route, /const he = data\.locale === "he"/);
   assert.match(route, /lang="\$\{data\.locale\}" dir="\$\{direction\}"/);
+  assert.match(route, /body dir="\$\{direction\}"/);
+  assert.match(route, /direction:\$\{direction\};text-align:\$\{textAlign\}/);
+  assert.match(route, /<bdi dir="auto" style="unicode-bidi:isolate">/);
+  assert.match(route, /const logoMargin = he \? "0 0 0 auto" : "0 auto 0 0"/);
 });
