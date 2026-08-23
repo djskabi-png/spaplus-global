@@ -29,7 +29,7 @@ export default async function AdminPage() {
   );
   if (!canViewContent && !canViewOperations && canViewVila4uLeads && !canViewOtherLeads) redirect("/vila4u");
   if (!canViewContent && !canViewOperations && canViewLeads) redirect("/tools");
-  if (!canViewContent && !canViewOperations && !canViewLeads && admin.role !== "owner") redirect("/access-denied");
+  if (!canViewContent && !canViewOperations && !canViewLeads && admin.role !== "owner") redirect("/tools/meetings");
   const isHebrew = admin.systemLocale === "he";
   return (
     <main className="cms-shell" dir={isHebrew ? "rtl" : "ltr"} lang={admin.systemLocale}>

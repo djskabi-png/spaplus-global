@@ -220,3 +220,34 @@ export const bugReports = sqliteTable("bug_reports", {
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });
+
+export const meetingBookings = sqliteTable(
+  "meeting_bookings",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    bookingId: text("booking_id").notNull(),
+    organizerEmail: text("organizer_email").notNull(),
+    organizerName: text("organizer_name").notNull().default(""),
+    guestName: text("guest_name").notNull(),
+    guestEmail: text("guest_email").notNull(),
+    title: text("title").notNull(),
+    notes: text("notes").notNull().default(""),
+    locale: text("locale", { enum: ["en", "he"] }).notNull().default("en"),
+    startsAt: text("starts_at").notNull(),
+    endsAt: text("ends_at").notNull(),
+    timeZone: text("time_zone").notNull(),
+    status: text("status", { enum: ["pending", "confirmed", "failed", "cancelled"] })
+      .notNull()
+      .default("pending"),
+    googleEventId: text("google_event_id").notNull().default(""),
+    meetUrl: text("meet_url").notNull().default(""),
+    calendarUrl: text("calendar_url").notNull().default(""),
+    emailDeliveryIds: text("email_delivery_ids").notNull().default("[]"),
+    failureReason: text("failure_reason").notNull().default(""),
+    createdAt: text("created_at").notNull(),
+    updatedAt: text("updated_at").notNull(),
+  },
+  (table) => [
+    uniqueIndex("meeting_bookings_booking_id_unique").on(table.bookingId),
+  ],
+);

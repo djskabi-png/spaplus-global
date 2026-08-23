@@ -57,6 +57,13 @@
       "when": 1786163400000,
       "tag": "0007_bug_routing_and_attachments",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1787486400000,
+      "tag": "0008_meeting_bookings",
+      "breakpoints": true
     }
   ]
 }
