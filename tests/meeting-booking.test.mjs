@@ -6,6 +6,7 @@ const worker = readFileSync(new URL("../worker/index.ts", import.meta.url), "utf
 const route = readFileSync(new URL("../app/api/meetings/route.ts", import.meta.url), "utf8");
 const client = readFileSync(new URL("../app/tools/meetings/MeetingClient.tsx", import.meta.url), "utf8");
 const styles = readFileSync(new URL("../app/tools/meetings/meetings.css", import.meta.url), "utf8");
+const deleteStyles = readFileSync(new URL("../app/tools/meetings/meeting-delete.css", import.meta.url), "utf8");
 const languageStyles = readFileSync(new URL("../app/tools/meetings/language-picker.css", import.meta.url), "utf8");
 const schema = readFileSync(new URL("../drizzle/0014_meeting_bookings.sql", import.meta.url), "utf8");
 
@@ -58,4 +59,27 @@ test("the selected meeting language controls every generated guest surface", () 
   assert.match(route, /<bdi dir="auto" style="unicode-bidi:isolate">/);
   assert.match(route, /const logoMargin = he \? "0 0 0 auto" : "0 auto 0 0"/);
   assert.match(route, /const subject = `\$\{he \? "\\u2067" : "\\u2066"\}\$\{subjectText\}\\u2069`/);
+});
+
+test("an organizer can safely cancel only their own Google Calendar meeting", () => {
+  assert.match(route, /export async function DELETE\(request: Request\)/);
+  assert.match(route, /existing\.organizerEmail !== admin\.email/);
+  assert.match(route, /method: "DELETE"/);
+  assert.match(route, /events\/\$\{encodeURIComponent\(existing\.googleEventId\)\}\?sendUpdates=all/);
+  assert.match(route, /calendarResponse\.status !== 404 && calendarResponse\.status !== 410/);
+  assert.match(route, /status: "cancelled"/);
+  assert.match(route, /ne\(meetingBookings\.status, "cancelled"\)/);
+});
+
+test("meeting deletion is bilingual, confirmed and visible on mobile", () => {
+  assert.match(client, /deleteMeeting: "Delete meeting"/);
+  assert.match(client, /deleteMeeting: "מחיקת פגישה"/);
+  assert.match(client, /method: "DELETE"/);
+  assert.match(client, /aria-busy=\{deletingId === meeting\.bookingId\}/);
+  assert.match(client, /autoFocus disabled=\{Boolean\(deletingId\)\}/);
+  assert.match(client, /setUpcoming\(\(meetings\) => meetings\.filter/);
+  assert.match(deleteStyles, /@media \(max-width: 820px\)/);
+  assert.match(deleteStyles, /\.upcoming-card\s*\{\s*display: block/);
+  assert.match(deleteStyles, /\.meeting-delete-confirm-button/);
+  assert.doesNotMatch(deleteStyles, /Times New Roman|font-family\s*:\s*serif|font-family\s*:\s*cursive|font-family\s*:\s*fantasy/i);
 });

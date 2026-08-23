@@ -1,4 +1,4 @@
-import { and, asc, eq, gte } from "drizzle-orm";
+import { and, asc, eq, gte, ne } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { meetingBookings } from "../../../db/schema";
 import { getAuthorizedAdmin } from "../../admin-auth";
@@ -84,7 +84,7 @@ export async function GET(request: Request) {
   if (!admin) return Response.json({ error: "Unauthorized" }, { status: 401 });
   const connected = request.headers.get("x-spaplus-google-calendar-connected") === "1";
   const upcoming = await getDb().select().from(meetingBookings)
-    .where(and(eq(meetingBookings.organizerEmail, admin.email), gte(meetingBookings.endsAt, new Date().toISOString())))
+    .where(and(eq(meetingBookings.organizerEmail, admin.email), ne(meetingBookings.status, "cancelled"), gte(meetingBookings.endsAt, new Date().toISOString())))
     .orderBy(asc(meetingBookings.startsAt)).limit(20);
   return Response.json({
     connected,
@@ -94,6 +94,41 @@ export async function GET(request: Request) {
       status: item.status, meetUrl: item.meetUrl, calendarUrl: item.calendarUrl,
     })),
   }, { headers: { "cache-control": "private, no-store" } });
+}
+
+export async function DELETE(request: Request) {
+  const admin = await getAuthorizedAdmin();
+  if (!admin) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  const accessToken = request.headers.get("x-spaplus-google-calendar-token") || "";
+  if (!accessToken) return Response.json({ error: "calendar_not_connected" }, { status: 428 });
+
+  const body = await request.json().catch(() => ({})) as Record<string, unknown>;
+  const bookingId = clean(body.bookingId, 80);
+  if (!bookingIdPattern.test(bookingId)) return Response.json({ error: "invalid_meeting" }, { status: 400 });
+
+  const db = getDb();
+  const [existing] = await db.select().from(meetingBookings).where(eq(meetingBookings.bookingId, bookingId)).limit(1);
+  if (!existing) return Response.json({ error: "meeting_not_found" }, { status: 404 });
+  if (existing.organizerEmail !== admin.email) return Response.json({ error: "Forbidden" }, { status: 403 });
+  if (existing.status === "cancelled") return Response.json({ success: true, status: "cancelled" });
+
+  if (existing.googleEventId) {
+    const calendarResponse = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${encodeURIComponent(existing.googleEventId)}?sendUpdates=all`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    if (!calendarResponse.ok && calendarResponse.status !== 404 && calendarResponse.status !== 410) {
+      const reconnect = calendarResponse.status === 401 || calendarResponse.status === 403;
+      return Response.json({ error: reconnect ? "calendar_reconnect_required" : "meeting_delete_failed" }, { status: reconnect ? 401 : 502 });
+    }
+  }
+
+  await db.update(meetingBookings).set({
+    status: "cancelled",
+    failureReason: "",
+    updatedAt: new Date().toISOString(),
+  }).where(and(eq(meetingBookings.bookingId, bookingId), eq(meetingBookings.organizerEmail, admin.email)));
+  return Response.json({ success: true, status: "cancelled" });
 }
 
 export async function POST(request: Request) {

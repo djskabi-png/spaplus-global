@@ -14,6 +14,7 @@ const copy = {
     create: "Create meeting", creating: "Creating the event and Google Meet link…", privacy: "The guest receives a Google Calendar invitation. A branded SpaPlus email is also sent when the email service is available.",
     successTitle: "The meeting is ready", successBody: "The event was added to your calendar and the guest invitation was requested.", languageConfirmed: "The invitation was prepared in English.", join: "Open Google Meet", openCalendar: "Open in Google Calendar", copyLink: "Copy Meet link", copied: "Link copied", newMeeting: "Schedule another meeting",
     upcoming: "Upcoming meetings", noUpcoming: "No upcoming meetings yet.", loading: "Loading your calendar…", retry: "Dismiss",
+    deleteMeeting: "Delete meeting", deleteTitle: "Delete this meeting?", deleteBody: "This removes the event from your Google Calendar and sends the cancellation to the guest.", cancelDelete: "Keep meeting", confirmDelete: "Delete meeting", deleting: "Deleting…", deleteSuccess: "The meeting was deleted from your calendar.", deleteError: "The meeting could not be deleted. It is still in your calendar, so you can try again.",
     calendarNotConnected: "Connect your Google Calendar before creating the meeting.", conflict: "That time is already busy in your calendar. Choose another time.", reconnectRequired: "Your calendar connection expired. Reconnect it and try again.", genericError: "The meeting could not be created. Your form is still here, so you can try again.", pendingMeet: "The event exists, but Google is still preparing the Meet link. Open it in Calendar and try again in a moment.", emailWarning: "The calendar invitation was created. The additional branded email could not be confirmed.",
   },
   he: {
@@ -24,6 +25,7 @@ const copy = {
     create: "יצירת פגישה", creating: "יוצר את האירוע ואת קישור ה־Google Meet…", privacy: "האורח יקבל הזמנה של Google Calendar. כאשר שירות המייל זמין, תישלח גם הודעת SpaPlus ממותגת.",
     successTitle: "הפגישה מוכנה", successBody: "האירוע נוסף ליומן שלך ובקשת ההזמנה לאורח נשלחה.", languageConfirmed: "ההזמנה הוכנה בעברית.", join: "פתיחת Google Meet", openCalendar: "פתיחה ב־Google Calendar", copyLink: "העתקת קישור Meet", copied: "הקישור הועתק", newMeeting: "קביעת פגישה נוספת",
     upcoming: "פגישות קרובות", noUpcoming: "עדיין אין פגישות קרובות.", loading: "טוען את היומן שלך…", retry: "סגירה",
+    deleteMeeting: "מחיקת פגישה", deleteTitle: "למחוק את הפגישה?", deleteBody: "הפעולה תסיר את האירוע מיומן Google ותשלח לאורח הודעת ביטול.", cancelDelete: "השארת הפגישה", confirmDelete: "מחיקת הפגישה", deleting: "מוחק…", deleteSuccess: "הפגישה נמחקה מהיומן שלך.", deleteError: "לא ניתן היה למחוק את הפגישה. היא עדיין קיימת ביומן ואפשר לנסות שוב.",
     calendarNotConnected: "צריך לחבר את יומן Google לפני יצירת הפגישה.", conflict: "הזמן הזה כבר תפוס ביומן שלך. יש לבחור שעה אחרת.", reconnectRequired: "החיבור ליומן פג. יש לחבר אותו מחדש ולנסות שוב.", genericError: "לא ניתן היה ליצור את הפגישה. הפרטים נשמרו במסך ואפשר לנסות שוב.", pendingMeet: "האירוע קיים, אבל Google עדיין מכינה את קישור ה־Meet. אפשר לפתוח אותו ביומן ולנסות שוב בעוד רגע.", emailWarning: "ההזמנה ביומן נוצרה. לא ניתן היה לאמת את שליחת המייל הממותג הנוסף.",
   },
 } as const;
@@ -51,6 +53,10 @@ export default function MeetingClient({ displayName, locale }: { displayName: st
   const [upcoming, setUpcoming] = useState<Meeting[]>([]);
   const [copied, setCopied] = useState(false);
   const [bookingId, setBookingId] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<Meeting | null>(null);
+  const [deletingId, setDeletingId] = useState("");
+  const [deleteError, setDeleteError] = useState("");
+  const [deleteNotice, setDeleteNotice] = useState("");
   const [title, setTitle] = useState(() => defaultMeetingTitle(locale === "he" ? "he" : "en"));
   const defaults = useMemo(localDefaults, []);
   const minDate = useMemo(() => new Date().toISOString().slice(0, 10), []);
@@ -133,6 +139,34 @@ export default function MeetingClient({ displayName, locale }: { displayName: st
     window.setTimeout(() => setCopied(false), 1800);
   }
 
+  async function deleteMeeting() {
+    if (!deleteTarget || deletingId) return;
+    const target = deleteTarget;
+    setDeletingId(target.bookingId);
+    setDeleteError("");
+    setDeleteNotice("");
+    try {
+      const response = await fetch("/api/meetings", {
+        method: "DELETE",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ bookingId: target.bookingId }),
+      });
+      const result = await response.json() as { error?: string };
+      if (!response.ok) {
+        if (result.error === "calendar_not_connected" || result.error === "calendar_reconnect_required") setConnected(false);
+        setDeleteError(result.error === "calendar_reconnect_required" || result.error === "calendar_not_connected" ? t.reconnectRequired : t.deleteError);
+        return;
+      }
+      setUpcoming((meetings) => meetings.filter((meeting) => meeting.bookingId !== target.bookingId));
+      setDeleteTarget(null);
+      setDeleteNotice(t.deleteSuccess);
+    } catch {
+      setDeleteError(t.deleteError);
+    } finally {
+      setDeletingId("");
+    }
+  }
+
   return (
     <main className="meeting-shell" lang={activeLocale} dir={rtl ? "rtl" : "ltr"}>
       <a className="meeting-skip" href="#meeting-form">{t.create}</a>
@@ -145,7 +179,7 @@ export default function MeetingClient({ displayName, locale }: { displayName: st
           <p className="meeting-eyebrow">SpaPlus Global</p><h1 id="meeting-title">{t.pageTitle}</h1><p>{t.intro}</p>
           <div className="meeting-host"><span aria-hidden="true">{displayName.slice(0, 1).toUpperCase()}</span><div><strong>{displayName}</strong><small>{t.organizer}</small></div></div>
           <section className={`calendar-status ${connected ? "is-connected" : ""}`} aria-live="polite"><span className="calendar-dot" aria-hidden="true" /><div><strong>{t.connectionTitle}</strong><p>{loading ? t.loading : connected ? t.connected : t.disconnected}</p></div>{!loading && !connected ? <a className="meeting-connect" href="/auth/google/calendar/authorize">{t.connect}</a> : null}</section>
-          <section className="upcoming-card"><h2>{t.upcoming}</h2>{loading ? <p>{t.loading}</p> : upcoming.length ? <ul>{upcoming.slice(0, 4).map((meeting) => <li key={meeting.bookingId}><span>{new Intl.DateTimeFormat(activeLocale === "he" ? "he-IL" : "en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: meeting.timeZone }).format(new Date(meeting.startsAt))}</span><strong>{meeting.title}</strong><small>{meeting.guestName}</small></li>)}</ul> : <p>{t.noUpcoming}</p>}</section>
+          <section className="upcoming-card"><h2>{t.upcoming}</h2><div className="meeting-delete-status" aria-live="polite">{deleteNotice}</div>{deleteError ? <div className="meeting-delete-error" role="alert"><span>{deleteError}</span>{!connected ? <a href="/auth/google/calendar/authorize">{t.reconnect}</a> : null}</div> : null}{loading ? <p>{t.loading}</p> : upcoming.length ? <ul>{upcoming.map((meeting) => <li key={meeting.bookingId} aria-busy={deletingId === meeting.bookingId}><div className="upcoming-item-main"><span>{new Intl.DateTimeFormat(activeLocale === "he" ? "he-IL" : "en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: meeting.timeZone }).format(new Date(meeting.startsAt))}</span><strong>{meeting.title}</strong><small>{meeting.guestName}</small></div><button className="meeting-delete-trigger" type="button" disabled={Boolean(deletingId)} onClick={() => { setDeleteTarget(meeting); setDeleteError(""); setDeleteNotice(""); }}>{t.deleteMeeting}</button>{deleteTarget?.bookingId === meeting.bookingId ? <div className="meeting-delete-confirm" role="group" aria-labelledby={`delete-title-${meeting.bookingId}`}><strong id={`delete-title-${meeting.bookingId}`}>{t.deleteTitle}</strong><p>{t.deleteBody}</p><div><button type="button" className="meeting-delete-cancel" disabled={Boolean(deletingId)} onClick={() => setDeleteTarget(null)}>{t.cancelDelete}</button><button type="button" className="meeting-delete-confirm-button" autoFocus disabled={Boolean(deletingId)} onClick={() => void deleteMeeting()}>{deletingId ? <><i className="meeting-spinner" aria-hidden="true" />{t.deleting}</> : t.confirmDelete}</button></div></div> : null}</li>)}</ul> : <p>{t.noUpcoming}</p>}</section>
         </aside>
         <div className="meeting-main">
           {success ? <section className="meeting-success" aria-live="polite"><div className="success-mark" aria-hidden="true">✓</div><h2>{t.successTitle}</h2><p>{t.successBody}</p><p className="meeting-language-confirmed">{t.languageConfirmed}</p>{!success.emailSent ? <p className="meeting-warning">{t.emailWarning}</p> : null}<div className="success-actions"><a className="meeting-submit" href={success.meetUrl} target="_blank" rel="noreferrer">{t.join}</a><a className="meeting-secondary" href={success.calendarUrl} target="_blank" rel="noreferrer">{t.openCalendar}</a><button className="meeting-secondary" type="button" onClick={() => void copyMeetLink()}>{copied ? t.copied : t.copyLink}</button></div><button className="meeting-new" type="button" onClick={() => { setSuccess(null); setCopied(false); }}>{t.newMeeting}</button></section> :

@@ -3,6 +3,7 @@ import { normalizeSystemLocale } from "../../system-locale";
 import MeetingClient from "./MeetingClient";
 import "./meetings.css";
 import "./language-picker.css";
+import "./meeting-delete.css";
 
 export const dynamic = "force-dynamic";
 
