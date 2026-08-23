@@ -1,0 +1,59 @@
+.meeting-language-fieldset {
+  padding: 18px !important;
+  border: 1px solid #dbe4ed !important;
+  border-radius: 16px;
+  background: #f8fafc;
+}
+
+.meeting-language-fieldset legend {
+  margin-bottom: 10px;
+}
+
+.meeting-language-fieldset > p {
+  margin: 0 0 14px;
+  color: #60788e;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.meeting-language-picker {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 5px;
+  border-radius: 12px;
+  background: #e9eef4;
+}
+
+.meeting-language-picker button {
+  min-height: 46px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: #36536f;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.meeting-language-picker button.is-selected {
+  border-color: #f0b8ce;
+  background: #fff;
+  color: #cf0e5a;
+  box-shadow: 0 4px 14px rgba(20, 45, 79, 0.08);
+}
+
+.meeting-language-picker button:focus-visible {
+  outline: 3px solid rgba(207, 14, 90, 0.24);
+  outline-offset: 2px;
+}
+
+.meeting-language-picker button:disabled {
+  cursor: not-allowed;
+}
+
+.meeting-language-confirmed {
+  margin-top: -12px !important;
+  color: #16875f !important;
+  font-size: 13px;
+}

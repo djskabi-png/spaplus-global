@@ -6,6 +6,7 @@ const worker = readFileSync(new URL("../worker/index.ts", import.meta.url), "utf
 const route = readFileSync(new URL("../app/api/meetings/route.ts", import.meta.url), "utf8");
 const client = readFileSync(new URL("../app/tools/meetings/MeetingClient.tsx", import.meta.url), "utf8");
 const styles = readFileSync(new URL("../app/tools/meetings/meetings.css", import.meta.url), "utf8");
+const languageStyles = readFileSync(new URL("../app/tools/meetings/language-picker.css", import.meta.url), "utf8");
 const schema = readFileSync(new URL("../drizzle/0014_meeting_bookings.sql", import.meta.url), "utf8");
 
 test("every authorized user can connect a personal Google Calendar", () => {
@@ -36,4 +37,18 @@ test("the branded bilingual product covers loading, success and failure states",
   assert.match(styles, /--font-heebo/);
   assert.match(styles, /@media\(max-width:560px\)/);
   assert.doesNotMatch(styles, /Times New Roman|font-family\s*:\s*serif|font-family\s*:\s*cursive|font-family\s*:\s*fantasy/i);
+  assert.doesNotMatch(languageStyles, /Times New Roman|font-family\s*:\s*serif|font-family\s*:\s*cursive|font-family\s*:\s*fantasy/i);
+});
+
+test("the selected meeting language controls every generated guest surface", () => {
+  assert.match(client, /Meeting language/);
+  assert.match(client, /שפת הפגישה/);
+  assert.match(client, /role="radiogroup"/);
+  assert.match(client, /aria-checked=\{activeLocale === "he"\}/);
+  assert.match(client, /aria-checked=\{activeLocale === "en"\}/);
+  assert.match(client, /locale: activeLocale/);
+  assert.match(client, /defaultMeetingTitle\(nextLocale\)/);
+  assert.match(route, /locale === "he" \? "נקבע באמצעות SpaPlus Global" : "Scheduled with SpaPlus Global"/);
+  assert.match(route, /const he = data\.locale === "he"/);
+  assert.match(route, /lang="\$\{data\.locale\}" dir="\$\{direction\}"/);
 });
