@@ -48,6 +48,8 @@ test("the selected meeting language controls every generated guest surface", () 
   assert.match(client, /aria-checked=\{activeLocale === "en"\}/);
   assert.match(client, /locale: activeLocale/);
   assert.match(client, /defaultMeetingTitle\(nextLocale\)/);
+  assert.match(client, /root\.lang = activeLocale/);
+  assert.match(client, /root\.dir = activeLocale === "he" \? "rtl" : "ltr"/);
   assert.match(route, /locale === "he" \? "נקבע באמצעות SpaPlus Global" : "Scheduled with SpaPlus Global"/);
   assert.match(route, /const he = data\.locale === "he"/);
   assert.match(route, /lang="\$\{data\.locale\}" dir="\$\{direction\}"/);

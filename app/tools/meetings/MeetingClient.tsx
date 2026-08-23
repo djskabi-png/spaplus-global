@@ -78,6 +78,18 @@ export default function MeetingClient({ displayName, locale }: { displayName: st
 
   useEffect(() => { void loadMeetings(); }, []);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    const previousLang = root.lang;
+    const previousDir = root.dir;
+    root.lang = activeLocale;
+    root.dir = activeLocale === "he" ? "rtl" : "ltr";
+    return () => {
+      root.lang = previousLang;
+      root.dir = previousDir;
+    };
+  }, [activeLocale]);
+
   function errorMessage(code: string) {
     if (code === "calendar_not_connected") return t.calendarNotConnected;
     if (code === "time_conflict") return t.conflict;
