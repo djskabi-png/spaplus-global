@@ -540,7 +540,7 @@ async function startCalendarConnection(request: Request, env: Env, session: Sign
     headers: {
       location: googleUrl.toString(),
       "cache-control": "no-store",
-      "set-cookie": `${OAUTH_STATE_COOKIE}=${state}; Path=/auth/google/calendar; HttpOnly; Secure; SameSite=Lax; Max-Age=600`,
+      "set-cookie": `${OAUTH_STATE_COOKIE}=${state}; Path=/auth/google; HttpOnly; Secure; SameSite=Lax; Max-Age=600`,
     },
   });
 }

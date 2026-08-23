@@ -11,6 +11,7 @@ const schema = readFileSync(new URL("../drizzle/0008_meeting_bookings.sql", impo
 test("every authorized user can connect a personal Google Calendar", () => {
   assert.match(worker, /calendar_google_refresh_token:/);
   assert.match(worker, /auth\/google\/calendar\/authorize/);
+  assert.match(worker, /Path=\/auth\/google; HttpOnly; Secure; SameSite=Lax/);
   assert.match(worker, /auth\/calendar\.events/);
   assert.match(worker, /auth\/calendar\.events\.freebusy/);
   assert.match(worker, /x-spaplus-google-calendar-token/);
